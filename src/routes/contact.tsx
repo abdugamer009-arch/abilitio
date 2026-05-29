@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { Mail, MessageSquare, MapPin, Send } from "lucide-react";
+import { Mail, MessageSquare, MapPin, Send, Phone } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact — Abilitio" },
+      { title: "Contacts — Abilitio" },
       { name: "description", content: "Get in touch with the Abilitio team. We'd love to hear from you." },
     ],
   }),
@@ -19,7 +19,7 @@ function ContactPage() {
   return (
     <PageShell>
       <section className="px-6 pt-20 pb-12 text-center">
-        <div className="text-xs uppercase tracking-widest text-accent">Contact</div>
+        <div className="text-xs uppercase tracking-widest text-accent">Contacts</div>
         <h1 className="mt-3 text-4xl font-bold md:text-6xl">Let's <span className="gradient-text">talk</span></h1>
         <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
           Questions, partnerships, or feedback — we read every message.
@@ -30,11 +30,12 @@ function ContactPage() {
         <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
           <div className="space-y-4 md:col-span-1">
             {[
+              { icon: Phone, label: "Phone", value: "+998 88 048 18 81" },
               { icon: Mail, label: "Email", value: "hello@abilitio.app" },
               { icon: MessageSquare, label: "Support", value: "Reply within 24 hours" },
               { icon: MapPin, label: "Based in", value: "Lisbon · Remote" },
             ].map((c) => (
-              <div key={c.label} className="glass rounded-2xl p-5">
+              <div key={c.label} className="glass rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_40px_-5px_var(--glow)]">
                 <c.icon className="h-4 w-4 text-accent" />
                 <div className="mt-3 text-xs text-muted-foreground">{c.label}</div>
                 <div className="text-sm font-medium">{c.value}</div>
@@ -73,7 +74,7 @@ function ContactPage() {
                 </div>
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:glow-purple"
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all duration-300 hover:glow-purple hover:-translate-y-0.5"
                 >
                   Send Message <Send className="h-4 w-4" />
                 </button>
