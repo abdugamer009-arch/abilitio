@@ -10,10 +10,13 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ResultsRouteImport } from './routes/results'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as IqTestRouteImport } from './routes/iq-test'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AssessmentRouteImport } from './routes/assessment'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -23,9 +26,19 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResultsRoute = ResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IqTestRoute = IqTestRouteImport.update({
+  id: '/iq-test',
+  path: '/iq-test',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeaturesRoute = FeaturesRouteImport.update({
@@ -41,6 +54,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AssessmentRoute = AssessmentRouteImport.update({
@@ -63,20 +81,26 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/assessment': typeof AssessmentRoute
+  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
+  '/iq-test': typeof IqTestRoute
   '/pricing': typeof PricingRoute
+  '/results': typeof ResultsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/assessment': typeof AssessmentRoute
+  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
+  '/iq-test': typeof IqTestRoute
   '/pricing': typeof PricingRoute
+  '/results': typeof ResultsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
 }
 export interface FileRoutesById {
@@ -84,10 +108,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/assessment': typeof AssessmentRoute
+  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
+  '/iq-test': typeof IqTestRoute
   '/pricing': typeof PricingRoute
+  '/results': typeof ResultsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
 }
 export interface FileRouteTypes {
@@ -96,30 +123,39 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/assessment'
+    | '/auth'
     | '/contact'
     | '/dashboard'
     | '/features'
+    | '/iq-test'
     | '/pricing'
+    | '/results'
     | '/sitemap.xml'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/assessment'
+    | '/auth'
     | '/contact'
     | '/dashboard'
     | '/features'
+    | '/iq-test'
     | '/pricing'
+    | '/results'
     | '/sitemap.xml'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/assessment'
+    | '/auth'
     | '/contact'
     | '/dashboard'
     | '/features'
+    | '/iq-test'
     | '/pricing'
+    | '/results'
     | '/sitemap.xml'
   fileRoutesById: FileRoutesById
 }
@@ -127,10 +163,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AssessmentRoute: typeof AssessmentRoute
+  AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
   FeaturesRoute: typeof FeaturesRoute
+  IqTestRoute: typeof IqTestRoute
   PricingRoute: typeof PricingRoute
+  ResultsRoute: typeof ResultsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
@@ -143,11 +182,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/results': {
+      id: '/results'
+      path: '/results'
+      fullPath: '/results'
+      preLoaderRoute: typeof ResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pricing': {
       id: '/pricing'
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/iq-test': {
+      id: '/iq-test'
+      path: '/iq-test'
+      fullPath: '/iq-test'
+      preLoaderRoute: typeof IqTestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/features': {
@@ -169,6 +222,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/assessment': {
@@ -199,22 +259,15 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AssessmentRoute: AssessmentRoute,
+  AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
   FeaturesRoute: FeaturesRoute,
+  IqTestRoute: IqTestRoute,
   PricingRoute: PricingRoute,
+  ResultsRoute: ResultsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

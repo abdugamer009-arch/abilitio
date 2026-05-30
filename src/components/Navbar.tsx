@@ -1,15 +1,20 @@
-import { Link } from "@tanstack/react-router";
-import { Sparkles } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Sparkles, LogOut, LayoutDashboard } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
+import { useAuth } from "@/lib/auth-context";
 
 const navItems = [
   { to: "/", label: "Home" },
   { to: "/about", label: "About Us" },
   { to: "/features", label: "Features" },
+  { to: "/iq-test", label: "IQ Test" },
   { to: "/contact", label: "Contacts" },
 ] as const;
 
 export function Navbar() {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
   return (
     <header className="sticky top-0 z-50 w-full">
       <div className="mx-auto mt-4 max-w-6xl px-4">
@@ -34,14 +39,32 @@ export function Navbar() {
               </li>
             ))}
           </ul>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Link
-              to="/contact"
-              className="hidden sm:inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-all duration-300 hover:glow-purple hover:-translate-y-0.5"
-            >
-              Get Started
-            </Link>
+            {user ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm hover:bg-secondary"
+                >
+                  <LayoutDashboard className="h-4 w-4" /> Dashboard
+                </Link>
+                <button
+                  onClick={async () => { await signOut(); navigate({ to: "/" }); }}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-all hover:glow-purple"
+                >
+                  <LogOut className="h-4 w-4" />
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/auth"
+                search={{ mode: "login" }}
+                className="hidden sm:inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-all duration-300 hover:glow-purple hover:-translate-y-0.5"
+              >
+                Sign in
+              </Link>
+            )}
           </div>
         </nav>
       </div>
