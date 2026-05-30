@@ -92,7 +92,7 @@ function ResultsPage() {
                   Retake test
                 </Link>
               </div>
-            </C>
+            </div>
           </div>
         </div>
 
@@ -128,8 +128,6 @@ function ResultsPage() {
   );
 }
 
-// helper to close JSX cleanly
-function C({ children }: { children: React.ReactNode }) { return <div>{children}</div>; }
 
 function ScoreRing({ score }: { score: number }) {
   const max = 160;
