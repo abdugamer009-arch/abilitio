@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
+import { ThemeToggle } from "./ThemeToggle";
 
 const navItems = [
   { to: "/", label: "Home" },
