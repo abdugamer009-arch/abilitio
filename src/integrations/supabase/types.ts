@@ -14,7 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      iq_results: {
+        Row: {
+          analytical_score: number
+          answers: Json
+          correct_count: number
+          created_at: string
+          id: string
+          level: string
+          logical_score: number
+          pattern_score: number
+          score: number
+          time_seconds: number
+          total_questions: number
+          user_id: string
+        }
+        Insert: {
+          analytical_score?: number
+          answers?: Json
+          correct_count?: number
+          created_at?: string
+          id?: string
+          level: string
+          logical_score?: number
+          pattern_score?: number
+          score: number
+          time_seconds?: number
+          total_questions?: number
+          user_id: string
+        }
+        Update: {
+          analytical_score?: number
+          answers?: Json
+          correct_count?: number
+          created_at?: string
+          id?: string
+          level?: string
+          logical_score?: number
+          pattern_score?: number
+          score?: number
+          time_seconds?: number
+          total_questions?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          surname: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name: string
+          surname: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          surname?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
