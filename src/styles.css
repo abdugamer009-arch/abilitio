@@ -95,6 +95,49 @@
   --sidebar-ring: oklch(0.62 0.22 295);
 }
 
+:root:not(.dark) {
+  --background: oklch(0.985 0.008 300);
+  --foreground: oklch(0.18 0.03 285);
+  --card: oklch(0.99 0.005 300);
+  --card-foreground: oklch(0.18 0.03 285);
+  --popover: oklch(0.99 0.005 300);
+  --popover-foreground: oklch(0.18 0.03 285);
+  --primary: oklch(0.55 0.22 295);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.94 0.025 300);
+  --secondary-foreground: oklch(0.2 0.04 285);
+  --muted: oklch(0.95 0.02 300);
+  --muted-foreground: oklch(0.45 0.04 285);
+  --accent: oklch(0.88 0.08 300);
+  --accent-foreground: oklch(0.2 0.04 285);
+  --border: oklch(0.55 0.1 295 / 18%);
+  --input: oklch(0.92 0.03 300);
+  --ring: oklch(0.55 0.22 295);
+  --lavender: oklch(0.72 0.13 300);
+  --glow: oklch(0.6 0.22 295 / 35%);
+
+  --sidebar: oklch(0.98 0.01 300);
+  --sidebar-foreground: oklch(0.18 0.03 285);
+  --sidebar-primary: oklch(0.55 0.22 295);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.94 0.025 300);
+  --sidebar-accent-foreground: oklch(0.2 0.04 285);
+  --sidebar-border: oklch(0.55 0.1 295 / 18%);
+  --sidebar-ring: oklch(0.55 0.22 295);
+}
+
+html {
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+body {
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+:root:not(.dark) body {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.7 0.18 295 / 0.18), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 100%, oklch(0.75 0.15 310 / 0.12), transparent);
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
