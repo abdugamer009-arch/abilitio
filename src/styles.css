@@ -111,11 +111,11 @@
 :root:not(.dark) {
   /* Muted Royal Purple — light mode */
   --background: oklch(0.985 0.003 80);         /* warm off-white */
-  --foreground: oklch(0.22 0.02 290);            /* deep neutral ink */
+  --foreground: oklch(0.28 0.09 290);            /* deep violet ink */
   --card: oklch(0.995 0.002 80);
-  --card-foreground: oklch(0.22 0.02 290);
+  --card-foreground: oklch(0.28 0.09 290);
   --popover: oklch(0.995 0.002 80);
-  --popover-foreground: oklch(0.22 0.02 290);
+  --popover-foreground: oklch(0.28 0.09 290);
 
   --primary: oklch(0.42 0.13 290);              /* muted royal purple */
   --primary-foreground: oklch(0.99 0 0);
