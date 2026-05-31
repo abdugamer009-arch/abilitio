@@ -75,12 +75,31 @@ function ResultsPage() {
     );
   }
 
-  const showGate = !loading && !user;
+  // Gate: if not signed in, redirect to auth page with signup as default
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate({ to: "/auth", search: { mode: "signup", next: "/results" } });
+    }
+  }, [loading, user, navigate]);
+
+  if (loading || !user) {
+    return (
+      <PageShell>
+        <section className="px-6 pt-24 pb-24">
+          <div className="mx-auto max-w-md text-center glass rounded-3xl p-10">
+            <Sparkles className="mx-auto h-6 w-6 text-accent" />
+            <h2 className="mt-4 text-xl font-semibold">Redirecting to sign in…</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Create a free account to unlock your personalized results.</p>
+          </div>
+        </section>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell>
       <section className="relative px-6 pt-12 pb-24">
-        <div className={`mx-auto max-w-5xl transition-all duration-500 ${showGate ? "blur-lg pointer-events-none select-none" : ""}`}>
+        <div className="mx-auto max-w-5xl">
           <div className="text-center">
             <span className="text-xs uppercase tracking-wider text-accent">Your Talent Profile</span>
             <h1 className="mt-2 text-4xl font-bold md:text-5xl gradient-text">{result.mbti.type} · {result.iq.level}</h1>
