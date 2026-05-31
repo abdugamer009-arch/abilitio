@@ -186,10 +186,10 @@ function LandingPage() {
           <h2 className="text-3xl font-bold md:text-5xl">Ready to meet your potential?</h2>
           <p className="mx-auto mt-4 max-w-xl text-muted-foreground">Take your first assessment in under 15 minutes.</p>
           <Link
-            to="/iq-test"
+            to="/assessment"
             className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground hover:glow-purple"
           >
-            Start IQ Test <ArrowRight className="h-4 w-4" />
+            Start Assessment <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>
