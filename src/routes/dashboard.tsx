@@ -46,7 +46,7 @@ function DashboardPage() {
         supabase.from("assessment_results").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       ]);
       setProfile(p ?? null);
-      setResults((r as Result[]) ?? []);
+      setResults(((r as unknown) as Result[]) ?? []);
       setBusy(false);
     })();
   }, [user, loading, navigate]);
