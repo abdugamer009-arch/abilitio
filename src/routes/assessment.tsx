@@ -333,10 +333,14 @@ function AssessmentPage() {
               <SectionIcon className="h-3.5 w-3.5 text-accent" /> {section.label} · {step + 1}/{total}
             </span>
             <span className="inline-flex items-center gap-3">
-              <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider ${syncing ? "text-accent" : "text-muted-foreground/60"}`}>
-                {syncing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Cloud className="h-3 w-3" />}
-                {syncing ? "Saving" : "Saved"}
-              </span>
+              {user ? (
+                <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider ${syncing ? "text-accent" : "text-muted-foreground/60"}`}>
+                  {syncing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Cloud className="h-3 w-3" />}
+                  {syncing ? "Saving" : "Saved"}
+                </span>
+              ) : (
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground/60">Guest mode</span>
+              )}
               <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1">
                 <Clock className="h-3 w-3" /> {mm}:{ss}
               </span>
