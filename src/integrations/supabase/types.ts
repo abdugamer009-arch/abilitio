@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      assessment_results: {
+        Row: {
+          analytical_score: number
+          answers: Json
+          careers: Json
+          created_at: string
+          id: string
+          interest_scores: Json
+          iq_level: string
+          iq_score: number
+          logical_score: number
+          mbti_scores: Json
+          mbti_type: string
+          pattern_score: number
+          time_seconds: number
+          top_strengths: Json
+          user_id: string
+          weaknesses: Json
+        }
+        Insert: {
+          analytical_score?: number
+          answers?: Json
+          careers?: Json
+          created_at?: string
+          id?: string
+          interest_scores?: Json
+          iq_level: string
+          iq_score: number
+          logical_score?: number
+          mbti_scores?: Json
+          mbti_type: string
+          pattern_score?: number
+          time_seconds?: number
+          top_strengths?: Json
+          user_id: string
+          weaknesses?: Json
+        }
+        Update: {
+          analytical_score?: number
+          answers?: Json
+          careers?: Json
+          created_at?: string
+          id?: string
+          interest_scores?: Json
+          iq_level?: string
+          iq_score?: number
+          logical_score?: number
+          mbti_scores?: Json
+          mbti_type?: string
+          pattern_score?: number
+          time_seconds?: number
+          top_strengths?: Json
+          user_id?: string
+          weaknesses?: Json
+        }
+        Relationships: []
+      }
       iq_results: {
         Row: {
           analytical_score: number
