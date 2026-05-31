@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, ArrowLeft, Check, Brain, Clock, Sparkles, Target, Heart, RotateCcw, Loader2, Lock, Cloud } from "lucide-react";
+import { ArrowRight, ArrowLeft, Check, Brain, Clock, Sparkles, Target, Heart, RotateCcw, Loader2, Cloud } from "lucide-react";
 import { allQuestions, type AnyQuestion } from "@/lib/assessment";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +17,7 @@ export const Route = createFileRoute("/assessment")({
 });
 
 const TOTAL_SECONDS = 20 * 60;
+const LOCAL_KEY = "abilitio_assessment_session_v2";
 
 const SECTION_META = {
   iq: { label: "IQ Test", icon: Brain, desc: "Logic & reasoning" },
@@ -28,7 +29,7 @@ type Session = {
   questionOrder: string[];
   optionOrder: Record<string, number[]>;
   answers: Record<string, number>;
-  startedAt: number; // ms epoch
+  startedAt: number;
   step: number;
 };
 
@@ -55,6 +56,27 @@ function createSession(): Session {
   };
 }
 
+function loadLocal(): Session | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(LOCAL_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw) as Session;
+    if (!Array.isArray(s.questionOrder) || s.questionOrder.length !== allQuestions.length) return null;
+    return s;
+  } catch { return null; }
+}
+
+function saveLocal(s: Session) {
+  if (typeof window === "undefined") return;
+  try { localStorage.setItem(LOCAL_KEY, JSON.stringify(s)); } catch { /* ignore */ }
+}
+
+function clearLocal() {
+  if (typeof window === "undefined") return;
+  try { localStorage.removeItem(LOCAL_KEY); } catch { /* ignore */ }
+}
+
 function AssessmentPage() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
@@ -62,53 +84,75 @@ function AssessmentPage() {
   const [session, setSession] = useState<Session | null>(null);
   const [started, setStarted] = useState(false);
   const [loadingSession, setLoadingSession] = useState(false);
-  const [existingRowId, setExistingRowId] = useState<string | null>(null);
   const [hasExisting, setHasExisting] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(TOTAL_SECONDS);
   const [syncing, setSyncing] = useState(false);
 
-  // Load existing session from DB on auth ready
+  // Detect existing session — cloud for authed, local for guests
   useEffect(() => {
-    if (authLoading || !user) return;
+    if (authLoading) return;
     setLoadingSession(true);
     (async () => {
-      const { data, error } = await supabase
-        .from("assessment_sessions" as any)
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      if (!error && data) {
-        const row = data as any;
-        if (Array.isArray(row.question_order) && row.question_order.length === allQuestions.length) {
-          setExistingRowId(row.id);
-          setHasExisting(Object.keys(row.answers || {}).length > 0 || row.step > 0);
+      if (user) {
+        const { data, error } = await supabase
+          .from("assessment_sessions" as any)
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (!error && data) {
+          const row = data as any;
+          if (Array.isArray(row.question_order) && row.question_order.length === allQuestions.length) {
+            setHasExisting(Object.keys(row.answers || {}).length > 0 || row.step > 0);
+          }
+        } else {
+          // If guest had a local session, migrate it to the cloud on first sign-in
+          const local = loadLocal();
+          if (local) {
+            await supabase.from("assessment_sessions" as any).upsert(
+              {
+                user_id: user.id,
+                question_order: local.questionOrder,
+                option_order: local.optionOrder,
+                answers: local.answers,
+                step: local.step,
+                started_at: new Date(local.startedAt).toISOString(),
+              },
+              { onConflict: "user_id" }
+            );
+            clearLocal();
+            setHasExisting(Object.keys(local.answers).length > 0 || local.step > 0);
+          }
         }
+      } else {
+        const local = loadLocal();
+        setHasExisting(!!local && (Object.keys(local.answers).length > 0 || local.step > 0));
       }
       setLoadingSession(false);
     })();
   }, [user, authLoading]);
 
-  // Debounced sync to DB whenever session changes
+  // Persist session changes: cloud for authed, local for guests
   const syncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    if (!session || !user || !started) return;
+    if (!session || !started) return;
     if (syncTimer.current) clearTimeout(syncTimer.current);
     setSyncing(true);
     syncTimer.current = setTimeout(async () => {
-      const payload = {
-        user_id: user.id,
-        question_order: session.questionOrder,
-        option_order: session.optionOrder,
-        answers: session.answers,
-        step: session.step,
-        started_at: new Date(session.startedAt).toISOString(),
-      };
-      const { data, error } = await supabase
-        .from("assessment_sessions" as any)
-        .upsert(payload, { onConflict: "user_id" })
-        .select("id")
-        .maybeSingle();
-      if (!error && data) setExistingRowId((data as any).id);
+      if (user) {
+        await supabase.from("assessment_sessions" as any).upsert(
+          {
+            user_id: user.id,
+            question_order: session.questionOrder,
+            option_order: session.optionOrder,
+            answers: session.answers,
+            step: session.step,
+            started_at: new Date(session.startedAt).toISOString(),
+          },
+          { onConflict: "user_id" }
+        );
+      } else {
+        saveLocal(session);
+      }
       setSyncing(false);
     }, 350);
     return () => {
@@ -134,12 +178,9 @@ function AssessmentPage() {
   }, [secondsLeft, started]);
 
   const startNew = async () => {
-    if (!user) return;
     const s = createSession();
-    // Reset row immediately
-    await supabase
-      .from("assessment_sessions" as any)
-      .upsert(
+    if (user) {
+      await supabase.from("assessment_sessions" as any).upsert(
         {
           user_id: user.id,
           question_order: s.questionOrder,
@@ -150,27 +191,35 @@ function AssessmentPage() {
         },
         { onConflict: "user_id" }
       );
+    } else {
+      saveLocal(s);
+    }
     setSession(s);
     setStarted(true);
     setHasExisting(false);
   };
 
   const resume = async () => {
-    if (!user) return;
-    const { data, error } = await supabase
-      .from("assessment_sessions" as any)
-      .select("*")
-      .eq("user_id", user.id)
-      .maybeSingle();
-    if (error || !data) { await startNew(); return; }
-    const row = data as any;
-    setSession({
-      questionOrder: row.question_order,
-      optionOrder: row.option_order,
-      answers: row.answers || {},
-      startedAt: new Date(row.started_at).getTime(),
-      step: row.step ?? 0,
-    });
+    if (user) {
+      const { data, error } = await supabase
+        .from("assessment_sessions" as any)
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (error || !data) { await startNew(); return; }
+      const row = data as any;
+      setSession({
+        questionOrder: row.question_order,
+        optionOrder: row.option_order,
+        answers: row.answers || {},
+        startedAt: new Date(row.started_at).getTime(),
+        step: row.step ?? 0,
+      });
+    } else {
+      const local = loadLocal();
+      if (!local) { await startNew(); return; }
+      setSession(local);
+    }
     setStarted(true);
   };
 
@@ -222,17 +271,16 @@ function AssessmentPage() {
     const elapsed = Math.floor((Date.now() - s.startedAt) / 1000);
     sessionStorage.setItem("assessment_answers", JSON.stringify(s.answers));
     sessionStorage.setItem("assessment_seconds", String(elapsed));
-    // Clear in-progress server session
     if (user) {
       await supabase.from("assessment_sessions" as any).delete().eq("user_id", user.id);
+    } else {
+      clearLocal();
     }
     navigate({ to: "/results" });
   }
 
   const mm = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
   const ss = String(secondsLeft % 60).padStart(2, "0");
-
-  // --- Render: intro / auth gate / question ---
 
   if (!started) {
     return (
@@ -263,34 +311,16 @@ function AssessmentPage() {
 
             <div className="glass mt-8 rounded-3xl p-7 text-left text-sm text-muted-foreground">
               <ul className="space-y-2">
-                <li className="flex items-start gap-2"><Cloud className="mt-0.5 h-4 w-4 text-accent" /> Your progress is saved to your account — resume on any device.</li>
+                <li className="flex items-start gap-2"><Cloud className="mt-0.5 h-4 w-4 text-accent" /> {user ? "Your progress is saved to your account — resume on any device." : "You can start right away — sign up at the end to unlock your results."}</li>
                 <li>• Questions and answer choices are randomized for every attempt.</li>
                 <li>• A 20-minute timer runs for the whole assessment.</li>
-                <li>• Final results are saved to your account when you finish.</li>
+                <li>• Create an account when finished to save and view your results.</li>
               </ul>
             </div>
 
-            {/* Auth gate */}
             {authLoading || loadingSession ? (
               <div className="mt-10 inline-flex items-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" /> Loading…
-              </div>
-            ) : !user ? (
-              <div className="glass mt-10 rounded-2xl p-6 text-left">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <Lock className="h-4 w-4 text-accent" /> Sign in required
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Create a free account so your progress and results are saved to the cloud and available on any device.
-                </p>
-                <div className="mt-4 flex flex-wrap gap-3">
-                  <Link
-                    to="/auth"
-                    className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all hover:glow-purple"
-                  >
-                    Sign in / Sign up <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
               </div>
             ) : (
               <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
