@@ -102,14 +102,14 @@
   --card-foreground: oklch(0.18 0.03 285);
   --popover: oklch(0.99 0.005 300);
   --popover-foreground: oklch(0.18 0.03 285);
-  --primary: oklch(0.55 0.22 295);
+  --primary: oklch(0.48 0.22 295);
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.94 0.025 300);
-  --secondary-foreground: oklch(0.2 0.04 285);
+  --secondary-foreground: oklch(0.18 0.04 285);
   --muted: oklch(0.95 0.02 300);
-  --muted-foreground: oklch(0.45 0.04 285);
-  --accent: oklch(0.88 0.08 300);
-  --accent-foreground: oklch(0.2 0.04 285);
+  --muted-foreground: oklch(0.32 0.04 285);
+  --accent: oklch(0.45 0.2 300);
+  --accent-foreground: oklch(0.99 0 0);
   --border: oklch(0.55 0.1 295 / 18%);
   --input: oklch(0.92 0.03 300);
   --ring: oklch(0.55 0.22 295);
@@ -172,6 +172,12 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+:root:not(.dark) .gradient-text {
+  background: linear-gradient(135deg, oklch(0.35 0.18 285), oklch(0.45 0.22 295) 50%, oklch(0.5 0.24 310));
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
 @utility glow-purple {
