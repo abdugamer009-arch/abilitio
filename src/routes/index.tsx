@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Brain, Compass, LineChart, Sparkles, Target, Users, Zap, ShieldCheck, Star } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { FloatingShapes } from "@/components/FloatingShapes";
+import { GradientDivider } from "@/components/GradientDivider";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -75,6 +76,10 @@ function LandingPage() {
           </div>
         </div>
       </section>
+
+      <div className="mx-auto max-w-5xl px-6">
+        <GradientDivider />
+      </div>
 
       {/* How it works */}
       <Section id="how" eyebrow="How it works" title="Three steps to clarity">
