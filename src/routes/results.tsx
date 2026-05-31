@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { useEffect, useMemo, useState } from "react";
-import { Lock, Sparkles, Brain, Target, Activity, Trophy, Medal, Award, Heart } from "lucide-react";
+import { Sparkles, Brain, Target, Activity, Trophy, Medal, Award, Heart } from "lucide-react";
 import { scoreAssessment, MBTI_DESCRIPTIONS, type ScoredResult } from "@/lib/assessment";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
@@ -75,12 +75,31 @@ function ResultsPage() {
     );
   }
 
-  const showGate = !loading && !user;
+  // Gate: if not signed in, redirect to auth page with signup as default
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate({ to: "/auth", search: { mode: "signup", next: "/results" } });
+    }
+  }, [loading, user, navigate]);
+
+  if (loading || !user) {
+    return (
+      <PageShell>
+        <section className="px-6 pt-24 pb-24">
+          <div className="mx-auto max-w-md text-center glass rounded-3xl p-10">
+            <Sparkles className="mx-auto h-6 w-6 text-accent" />
+            <h2 className="mt-4 text-xl font-semibold">Redirecting to sign in…</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Create a free account to unlock your personalized results.</p>
+          </div>
+        </section>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell>
       <section className="relative px-6 pt-12 pb-24">
-        <div className={`mx-auto max-w-5xl transition-all duration-500 ${showGate ? "blur-lg pointer-events-none select-none" : ""}`}>
+        <div className="mx-auto max-w-5xl">
           <div className="text-center">
             <span className="text-xs uppercase tracking-wider text-accent">Your Talent Profile</span>
             <h1 className="mt-2 text-4xl font-bold md:text-5xl gradient-text">{result.mbti.type} · {result.iq.level}</h1>
@@ -157,33 +176,6 @@ function ResultsPage() {
           </div>
         </div>
 
-        {showGate && (
-          <div className="absolute inset-0 flex items-start justify-center px-6 pt-32">
-            <div className="glass animate-fade-up max-w-md rounded-3xl p-10 text-center glow-purple">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent">
-                <Lock className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <h2 className="mt-6 text-2xl font-bold">Unlock your personalized results</h2>
-              <p className="mt-3 text-sm text-muted-foreground">
-                Create a free account to view your full profile, top careers, and save your results.
-              </p>
-              <div className="mt-6 flex flex-col gap-2">
-                <button
-                  onClick={() => navigate({ to: "/auth", search: { mode: "signup", next: "/results" } })}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:glow-purple"
-                >
-                  <Sparkles className="h-4 w-4" /> Create account
-                </button>
-                <button
-                  onClick={() => navigate({ to: "/auth", search: { mode: "login", next: "/results" } })}
-                  className="text-xs text-muted-foreground hover:text-foreground"
-                >
-                  Already have an account? Log in
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </section>
     </PageShell>
   );
