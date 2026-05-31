@@ -71,6 +71,39 @@ export type Database = {
         }
         Relationships: []
       }
+      assessment_sessions: {
+        Row: {
+          answers: Json
+          id: string
+          option_order: Json
+          question_order: Json
+          started_at: string
+          step: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          id?: string
+          option_order?: Json
+          question_order?: Json
+          started_at?: string
+          step?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          id?: string
+          option_order?: Json
+          question_order?: Json
+          started_at?: string
+          step?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       iq_results: {
         Row: {
           analytical_score: number

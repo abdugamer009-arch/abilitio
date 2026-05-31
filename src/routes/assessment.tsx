@@ -1,8 +1,10 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, ArrowLeft, Check, Brain, Clock, Sparkles, Target, Heart, RotateCcw } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowRight, ArrowLeft, Check, Brain, Clock, Sparkles, Target, Heart, RotateCcw, Loader2, Lock, Cloud } from "lucide-react";
 import { allQuestions, type AnyQuestion } from "@/lib/assessment";
+import { useAuth } from "@/lib/auth-context";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/assessment")({
   head: () => ({
@@ -15,7 +17,6 @@ export const Route = createFileRoute("/assessment")({
 });
 
 const TOTAL_SECONDS = 20 * 60;
-const STORAGE_KEY = "abilitio_assessment_session_v1";
 
 const SECTION_META = {
   iq: { label: "IQ Test", icon: Brain, desc: "Logic & reasoning" },
@@ -24,10 +25,10 @@ const SECTION_META = {
 } as const;
 
 type Session = {
-  questionOrder: string[]; // shuffled question ids
-  optionOrder: Record<string, number[]>; // qid -> permutation of original option indices
-  answers: Record<string, number>; // qid -> original option index
-  startedAt: number;
+  questionOrder: string[];
+  optionOrder: Record<string, number[]>;
+  answers: Record<string, number>;
+  startedAt: number; // ms epoch
   step: number;
 };
 
@@ -41,52 +42,79 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 function createSession(): Session {
-  const qOrder = shuffle(allQuestions.map((q) => q.id));
   const optionOrder: Record<string, number[]> = {};
   allQuestions.forEach((q) => {
     optionOrder[q.id] = shuffle(q.options.map((_, i) => i));
   });
-  return { questionOrder: qOrder, optionOrder, answers: {}, startedAt: Date.now(), step: 0 };
-}
-
-function loadSession(): Session | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const s = JSON.parse(raw) as Session;
-    if (!s?.questionOrder || s.questionOrder.length !== allQuestions.length) return null;
-    return s;
-  } catch { return null; }
-}
-
-function saveSession(s: Session) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {}
-}
-
-function clearSession() {
-  try { localStorage.removeItem(STORAGE_KEY); } catch {}
+  return {
+    questionOrder: shuffle(allQuestions.map((q) => q.id)),
+    optionOrder,
+    answers: {},
+    startedAt: Date.now(),
+    step: 0,
+  };
 }
 
 function AssessmentPage() {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+
   const [session, setSession] = useState<Session | null>(null);
   const [started, setStarted] = useState(false);
-  const [resumable, setResumable] = useState(false);
+  const [loadingSession, setLoadingSession] = useState(false);
+  const [existingRowId, setExistingRowId] = useState<string | null>(null);
+  const [hasExisting, setHasExisting] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(TOTAL_SECONDS);
+  const [syncing, setSyncing] = useState(false);
 
-  // Hydrate from localStorage
+  // Load existing session from DB on auth ready
   useEffect(() => {
-    const existing = loadSession();
-    if (existing && Object.keys(existing.answers).length > 0) {
-      setResumable(true);
-    }
-  }, []);
+    if (authLoading || !user) return;
+    setLoadingSession(true);
+    (async () => {
+      const { data, error } = await supabase
+        .from("assessment_sessions" as any)
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!error && data) {
+        const row = data as any;
+        if (Array.isArray(row.question_order) && row.question_order.length === allQuestions.length) {
+          setExistingRowId(row.id);
+          setHasExisting(Object.keys(row.answers || {}).length > 0 || row.step > 0);
+        }
+      }
+      setLoadingSession(false);
+    })();
+  }, [user, authLoading]);
 
-  // Persist whenever session changes
+  // Debounced sync to DB whenever session changes
+  const syncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    if (session) saveSession(session);
-  }, [session]);
+    if (!session || !user || !started) return;
+    if (syncTimer.current) clearTimeout(syncTimer.current);
+    setSyncing(true);
+    syncTimer.current = setTimeout(async () => {
+      const payload = {
+        user_id: user.id,
+        question_order: session.questionOrder,
+        option_order: session.optionOrder,
+        answers: session.answers,
+        step: session.step,
+        started_at: new Date(session.startedAt).toISOString(),
+      };
+      const { data, error } = await supabase
+        .from("assessment_sessions" as any)
+        .upsert(payload, { onConflict: "user_id" })
+        .select("id")
+        .maybeSingle();
+      if (!error && data) setExistingRowId((data as any).id);
+      setSyncing(false);
+    }, 350);
+    return () => {
+      if (syncTimer.current) clearTimeout(syncTimer.current);
+    };
+  }, [session, user, started]);
 
   // Timer
   useEffect(() => {
@@ -100,23 +128,50 @@ function AssessmentPage() {
     return () => clearInterval(id);
   }, [started, session]);
 
-  // Auto-finish on timeout
   useEffect(() => {
     if (started && session && secondsLeft === 0) finish(session);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [secondsLeft, started]);
 
-  const startNew = () => {
+  const startNew = async () => {
+    if (!user) return;
     const s = createSession();
+    // Reset row immediately
+    await supabase
+      .from("assessment_sessions" as any)
+      .upsert(
+        {
+          user_id: user.id,
+          question_order: s.questionOrder,
+          option_order: s.optionOrder,
+          answers: s.answers,
+          step: 0,
+          started_at: new Date(s.startedAt).toISOString(),
+        },
+        { onConflict: "user_id" }
+      );
     setSession(s);
     setStarted(true);
-    setResumable(false);
+    setHasExisting(false);
   };
 
-  const resume = () => {
-    const s = loadSession();
-    if (s) { setSession(s); setStarted(true); setResumable(false); }
-    else startNew();
+  const resume = async () => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from("assessment_sessions" as any)
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (error || !data) { await startNew(); return; }
+    const row = data as any;
+    setSession({
+      questionOrder: row.question_order,
+      optionOrder: row.option_order,
+      answers: row.answers || {},
+      startedAt: new Date(row.started_at).getTime(),
+      step: row.step ?? 0,
+    });
+    setStarted(true);
   };
 
   const orderedQuestions = useMemo<AnyQuestion[]>(() => {
@@ -130,7 +185,6 @@ function AssessmentPage() {
   const q: AnyQuestion | null = session && step < total ? orderedQuestions[step] : null;
   const progress = total ? (step / total) * 100 : 0;
 
-  // Map option indices through the shuffle for the current question
   const shuffledOptions = useMemo(() => {
     if (!q || !session) return [] as { label: string; originalIdx: number }[];
     const perm = session.optionOrder[q.id] ?? q.options.map((_, i) => i);
@@ -164,16 +218,21 @@ function AssessmentPage() {
     setSession({ ...session, step: Math.max(0, step - 1) });
   };
 
-  function finish(s: Session) {
+  async function finish(s: Session) {
     const elapsed = Math.floor((Date.now() - s.startedAt) / 1000);
     sessionStorage.setItem("assessment_answers", JSON.stringify(s.answers));
     sessionStorage.setItem("assessment_seconds", String(elapsed));
-    clearSession();
+    // Clear in-progress server session
+    if (user) {
+      await supabase.from("assessment_sessions" as any).delete().eq("user_id", user.id);
+    }
     navigate({ to: "/results" });
   }
 
   const mm = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
   const ss = String(secondsLeft % 60).padStart(2, "0");
+
+  // --- Render: intro / auth gate / question ---
 
   if (!started) {
     return (
@@ -204,33 +263,57 @@ function AssessmentPage() {
 
             <div className="glass mt-8 rounded-3xl p-7 text-left text-sm text-muted-foreground">
               <ul className="space-y-2">
+                <li className="flex items-start gap-2"><Cloud className="mt-0.5 h-4 w-4 text-accent" /> Your progress is saved to your account — resume on any device.</li>
                 <li>• Questions and answer choices are randomized for every attempt.</li>
-                <li>• Your progress is saved automatically — refresh-safe.</li>
                 <li>• A 20-minute timer runs for the whole assessment.</li>
-                <li>• Results are saved to your account after you sign in.</li>
+                <li>• Final results are saved to your account when you finish.</li>
               </ul>
             </div>
 
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-              {resumable && (
+            {/* Auth gate */}
+            {authLoading || loadingSession ? (
+              <div className="mt-10 inline-flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+              </div>
+            ) : !user ? (
+              <div className="glass mt-10 rounded-2xl p-6 text-left">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <Lock className="h-4 w-4 text-accent" /> Sign in required
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Create a free account so your progress and results are saved to the cloud and available on any device.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Link
+                    to="/auth"
+                    className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all hover:glow-purple"
+                  >
+                    Sign in / Sign up <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+                {hasExisting && (
+                  <button
+                    onClick={resume}
+                    className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-base font-medium text-primary-foreground transition-all hover:glow-purple hover:-translate-y-0.5"
+                  >
+                    Resume Assessment <ArrowRight className="h-4 w-4" />
+                  </button>
+                )}
                 <button
-                  onClick={resume}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-base font-medium text-primary-foreground transition-all hover:glow-purple hover:-translate-y-0.5"
+                  onClick={startNew}
+                  className={`inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-medium transition-all hover:-translate-y-0.5 ${
+                    hasExisting
+                      ? "border border-border bg-secondary text-foreground hover:bg-secondary/70"
+                      : "bg-primary text-primary-foreground hover:glow-purple"
+                  }`}
                 >
-                  Resume Assessment <ArrowRight className="h-4 w-4" />
+                  {hasExisting ? (<><RotateCcw className="h-4 w-4" /> Start Over</>) : (<>Start Assessment <ArrowRight className="h-4 w-4" /></>)}
                 </button>
-              )}
-              <button
-                onClick={startNew}
-                className={`inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-medium transition-all hover:-translate-y-0.5 ${
-                  resumable
-                    ? "border border-border bg-secondary text-foreground hover:bg-secondary/70"
-                    : "bg-primary text-primary-foreground hover:glow-purple"
-                }`}
-              >
-                {resumable ? (<><RotateCcw className="h-4 w-4" /> Start Over</>) : (<>Start Assessment <ArrowRight className="h-4 w-4" /></>)}
-              </button>
-            </div>
+              </div>
+            )}
           </div>
         </section>
       </PageShell>
@@ -249,8 +332,14 @@ function AssessmentPage() {
             <span className="inline-flex items-center gap-1.5">
               <SectionIcon className="h-3.5 w-3.5 text-accent" /> {section.label} · {step + 1}/{total}
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1">
-              <Clock className="h-3 w-3" /> {mm}:{ss}
+            <span className="inline-flex items-center gap-3">
+              <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider ${syncing ? "text-accent" : "text-muted-foreground/60"}`}>
+                {syncing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Cloud className="h-3 w-3" />}
+                {syncing ? "Saving" : "Saved"}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1">
+                <Clock className="h-3 w-3" /> {mm}:{ss}
+              </span>
             </span>
           </div>
           <div className="mb-10 h-1 overflow-hidden rounded-full bg-secondary">
