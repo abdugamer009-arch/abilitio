@@ -176,33 +176,6 @@ function ResultsPage() {
           </div>
         </div>
 
-        {showGate && (
-          <div className="absolute inset-0 flex items-start justify-center px-6 pt-32">
-            <div className="glass animate-fade-up max-w-md rounded-3xl p-10 text-center glow-purple">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent">
-                <Lock className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <h2 className="mt-6 text-2xl font-bold">Unlock your personalized results</h2>
-              <p className="mt-3 text-sm text-muted-foreground">
-                Create a free account to view your full profile, top careers, and save your results.
-              </p>
-              <div className="mt-6 flex flex-col gap-2">
-                <button
-                  onClick={() => navigate({ to: "/auth", search: { mode: "signup", next: "/results" } })}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:glow-purple"
-                >
-                  <Sparkles className="h-4 w-4" /> Create account
-                </button>
-                <button
-                  onClick={() => navigate({ to: "/auth", search: { mode: "login", next: "/results" } })}
-                  className="text-xs text-muted-foreground hover:text-foreground"
-                >
-                  Already have an account? Log in
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </section>
     </PageShell>
   );
