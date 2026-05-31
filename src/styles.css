@@ -158,12 +158,17 @@ body {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-/* Subtle layered ambient gradients — calm, not glowing */
+/* Premium ambient lighting — Monica / Linear / Arc inspired */
 :root:not(.dark) body {
+  background-color: oklch(0.985 0.004 300);
   background-image:
-    radial-gradient(ellipse 70% 45% at 50% -15%, oklch(0.6 0.12 290 / 0.06), transparent 70%),
-    radial-gradient(ellipse 55% 35% at 100% 100%, oklch(0.65 0.1 310 / 0.05), transparent 70%);
+    radial-gradient(ellipse 75% 45% at 20% -5%, oklch(0.78 0.07 295 / 0.20), transparent 65%),
+    radial-gradient(ellipse 65% 40% at 85% 5%, oklch(0.82 0.05 320 / 0.14), transparent 70%),
+    radial-gradient(ellipse 90% 50% at 50% 110%, oklch(0.80 0.06 285 / 0.14), transparent 65%),
+    radial-gradient(ellipse 40% 30% at 95% 55%, oklch(0.85 0.04 310 / 0.10), transparent 70%);
+  background-attachment: fixed;
 }
+
 
 @layer base {
   * {
