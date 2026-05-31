@@ -56,26 +56,14 @@ function createSession(): Session {
   };
 }
 
-function loadLocal(): Session | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(LOCAL_KEY);
-    if (!raw) return null;
-    const s = JSON.parse(raw) as Session;
-    if (!Array.isArray(s.questionOrder) || s.questionOrder.length !== allQuestions.length) return null;
-    return s;
-  } catch { return null; }
-}
-
-function saveLocal(s: Session) {
-  if (typeof window === "undefined") return;
-  try { localStorage.setItem(LOCAL_KEY, JSON.stringify(s)); } catch { /* ignore */ }
-}
-
+function loadLocal(): Session | null { return null; }
+function saveLocal(_s: Session) { /* guests are not persisted */ }
 function clearLocal() {
   if (typeof window === "undefined") return;
   try { localStorage.removeItem(LOCAL_KEY); } catch { /* ignore */ }
 }
+
+void loadLocal; void saveLocal;
 
 function AssessmentPage() {
   const navigate = useNavigate();
@@ -87,72 +75,50 @@ function AssessmentPage() {
   const [hasExisting, setHasExisting] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(TOTAL_SECONDS);
   const [syncing, setSyncing] = useState(false);
+  const [finishError, setFinishError] = useState<string | null>(null);
 
-  // Detect existing session — cloud for authed, local for guests
+  // Clean up any old guest local-storage session
+  useEffect(() => { clearLocal(); }, []);
+
+  // Detect existing cloud session for signed-in users only
   useEffect(() => {
     if (authLoading) return;
+    if (!user) { setHasExisting(false); setLoadingSession(false); return; }
     setLoadingSession(true);
     (async () => {
-      if (user) {
-        const { data, error } = await supabase
-          .from("assessment_sessions" as any)
-          .select("*")
-          .eq("user_id", user.id)
-          .maybeSingle();
-        if (!error && data) {
-          const row = data as any;
-          if (Array.isArray(row.question_order) && row.question_order.length === allQuestions.length) {
-            setHasExisting(Object.keys(row.answers || {}).length > 0 || row.step > 0);
-          }
-        } else {
-          // If guest had a local session, migrate it to the cloud on first sign-in
-          const local = loadLocal();
-          if (local) {
-            await supabase.from("assessment_sessions" as any).upsert(
-              {
-                user_id: user.id,
-                question_order: local.questionOrder,
-                option_order: local.optionOrder,
-                answers: local.answers,
-                step: local.step,
-                started_at: new Date(local.startedAt).toISOString(),
-              },
-              { onConflict: "user_id" }
-            );
-            clearLocal();
-            setHasExisting(Object.keys(local.answers).length > 0 || local.step > 0);
-          }
+      const { data, error } = await supabase
+        .from("assessment_sessions" as any)
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!error && data) {
+        const row = data as any;
+        if (Array.isArray(row.question_order) && row.question_order.length === allQuestions.length) {
+          setHasExisting(Object.keys(row.answers || {}).length > 0 || row.step > 0);
         }
-      } else {
-        const local = loadLocal();
-        setHasExisting(!!local && (Object.keys(local.answers).length > 0 || local.step > 0));
       }
       setLoadingSession(false);
     })();
   }, [user, authLoading]);
 
-  // Persist session changes: cloud for authed, local for guests
+  // Persist session changes — cloud for signed-in users only; guests stay in-memory
   const syncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    if (!session || !started) return;
+    if (!session || !started || !user) return;
     if (syncTimer.current) clearTimeout(syncTimer.current);
     setSyncing(true);
     syncTimer.current = setTimeout(async () => {
-      if (user) {
-        await supabase.from("assessment_sessions" as any).upsert(
-          {
-            user_id: user.id,
-            question_order: session.questionOrder,
-            option_order: session.optionOrder,
-            answers: session.answers,
-            step: session.step,
-            started_at: new Date(session.startedAt).toISOString(),
-          },
-          { onConflict: "user_id" }
-        );
-      } else {
-        saveLocal(session);
-      }
+      await supabase.from("assessment_sessions" as any).upsert(
+        {
+          user_id: user.id,
+          question_order: session.questionOrder,
+          option_order: session.optionOrder,
+          answers: session.answers,
+          step: session.step,
+          started_at: new Date(session.startedAt).toISOString(),
+        },
+        { onConflict: "user_id" }
+      );
       setSyncing(false);
     }, 350);
     return () => {
@@ -173,7 +139,10 @@ function AssessmentPage() {
   }, [started, session]);
 
   useEffect(() => {
-    if (started && session && secondsLeft === 0) finish(session);
+    if (started && session && secondsLeft === 0) {
+      // Time's up: only allow finish if every question is answered
+      if (Object.keys(session.answers).length >= allQuestions.length) finish(session);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [secondsLeft, started]);
 
@@ -191,8 +160,6 @@ function AssessmentPage() {
         },
         { onConflict: "user_id" }
       );
-    } else {
-      saveLocal(s);
     }
     setSession(s);
     setStarted(true);
@@ -200,28 +167,24 @@ function AssessmentPage() {
   };
 
   const resume = async () => {
-    if (user) {
-      const { data, error } = await supabase
-        .from("assessment_sessions" as any)
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      if (error || !data) { await startNew(); return; }
-      const row = data as any;
-      setSession({
-        questionOrder: row.question_order,
-        optionOrder: row.option_order,
-        answers: row.answers || {},
-        startedAt: new Date(row.started_at).getTime(),
-        step: row.step ?? 0,
-      });
-    } else {
-      const local = loadLocal();
-      if (!local) { await startNew(); return; }
-      setSession(local);
-    }
+    if (!user) { await startNew(); return; }
+    const { data, error } = await supabase
+      .from("assessment_sessions" as any)
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (error || !data) { await startNew(); return; }
+    const row = data as any;
+    setSession({
+      questionOrder: row.question_order,
+      optionOrder: row.option_order,
+      answers: row.answers || {},
+      startedAt: new Date(row.started_at).getTime(),
+      step: row.step ?? 0,
+    });
     setStarted(true);
   };
+
 
   const orderedQuestions = useMemo<AnyQuestion[]>(() => {
     if (!session) return [];
@@ -268,16 +231,23 @@ function AssessmentPage() {
   };
 
   async function finish(s: Session) {
+    // Require an answer for every question before showing results
+    const unansweredIdx = s.questionOrder.findIndex((id) => s.answers[id] == null);
+    if (unansweredIdx !== -1) {
+      setFinishError("Please answer every question before viewing your results.");
+      setSession({ ...s, step: unansweredIdx });
+      return;
+    }
+    setFinishError(null);
     const elapsed = Math.floor((Date.now() - s.startedAt) / 1000);
     sessionStorage.setItem("assessment_answers", JSON.stringify(s.answers));
     sessionStorage.setItem("assessment_seconds", String(elapsed));
     if (user) {
       await supabase.from("assessment_sessions" as any).delete().eq("user_id", user.id);
-    } else {
-      clearLocal();
     }
     navigate({ to: "/results" });
   }
+
 
   const mm = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
   const ss = String(secondsLeft % 60).padStart(2, "0");
@@ -363,10 +333,14 @@ function AssessmentPage() {
               <SectionIcon className="h-3.5 w-3.5 text-accent" /> {section.label} · {step + 1}/{total}
             </span>
             <span className="inline-flex items-center gap-3">
-              <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider ${syncing ? "text-accent" : "text-muted-foreground/60"}`}>
-                {syncing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Cloud className="h-3 w-3" />}
-                {syncing ? "Saving" : "Saved"}
-              </span>
+              {user ? (
+                <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider ${syncing ? "text-accent" : "text-muted-foreground/60"}`}>
+                  {syncing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Cloud className="h-3 w-3" />}
+                  {syncing ? "Saving" : "Saved"}
+                </span>
+              ) : (
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground/60">Guest mode</span>
+              )}
               <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1">
                 <Clock className="h-3 w-3" /> {mm}:{ss}
               </span>
@@ -422,9 +396,13 @@ function AssessmentPage() {
                 {step === total - 1 ? "See Results" : "Next"} <ArrowRight className="h-4 w-4" />
               </button>
             </div>
+            {finishError && (
+              <p className="mt-4 text-center text-xs text-destructive">{finishError}</p>
+            )}
           </div>
         </div>
       </section>
     </PageShell>
   );
 }
+
