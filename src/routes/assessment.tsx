@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { useEffect, useState } from "react";
-import { ArrowRight, ArrowLeft, Check, Brain, Clock, Sparkles, Target, Heart } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowRight, ArrowLeft, Check, Brain, Clock, Sparkles, Target, Heart, RotateCcw } from "lucide-react";
 import { allQuestions, type AnyQuestion } from "@/lib/assessment";
 
 export const Route = createFileRoute("/assessment")({
@@ -15,6 +15,7 @@ export const Route = createFileRoute("/assessment")({
 });
 
 const TOTAL_SECONDS = 20 * 60;
+const STORAGE_KEY = "abilitio_assessment_session_v1";
 
 const SECTION_META = {
   iq: { label: "IQ Test", icon: Brain, desc: "Logic & reasoning" },
@@ -22,39 +23,152 @@ const SECTION_META = {
   mbti: { label: "Personality (MBTI)", icon: Heart, desc: "How you think & feel" },
 } as const;
 
+type Session = {
+  questionOrder: string[]; // shuffled question ids
+  optionOrder: Record<string, number[]>; // qid -> permutation of original option indices
+  answers: Record<string, number>; // qid -> original option index
+  startedAt: number;
+  step: number;
+};
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function createSession(): Session {
+  const qOrder = shuffle(allQuestions.map((q) => q.id));
+  const optionOrder: Record<string, number[]> = {};
+  allQuestions.forEach((q) => {
+    optionOrder[q.id] = shuffle(q.options.map((_, i) => i));
+  });
+  return { questionOrder: qOrder, optionOrder, answers: {}, startedAt: Date.now(), step: 0 };
+}
+
+function loadSession(): Session | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw) as Session;
+    if (!s?.questionOrder || s.questionOrder.length !== allQuestions.length) return null;
+    return s;
+  } catch { return null; }
+}
+
+function saveSession(s: Session) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {}
+}
+
+function clearSession() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch {}
+}
+
 function AssessmentPage() {
   const navigate = useNavigate();
+  const [session, setSession] = useState<Session | null>(null);
   const [started, setStarted] = useState(false);
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [resumable, setResumable] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(TOTAL_SECONDS);
-  const [startedAt] = useState(() => Date.now());
 
+  // Hydrate from localStorage
   useEffect(() => {
-    if (!started) return;
-    const id = setInterval(() => {
-      setSecondsLeft((s) => {
-        if (s <= 1) { clearInterval(id); finish(answers); return 0; }
-        return s - 1;
-      });
-    }, 1000);
+    const existing = loadSession();
+    if (existing && Object.keys(existing.answers).length > 0) {
+      setResumable(true);
+    }
+  }, []);
+
+  // Persist whenever session changes
+  useEffect(() => {
+    if (session) saveSession(session);
+  }, [session]);
+
+  // Timer
+  useEffect(() => {
+    if (!started || !session) return;
+    const update = () => {
+      const elapsed = Math.floor((Date.now() - session.startedAt) / 1000);
+      setSecondsLeft(Math.max(0, TOTAL_SECONDS - elapsed));
+    };
+    update();
+    const id = setInterval(update, 1000);
     return () => clearInterval(id);
+  }, [started, session]);
+
+  // Auto-finish on timeout
+  useEffect(() => {
+    if (started && session && secondsLeft === 0) finish(session);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [started]);
+  }, [secondsLeft, started]);
 
-  const total = allQuestions.length;
-  const q: AnyQuestion | null = step < total ? allQuestions[step] : null;
-  const progress = (step / total) * 100;
-
-  const select = (i: number) => {
-    if (!q) return;
-    setAnswers((a) => ({ ...a, [q.id]: i }));
+  const startNew = () => {
+    const s = createSession();
+    setSession(s);
+    setStarted(true);
+    setResumable(false);
   };
 
-  function finish(final: Record<string, number>) {
-    const elapsed = Math.floor((Date.now() - startedAt) / 1000);
-    sessionStorage.setItem("assessment_answers", JSON.stringify(final));
+  const resume = () => {
+    const s = loadSession();
+    if (s) { setSession(s); setStarted(true); setResumable(false); }
+    else startNew();
+  };
+
+  const orderedQuestions = useMemo<AnyQuestion[]>(() => {
+    if (!session) return [];
+    const byId = new Map(allQuestions.map((q) => [q.id, q] as const));
+    return session.questionOrder.map((id) => byId.get(id)!).filter(Boolean);
+  }, [session]);
+
+  const total = orderedQuestions.length;
+  const step = session?.step ?? 0;
+  const q: AnyQuestion | null = session && step < total ? orderedQuestions[step] : null;
+  const progress = total ? (step / total) * 100 : 0;
+
+  // Map option indices through the shuffle for the current question
+  const shuffledOptions = useMemo(() => {
+    if (!q || !session) return [] as { label: string; originalIdx: number }[];
+    const perm = session.optionOrder[q.id] ?? q.options.map((_, i) => i);
+    return perm.map((origIdx) => ({
+      label: (q.options[origIdx] as any).label ?? (q.options[origIdx] as any),
+      originalIdx: origIdx,
+    }));
+  }, [q, session]);
+
+  const selectedShuffledIdx = useMemo(() => {
+    if (!q || !session) return -1;
+    const stored = session.answers[q.id];
+    if (stored == null) return -1;
+    const perm = session.optionOrder[q.id] ?? q.options.map((_, i) => i);
+    return perm.indexOf(stored);
+  }, [q, session]);
+
+  const select = (shuffledIdx: number) => {
+    if (!q || !session) return;
+    const originalIdx = shuffledOptions[shuffledIdx].originalIdx;
+    setSession({ ...session, answers: { ...session.answers, [q.id]: originalIdx } });
+  };
+
+  const goNext = () => {
+    if (!session) return;
+    if (step === total - 1) { finish(session); return; }
+    setSession({ ...session, step: step + 1 });
+  };
+  const goBack = () => {
+    if (!session) return;
+    setSession({ ...session, step: Math.max(0, step - 1) });
+  };
+
+  function finish(s: Session) {
+    const elapsed = Math.floor((Date.now() - s.startedAt) / 1000);
+    sessionStorage.setItem("assessment_answers", JSON.stringify(s.answers));
     sessionStorage.setItem("assessment_seconds", String(elapsed));
+    clearSession();
     navigate({ to: "/results" });
   }
 
@@ -90,34 +204,42 @@ function AssessmentPage() {
 
             <div className="glass mt-8 rounded-3xl p-7 text-left text-sm text-muted-foreground">
               <ul className="space-y-2">
-                <li>• Answer honestly — there are no wrong answers in interests & personality.</li>
-                <li>• A timer of 20 minutes runs for the entire assessment.</li>
-                <li>• Your top 3 careers are computed from all three sections combined.</li>
+                <li>• Questions and answer choices are randomized for every attempt.</li>
+                <li>• Your progress is saved automatically — refresh-safe.</li>
+                <li>• A 20-minute timer runs for the whole assessment.</li>
                 <li>• Results are saved to your account after you sign in.</li>
               </ul>
             </div>
 
-            <button
-              onClick={() => setStarted(true)}
-              className="mt-10 inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-base font-medium text-primary-foreground transition-all hover:glow-purple hover:-translate-y-0.5"
-            >
-              Start Assessment <ArrowRight className="h-4 w-4" />
-            </button>
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+              {resumable && (
+                <button
+                  onClick={resume}
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-base font-medium text-primary-foreground transition-all hover:glow-purple hover:-translate-y-0.5"
+                >
+                  Resume Assessment <ArrowRight className="h-4 w-4" />
+                </button>
+              )}
+              <button
+                onClick={startNew}
+                className={`inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-medium transition-all hover:-translate-y-0.5 ${
+                  resumable
+                    ? "border border-border bg-secondary text-foreground hover:bg-secondary/70"
+                    : "bg-primary text-primary-foreground hover:glow-purple"
+                }`}
+              >
+                {resumable ? (<><RotateCcw className="h-4 w-4" /> Start Over</>) : (<>Start Assessment <ArrowRight className="h-4 w-4" /></>)}
+              </button>
+            </div>
           </div>
         </section>
       </PageShell>
     );
   }
 
-  if (!q) return null;
+  if (!q || !session) return null;
   const section = SECTION_META[q.section];
   const SectionIcon = section.icon;
-  const selected = answers[q.id];
-
-  const options =
-    q.section === "iq"
-      ? q.options.map((o) => ({ label: o }))
-      : q.options.map((o) => ({ label: o.label }));
 
   return (
     <PageShell>
@@ -140,14 +262,14 @@ function AssessmentPage() {
 
           <div key={q.id} className="glass animate-fade-up rounded-3xl p-8 md:p-10">
             <span className="text-xs uppercase tracking-wider text-accent">{section.label}</span>
-            <h2 className="mt-2 text-2xl font-semibold leading-snug md:text-3xl">{q.section === "iq" || q.section === "interests" || q.section === "mbti" ? q.prompt : ""}</h2>
+            <h2 className="mt-2 text-2xl font-semibold leading-snug md:text-3xl">{q.prompt}</h2>
             {q.section === "iq" && q.hint && (
               <div className="mt-4 rounded-xl bg-secondary/60 px-4 py-3 font-mono text-lg tracking-wide">{q.hint}</div>
             )}
 
             <div className="mt-8 space-y-3">
-              {options.map((opt, i) => {
-                const isSel = selected === i;
+              {shuffledOptions.map((opt, i) => {
+                const isSel = selectedShuffledIdx === i;
                 return (
                   <button
                     key={i}
@@ -167,18 +289,15 @@ function AssessmentPage() {
 
             <div className="mt-10 flex items-center justify-between">
               <button
-                onClick={() => setStep((s) => Math.max(0, s - 1))}
+                onClick={goBack}
                 disabled={step === 0}
                 className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm transition-colors hover:bg-secondary disabled:opacity-40"
               >
                 <ArrowLeft className="h-4 w-4" /> Back
               </button>
               <button
-                onClick={() => {
-                  if (step === total - 1) finish(answers);
-                  else setStep((s) => s + 1);
-                }}
-                disabled={selected == null}
+                onClick={goNext}
+                disabled={selectedShuffledIdx === -1}
                 className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:glow-purple disabled:opacity-40"
               >
                 {step === total - 1 ? "See Results" : "Next"} <ArrowRight className="h-4 w-4" />
