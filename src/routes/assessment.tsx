@@ -231,16 +231,23 @@ function AssessmentPage() {
   };
 
   async function finish(s: Session) {
+    // Require an answer for every question before showing results
+    const unansweredIdx = s.questionOrder.findIndex((id) => s.answers[id] == null);
+    if (unansweredIdx !== -1) {
+      setFinishError("Please answer every question before viewing your results.");
+      setSession({ ...s, step: unansweredIdx });
+      return;
+    }
+    setFinishError(null);
     const elapsed = Math.floor((Date.now() - s.startedAt) / 1000);
     sessionStorage.setItem("assessment_answers", JSON.stringify(s.answers));
     sessionStorage.setItem("assessment_seconds", String(elapsed));
     if (user) {
       await supabase.from("assessment_sessions" as any).delete().eq("user_id", user.id);
-    } else {
-      clearLocal();
     }
     navigate({ to: "/results" });
   }
+
 
   const mm = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
   const ss = String(secondsLeft % 60).padStart(2, "0");
