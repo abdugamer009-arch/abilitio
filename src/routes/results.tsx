@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { useEffect, useMemo, useState } from "react";
-import { Lock, Sparkles, Brain, Target, Activity, Trophy, Medal, Award, Heart } from "lucide-react";
+import { Sparkles, Brain, Target, Activity, Trophy, Medal, Award, Heart } from "lucide-react";
 import { scoreAssessment, MBTI_DESCRIPTIONS, type ScoredResult } from "@/lib/assessment";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
