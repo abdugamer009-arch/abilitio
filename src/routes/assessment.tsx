@@ -392,9 +392,13 @@ function AssessmentPage() {
                 {step === total - 1 ? "See Results" : "Next"} <ArrowRight className="h-4 w-4" />
               </button>
             </div>
+            {finishError && (
+              <p className="mt-4 text-center text-xs text-destructive">{finishError}</p>
+            )}
           </div>
         </div>
       </section>
     </PageShell>
   );
 }
+
