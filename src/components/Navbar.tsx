@@ -20,7 +20,7 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full">
       <div className="mx-auto mt-4 max-w-6xl px-4">
-        <nav className="glass flex h-14 items-center justify-between rounded-full pl-5 pr-2.5">
+        <nav className="glass relative flex h-14 items-center justify-between rounded-full pl-5 pr-2.5">
           <Link to="/" className="flex items-center gap-2.5 group">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent shadow-[0_4px_18px_-6px_var(--glow)] group-hover:shadow-[0_6px_24px_-4px_var(--glow)] transition-all duration-300">
               <Sparkles className="h-4 w-4 text-primary-foreground" />
