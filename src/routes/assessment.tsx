@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
+import { AILoadingScreen } from "@/components/AILoadingScreen";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, ArrowLeft, Check, Brain, Clock, Sparkles, Target, Heart, RotateCcw, Loader2, Cloud } from "lucide-react";
 import { allQuestions, type AnyQuestion } from "@/lib/assessment";
