@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
+import { AILoadingScreen } from "@/components/AILoadingScreen";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, ArrowLeft, Check, Brain, Clock, Sparkles, Target, Heart, RotateCcw, Loader2, Cloud } from "lucide-react";
 import { allQuestions, type AnyQuestion } from "@/lib/assessment";
@@ -65,6 +66,7 @@ function AssessmentPage() {
   const [secondsLeft, setSecondsLeft] = useState(TOTAL_SECONDS);
   const [syncing, setSyncing] = useState(false);
   const [finishError, setFinishError] = useState<string | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
 
   useEffect(() => { clearLocal(); }, []);
 
@@ -201,11 +203,15 @@ function AssessmentPage() {
     if (user) {
       await supabase.from("assessment_sessions" as any).delete().eq("user_id", user.id);
     }
-    navigate({ to: "/results" });
+    setAnalyzing(true);
   }
 
   const mm = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
   const ss = String(secondsLeft % 60).padStart(2, "0");
+
+  if (analyzing) {
+    return <AILoadingScreen onDone={() => navigate({ to: "/results" })} />;
+  }
 
   if (!started) {
     return (
