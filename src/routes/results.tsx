@@ -5,6 +5,7 @@ import { Sparkles, Brain, Target, Activity, Trophy, Medal, Award, Heart } from "
 import { scoreAssessment, MBTI_DESCRIPTIONS, type ScoredResult } from "@/lib/assessment";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/results")({
   head: () => ({ meta: [{ title: "Your Results — Abilitio" }] }),
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/results")({
 function ResultsPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { t, tCareer, tTrait, tIqLevel } = useI18n();
   const [saved, setSaved] = useState(false);
 
   const answers = useMemo<Record<string, number>>(() => {
@@ -39,19 +41,11 @@ function ResultsPage() {
     (async () => {
       await supabase.from("assessment_results").insert({
         user_id: user.id,
-        iq_score: result.iq.score,
-        iq_level: result.iq.level,
-        logical_score: result.iq.logical,
-        analytical_score: result.iq.analytical,
-        pattern_score: result.iq.pattern,
-        mbti_type: result.mbti.type,
-        mbti_scores: result.mbti.scores,
-        interest_scores: result.interests,
-        top_strengths: result.strengths,
-        weaknesses: result.weaknesses,
-        careers: result.careers,
-        answers,
-        time_seconds: elapsed,
+        iq_score: result.iq.score, iq_level: result.iq.level,
+        logical_score: result.iq.logical, analytical_score: result.iq.analytical, pattern_score: result.iq.pattern,
+        mbti_type: result.mbti.type, mbti_scores: result.mbti.scores,
+        interest_scores: result.interests, top_strengths: result.strengths,
+        weaknesses: result.weaknesses, careers: result.careers, answers, time_seconds: elapsed,
       });
       setSaved(true);
       sessionStorage.removeItem("assessment_answers");
@@ -59,15 +53,21 @@ function ResultsPage() {
     })();
   }, [user, result, saved, answers, elapsed]);
 
+  useEffect(() => {
+    if (!loading && !user && result) {
+      navigate({ to: "/auth", search: { mode: "signup", next: "/results" } });
+    }
+  }, [loading, user, navigate, result]);
+
   if (!result) {
     return (
       <PageShell>
         <section className="px-6 pt-24 pb-24">
           <div className="mx-auto max-w-xl text-center glass rounded-3xl p-10">
-            <h1 className="text-2xl font-semibold">No results yet</h1>
-            <p className="mt-3 text-muted-foreground">Take the full assessment to see your career matches.</p>
+            <h1 className="text-2xl font-semibold">{t.results.none}</h1>
+            <p className="mt-3 text-muted-foreground">{t.results.noneBody}</p>
             <Link to="/assessment" className="mt-6 inline-flex rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:glow-purple">
-              Start Assessment
+              {t.results.startAssessment}
             </Link>
           </div>
         </section>
@@ -75,21 +75,14 @@ function ResultsPage() {
     );
   }
 
-  // Gate: if not signed in, redirect to auth page with signup as default
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate({ to: "/auth", search: { mode: "signup", next: "/results" } });
-    }
-  }, [loading, user, navigate]);
-
   if (loading || !user) {
     return (
       <PageShell>
         <section className="px-6 pt-24 pb-24">
           <div className="mx-auto max-w-md text-center glass rounded-3xl p-10">
             <Sparkles className="mx-auto h-6 w-6 text-accent" />
-            <h2 className="mt-4 text-xl font-semibold">Redirecting to sign in…</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Create a free account to unlock your personalized results.</p>
+            <h2 className="mt-4 text-xl font-semibold">{t.results.redirecting}</h2>
+            <p className="mt-2 text-sm text-muted-foreground">{t.results.redirectingBody}</p>
           </div>
         </section>
       </PageShell>
@@ -101,60 +94,57 @@ function ResultsPage() {
       <section className="relative px-6 pt-12 pb-24">
         <div className="mx-auto max-w-5xl">
           <div className="text-center">
-            <span className="text-xs uppercase tracking-wider text-accent">Your Talent Profile</span>
-            <h1 className="mt-2 text-4xl font-bold md:text-5xl gradient-text">{result.mbti.type} · {result.iq.level}</h1>
-            <p className="mt-3 text-muted-foreground max-w-xl mx-auto">{MBTI_DESCRIPTIONS[result.mbti.type] ?? "A unique profile."}</p>
+            <span className="text-xs uppercase tracking-wider text-accent">{t.results.eyebrow}</span>
+            <h1 className="mt-2 text-4xl font-bold md:text-5xl gradient-text">{result.mbti.type} · {tIqLevel(result.iq.level)}</h1>
+            <p className="mt-3 text-muted-foreground max-w-xl mx-auto">{MBTI_DESCRIPTIONS[result.mbti.type] ?? ""}</p>
           </div>
 
-          {/* Top row: IQ ring + Breakdown */}
           <div className="mt-10 grid gap-6 md:grid-cols-[1fr_1.2fr]">
-            <ScoreRing score={result.iq.score} />
+            <ScoreRing score={result.iq.score} label={t.results.iqScore} />
             <div className="glass rounded-3xl p-8">
-              <h2 className="text-lg font-semibold">Cognitive Breakdown</h2>
+              <h2 className="text-lg font-semibold">{t.results.cognitiveBreakdown}</h2>
               <div className="mt-6 space-y-5">
-                <Bar icon={<Brain className="h-4 w-4" />} label="Logical Reasoning" value={result.iq.logical} />
-                <Bar icon={<Target className="h-4 w-4" />} label="Analytical Thinking" value={result.iq.analytical} />
-                <Bar icon={<Activity className="h-4 w-4" />} label="Pattern Recognition" value={result.iq.pattern} />
+                <Bar icon={<Brain className="h-4 w-4" />} label={t.results.logical} value={result.iq.logical} />
+                <Bar icon={<Target className="h-4 w-4" />} label={t.results.analytical} value={result.iq.analytical} />
+                <Bar icon={<Activity className="h-4 w-4" />} label={t.results.pattern} value={result.iq.pattern} />
               </div>
             </div>
           </div>
 
-          {/* Top 3 Careers */}
           <div className="mt-10">
-            <h2 className="text-2xl font-semibold text-center">Your Top 3 Career Matches</h2>
-            <p className="text-center text-sm text-muted-foreground mt-1">Computed from your IQ, interests, and personality.</p>
+            <h2 className="text-2xl font-semibold text-center">{t.results.topCareers}</h2>
+            <p className="text-center text-sm text-muted-foreground mt-1">{t.results.topCareersSub}</p>
 
             <div className="mt-8 grid gap-6 md:grid-cols-3 md:items-end">
-              <CareerCard rank={2} icon={<Medal className="h-6 w-6" />} career={result.careers[1]} size="md" />
-              <CareerCard rank={1} icon={<Trophy className="h-7 w-7" />} career={result.careers[0]} size="lg" />
-              <CareerCard rank={3} icon={<Award className="h-6 w-6" />} career={result.careers[2]} size="sm" />
+              <CareerCard rank={2} icon={<Medal className="h-6 w-6" />} career={result.careers[1]} size="md" tCareer={tCareer} matchLabel={t.results.match} />
+              <CareerCard rank={1} icon={<Trophy className="h-7 w-7" />} career={result.careers[0]} size="lg" tCareer={tCareer} matchLabel={t.results.match} />
+              <CareerCard rank={3} icon={<Award className="h-6 w-6" />} career={result.careers[2]} size="sm" tCareer={tCareer} matchLabel={t.results.match} />
             </div>
           </div>
 
-          {/* Strengths + MBTI */}
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             <div className="glass rounded-3xl p-8">
               <h3 className="flex items-center gap-2 text-lg font-semibold">
-                <Sparkles className="h-5 w-5 text-accent" /> Top Strengths
+                <Sparkles className="h-5 w-5 text-accent" /> {t.results.strengths}
               </h3>
               <ul className="mt-5 space-y-2">
                 {result.strengths.map((s) => (
                   <li key={s} className="flex items-center gap-3 rounded-2xl bg-secondary/40 px-4 py-3 text-sm">
-                    <span className="h-2 w-2 rounded-full bg-gradient-to-br from-primary to-accent" /> {s}
+                    <span className="h-2 w-2 rounded-full bg-gradient-to-br from-primary to-accent" /> {tTrait(s)}
                   </li>
                 ))}
               </ul>
-              <h4 className="mt-6 text-xs uppercase tracking-wider text-muted-foreground">Areas to Grow</h4>
+              <h4 className="mt-6 text-xs uppercase tracking-wider text-muted-foreground">{t.results.areasToGrow}</h4>
               <div className="mt-2 flex flex-wrap gap-2">
                 {result.weaknesses.map((w) => (
-                  <span key={w} className="rounded-full border border-border bg-secondary/40 px-3 py-1 text-xs text-muted-foreground">{w}</span>
+                  <span key={w} className="rounded-full border border-border bg-secondary/40 px-3 py-1 text-xs text-muted-foreground">{tTrait(w)}</span>
                 ))}
               </div>
             </div>
 
             <div className="glass rounded-3xl p-8">
               <h3 className="flex items-center gap-2 text-lg font-semibold">
-                <Heart className="h-5 w-5 text-accent" /> Personality · {result.mbti.type}
+                <Heart className="h-5 w-5 text-accent" /> {t.results.personality} · {result.mbti.type}
               </h3>
               <p className="mt-2 text-sm text-muted-foreground">{MBTI_DESCRIPTIONS[result.mbti.type] ?? ""}</p>
               <div className="mt-6 space-y-4">
@@ -168,20 +158,19 @@ function ResultsPage() {
 
           <div className="mt-10 flex flex-wrap justify-center gap-3">
             <Link to="/dashboard" className="rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:glow-purple">
-              Go to Dashboard
+              {t.results.goDashboard}
             </Link>
             <Link to="/assessment" className="rounded-full border border-border px-6 py-3 text-sm hover:bg-secondary">
-              Retake Assessment
+              {t.results.retake}
             </Link>
           </div>
         </div>
-
       </section>
     </PageShell>
   );
 }
 
-function ScoreRing({ score }: { score: number }) {
+function ScoreRing({ score, label }: { score: number; label: string }) {
   const max = 160;
   const pct = Math.min(1, Math.max(0, (score - 70) / (max - 70)));
   const radius = 90;
@@ -204,7 +193,7 @@ function ScoreRing({ score }: { score: number }) {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-5xl font-bold">{score}</span>
-          <span className="text-xs uppercase tracking-wider text-muted-foreground">IQ Score</span>
+          <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
         </div>
       </div>
     </div>
@@ -227,32 +216,32 @@ function Bar({ icon, label, value }: { icon: React.ReactNode; label: string; val
 }
 
 function CareerCard({
-  rank, icon, career, size,
+  rank, icon, career, size, tCareer, matchLabel,
 }: {
   rank: number; icon: React.ReactNode;
   career: { name: string; match: number; reason: string };
   size: "lg" | "md" | "sm";
+  tCareer: (name: string) => { name: string; reason: string };
+  matchLabel: string;
 }) {
   const sz = size === "lg" ? "p-8 md:p-10" : size === "md" ? "p-7" : "p-6";
   const heading = size === "lg" ? "text-2xl" : "text-xl";
+  const translated = tCareer(career.name);
   return (
     <div className={`glass rounded-3xl ${sz} ${size === "lg" ? "glow-purple md:-mb-4" : ""} transition-all hover:-translate-y-1`}>
       <div className="flex items-center justify-between">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground">
-          {icon}
-        </div>
-        <span className="text-xs uppercase tracking-wider text-muted-foreground">#{rank} Match</span>
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground">{icon}</div>
+        <span className="text-xs uppercase tracking-wider text-muted-foreground">#{rank} {matchLabel}</span>
       </div>
-      <h3 className={`mt-5 font-bold ${heading}`}>{career.name}</h3>
-      <p className="mt-1 text-sm text-muted-foreground">{career.reason}</p>
+      <h3 className={`mt-5 font-bold ${heading}`}>{translated.name}</h3>
+      <p className="mt-1 text-sm text-muted-foreground">{translated.reason || career.reason}</p>
       <div className="mt-5">
         <div className="flex items-baseline justify-between">
-          <span className="text-xs uppercase tracking-wider text-muted-foreground">Match</span>
+          <span className="text-xs uppercase tracking-wider text-muted-foreground">{matchLabel}</span>
           <span className="text-2xl font-bold gradient-text">{career.match}%</span>
         </div>
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary">
-          <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
-            style={{ width: `${career.match}%`, transition: "width 1.2s ease-out" }} />
+          <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent" style={{ width: `${career.match}%`, transition: "width 1.2s ease-out" }} />
         </div>
       </div>
     </div>
@@ -269,8 +258,7 @@ function MbtiAxis({ a, b, scores }: { a: "E"|"S"|"T"|"J"; b: "I"|"N"|"F"|"P"; sc
         <span className={aPct < 50 ? "font-semibold" : "text-muted-foreground"}>{b} · {100 - aPct}%</span>
       </div>
       <div className="relative h-2 overflow-hidden rounded-full bg-secondary">
-        <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-accent"
-          style={{ width: `${aPct}%`, transition: "width 1s ease-out" }} />
+        <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-accent" style={{ width: `${aPct}%`, transition: "width 1s ease-out" }} />
       </div>
     </div>
   );
