@@ -121,15 +121,11 @@ function DashboardPage() {
                 </h2>
                 {latest ? (
                   <div className="mt-6 space-y-4">
-                    <Row label={t.dashboard.latestIq === "Latest IQ" ? "Logical Reasoning" : ""} value={latest.logical_score} />
-                  </div>
-                ) : (<p className="mt-4 text-sm text-muted-foreground">{t.dashboard.noResults}</p>)}
-                {latest && (
-                  <div className="mt-2 space-y-4">
+                    <DashRow label={tTrait("Logical Reasoning") || "Logical Reasoning"} value={latest.logical_score} />
                     <DashRow label={tTrait("Analytical Thinking")} value={latest.analytical_score} />
                     <DashRow label={tTrait("Pattern Recognition") || "Pattern Recognition"} value={latest.pattern_score} />
                   </div>
-                )}
+                ) : (<p className="mt-4 text-sm text-muted-foreground">{t.dashboard.noResults}</p>)}
               </div>
 
               <div className="glass rounded-3xl p-8">
