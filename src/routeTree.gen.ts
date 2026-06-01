@@ -22,6 +22,7 @@ import { Route as AssessmentRouteImport } from './routes/assessment'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuraStoreRouteImport } from './routes/aura.store'
+import { Route as AuraGrowthRouteImport } from './routes/aura.growth'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -88,6 +89,11 @@ const AuraStoreRoute = AuraStoreRouteImport.update({
   path: '/store',
   getParentRoute: () => AuraRoute,
 } as any)
+const AuraGrowthRoute = AuraGrowthRouteImport.update({
+  id: '/growth',
+  path: '/growth',
+  getParentRoute: () => AuraRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
 }
 export interface FileRoutesByTo {
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
 }
 export interface FileRoutesById {
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
 }
 export interface FileRouteTypes {
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/results'
     | '/sitemap.xml'
+    | '/aura/growth'
     | '/aura/store'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/results'
     | '/sitemap.xml'
+    | '/aura/growth'
     | '/aura/store'
   id:
     | '__root__'
@@ -180,6 +191,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/results'
     | '/sitemap.xml'
+    | '/aura/growth'
     | '/aura/store'
   fileRoutesById: FileRoutesById
 }
@@ -291,14 +303,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuraStoreRouteImport
       parentRoute: typeof AuraRoute
     }
+    '/aura/growth': {
+      id: '/aura/growth'
+      path: '/growth'
+      fullPath: '/aura/growth'
+      preLoaderRoute: typeof AuraGrowthRouteImport
+      parentRoute: typeof AuraRoute
+    }
   }
 }
 
 interface AuraRouteChildren {
+  AuraGrowthRoute: typeof AuraGrowthRoute
   AuraStoreRoute: typeof AuraStoreRoute
 }
 
 const AuraRouteChildren: AuraRouteChildren = {
+  AuraGrowthRoute: AuraGrowthRoute,
   AuraStoreRoute: AuraStoreRoute,
 }
 
