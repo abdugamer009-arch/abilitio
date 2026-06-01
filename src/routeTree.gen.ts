@@ -17,6 +17,7 @@ import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuraMarketRouteImport } from './routes/aura-market'
 import { Route as AuraRouteImport } from './routes/aura'
 import { Route as AssessmentRouteImport } from './routes/assessment'
 import { Route as AboutRouteImport } from './routes/about'
@@ -64,6 +65,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuraMarketRoute = AuraMarketRouteImport.update({
+  id: '/aura-market',
+  path: '/aura-market',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuraRoute = AuraRouteImport.update({
   id: '/aura',
   path: '/aura',
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/assessment': typeof AssessmentRoute
   '/aura': typeof AuraRouteWithChildren
+  '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/assessment': typeof AssessmentRoute
   '/aura': typeof AuraRouteWithChildren
+  '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/assessment': typeof AssessmentRoute
   '/aura': typeof AuraRouteWithChildren
+  '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/assessment'
     | '/aura'
+    | '/aura-market'
     | '/auth'
     | '/contact'
     | '/dashboard'
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/assessment'
     | '/aura'
+    | '/aura-market'
     | '/auth'
     | '/contact'
     | '/dashboard'
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/assessment'
     | '/aura'
+    | '/aura-market'
     | '/auth'
     | '/contact'
     | '/dashboard'
@@ -200,6 +212,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AssessmentRoute: typeof AssessmentRoute
   AuraRoute: typeof AuraRouteWithChildren
+  AuraMarketRoute: typeof AuraMarketRoute
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
@@ -268,6 +281,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/aura-market': {
+      id: '/aura-market'
+      path: '/aura-market'
+      fullPath: '/aura-market'
+      preLoaderRoute: typeof AuraMarketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/aura': {
       id: '/aura'
       path: '/aura'
@@ -330,6 +350,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AssessmentRoute: AssessmentRoute,
   AuraRoute: AuraRouteWithChildren,
+  AuraMarketRoute: AuraMarketRoute,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
@@ -342,3 +363,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
