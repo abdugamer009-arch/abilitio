@@ -22,47 +22,51 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full">
       <div className="mx-auto mt-4 max-w-6xl px-4">
-        <nav className="glass flex h-14 items-center gap-4 rounded-full pl-5 pr-2.5">
-          {/* Logo */}
-          <Link to="/" className="flex shrink-0 items-center gap-2.5 group">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent shadow-[0_4px_18px_-6px_var(--glow)] group-hover:shadow-[0_6px_24px_-4px_var(--glow)] transition-all duration-300">
+        <nav className="glass flex min-h-14 items-center gap-3 rounded-full px-3 sm:px-4 md:px-5">
+          <div className="flex min-w-0 flex-1 items-center gap-4 md:gap-6">
+            <Link to="/" className="group flex shrink-0 items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent shadow-[0_4px_18px_-6px_var(--glow)] transition-all duration-300 group-hover:shadow-[0_6px_24px_-4px_var(--glow)]">
               <Sparkles className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="text-[15px] font-semibold tracking-tight">Abilitio</span>
-          </Link>
+              </div>
+              <span className="text-[15px] font-semibold tracking-tight">Abilitio</span>
+            </Link>
 
-          {/* Center nav */}
-          <ul className="hidden flex-1 items-center justify-center gap-1 lg:flex">
-            {navItems.map((item) => (
-              <li key={item.to}>
-                <Link
-                  to={item.to}
-                  className="rounded-full px-3.5 py-1.5 text-[13px] font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary/70 hover:text-foreground"
-                  activeProps={{ className: "text-foreground bg-secondary shadow-[0_0_20px_-6px_var(--glow)]" }}
-                  activeOptions={{ exact: true }}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-
-          {/* Spacer for non-lg widths so right cluster stays right */}
-          <div className="flex-1 lg:hidden" />
+            <ul className="hidden min-w-0 flex-1 items-center justify-center gap-1 md:flex lg:gap-1.5">
+              {navItems.map((item) => (
+                <li key={item.to} className="shrink-0">
+                  <Link
+                    to={item.to}
+                    className="whitespace-nowrap rounded-full px-3 py-1.5 text-[13px] font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary/70 hover:text-foreground lg:px-3.5"
+                    activeProps={{ className: "bg-secondary text-foreground shadow-[0_0_20px_-6px_var(--glow)]" }}
+                    activeOptions={{ exact: true }}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
           {/* Right cluster */}
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
             <LanguageSwitcher />
-            <span className="hidden sm:block h-5 w-px bg-border/70" aria-hidden />
+            <span className="hidden md:block h-5 w-px bg-border/70" aria-hidden />
             <ThemeToggle />
 
             {user ? (
               <>
                 <Link
                   to="/dashboard"
-                  className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-border/70 px-3.5 py-1.5 text-[13px] font-medium hover:bg-secondary/70 transition-all"
+                  className="hidden lg:inline-flex items-center gap-1.5 rounded-full border border-border/70 px-3.5 py-1.5 text-[13px] font-medium transition-all hover:bg-secondary/70"
                 >
                   <LayoutDashboard className="h-3.5 w-3.5" /> {t.nav.dashboard}
+                </Link>
+                <Link
+                  to="/dashboard"
+                  className="hidden md:inline-flex lg:hidden h-9 w-9 items-center justify-center rounded-full border border-border/70 transition-all hover:bg-secondary/70"
+                  aria-label={t.nav.dashboard}
+                >
+                  <LayoutDashboard className="h-4 w-4" />
                 </Link>
                 <button
                   onClick={async () => { await signOut(); navigate({ to: "/" }); }}
@@ -76,7 +80,7 @@ export function Navbar() {
               <Link
                 to="/auth"
                 search={{ mode: "login" }}
-                className="hidden sm:inline-flex items-center rounded-full bg-primary px-4 py-2 text-[13px] font-medium text-primary-foreground transition-all duration-300 hover:glow-purple hover:-translate-y-0.5"
+                className="hidden lg:inline-flex items-center rounded-full bg-primary px-4 py-2 text-[13px] font-medium text-primary-foreground transition-all duration-300 hover:glow-purple hover:-translate-y-0.5"
               >
                 {t.nav.signIn}
               </Link>
@@ -86,7 +90,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => setOpen((v) => !v)}
-              className="inline-flex lg:hidden h-9 w-9 items-center justify-center rounded-full border border-border/70 text-foreground hover:bg-secondary/70 transition-all"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/70 text-foreground transition-all hover:bg-secondary/70 md:hidden"
               aria-label="Toggle menu"
               aria-expanded={open}
             >
