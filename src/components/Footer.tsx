@@ -29,7 +29,7 @@ export function Footer() {
             <h4 className="text-sm font-semibold">{t.footer.company}</h4>
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
               <li><Link to="/about" className="transition-colors duration-300 hover:text-foreground">{t.footer.about}</Link></li>
-              <li><Link to="/contact" className="transition-colors duration-300 hover:text-foreground">{t.footer.contacts}</Link></li>
+              <li><Link to="/about" hash="contact" className="transition-colors duration-300 hover:text-foreground">{t.footer.contacts}</Link></li>
             </ul>
           </div>
         </div>
