@@ -127,12 +127,22 @@ function AuraPage() {
             <p className="relative mx-auto mt-2 max-w-md text-sm text-muted-foreground">
               Unlock premium reports, advanced cognitive breakdowns, and your personal AI mentor — or top up with coin packages.
             </p>
-            <Link
-              to={user ? "/aura/store" : "/auth"}
-              {...(!user ? { search: { mode: "login" as const } } : {})}
-              className="relative mt-6 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple"
-            >
-              {user ? "Enter the store" : "Sign in to start earning"} <ArrowRight className="h-4 w-4" />
+            {user ? (
+              <Link
+                to="/aura/store"
+                className="relative mt-6 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple"
+              >
+                Enter the store <ArrowRight className="h-4 w-4" />
+              </Link>
+            ) : (
+              <Link
+                to="/auth"
+                search={{ mode: "login" }}
+                className="relative mt-6 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple"
+              >
+                Sign in to start earning <ArrowRight className="h-4 w-4" />
+              </Link>
+            )}
             </Link>
           </div>
 
