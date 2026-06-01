@@ -142,7 +142,7 @@ function PackageCard({ pkg, onBuy }: { pkg: Pkg; onBuy: () => void }) {
       )}
 
       <div className="flex items-center gap-3">
-        <AuraCoin size={42} animate={isPopular} />
+        <AuraCoin size={42} animated={isPopular} />
         <div>
           <div className="text-2xl font-semibold tracking-tight">{pkg.coins.toLocaleString()}</div>
           <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Aura Coins</div>
