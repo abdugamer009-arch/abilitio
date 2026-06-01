@@ -22,6 +22,14 @@ export const Route = createFileRoute("/aura")({
 function AuraPage() {
   const { user } = useAuth();
   const { wallet, isLoading } = useAura();
+  const getUnlocksFn = useServerFn(getMyUnlocks);
+  const unlocksQ = useQuery({
+    queryKey: ["aura", "unlocks"],
+    queryFn: () => getUnlocksFn(),
+    enabled: !!user,
+  });
+  const ownedKeys = new Set((unlocksQ.data ?? []).map((u) => u.feature_key));
+  const ownedFeatures = AURA_FEATURES.filter((f) => ownedKeys.has(f.key));
 
   return (
     <PageShell>
@@ -88,24 +96,44 @@ function AuraPage() {
             </div>
           </div>
 
-          {/* Placeholder for shop */}
+          {/* Owned unlocks */}
+          {user && ownedFeatures.length > 0 && (
+            <div className="mt-16">
+              <h2 className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Your unlocks</h2>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {ownedFeatures.map((f) => (
+                  <div key={f.key} className="glass flex items-center justify-between rounded-2xl px-5 py-4">
+                    <div>
+                      <div className="text-sm font-medium">{f.name}</div>
+                      <div className="text-xs text-muted-foreground">{f.tagline}</div>
+                    </div>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2.5 py-1 text-[10px] uppercase tracking-wider text-primary">
+                      <Check className="h-3 w-3" /> Owned
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Store CTA */}
           <div className="mt-16 glass relative overflow-hidden rounded-3xl p-10 text-center">
-            <div className="absolute inset-0 opacity-50"
-                 style={{ background: "radial-gradient(60% 50% at 50% 0%, oklch(0.65 0.18 295 / 0.18), transparent 70%)" }} />
-            <Lock className="relative mx-auto h-5 w-5 text-primary" />
-            <h3 className="relative mt-4 text-xl font-semibold tracking-tight">Aura Store opens soon</h3>
+            <div
+              className="absolute inset-0 opacity-60"
+              style={{ background: "radial-gradient(60% 50% at 50% 0%, oklch(0.65 0.18 295 / 0.22), transparent 70%)" }}
+            />
+            <Sparkles className="relative mx-auto h-5 w-5 text-primary" />
+            <h3 className="relative mt-4 text-2xl font-semibold tracking-tight">The Aura Store</h3>
             <p className="relative mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-              The premium store, unlockable features, and Aura Coin packages arrive in the next release.
+              Unlock premium reports, advanced cognitive breakdowns, and your personal AI mentor — or top up with coin packages.
             </p>
-            {!user && (
-              <Link
-                to="/auth"
-                search={{ mode: "login" }}
-                className="relative mt-6 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple"
-              >
-                Sign in to start earning
-              </Link>
-            )}
+            <Link
+              to={user ? "/aura/store" : "/auth"}
+              {...(!user ? { search: { mode: "login" as const } } : {})}
+              className="relative mt-6 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple"
+            >
+              {user ? "Enter the store" : "Sign in to start earning"} <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
 
           {isLoading && user && (
