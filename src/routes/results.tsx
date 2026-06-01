@@ -1,8 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { useEffect, useMemo, useState } from "react";
-import { Sparkles, Brain, Target, Activity, Trophy, Medal, Award, Heart } from "lucide-react";
+import { Sparkles, Brain, Target, Activity, Trophy, Medal, Award, Heart, GraduationCap, MapPin } from "lucide-react";
+import {
+  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer,
+} from "recharts";
 import { scoreAssessment, MBTI_DESCRIPTIONS, type ScoredResult } from "@/lib/assessment";
+import { generateAISummary, getUniversitiesFor, buildRadarData } from "@/lib/insights";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
@@ -89,14 +93,29 @@ function ResultsPage() {
     );
   }
 
+  const summary = generateAISummary(result);
+  const universities = getUniversitiesFor(result.careers[0]?.name ?? "");
+  const radarData = buildRadarData(result);
+
   return (
     <PageShell>
       <section className="relative px-6 pt-12 pb-24">
         <div className="mx-auto max-w-5xl">
-          <div className="text-center">
-            <span className="text-xs uppercase tracking-wider text-accent">{t.results.eyebrow}</span>
-            <h1 className="mt-2 text-4xl font-bold md:text-5xl gradient-text">{result.mbti.type} · {tIqLevel(result.iq.level)}</h1>
+          <div className="text-center animate-fade-up">
+            <span className="text-xs uppercase tracking-[0.2em] text-accent">{t.results.eyebrow}</span>
+            <h1 className="mt-3 text-4xl font-bold md:text-5xl gradient-text">{result.mbti.type} · {tIqLevel(result.iq.level)}</h1>
             <p className="mt-3 text-muted-foreground max-w-xl mx-auto">{MBTI_DESCRIPTIONS[result.mbti.type] ?? ""}</p>
+          </div>
+
+          {/* AI Summary card */}
+          <div className="mt-10 glass rounded-3xl p-8 md:p-10 animate-fade-up">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
+                <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
+              </span>
+              <span className="text-xs uppercase tracking-[0.18em] text-accent">AI Personality Summary</span>
+            </div>
+            <p className="mt-5 text-lg leading-relaxed text-foreground/90 md:text-xl">{summary}</p>
           </div>
 
           <div className="mt-10 grid gap-6 md:grid-cols-[1fr_1.2fr]">
@@ -111,6 +130,48 @@ function ResultsPage() {
             </div>
           </div>
 
+          {/* Radar chart — talent constellation */}
+          <div className="mt-10 glass rounded-3xl p-8 md:p-10">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <span className="text-xs uppercase tracking-[0.18em] text-accent">Talent Constellation</span>
+                <h2 className="mt-1 text-2xl font-semibold">Your strengths, mapped</h2>
+              </div>
+              <p className="text-xs text-muted-foreground max-w-xs">
+                Eight ability dimensions scored from your responses. Larger area means broader profile.
+              </p>
+            </div>
+            <div className="mt-6 h-[360px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart data={radarData} outerRadius="78%">
+                  <defs>
+                    <linearGradient id="radarFill" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.55} />
+                      <stop offset="100%" stopColor="var(--accent)" stopOpacity={0.25} />
+                    </linearGradient>
+                  </defs>
+                  <PolarGrid stroke="var(--border)" />
+                  <PolarAngleAxis
+                    dataKey="dimension"
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+                  />
+                  <PolarRadiusAxis
+                    angle={90}
+                    domain={[0, 100]}
+                    tick={false}
+                    axisLine={false}
+                  />
+                  <Radar
+                    dataKey="value"
+                    stroke="var(--primary)"
+                    strokeWidth={2}
+                    fill="url(#radarFill)"
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
           <div className="mt-10">
             <h2 className="text-2xl font-semibold text-center">{t.results.topCareers}</h2>
             <p className="text-center text-sm text-muted-foreground mt-1">{t.results.topCareersSub}</p>
@@ -122,7 +183,36 @@ function ResultsPage() {
             </div>
           </div>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-2">
+          {/* University recommendations */}
+          <div className="mt-12">
+            <div className="text-center">
+              <span className="text-xs uppercase tracking-[0.18em] text-accent">Recommended Universities</span>
+              <h2 className="mt-2 text-2xl font-semibold">Places that match your trajectory</h2>
+              <p className="mt-2 text-sm text-muted-foreground max-w-lg mx-auto">
+                Top global institutions aligned with your strongest career path — {tCareer(result.careers[0]?.name ?? "").name}.
+              </p>
+            </div>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              {universities.map((u) => (
+                <div key={u.name} className="glass rounded-2xl p-6 transition-all hover:-translate-y-0.5">
+                  <div className="flex items-start gap-4">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-accent">
+                      <GraduationCap className="h-5 w-5" />
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="font-semibold leading-tight">{u.name}</h3>
+                      <p className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground">
+                        <MapPin className="h-3 w-3" /> {u.location}
+                      </p>
+                      <p className="mt-2 text-sm text-muted-foreground">{u.focus}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
             <div className="glass rounded-3xl p-8">
               <h3 className="flex items-center gap-2 text-lg font-semibold">
                 <Sparkles className="h-5 w-5 text-accent" /> {t.results.strengths}
