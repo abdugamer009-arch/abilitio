@@ -125,6 +125,42 @@ export type Database = {
         }
         Relationships: []
       }
+      aura_purchase_requests: {
+        Row: {
+          coins: number
+          contact_note: string | null
+          created_at: string
+          id: string
+          package_key: string
+          status: string
+          updated_at: string
+          user_id: string
+          uzs_amount: number
+        }
+        Insert: {
+          coins: number
+          contact_note?: string | null
+          created_at?: string
+          id?: string
+          package_key: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          uzs_amount: number
+        }
+        Update: {
+          coins?: number
+          contact_note?: string | null
+          created_at?: string
+          id?: string
+          package_key?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          uzs_amount?: number
+        }
+        Relationships: []
+      }
       aura_transactions: {
         Row: {
           amount: number
