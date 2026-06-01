@@ -11,6 +11,8 @@ import {
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth-context";
 import { LanguageProvider } from "@/lib/i18n";
+import { AuraProvider } from "@/components/aura/AuraProvider";
+import { AuraRewardToaster } from "@/components/aura/AuraRewardToaster";
 
 function NotFoundComponent() {
   return (
@@ -120,8 +122,11 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <AuthProvider>
-          {/* Required: nested routes render here. */}
-          <Outlet />
+          <AuraProvider>
+            {/* Required: nested routes render here. */}
+            <Outlet />
+            <AuraRewardToaster />
+          </AuraProvider>
         </AuthProvider>
       </LanguageProvider>
     </QueryClientProvider>

@@ -7,6 +7,7 @@ import { allQuestions, type AnyQuestion } from "@/lib/assessment";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
+import { useAura } from "@/components/aura/AuraProvider";
 
 export const Route = createFileRoute("/assessment")({
   head: () => ({
@@ -58,6 +59,7 @@ function AssessmentPage() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { t, tQuestion } = useI18n();
+  const { award } = useAura();
 
   const [session, setSession] = useState<Session | null>(null);
   const [started, setStarted] = useState(false);
@@ -202,6 +204,8 @@ function AssessmentPage() {
     sessionStorage.setItem("assessment_seconds", String(elapsed));
     if (user) {
       await supabase.from("assessment_sessions" as any).delete().eq("user_id", user.id);
+      // Award Aura Coins for completing the assessment (server validates the reason key).
+      award("assessment_complete").catch((err) => console.error("aura award failed", err));
     }
     setAnalyzing(true);
   }

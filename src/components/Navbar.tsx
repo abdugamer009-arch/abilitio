@@ -3,6 +3,7 @@ import { Sparkles, LogOut, LayoutDashboard, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { AuraBalance } from "./aura/AuraBalance";
 import { useAuth } from "@/lib/auth-context";
 import { useT } from "@/lib/i18n";
 
@@ -49,6 +50,7 @@ export function Navbar() {
 
           {/* Right cluster */}
           <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <AuraBalance />
             <LanguageSwitcher />
             <span className="hidden md:block h-5 w-px bg-border/70" aria-hidden />
             <ThemeToggle />
