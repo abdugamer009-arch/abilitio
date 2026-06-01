@@ -104,6 +104,111 @@ export type Database = {
         }
         Relationships: []
       }
+      aura_achievements: {
+        Row: {
+          achievement_key: string
+          id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_key: string
+          id?: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_key?: string
+          id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      aura_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          kind: string
+          meta: Json
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          kind: string
+          meta?: Json
+          reason: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          meta?: Json
+          reason?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      aura_unlocks: {
+        Row: {
+          feature_key: string
+          id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          feature_key: string
+          id?: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          feature_key?: string
+          id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      aura_wallets: {
+        Row: {
+          balance: number
+          created_at: string
+          last_login_date: string | null
+          lifetime_earned: number
+          lifetime_spent: number
+          streak_days: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          last_login_date?: string | null
+          lifetime_earned?: number
+          lifetime_spent?: number
+          streak_days?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          last_login_date?: string | null
+          lifetime_earned?: number
+          lifetime_spent?: number
+          streak_days?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       iq_results: {
         Row: {
           analytical_score: number
@@ -178,7 +283,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      aura_apply_delta: {
+        Args: {
+          _amount: number
+          _kind: string
+          _meta?: Json
+          _reason: string
+          _user: string
+        }
+        Returns: {
+          balance: number
+          created_at: string
+          last_login_date: string | null
+          lifetime_earned: number
+          lifetime_spent: number
+          streak_days: number
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "aura_wallets"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       [_ in never]: never
