@@ -17,7 +17,7 @@ export function Navbar() {
     { to: "/", label: t.nav.home },
     { to: "/assessment", label: t.nav.assessment },
     { to: "/features", label: t.nav.features },
-    { to: "/aura-market", label: "Aura Market" },
+    { to: "/aura-market", label: "Market" },
     { to: "/about", label: t.nav.about },
   ] as const;
 
