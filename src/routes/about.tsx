@@ -23,6 +23,35 @@ const valueIcons = [Heart, Lightbulb, Globe];
 
 function AboutPage() {
   const t = useT();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [website, setWebsite] = useState("");
+  const [startedAt] = useState(() => Date.now());
+  const [status, setStatus] = useState<Status>("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setErrorMsg("");
+    if (website.trim() !== "") return;
+    if (Date.now() - startedAt < 1500) { setStatus("error"); setErrorMsg(t.contact.errors.generic); return; }
+    const n = name.trim(), em = email.trim(), m = message.trim();
+    if (n.length < 2 || n.length > 100) { setStatus("error"); setErrorMsg(t.contact.errors.name); return; }
+    if (!EMAIL_RE.test(em) || em.length > 200) { setStatus("error"); setErrorMsg(t.contact.errors.email); return; }
+    if (m.length < 5 || m.length > 2000) { setStatus("error"); setErrorMsg(t.contact.errors.msg); return; }
+    setStatus("sending");
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ name: n, email: em, message: m, _subject: `New Abilitio contact from ${n}` }),
+      });
+      if (!res.ok) throw new Error("fail");
+      setStatus("success"); setName(""); setEmail(""); setMessage("");
+    } catch { setStatus("error"); setErrorMsg(t.contact.errors.generic); }
+  };
+
   return (
     <PageShell>
       <section className="relative px-6 pt-20 pb-16">
