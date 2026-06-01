@@ -74,6 +74,40 @@ function AboutPage() {
           <p className="mt-4 text-muted-foreground leading-relaxed">{t.about.missionBody}</p>
         </div>
       </section>
+
+      <section id="contact" className="px-6 pb-24 pt-8">
+        <div className="mx-auto max-w-3xl text-center mb-10 animate-fade-up">
+          <div className="text-xs uppercase tracking-widest text-accent">{t.contact.eyebrow}</div>
+          <h2 className="mt-3 text-3xl font-bold md:text-4xl">{t.contact.titleA} <span className="gradient-text">{t.contact.titleB}</span></h2>
+          <p className="mt-4 text-muted-foreground">{t.contact.subtitle}</p>
+        </div>
+        <div className="mx-auto grid max-w-3xl gap-5 sm:grid-cols-2">
+          <a
+            href="tel:+998880481881"
+            className="glass group flex items-center gap-4 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_-12px_var(--glow)]"
+          >
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 ring-1 ring-primary/20">
+              <Phone className="h-4.5 w-4.5 text-accent" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] uppercase tracking-widest text-muted-foreground">{t.contact.phone}</div>
+              <div className="mt-0.5 truncate text-sm font-medium">+998 88 048 18 81</div>
+            </div>
+          </a>
+          <a
+            href="mailto:ibodullayevabdurahmon95@gmail.com"
+            className="glass group flex items-center gap-4 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_-12px_var(--glow)]"
+          >
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 ring-1 ring-primary/20">
+              <Mail className="h-4.5 w-4.5 text-accent" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] uppercase tracking-widest text-muted-foreground">{t.contact.email}</div>
+              <div className="mt-0.5 truncate text-sm font-medium">ibodullayevabdurahmon95@gmail.com</div>
+            </div>
+          </a>
+        </div>
+      </section>
     </PageShell>
   );
 }
