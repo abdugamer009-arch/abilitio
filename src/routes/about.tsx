@@ -141,7 +141,52 @@ function AboutPage() {
             </div>
           </a>
         </div>
+
+        <form onSubmit={handleSubmit} className="glass mx-auto mt-8 max-w-3xl rounded-3xl p-8" noValidate>
+          {status === "success" ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center animate-fade-up">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent glow-purple">
+                <Check className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <h3 className="mt-6 text-2xl font-semibold">{t.contact.successTitle}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{t.contact.successBody}</p>
+              <button type="button" onClick={() => setStatus("idle")} className="mt-6 rounded-full border border-border bg-secondary/50 px-5 py-2 text-xs text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground">
+                {t.contact.sendAnother}
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-5">
+              <div className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
+                <label htmlFor="website">Website</label>
+                <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
+              </div>
+              <div className="grid gap-5 md:grid-cols-2">
+                <div>
+                  <label htmlFor="name" className="text-xs text-muted-foreground">{t.contact.name}</label>
+                  <input id="name" type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder={t.contact.placeholderName} maxLength={100} className="mt-2 w-full rounded-2xl border border-border bg-secondary/40 px-4 py-3 text-sm outline-none transition-all duration-300 focus:border-primary focus:shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_18%,transparent)]" />
+                </div>
+                <div>
+                  <label htmlFor="email" className="text-xs text-muted-foreground">{t.contact.emailLabel}</label>
+                  <input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t.contact.placeholderEmail} maxLength={200} className="mt-2 w-full rounded-2xl border border-border bg-secondary/40 px-4 py-3 text-sm outline-none transition-all duration-300 focus:border-primary focus:shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_18%,transparent)]" />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="msg" className="text-xs text-muted-foreground">{t.contact.message}</label>
+                <textarea id="msg" required rows={5} value={message} onChange={(e) => setMessage(e.target.value)} placeholder={t.contact.placeholderMsg} maxLength={2000} className="mt-2 w-full rounded-2xl border border-border bg-secondary/40 px-4 py-3 text-sm outline-none transition-all duration-300 focus:border-primary focus:shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_18%,transparent)]" />
+              </div>
+              {status === "error" && (
+                <div className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                  {errorMsg || t.contact.errors.generic}
+                </div>
+              )}
+              <button type="submit" disabled={status === "sending"} className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all duration-300 hover:glow-purple hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0">
+                {status === "sending" ? (<>{t.contact.sending} <Loader2 className="h-4 w-4 animate-spin" /></>) : (<>{t.contact.send} <Send className="h-4 w-4" /></>)}
+              </button>
+            </div>
+          )}
+        </form>
       </section>
+
     </PageShell>
   );
 }
