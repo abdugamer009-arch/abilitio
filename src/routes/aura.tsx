@@ -145,6 +145,18 @@ function AuraPage() {
             )}
           </div>
 
+          {/* Growth CTA */}
+          {user && (
+            <div className="mt-6 text-center">
+              <Link
+                to="/aura/growth"
+                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+              >
+                View your Growth path <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          )}
+
           {isLoading && user && (
             <p className="mt-8 text-center text-xs text-muted-foreground">Loading your wallet…</p>
           )}

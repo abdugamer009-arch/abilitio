@@ -91,6 +91,7 @@ export function AuraProvider({ children }: { children: ReactNode }) {
     onSuccess: (res) => {
       queryClient.setQueryData(QK_WALLET, res.wallet);
       pushReward({ amount: res.amount, label: res.label });
+      queryClient.invalidateQueries({ queryKey: ["aura", "growth-state"] });
     },
   });
 
@@ -100,6 +101,7 @@ export function AuraProvider({ children }: { children: ReactNode }) {
     onSuccess: (res) => {
       queryClient.setQueryData(QK_WALLET, res.wallet);
       queryClient.invalidateQueries({ queryKey: ["aura", "unlocks"] });
+      queryClient.invalidateQueries({ queryKey: ["aura", "growth-state"] });
     },
   });
 
