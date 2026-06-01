@@ -21,6 +21,7 @@ import { Route as AuraRouteImport } from './routes/aura'
 import { Route as AssessmentRouteImport } from './routes/assessment'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuraStoreRouteImport } from './routes/aura.store'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -82,12 +83,17 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuraStoreRoute = AuraStoreRouteImport.update({
+  id: '/store',
+  path: '/store',
+  getParentRoute: () => AuraRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/assessment': typeof AssessmentRoute
-  '/aura': typeof AuraRoute
+  '/aura': typeof AuraRouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
@@ -96,12 +102,13 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/aura/store': typeof AuraStoreRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/assessment': typeof AssessmentRoute
-  '/aura': typeof AuraRoute
+  '/aura': typeof AuraRouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
@@ -110,13 +117,14 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/aura/store': typeof AuraStoreRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/assessment': typeof AssessmentRoute
-  '/aura': typeof AuraRoute
+  '/aura': typeof AuraRouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/aura/store': typeof AuraStoreRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/results'
     | '/sitemap.xml'
+    | '/aura/store'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -155,6 +165,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/results'
     | '/sitemap.xml'
+    | '/aura/store'
   id:
     | '__root__'
     | '/'
@@ -169,13 +180,14 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/results'
     | '/sitemap.xml'
+    | '/aura/store'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AssessmentRoute: typeof AssessmentRoute
-  AuraRoute: typeof AuraRoute
+  AuraRoute: typeof AuraRouteWithChildren
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
@@ -272,14 +284,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/aura/store': {
+      id: '/aura/store'
+      path: '/store'
+      fullPath: '/aura/store'
+      preLoaderRoute: typeof AuraStoreRouteImport
+      parentRoute: typeof AuraRoute
+    }
   }
 }
+
+interface AuraRouteChildren {
+  AuraStoreRoute: typeof AuraStoreRoute
+}
+
+const AuraRouteChildren: AuraRouteChildren = {
+  AuraStoreRoute: AuraStoreRoute,
+}
+
+const AuraRouteWithChildren = AuraRoute._addFileChildren(AuraRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AssessmentRoute: AssessmentRoute,
-  AuraRoute: AuraRoute,
+  AuraRoute: AuraRouteWithChildren,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
@@ -292,3 +321,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
