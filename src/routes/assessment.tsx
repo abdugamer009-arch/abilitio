@@ -66,6 +66,7 @@ function AssessmentPage() {
   const [secondsLeft, setSecondsLeft] = useState(TOTAL_SECONDS);
   const [syncing, setSyncing] = useState(false);
   const [finishError, setFinishError] = useState<string | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
 
   useEffect(() => { clearLocal(); }, []);
 
