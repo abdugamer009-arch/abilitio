@@ -247,8 +247,11 @@ body {
 }
 
 :root:not(.dark) .glass {
-  background: color-mix(in oklab, white 80%, transparent);
-  border: 1px solid oklch(0.55 0.12 290 / 10%);
+  background: color-mix(in oklab, white 72%, oklch(0.55 0.18 285 / 0.04));
+  border: 1px solid oklch(0.55 0.16 290 / 14%);
+  box-shadow:
+    0 1px 1px rgba(40, 28, 80, 0.025),
+    0 8px 24px -10px rgba(60, 40, 130, 0.10);
 }
 
 /* ============================================================
