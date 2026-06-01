@@ -44,6 +44,14 @@
   --animate-pulse-glow: pulse-glow 8s ease-in-out infinite;
   --animate-shimmer-line: shimmer-line 10s ease-in-out infinite;
   --animate-drift: drift 24s ease-in-out infinite;
+  --animate-aura-reward: aura-reward 4.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  @keyframes aura-reward {
+    0% { opacity: 0; transform: translateY(-16px) scale(0.94); filter: blur(8px); }
+    12% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    80% { opacity: 1; transform: translateY(-2px) scale(1); filter: blur(0); }
+    100% { opacity: 0; transform: translateY(-8px) scale(0.98); filter: blur(4px); }
+  }
 
   @keyframes fade-in {
     from { opacity: 0; }
