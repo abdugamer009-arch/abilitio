@@ -10,6 +10,7 @@ import {
 
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth-context";
+import { LanguageProvider } from "@/lib/i18n";
 
 function NotFoundComponent() {
   return (
@@ -117,10 +118,12 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        {/* Required: nested routes render here. */}
-        <Outlet />
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          {/* Required: nested routes render here. */}
+          <Outlet />
+        </AuthProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

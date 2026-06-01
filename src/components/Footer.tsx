@@ -1,7 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 export function Footer() {
+  const t = useT();
   return (
     <footer className="mt-32 border-t border-border/50">
       <div className="mx-auto max-w-6xl px-6 py-12">
@@ -14,26 +16,26 @@ export function Footer() {
               <span className="text-lg font-semibold">Abilitio</span>
             </Link>
             <p className="mt-4 max-w-sm text-sm text-muted-foreground">
-              AI-powered talent discovery for students and parents. Find natural strengths and chart future career paths.
+              {t.footer.tagline}
             </p>
           </div>
           <div>
-            <h4 className="text-sm font-semibold">Product</h4>
+            <h4 className="text-sm font-semibold">{t.footer.product}</h4>
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-              <li><Link to="/features" className="transition-colors duration-300 hover:text-foreground">Features</Link></li>
+              <li><Link to="/features" className="transition-colors duration-300 hover:text-foreground">{t.footer.features}</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-semibold">Company</h4>
+            <h4 className="text-sm font-semibold">{t.footer.company}</h4>
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-              <li><Link to="/about" className="transition-colors duration-300 hover:text-foreground">About Us</Link></li>
-              <li><Link to="/contact" className="transition-colors duration-300 hover:text-foreground">Contacts</Link></li>
+              <li><Link to="/about" className="transition-colors duration-300 hover:text-foreground">{t.footer.about}</Link></li>
+              <li><Link to="/contact" className="transition-colors duration-300 hover:text-foreground">{t.footer.contacts}</Link></li>
             </ul>
           </div>
         </div>
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-border/50 pt-6 text-xs text-muted-foreground md:flex-row">
-          <p>© {new Date().getFullYear()} Abilitio. All rights reserved.</p>
-          <p>Crafted with care for curious minds.</p>
+          <p>© {new Date().getFullYear()} Abilitio. {t.footer.rights}</p>
+          <p>{t.footer.crafted}</p>
         </div>
       </div>
     </footer>

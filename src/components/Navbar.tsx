@@ -1,19 +1,22 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Sparkles, LogOut, LayoutDashboard } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useAuth } from "@/lib/auth-context";
-
-const navItems = [
-  { to: "/", label: "Home" },
-  { to: "/about", label: "About Us" },
-  { to: "/features", label: "Features" },
-  { to: "/assessment", label: "Assessments" },
-  { to: "/contact", label: "Contacts" },
-] as const;
+import { useT } from "@/lib/i18n";
 
 export function Navbar() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const t = useT();
+
+  const navItems = [
+    { to: "/", label: t.nav.home },
+    { to: "/about", label: t.nav.about },
+    { to: "/features", label: t.nav.features },
+    { to: "/assessment", label: t.nav.assessment },
+    { to: "/contact", label: t.nav.contact },
+  ] as const;
 
   return (
     <header className="sticky top-0 z-50 w-full">
@@ -40,6 +43,7 @@ export function Navbar() {
             ))}
           </ul>
           <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             <ThemeToggle />
             {user ? (
               <>
@@ -47,7 +51,7 @@ export function Navbar() {
                   to="/dashboard"
                   className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm hover:bg-secondary"
                 >
-                  <LayoutDashboard className="h-4 w-4" /> Dashboard
+                  <LayoutDashboard className="h-4 w-4" /> {t.nav.dashboard}
                 </Link>
                 <button
                   onClick={async () => { await signOut(); navigate({ to: "/" }); }}
@@ -62,7 +66,7 @@ export function Navbar() {
                 search={{ mode: "login" }}
                 className="hidden sm:inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-all duration-300 hover:glow-purple hover:-translate-y-0.5"
               >
-                Sign in
+                {t.nav.signIn}
               </Link>
             )}
           </div>
