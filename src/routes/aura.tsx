@@ -143,7 +143,6 @@ function AuraPage() {
                 Sign in to start earning <ArrowRight className="h-4 w-4" />
               </Link>
             )}
-            </Link>
           </div>
 
           {isLoading && user && (
