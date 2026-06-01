@@ -66,125 +66,124 @@
 }
 
 /* ============================================================
-   DARK MODE — deep charcoal, calm, sophisticated
-   Inspired by Linear, Raycast, Monica AI.
+   DARK MODE — elegant violet, calm, premium
+   Inspired by Monica AI, Linear, Raycast.
    ============================================================ */
 :root {
   --radius: 0.75rem;
 
-  /* Deep charcoal with cool neutral cast */
-  --background: oklch(0.16 0.008 265);            /* #0F1115 */
-  --foreground: oklch(0.93 0.005 260);            /* #EAECEF */
-  --card: oklch(0.2 0.01 265);                    /* #171A21 */
-  --card-foreground: oklch(0.93 0.005 260);
-  --popover: oklch(0.19 0.01 265);
-  --popover-foreground: oklch(0.93 0.005 260);
+  /* Deep ink with subtle violet undertone */
+  --background: oklch(0.16 0.012 285);            /* #0F1117 */
+  --foreground: oklch(0.93 0.006 285);
+  --card: oklch(0.21 0.014 285);                  /* #1B1F2A */
+  --card-foreground: oklch(0.93 0.006 285);
+  --popover: oklch(0.2 0.014 285);
+  --popover-foreground: oklch(0.93 0.006 285);
 
-  /* Desaturated indigo-violet — calm, not neon */
-  --primary: oklch(0.66 0.13 280);                /* ~#7C6CF2 */
+  /* Muted violet — luxurious, never neon */
+  --primary: oklch(0.7 0.14 290);                 /* ~#8B7CF6 */
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.24 0.012 265);
-  --secondary-foreground: oklch(0.93 0.005 260);
-  --muted: oklch(0.23 0.01 265);
-  --muted-foreground: oklch(0.66 0.012 265);
-  --accent: oklch(0.72 0.11 250);                 /* soft sky blue accent */
-  --accent-foreground: oklch(0.16 0.01 265);
+  --secondary: oklch(0.24 0.014 285);             /* ~#151821 */
+  --secondary-foreground: oklch(0.93 0.006 285);
+  --muted: oklch(0.23 0.012 285);
+  --muted-foreground: oklch(0.67 0.018 285);
+  --accent: oklch(0.76 0.12 295);                 /* soft lavender ~#A78BFA */
+  --accent-foreground: oklch(0.16 0.012 285);
   --destructive: oklch(0.6 0.18 25);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.3 0.012 265 / 50%);
-  --input: oklch(0.26 0.012 265);
-  --ring: oklch(0.66 0.13 280);
-  --lavender: oklch(0.8 0.07 280);
-  --glow: oklch(0.66 0.13 280 / 28%);
+  --border: oklch(0.32 0.018 285 / 50%);
+  --input: oklch(0.26 0.014 285);
+  --ring: oklch(0.7 0.14 290);
+  --lavender: oklch(0.82 0.09 290);
+  --glow: oklch(0.7 0.14 290 / 28%);
 
-  --sidebar: oklch(0.17 0.008 265);
-  --sidebar-foreground: oklch(0.93 0.005 260);
-  --sidebar-primary: oklch(0.66 0.13 280);
+  --sidebar: oklch(0.17 0.012 285);
+  --sidebar-foreground: oklch(0.93 0.006 285);
+  --sidebar-primary: oklch(0.7 0.14 290);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.24 0.012 265);
-  --sidebar-accent-foreground: oklch(0.93 0.005 260);
-  --sidebar-border: oklch(0.3 0.012 265 / 50%);
-  --sidebar-ring: oklch(0.66 0.13 280);
+  --sidebar-accent: oklch(0.24 0.014 285);
+  --sidebar-accent-foreground: oklch(0.93 0.006 285);
+  --sidebar-border: oklch(0.32 0.018 285 / 50%);
+  --sidebar-ring: oklch(0.7 0.14 290);
 
   --shadow-elegant:
     0 1px 2px rgba(0,0,0,0.25),
-    0 10px 30px -14px rgba(0,0,0,0.55);
+    0 10px 30px -14px rgba(20, 14, 40, 0.6);
   --shadow-soft:
     0 1px 2px rgba(0,0,0,0.2),
-    0 2px 8px -4px rgba(0,0,0,0.3);
+    0 2px 8px -4px rgba(20, 14, 40, 0.35);
 
-  /* Gradient line — soft purple → blue → cyan */
+  /* Gradient line — soft violet → purple → muted indigo */
   --gradient-line: linear-gradient(
     90deg,
     transparent 0%,
-    oklch(0.66 0.13 280 / 0) 8%,
-    oklch(0.66 0.13 280 / 0.7) 30%,
-    oklch(0.72 0.11 250 / 0.85) 50%,
-    oklch(0.82 0.09 220 / 0.7) 70%,
-    oklch(0.82 0.09 220 / 0) 92%,
+    oklch(0.76 0.12 295 / 0) 8%,
+    oklch(0.76 0.12 295 / 0.75) 30%,
+    oklch(0.7 0.14 290 / 0.9) 50%,
+    oklch(0.65 0.15 280 / 0.7) 70%,
+    oklch(0.65 0.15 280 / 0) 92%,
     transparent 100%
   );
-  --gradient-line-glow: oklch(0.72 0.11 250 / 0.35);
+  --gradient-line-glow: oklch(0.7 0.14 290 / 0.35);
 }
 
 /* ============================================================
-   LIGHT MODE — warm off-white, soft depth, premium calm
-   Inspired by Linear, Stripe, Notion, Arc.
+   LIGHT MODE — airy lavender-tinted white, premium calm
    ============================================================ */
 :root:not(.dark) {
-  --background: oklch(0.985 0.003 260);           /* ~#F7F8FA warm white */
-  --foreground: oklch(0.22 0.015 265);            /* ~#1B1F28 ink */
-  --card: oklch(1 0 0);                           /* pure white surfaces */
-  --card-foreground: oklch(0.22 0.015 265);
+  --background: oklch(0.98 0.006 290);            /* ~#F7F7FB */
+  --foreground: oklch(0.22 0.012 285);            /* ~#1C1D22 */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.012 285);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.015 265);
+  --popover-foreground: oklch(0.22 0.012 285);
 
-  /* Desaturated indigo — elegant, NOT neon purple on white */
-  --primary: oklch(0.52 0.11 280);
+  /* Elegant violet — refined, not toy purple */
+  --primary: oklch(0.55 0.16 290);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.96 0.005 260);
-  --secondary-foreground: oklch(0.28 0.02 265);
-  --muted: oklch(0.965 0.004 260);
-  --muted-foreground: oklch(0.5 0.015 265);
-  --accent: oklch(0.6 0.1 250);                   /* soft blue accent */
+  --secondary: oklch(0.965 0.012 290);            /* soft purple tint ~#F1EEFF */
+  --secondary-foreground: oklch(0.28 0.02 285);
+  --muted: oklch(0.97 0.008 290);
+  --muted-foreground: oklch(0.5 0.02 285);
+  --accent: oklch(0.62 0.14 295);                 /* soft lavender accent */
   --accent-foreground: oklch(0.99 0 0);
   --destructive: oklch(0.55 0.18 25);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.3 0.02 265 / 10%);
-  --input: oklch(0.94 0.006 260);
-  --ring: oklch(0.52 0.11 280 / 45%);
-  --lavender: oklch(0.78 0.07 280);
-  --glow: oklch(0.52 0.11 280 / 14%);
+  --border: oklch(0.7 0.08 290 / 22%);            /* ~#E6E1FF */
+  --input: oklch(0.94 0.01 290);
+  --ring: oklch(0.55 0.16 290 / 45%);
+  --lavender: oklch(0.78 0.08 290);
+  --glow: oklch(0.55 0.16 290 / 14%);
 
-  --sidebar: oklch(0.98 0.004 260);
-  --sidebar-foreground: oklch(0.22 0.015 265);
-  --sidebar-primary: oklch(0.52 0.11 280);
+  --sidebar: oklch(0.985 0.008 290);
+  --sidebar-foreground: oklch(0.22 0.012 285);
+  --sidebar-primary: oklch(0.55 0.16 290);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.96 0.005 260);
-  --sidebar-accent-foreground: oklch(0.28 0.02 265);
-  --sidebar-border: oklch(0.3 0.02 265 / 10%);
-  --sidebar-ring: oklch(0.52 0.11 280 / 45%);
+  --sidebar-accent: oklch(0.965 0.012 290);
+  --sidebar-accent-foreground: oklch(0.28 0.02 285);
+  --sidebar-border: oklch(0.7 0.08 290 / 22%);
+  --sidebar-ring: oklch(0.55 0.16 290 / 45%);
 
   --shadow-elegant:
-    0 1px 1px rgba(20, 22, 40, 0.03),
-    0 4px 12px -4px rgba(20, 22, 40, 0.05),
-    0 14px 40px -16px rgba(40, 40, 80, 0.07);
+    0 1px 1px rgba(30, 20, 60, 0.03),
+    0 4px 12px -4px rgba(30, 20, 60, 0.05),
+    0 14px 40px -16px rgba(60, 40, 100, 0.08);
   --shadow-soft:
-    0 1px 1px rgba(20, 22, 40, 0.025),
-    0 2px 6px -2px rgba(20, 22, 40, 0.04);
+    0 1px 1px rgba(30, 20, 60, 0.025),
+    0 2px 6px -2px rgba(30, 20, 60, 0.04);
 
-  /* Gradient line — muted indigo → violet → sky blue */
+  /* Gradient line — muted violet → purple → soft indigo */
   --gradient-line: linear-gradient(
     90deg,
     transparent 0%,
-    oklch(0.55 0.12 280 / 0) 8%,
-    oklch(0.55 0.12 280 / 0.55) 30%,
-    oklch(0.6 0.1 250 / 0.75) 50%,
-    oklch(0.7 0.09 220 / 0.55) 70%,
-    oklch(0.7 0.09 220 / 0) 92%,
+    oklch(0.62 0.14 295 / 0) 8%,
+    oklch(0.62 0.14 295 / 0.6) 30%,
+    oklch(0.55 0.16 290 / 0.8) 50%,
+    oklch(0.5 0.16 280 / 0.6) 70%,
+    oklch(0.5 0.16 280 / 0) 92%,
     transparent 100%
   );
-  --gradient-line-glow: oklch(0.6 0.1 250 / 0.22);
+  --gradient-line-glow: oklch(0.55 0.16 290 / 0.22);
 }
 
 html {
@@ -194,11 +193,11 @@ body {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-/* Subtle ambient gradients — calm, not glowing */
+/* Subtle ambient gradients — calm violet wash */
 :root:not(.dark) body {
   background-image:
-    radial-gradient(ellipse 70% 45% at 50% -15%, oklch(0.6 0.1 280 / 0.05), transparent 70%),
-    radial-gradient(ellipse 55% 35% at 100% 100%, oklch(0.65 0.09 230 / 0.04), transparent 70%);
+    radial-gradient(ellipse 70% 45% at 50% -15%, oklch(0.6 0.14 290 / 0.06), transparent 70%),
+    radial-gradient(ellipse 55% 35% at 100% 100%, oklch(0.65 0.12 280 / 0.05), transparent 70%);
 }
 
 @layer base {
@@ -220,8 +219,8 @@ body {
     font-size: 15px;
     line-height: 1.6;
     background-image:
-      radial-gradient(ellipse 70% 45% at 50% -10%, oklch(0.4 0.1 280 / 0.16), transparent 70%),
-      radial-gradient(ellipse 55% 35% at 100% 100%, oklch(0.4 0.09 240 / 0.1), transparent 70%);
+      radial-gradient(ellipse 70% 45% at 50% -10%, oklch(0.42 0.14 290 / 0.18), transparent 70%),
+      radial-gradient(ellipse 55% 35% at 100% 100%, oklch(0.4 0.12 280 / 0.1), transparent 70%);
     background-attachment: fixed;
   }
   h1, h2, h3, h4, h5 {
@@ -235,7 +234,7 @@ body {
 }
 
 /* ============================================================
-   Glass — subtle frosted depth (no cringe glassmorphism)
+   Glass — subtle frosted depth
    ============================================================ */
 @utility glass {
   background: color-mix(in oklab, var(--card) 80%, transparent);
@@ -246,18 +245,18 @@ body {
 }
 
 :root:not(.dark) .glass {
-  background: color-mix(in oklab, white 78%, transparent);
-  border: 1px solid oklch(0.3 0.02 265 / 8%);
+  background: color-mix(in oklab, white 80%, transparent);
+  border: 1px solid oklch(0.55 0.12 290 / 10%);
 }
 
 /* ============================================================
-   Refined gradient text — restrained, premium
+   Refined gradient text — violet → purple → indigo
    ============================================================ */
 @utility gradient-text {
   background: linear-gradient(135deg,
-    oklch(0.96 0.004 260),
-    oklch(0.78 0.1 280) 55%,
-    oklch(0.78 0.09 235));
+    oklch(0.96 0.006 290),
+    oklch(0.8 0.12 295) 55%,
+    oklch(0.72 0.14 285));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -265,9 +264,9 @@ body {
 
 :root:not(.dark) .gradient-text {
   background: linear-gradient(135deg,
-    oklch(0.28 0.04 265),
-    oklch(0.45 0.12 280) 55%,
-    oklch(0.5 0.1 240));
+    oklch(0.3 0.06 285),
+    oklch(0.48 0.16 290) 55%,
+    oklch(0.52 0.16 280));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -284,8 +283,8 @@ body {
 
 :root:not(.dark) .glow-purple {
   box-shadow:
-    0 1px 2px rgba(30, 30, 60, 0.05),
-    0 12px 32px -14px oklch(0.5 0.11 280 / 0.22);
+    0 1px 2px rgba(40, 30, 70, 0.05),
+    0 12px 32px -14px oklch(0.55 0.16 290 / 0.25);
 }
 
 @utility hover-glow {
@@ -298,7 +297,6 @@ body {
 
 /* ============================================================
    Gradient Divider — Monica AI–style horizontal glow line
-   Usage: <div class="gradient-divider" />  (or with .glow modifier)
    ============================================================ */
 @utility gradient-divider {
   position: relative;
@@ -327,7 +325,7 @@ body {
   }
 }
 
-/* Tactile transitions — applies broadly */
+/* Tactile transitions */
 button, [role="button"], .btn, a.inline-flex {
   transition:
     background-color 0.18s ease,
