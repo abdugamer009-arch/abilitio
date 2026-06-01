@@ -209,6 +209,10 @@ function AssessmentPage() {
   const mm = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
   const ss = String(secondsLeft % 60).padStart(2, "0");
 
+  if (analyzing) {
+    return <AILoadingScreen onDone={() => navigate({ to: "/results" })} />;
+  }
+
   if (!started) {
     return (
       <PageShell>
