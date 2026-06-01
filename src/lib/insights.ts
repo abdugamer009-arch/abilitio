@@ -96,14 +96,7 @@ export function getUniversitiesFor(careerName: string): University[] {
 
 // ---------- Radar dataset ----------
 export function buildRadarData(r: ScoredResult) {
-  const map: { key: string; label: string }[] = [
-    { key: "analytical", label: "Analytical" },
-    { key: "creativity", label: "Creativity" },
-    { key: "leadership", label: "Leadership" },
-    { key: "communication": as any, label: "Communication" } as any,
-  ];
-  // safer explicit list:
-  const dims = [
+  const dims: [string, string][] = [
     ["analytical", "Analytical"],
     ["creativity", "Creativity"],
     ["leadership", "Leadership"],
@@ -112,9 +105,9 @@ export function buildRadarData(r: ScoredResult) {
     ["eq", "Empathy"],
     ["curiosity", "Curiosity"],
     ["organization", "Organization"],
-  ] as const;
+  ];
   return dims.map(([k, label]) => ({
     dimension: label,
-    value: (r.interests as any)[k] ?? 0,
+    value: (r.interests as Record<string, number>)[k] ?? 0,
   }));
 }
