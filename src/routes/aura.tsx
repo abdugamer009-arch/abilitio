@@ -1,9 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { PageShell } from "@/components/PageShell";
 import { AuraCoin } from "@/components/aura/AuraCoin";
 import { useAura } from "@/components/aura/AuraProvider";
 import { useAuth } from "@/lib/auth-context";
-import { Flame, Sparkles, TrendingUp, Lock } from "lucide-react";
+import { Flame, Sparkles, TrendingUp, ArrowRight, Check } from "lucide-react";
+import { getMyUnlocks } from "@/lib/aura-store.functions";
+import { AURA_FEATURES } from "@/lib/aura-catalog";
 
 export const Route = createFileRoute("/aura")({
   head: () => ({
