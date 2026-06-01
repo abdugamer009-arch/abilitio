@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { FloatingShapes } from "@/components/FloatingShapes";
-import { Heart, Lightbulb, Globe, User } from "lucide-react";
+import { Heart, Lightbulb, Globe, User, Phone, Mail } from "lucide-react";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/about")({
