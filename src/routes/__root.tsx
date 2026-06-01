@@ -13,6 +13,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { LanguageProvider } from "@/lib/i18n";
 import { AuraProvider } from "@/components/aura/AuraProvider";
 import { AuraRewardToaster } from "@/components/aura/AuraRewardToaster";
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -126,6 +127,8 @@ function RootComponent() {
             {/* Required: nested routes render here. */}
             <Outlet />
             <AuraRewardToaster />
+            <SonnerToaster />
+
           </AuraProvider>
         </AuthProvider>
       </LanguageProvider>
