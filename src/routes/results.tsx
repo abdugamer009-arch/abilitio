@@ -107,16 +107,6 @@ function ResultsPage() {
             <p className="mt-3 text-muted-foreground max-w-xl mx-auto">{MBTI_DESCRIPTIONS[result.mbti.type] ?? ""}</p>
           </div>
 
-          {/* AI Summary card */}
-          <div className="mt-10 glass rounded-3xl p-8 md:p-10 animate-fade-up">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
-                <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
-              </span>
-              <span className="text-xs uppercase tracking-[0.18em] text-accent">AI Personality Summary</span>
-            </div>
-            <p className="mt-5 text-lg leading-relaxed text-foreground/90 md:text-xl">{summary}</p>
-          </div>
 
           <div className="mt-10 grid gap-6 md:grid-cols-[1fr_1.2fr]">
             <ScoreRing score={result.iq.score} label={t.results.iqScore} />
@@ -244,6 +234,17 @@ function ResultsPage() {
                 <MbtiAxis a="J" b="P" scores={result.mbti.scores} />
               </div>
             </div>
+          </div>
+
+          {/* AI Summary card */}
+          <div className="mt-12 glass rounded-3xl p-8 md:p-10 animate-fade-up">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
+                <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
+              </span>
+              <span className="text-xs uppercase tracking-[0.18em] text-accent">AI Personality Summary</span>
+            </div>
+            <p className="mt-5 text-lg leading-relaxed text-foreground/90 md:text-xl">{summary}</p>
           </div>
 
           <div className="mt-10 flex flex-wrap justify-center gap-3">
