@@ -1,8 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { FloatingShapes } from "@/components/FloatingShapes";
-import { Heart, Lightbulb, Globe, User, Phone, Mail } from "lucide-react";
+import { Heart, Lightbulb, Globe, User, Phone, Mail, Send, Loader2, Check } from "lucide-react";
+import { useState, type FormEvent } from "react";
 import { useT } from "@/lib/i18n";
+
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/mqejjovw";
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+type Status = "idle" | "sending" | "success" | "error";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
