@@ -203,7 +203,7 @@ function AssessmentPage() {
     if (user) {
       await supabase.from("assessment_sessions" as any).delete().eq("user_id", user.id);
     }
-    navigate({ to: "/results" });
+    setAnalyzing(true);
   }
 
   const mm = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
