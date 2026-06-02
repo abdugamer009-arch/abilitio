@@ -863,13 +863,16 @@ function RoadmapSection({ latest, stats, tCareer }: { latest: Result | undefined
 /* SECTION 4: SETTINGS                                           */
 /* ============================================================ */
 function SettingsSection({
-  onLogout, email, profile, userId, onProfileUpdate, t,
+  onLogout, email, profile, userId, onProfileUpdate, stats, setStats, initials, t,
 }: {
   onLogout: () => Promise<void>;
   email: string;
   profile: Profile | null;
   userId: string;
   onProfileUpdate: (p: Profile) => void;
+  stats: Stats | null;
+  setStats: (s: Stats) => void;
+  initials: string;
   t: ReturnType<typeof useI18n>["t"];
 }) {
   const [editing, setEditing] = useState(false);
