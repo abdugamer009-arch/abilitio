@@ -1,11 +1,20 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { useEffect, useState } from "react";
-import { Brain, Calendar, LogOut, User as UserIcon, TrendingUp, Trophy, Heart } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Brain, Calendar, LogOut, User as UserIcon, TrendingUp, Trophy, Heart,
+  Sparkles, Target, Award, Zap, Plus, Pencil, Trash2, Check, X, Rocket,
+  GraduationCap, MapPin, Lightbulb, Activity, BarChart3, Settings as SettingsIcon,
+  Compass, Star, Gauge, Languages, Moon, KeyRound, Bell, ChevronRight, Crown,
+} from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { MBTI_DESCRIPTIONS } from "@/lib/assessment";
 import { useI18n } from "@/lib/i18n";
+import { useAura } from "@/components/aura/AuraProvider";
+import { AuraCoin } from "@/components/aura/AuraCoin";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Abilitio" }] }),
@@ -17,19 +26,45 @@ type Result = {
   id: string;
   iq_score: number; iq_level: string;
   logical_score: number; analytical_score: number; pattern_score: number;
-  mbti_type: string; top_strengths: string[]; careers: Career[];
+  mbti_type: string; top_strengths: string[]; weaknesses?: string[]; careers: Career[];
   created_at: string;
 };
 
 type Profile = { name: string; surname: string };
+type Stats = {
+  user_id: string;
+  sat_score: number | null;
+  ielts_band: number | null;
+  study_progress: number;
+  leadership_level: number;
+  productivity_level: number;
+  creativity_score: number;
+  communication_score: number;
+  emotional_intelligence: number;
+  tagline: string | null;
+  avatar_url: string | null;
+};
+type Achievement = {
+  id: string;
+  title: string;
+  description: string | null;
+  icon: string | null;
+  created_at: string;
+};
+
+type TabKey = "results" | "stats" | "roadmap" | "settings";
 
 function DashboardPage() {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { t, tCareer, tTrait, tIqLevel } = useI18n();
+  const { wallet } = useAura();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [results, setResults] = useState<Result[]>([]);
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [busy, setBusy] = useState(true);
+  const [tab, setTab] = useState<TabKey>("results");
 
   useEffect(() => {
     if (loading) return;
@@ -38,131 +73,107 @@ function DashboardPage() {
       return;
     }
     (async () => {
-      const [{ data: p }, { data: r }] = await Promise.all([
+      const [{ data: p }, { data: r }, { data: s }, { data: a }] = await Promise.all([
         supabase.from("profiles").select("name, surname").eq("id", user.id).maybeSingle(),
         supabase.from("assessment_results").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("user_stats").select("*").eq("user_id", user.id).maybeSingle(),
+        supabase.from("user_achievements").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       ]);
       setProfile(p ?? null);
       setResults(((r as unknown) as Result[]) ?? []);
+      setStats((s as unknown as Stats) ?? null);
+      setAchievements(((a as unknown) as Achievement[]) ?? []);
       setBusy(false);
     })();
   }, [user, loading, navigate]);
 
+  const latest = results[0];
+  const fullName = `${profile?.name ?? ""} ${profile?.surname ?? ""}`.trim() || user?.email?.split("@")[0] || "Explorer";
+  const initials = useMemo(() => {
+    const parts = fullName.split(" ").filter(Boolean);
+    return ((parts[0]?.[0] ?? "A") + (parts[1]?.[0] ?? "")).toUpperCase();
+  }, [fullName]);
+
+  const tagline = useMemo(() => {
+    if (stats?.tagline) return stats.tagline;
+    if (!latest) return "Future Builder";
+    const m = latest.mbti_type;
+    if (m?.startsWith("INT") || m?.startsWith("ENT")) return "Analytical Thinker";
+    if (m?.includes("F")) return "Creative Strategist";
+    return "Growth Explorer";
+  }, [stats, latest]);
+
+  // level = lifetime_earned / 100
+  const lifetime = wallet?.lifetime_earned ?? 0;
+  const level = Math.max(1, Math.floor(lifetime / 100) + 1);
+  const levelProgress = Math.min(100, ((lifetime % 100) / 100) * 100);
+
   if (loading || busy) {
     return (
       <PageShell>
-        <div className="px-6 pt-24 text-center text-sm text-muted-foreground">{t.dashboard.loading}</div>
+        <div className="px-6 pt-32 text-center text-sm text-muted-foreground">{t.dashboard.loading}</div>
       </PageShell>
     );
   }
 
-  const latest = results[0];
-  const best = results.reduce((m, r) => (r.iq_score > m ? r.iq_score : m), 0);
-  const fullName = `${profile?.name ?? ""} ${profile?.surname ?? ""}`.trim() || user?.email;
-
   return (
     <PageShell>
-      <section className="px-6 pt-12 pb-24">
-        <div className="mx-auto max-w-5xl">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent glow-purple">
-                <UserIcon className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold">{fullName}</h1>
-                <p className="text-xs text-muted-foreground">{user?.email}</p>
-              </div>
-            </div>
-            <button onClick={async () => { await signOut(); navigate({ to: "/" }); }} className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm hover:bg-secondary">
-              <LogOut className="h-4 w-4" /> {t.dashboard.logout}
-            </button>
-          </div>
+      {/* Ambient violet glow */}
+      <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-[600px] overflow-hidden">
+        <div className="absolute left-1/2 top-[-200px] h-[700px] w-[1100px] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
+          style={{ background: "radial-gradient(ellipse, oklch(0.55 0.22 295 / 0.35), transparent 60%)" }} />
+      </div>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-4">
-            <Stat label={t.dashboard.latestIq} value={latest ? String(latest.iq_score) : "—"} hint={latest ? tIqLevel(latest.iq_level) : t.dashboard.takeTest} />
-            <Stat label={t.dashboard.bestScore} value={best ? String(best) : "—"} hint={t.dashboard.allTime} />
-            <Stat label={t.dashboard.personality} value={latest?.mbti_type ?? "—"} hint={latest ? (MBTI_DESCRIPTIONS[latest.mbti_type] ?? "") : t.dashboard.discoverYours} />
-            <Stat label={t.dashboard.assessments} value={String(results.length)} hint={t.dashboard.testsTaken} />
-          </div>
+      <section className="px-4 pt-10 pb-24 sm:px-6">
+        <div className="mx-auto max-w-6xl">
+          {/* PROFILE HEADER */}
+          <ProfileHeader
+            fullName={fullName}
+            email={user?.email ?? ""}
+            initials={initials}
+            avatarUrl={stats?.avatar_url ?? null}
+            balance={wallet?.balance ?? 0}
+            level={level}
+            levelProgress={levelProgress}
+            tagline={tagline}
+          />
 
-          <div className="mt-10 grid gap-6 md:grid-cols-2">
-            <div className="glass rounded-3xl p-8">
-              <h2 className="flex items-center gap-2 text-lg font-semibold">
-                <Trophy className="h-5 w-5 text-accent" /> {t.dashboard.topCareers}
-              </h2>
-              {latest?.careers?.length ? (
-                <ol className="mt-6 space-y-3">
-                  {latest.careers.map((c, i) => (
-                    <li key={c.name} className="rounded-2xl border border-border bg-secondary/40 p-4">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">#{i + 1} · {tCareer(c.name).name}</span>
-                        <span className="text-sm font-bold gradient-text">{c.match}%</span>
-                      </div>
-                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary">
-                        <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent" style={{ width: `${c.match}%` }} />
-                      </div>
-                      <p className="mt-2 text-xs text-muted-foreground">{tCareer(c.name).reason || c.reason}</p>
-                    </li>
-                  ))}
-                </ol>
-              ) : (
-                <p className="mt-4 text-sm text-muted-foreground">{t.dashboard.noAssessment}</p>
-              )}
-              <Link to="/assessment" className="mt-8 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple">
-                {results.length ? t.dashboard.retake : t.dashboard.startFirst}
-              </Link>
-            </div>
+          {/* HORIZONTAL TABS */}
+          <TabBar tab={tab} setTab={setTab} />
 
-            <div className="space-y-6">
-              <div className="glass rounded-3xl p-8">
-                <h2 className="flex items-center gap-2 text-lg font-semibold">
-                  <Brain className="h-5 w-5 text-accent" /> {t.dashboard.cognitive}
-                </h2>
-                {latest ? (
-                  <div className="mt-6 space-y-4">
-                    <DashRow label={tTrait("Logical Reasoning") || "Logical Reasoning"} value={latest.logical_score} />
-                    <DashRow label={tTrait("Analytical Thinking")} value={latest.analytical_score} />
-                    <DashRow label={tTrait("Pattern Recognition") || "Pattern Recognition"} value={latest.pattern_score} />
-                  </div>
-                ) : (<p className="mt-4 text-sm text-muted-foreground">{t.dashboard.noResults}</p>)}
-              </div>
-
-              <div className="glass rounded-3xl p-8">
-                <h2 className="flex items-center gap-2 text-lg font-semibold">
-                  <Heart className="h-5 w-5 text-accent" /> {t.dashboard.topStrengths}
-                </h2>
-                {latest?.top_strengths?.length ? (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {latest.top_strengths.map((s) => (
-                      <span key={s} className="rounded-full bg-secondary/60 px-3 py-1.5 text-xs">{tTrait(s)}</span>
-                    ))}
-                  </div>
-                ) : (<p className="mt-4 text-sm text-muted-foreground">{t.dashboard.discoverStrengths}</p>)}
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-10 glass rounded-3xl p-8">
-            <h2 className="flex items-center gap-2 text-lg font-semibold">
-              <TrendingUp className="h-5 w-5 text-accent" /> {t.dashboard.history}
-            </h2>
-            {results.length === 0 ? (
-              <p className="mt-4 text-sm text-muted-foreground">{t.dashboard.noHistory}</p>
-            ) : (
-              <ul className="mt-6 space-y-3">
-                {results.map((r) => (
-                  <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-secondary/40 px-4 py-3 text-sm">
-                    <span className="inline-flex items-center gap-2 text-muted-foreground">
-                      <Calendar className="h-3.5 w-3.5" />
-                      {new Date(r.created_at).toLocaleDateString()}
-                    </span>
-                    <span className="text-muted-foreground">{t.dashboard.iq} <span className="font-medium text-foreground">{r.iq_score}</span> · {tIqLevel(r.iq_level)}</span>
-                    <span className="text-muted-foreground">{t.dashboard.type} <span className="font-medium text-foreground">{r.mbti_type}</span></span>
-                    <span className="text-muted-foreground">{t.dashboard.top}: <span className="font-medium text-foreground">{r.careers?.[0] ? tCareer(r.careers[0].name).name : "—"}</span></span>
-                  </li>
-                ))}
-              </ul>
+          {/* CONTENT */}
+          <div className="mt-8 animate-fade-in" key={tab}>
+            {tab === "results" && (
+              <ResultsSection
+                results={results}
+                latest={latest}
+                tCareer={tCareer}
+                tTrait={tTrait}
+                tIqLevel={tIqLevel}
+                t={t}
+              />
+            )}
+            {tab === "stats" && user && (
+              <StatsSection
+                userId={user.id}
+                stats={stats}
+                setStats={setStats}
+                achievements={achievements}
+                setAchievements={setAchievements}
+              />
+            )}
+            {tab === "roadmap" && (
+              <RoadmapSection latest={latest} stats={stats} tCareer={tCareer} />
+            )}
+            {tab === "settings" && (
+              <SettingsSection
+                onLogout={async () => { await signOut(); navigate({ to: "/" }); }}
+                email={user?.email ?? ""}
+                profile={profile}
+                userId={user?.id ?? ""}
+                onProfileUpdate={setProfile}
+                t={t}
+              />
             )}
           </div>
         </div>
@@ -171,41 +182,814 @@ function DashboardPage() {
   );
 }
 
-function Stat({ label, value, hint }: { label: string; value: string; hint: string }) {
+/* ============================================================ */
+/* PROFILE HEADER                                                */
+/* ============================================================ */
+function ProfileHeader({
+  fullName, email, initials, avatarUrl, balance, level, levelProgress, tagline,
+}: {
+  fullName: string; email: string; initials: string; avatarUrl: string | null;
+  balance: number; level: number; levelProgress: number; tagline: string;
+}) {
   return (
-    <div className="glass rounded-3xl p-6">
-      <div className="text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className="mt-2 text-4xl font-bold gradient-text">{value}</div>
-      <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">{hint}</div>
+    <div className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-gradient-to-br from-secondary/40 via-background/60 to-background/40 p-6 backdrop-blur-xl sm:p-8"
+      style={{ boxShadow: "0 20px 60px -20px oklch(0.55 0.22 295 / 0.35)" }}>
+      {/* gradient orbs */}
+      <div className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 rounded-full opacity-50 blur-3xl"
+        style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }} />
+      <div className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+        style={{ background: "radial-gradient(circle, oklch(0.70 0.18 320 / 0.4), transparent 70%)" }} />
+
+      <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
+        {/* Avatar */}
+        <div className="relative shrink-0">
+          <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-primary via-accent to-primary opacity-70 blur-md transition-opacity group-hover:opacity-100" />
+          <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-accent text-3xl font-bold text-primary-foreground shadow-2xl sm:h-28 sm:w-28">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={fullName} className="h-full w-full object-cover" />
+            ) : (
+              <span>{initials}</span>
+            )}
+          </div>
+          <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-gradient-to-br from-accent to-primary shadow-lg">
+            <Crown className="h-3.5 w-3.5 text-primary-foreground" />
+          </div>
+        </div>
+
+        {/* Identity */}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="truncate text-2xl font-bold tracking-tight sm:text-3xl">{fullName}</h1>
+            <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary">
+              <Sparkles className="h-3 w-3" /> Level {level}
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">{email}</p>
+          <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-1 text-sm font-medium">
+            <Star className="h-3.5 w-3.5 text-accent" />
+            <span className="gradient-text">{tagline}</span>
+          </p>
+
+          {/* Level progress */}
+          <div className="mt-5 max-w-md">
+            <div className="mb-1.5 flex items-center justify-between text-[11px] text-muted-foreground">
+              <span>Progress to Level {level + 1}</span>
+              <span className="font-medium tabular-nums">{Math.round(levelProgress)}%</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-secondary/60">
+              <div className="h-full rounded-full bg-gradient-to-r from-primary via-accent to-primary transition-all duration-700"
+                style={{ width: `${levelProgress}%`, boxShadow: "0 0 12px oklch(0.65 0.22 295 / 0.6)" }} />
+            </div>
+          </div>
+        </div>
+
+        {/* Aura balance */}
+        <Link to="/aura" className="group relative shrink-0 overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 to-accent/10 px-5 py-4 transition-all hover:-translate-y-0.5 hover:border-primary/50"
+          style={{ boxShadow: "0 10px 30px -10px oklch(0.55 0.22 295 / 0.4)" }}>
+          <div className="flex items-center gap-3">
+            <AuraCoin size={36} />
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Aura Balance</div>
+              <div className="text-2xl font-bold tabular-nums gradient-text">{balance.toLocaleString()}</div>
+            </div>
+          </div>
+        </Link>
+      </div>
     </div>
   );
 }
 
-function Row({ label, value }: { label: string; value: number }) {
-  if (!label) return null;
+/* ============================================================ */
+/* TAB BAR                                                       */
+/* ============================================================ */
+function TabBar({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
+  const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
+    { key: "results", label: "Assessment Results", icon: Brain },
+    { key: "stats", label: "My Stats", icon: BarChart3 },
+    { key: "roadmap", label: "Career Roadmap", icon: Compass },
+    { key: "settings", label: "Settings", icon: SettingsIcon },
+  ];
   return (
-    <div>
-      <div className="mb-2 flex items-center justify-between text-sm">
-        <span className="text-muted-foreground">{label}</span>
-        <span className="font-medium">{value}%</span>
-      </div>
-      <div className="h-2 overflow-hidden rounded-full bg-secondary">
-        <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent" style={{ width: `${value}%` }} />
+    <div className="mt-8 overflow-x-auto">
+      <div className="inline-flex min-w-full gap-1 rounded-2xl border border-border/60 bg-secondary/30 p-1.5 backdrop-blur-xl sm:gap-2">
+        {tabs.map((tt) => {
+          const active = tab === tt.key;
+          const Icon = tt.icon;
+          return (
+            <button
+              key={tt.key}
+              onClick={() => setTab(tt.key)}
+              className={`group relative flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 py-2.5 text-[12px] font-medium transition-all sm:text-sm ${
+                active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {active && (
+                <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary/20 to-accent/15 transition-all"
+                  style={{ boxShadow: "0 8px 24px -8px oklch(0.55 0.22 295 / 0.45), inset 0 1px 0 oklch(1 0 0 / 0.08)" }} />
+              )}
+              <Icon className={`relative h-4 w-4 transition-colors ${active ? "text-primary" : ""}`} />
+              <span className="relative hidden sm:inline">{tt.label}</span>
+              <span className="relative sm:hidden">{tt.label.split(" ")[0]}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-function DashRow({ label, value }: { label: string; value: number }) {
+/* ============================================================ */
+/* SECTION 1: RESULTS                                            */
+/* ============================================================ */
+function ResultsSection({
+  results, latest, tCareer, tTrait, tIqLevel, t,
+}: {
+  results: Result[]; latest: Result | undefined;
+  tCareer: (n: string) => { name: string; reason: string };
+  tTrait: (n: string) => string;
+  tIqLevel: (l: string) => string;
+  t: ReturnType<typeof useI18n>["t"];
+}) {
+  if (!latest) {
+    return (
+      <GlassCard className="p-10 text-center">
+        <Brain className="mx-auto h-12 w-12 text-primary" />
+        <h3 className="mt-4 text-xl font-semibold">No assessment yet</h3>
+        <p className="mt-2 text-sm text-muted-foreground">Take your first assessment to unlock your AI-powered insights.</p>
+        <Link to="/assessment" className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple">
+          {t.dashboard.startFirst} <ChevronRight className="h-4 w-4" />
+        </Link>
+      </GlassCard>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Top metrics row */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricRing label="IQ Score" value={latest.iq_score} max={160} hint={tIqLevel(latest.iq_level)} icon={Brain} />
+        <MetricCard label="Personality" value={latest.mbti_type} hint={MBTI_DESCRIPTIONS[latest.mbti_type] ?? "Unique mind"} icon={Sparkles} />
+        <MetricCard label="Assessments" value={String(results.length)} hint="Total taken" icon={Activity} />
+        <MetricCard label="Top Match" value={latest.careers?.[0] ? `${latest.careers[0].match}%` : "—"} hint={latest.careers?.[0] ? tCareer(latest.careers[0].name).name : "—"} icon={Target} />
+      </div>
+
+      {/* Cognitive bars + Strengths/Weaknesses */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <GlassCard className="p-7">
+          <SectionTitle icon={Gauge}>Cognitive Profile</SectionTitle>
+          <div className="mt-6 space-y-5">
+            <BarRow label={tTrait("Logical Reasoning") || "Logical Reasoning"} value={latest.logical_score} />
+            <BarRow label={tTrait("Analytical Thinking") || "Analytical Thinking"} value={latest.analytical_score} />
+            <BarRow label={tTrait("Pattern Recognition") || "Pattern Recognition"} value={latest.pattern_score} />
+          </div>
+        </GlassCard>
+
+        <div className="grid gap-6">
+          <GlassCard className="p-7">
+            <SectionTitle icon={Heart}>Top Strengths</SectionTitle>
+            {latest.top_strengths?.length ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {latest.top_strengths.map((s) => (
+                  <span key={s} className="rounded-full border border-primary/20 bg-gradient-to-br from-primary/15 to-accent/10 px-3 py-1.5 text-xs font-medium">
+                    {tTrait(s)}
+                  </span>
+                ))}
+              </div>
+            ) : (<p className="mt-3 text-sm text-muted-foreground">No data yet.</p>)}
+          </GlassCard>
+          <GlassCard className="p-7">
+            <SectionTitle icon={Zap}>Growth Areas</SectionTitle>
+            {latest.weaknesses?.length ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {latest.weaknesses.map((s) => (
+                  <span key={s} className="rounded-full border border-border bg-secondary/50 px-3 py-1.5 text-xs">
+                    {tTrait(s)}
+                  </span>
+                ))}
+              </div>
+            ) : (<p className="mt-3 text-sm text-muted-foreground">All round excellence.</p>)}
+          </GlassCard>
+        </div>
+      </div>
+
+      {/* Career matches */}
+      <GlassCard className="p-7">
+        <SectionTitle icon={Trophy}>Top Career Matches</SectionTitle>
+        {latest.careers?.length ? (
+          <div className="mt-6 grid gap-4 lg:grid-cols-3">
+            {latest.careers.slice(0, 3).map((c, i) => (
+              <CareerCard key={c.name} career={c} rank={i + 1} featured={i === 0} tCareer={tCareer} />
+            ))}
+          </div>
+        ) : <p className="mt-3 text-sm text-muted-foreground">No career data yet.</p>}
+      </GlassCard>
+
+      {/* History */}
+      <GlassCard className="p-7">
+        <SectionTitle icon={TrendingUp}>Assessment History</SectionTitle>
+        <ul className="mt-5 space-y-2">
+          {results.map((r) => (
+            <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-secondary/30 px-4 py-3 text-sm transition-all hover:border-primary/30 hover:bg-secondary/50">
+              <span className="inline-flex items-center gap-2 text-muted-foreground">
+                <Calendar className="h-3.5 w-3.5" />
+                {new Date(r.created_at).toLocaleDateString()}
+              </span>
+              <span className="text-muted-foreground">IQ <span className="font-semibold text-foreground">{r.iq_score}</span></span>
+              <span className="text-muted-foreground">Type <span className="font-semibold text-foreground">{r.mbti_type}</span></span>
+              <span className="text-muted-foreground">Top: <span className="font-semibold text-foreground">{r.careers?.[0] ? tCareer(r.careers[0].name).name : "—"}</span></span>
+            </li>
+          ))}
+        </ul>
+      </GlassCard>
+    </div>
+  );
+}
+
+function CareerCard({ career, rank, featured, tCareer }: { career: Career; rank: number; featured?: boolean; tCareer: (n: string) => { name: string; reason: string } }) {
+  const tc = tCareer(career.name);
+  return (
+    <div className={`group relative overflow-hidden rounded-2xl border p-5 transition-all hover:-translate-y-1 ${
+      featured
+        ? "border-primary/40 bg-gradient-to-br from-primary/15 via-accent/10 to-background/40 lg:col-span-1 lg:row-span-1"
+        : "border-border/60 bg-secondary/30"
+    }`}
+      style={featured ? { boxShadow: "0 16px 40px -16px oklch(0.55 0.22 295 / 0.5)" } : undefined}>
+      {featured && (
+        <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-60 blur-2xl"
+          style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }} />
+      )}
+      <div className="relative flex items-center justify-between">
+        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
+          featured ? "bg-primary/20 text-primary" : "bg-secondary text-muted-foreground"
+        }`}>
+          {featured && <Crown className="h-3 w-3" />} #{rank} {featured ? "Best Match" : ""}
+        </span>
+        <span className="text-2xl font-bold gradient-text tabular-nums">{career.match}%</span>
+      </div>
+      <h4 className="relative mt-3 text-lg font-semibold">{tc.name}</h4>
+      <p className="relative mt-2 line-clamp-3 text-xs text-muted-foreground">{tc.reason || career.reason}</p>
+      <div className="relative mt-4 h-1.5 overflow-hidden rounded-full bg-secondary/60">
+        <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all duration-1000" style={{ width: `${career.match}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function MetricRing({ label, value, max, hint, icon: Icon }: { label: string; value: number; max: number; hint: string; icon: React.ElementType }) {
+  const pct = Math.min(100, (value / max) * 100);
+  const circumference = 2 * Math.PI * 30;
+  const offset = circumference - (pct / 100) * circumference;
+  return (
+    <GlassCard className="p-5">
+      <div className="flex items-center justify-between">
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+        <Icon className="h-4 w-4 text-primary/70" />
+      </div>
+      <div className="mt-3 flex items-center gap-4">
+        <div className="relative h-20 w-20">
+          <svg className="h-full w-full -rotate-90" viewBox="0 0 70 70">
+            <circle cx="35" cy="35" r="30" fill="none" stroke="oklch(0.30 0.04 295 / 0.3)" strokeWidth="5" />
+            <circle cx="35" cy="35" r="30" fill="none" stroke="url(#ringGrad)" strokeWidth="5" strokeLinecap="round"
+              strokeDasharray={circumference} strokeDashoffset={offset}
+              style={{ transition: "stroke-dashoffset 1.2s ease-out", filter: "drop-shadow(0 0 6px oklch(0.65 0.22 295 / 0.6))" }} />
+            <defs>
+              <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="oklch(0.65 0.22 295)" />
+                <stop offset="100%" stopColor="oklch(0.75 0.18 320)" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center text-xl font-bold tabular-nums">{value}</div>
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[11px] font-medium text-muted-foreground line-clamp-2">{hint}</div>
+        </div>
+      </div>
+    </GlassCard>
+  );
+}
+
+function MetricCard({ label, value, hint, icon: Icon }: { label: string; value: string; hint: string; icon: React.ElementType }) {
+  return (
+    <GlassCard className="p-5">
+      <div className="flex items-center justify-between">
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+        <Icon className="h-4 w-4 text-primary/70" />
+      </div>
+      <div className="mt-3 text-3xl font-bold gradient-text">{value}</div>
+      <div className="mt-1 line-clamp-2 text-[11px] text-muted-foreground">{hint}</div>
+    </GlassCard>
+  );
+}
+
+function BarRow({ label, value }: { label: string; value: number }) {
   return (
     <div>
       <div className="mb-2 flex items-center justify-between text-sm">
         <span className="text-muted-foreground">{label}</span>
-        <span className="font-medium">{value}%</span>
+        <span className="font-semibold tabular-nums">{value}%</span>
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-secondary">
-        <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent" style={{ width: `${value}%` }} />
+      <div className="h-2 overflow-hidden rounded-full bg-secondary/60">
+        <div className="h-full rounded-full bg-gradient-to-r from-primary via-accent to-primary transition-all duration-1000"
+          style={{ width: `${value}%`, boxShadow: "0 0 10px oklch(0.65 0.22 295 / 0.5)" }} />
       </div>
     </div>
+  );
+}
+
+/* ============================================================ */
+/* SECTION 2: STATS                                              */
+/* ============================================================ */
+const STAT_FIELDS: { key: keyof Stats; label: string; icon: React.ElementType; unit?: string; max?: number }[] = [
+  { key: "sat_score", label: "SAT Score", icon: GraduationCap, max: 1600 },
+  { key: "ielts_band", label: "IELTS Band", icon: Languages, max: 9 },
+  { key: "study_progress", label: "Study Progress", icon: TrendingUp, unit: "%", max: 100 },
+  { key: "leadership_level", label: "Leadership", icon: Trophy, unit: "%", max: 100 },
+  { key: "productivity_level", label: "Productivity", icon: Zap, unit: "%", max: 100 },
+  { key: "creativity_score", label: "Creativity", icon: Sparkles, unit: "%", max: 100 },
+  { key: "communication_score", label: "Communication", icon: Activity, unit: "%", max: 100 },
+  { key: "emotional_intelligence", label: "Emotional IQ", icon: Heart, unit: "%", max: 100 },
+];
+
+function StatsSection({
+  userId, stats, setStats, achievements, setAchievements,
+}: {
+  userId: string;
+  stats: Stats | null; setStats: (s: Stats) => void;
+  achievements: Achievement[]; setAchievements: (a: Achievement[]) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const empty: Stats = {
+    user_id: userId, sat_score: null, ielts_band: null,
+    study_progress: 0, leadership_level: 0, productivity_level: 0,
+    creativity_score: 0, communication_score: 0, emotional_intelligence: 0,
+    tagline: null, avatar_url: null,
+  };
+  const current = stats ?? empty;
+  const [draft, setDraft] = useState<Stats>(current);
+
+  useEffect(() => { setDraft(current); /* eslint-disable-next-line */ }, [stats]);
+
+  async function saveStats() {
+    const payload = { ...draft, user_id: userId };
+    const { data, error } = await supabase.from("user_stats").upsert(payload).select().single();
+    if (!error && data) {
+      setStats(data as unknown as Stats);
+      setEditing(false);
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Stats grid */}
+      <GlassCard className="p-7">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <SectionTitle icon={BarChart3}>Personal Stats</SectionTitle>
+          <button
+            onClick={() => (editing ? saveStats() : setEditing(true))}
+            className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary/20"
+          >
+            {editing ? (<><Check className="h-3.5 w-3.5" /> Save</>) : (<><Pencil className="h-3.5 w-3.5" /> Edit Stats</>)}
+          </button>
+        </div>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {STAT_FIELDS.map((f) => {
+            const Icon = f.icon;
+            const raw = draft[f.key] as number | null;
+            const value = raw ?? 0;
+            const pct = f.max ? Math.min(100, (Number(value) / f.max) * 100) : 0;
+            return (
+              <div key={String(f.key)} className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-4 transition-all hover:border-primary/30 hover:-translate-y-0.5">
+                <div className="flex items-center justify-between">
+                  <Icon className="h-4 w-4 text-primary/70" />
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{f.label}</span>
+                </div>
+                {editing ? (
+                  <input
+                    type="number"
+                    value={raw ?? ""}
+                    onChange={(e) => setDraft({ ...draft, [f.key]: e.target.value === "" ? null : Number(e.target.value) } as Stats)}
+                    className="mt-3 w-full bg-transparent text-2xl font-bold outline-none ring-1 ring-border/60 rounded-lg px-2 py-1 focus:ring-primary/50"
+                  />
+                ) : (
+                  <div className="mt-3 text-2xl font-bold gradient-text tabular-nums">{raw ?? "—"}{f.unit && raw !== null ? f.unit : ""}</div>
+                )}
+                {f.max && (
+                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-secondary/60">
+                    <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all duration-700" style={{ width: `${pct}%` }} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        {editing && (
+          <div className="mt-5 flex items-center justify-end gap-2">
+            <button onClick={() => { setDraft(current); setEditing(false); }}
+              className="rounded-full border border-border px-4 py-1.5 text-xs hover:bg-secondary">Cancel</button>
+          </div>
+        )}
+      </GlassCard>
+
+      {/* Achievements */}
+      <AchievementsBlock userId={userId} achievements={achievements} setAchievements={setAchievements} />
+    </div>
+  );
+}
+
+function AchievementsBlock({
+  userId, achievements, setAchievements,
+}: {
+  userId: string; achievements: Achievement[]; setAchievements: (a: Achievement[]) => void;
+}) {
+  const [adding, setAdding] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draft, setDraft] = useState<{ title: string; description: string }>({ title: "", description: "" });
+
+  async function addOne() {
+    if (!draft.title.trim()) return;
+    const { data, error } = await supabase
+      .from("user_achievements")
+      .insert({ user_id: userId, title: draft.title.trim(), description: draft.description.trim() || null })
+      .select().single();
+    if (!error && data) {
+      setAchievements([data as unknown as Achievement, ...achievements]);
+      setDraft({ title: "", description: "" });
+      setAdding(false);
+    }
+  }
+
+  async function saveEdit(id: string) {
+    const { data, error } = await supabase
+      .from("user_achievements")
+      .update({ title: draft.title.trim(), description: draft.description.trim() || null })
+      .eq("id", id).select().single();
+    if (!error && data) {
+      setAchievements(achievements.map((a) => (a.id === id ? (data as unknown as Achievement) : a)));
+      setEditingId(null);
+    }
+  }
+
+  async function removeOne(id: string) {
+    const { error } = await supabase.from("user_achievements").delete().eq("id", id);
+    if (!error) setAchievements(achievements.filter((a) => a.id !== id));
+  }
+
+  return (
+    <GlassCard className="p-7">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <SectionTitle icon={Award}>Achievements & Activities</SectionTitle>
+        <button
+          onClick={() => { setAdding(true); setDraft({ title: "", description: "" }); }}
+          className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary/20"
+        >
+          <Plus className="h-3.5 w-3.5" /> Add
+        </button>
+      </div>
+
+      {adding && (
+        <div className="mt-5 rounded-2xl border border-primary/30 bg-primary/5 p-4">
+          <input
+            autoFocus
+            placeholder="e.g. Founder of NavoiUnity"
+            value={draft.title}
+            onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+            className="w-full bg-transparent text-sm font-medium outline-none placeholder:text-muted-foreground/60"
+          />
+          <textarea
+            placeholder="Short description (optional)"
+            value={draft.description}
+            onChange={(e) => setDraft({ ...draft, description: e.target.value })}
+            className="mt-2 w-full resize-none bg-transparent text-xs text-muted-foreground outline-none placeholder:text-muted-foreground/60"
+            rows={2}
+          />
+          <div className="mt-3 flex items-center justify-end gap-2">
+            <button onClick={() => setAdding(false)} className="rounded-full border border-border px-3 py-1 text-[11px] hover:bg-secondary">Cancel</button>
+            <button onClick={addOne} className="rounded-full bg-primary px-3 py-1 text-[11px] font-medium text-primary-foreground hover:glow-purple">Save</button>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        {achievements.length === 0 && !adding && (
+          <div className="col-span-full rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
+            No achievements yet. Add your first one — e.g. <span className="text-foreground">"Olympiad Participant"</span> or <span className="text-foreground">"Debate Club Member"</span>.
+          </div>
+        )}
+        {achievements.map((a) => {
+          const isEditing = editingId === a.id;
+          return (
+            <div key={a.id} className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/30 to-background/30 p-4 transition-all hover:border-primary/30">
+              <div className="flex items-start gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/10">
+                  <Trophy className="h-4 w-4 text-primary" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  {isEditing ? (
+                    <>
+                      <input
+                        value={draft.title}
+                        onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+                        className="w-full bg-transparent text-sm font-semibold outline-none ring-1 ring-border/60 rounded px-2 py-1 focus:ring-primary/50"
+                      />
+                      <textarea
+                        value={draft.description}
+                        onChange={(e) => setDraft({ ...draft, description: e.target.value })}
+                        className="mt-2 w-full resize-none bg-transparent text-xs outline-none ring-1 ring-border/60 rounded px-2 py-1 focus:ring-primary/50"
+                        rows={2}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <h4 className="truncate text-sm font-semibold">{a.title}</h4>
+                      {a.description && <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{a.description}</p>}
+                    </>
+                  )}
+                </div>
+                <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                  {isEditing ? (
+                    <>
+                      <button onClick={() => saveEdit(a.id)} className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/20 text-primary hover:bg-primary/30"><Check className="h-3.5 w-3.5" /></button>
+                      <button onClick={() => setEditingId(null)} className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-muted-foreground hover:bg-secondary/80"><X className="h-3.5 w-3.5" /></button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={() => { setEditingId(a.id); setDraft({ title: a.title, description: a.description ?? "" }); }} className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-muted-foreground hover:bg-secondary/80"><Pencil className="h-3.5 w-3.5" /></button>
+                      <button onClick={() => removeOne(a.id)} className="flex h-7 w-7 items-center justify-center rounded-full bg-destructive/10 text-destructive hover:bg-destructive/20"><Trash2 className="h-3.5 w-3.5" /></button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </GlassCard>
+  );
+}
+
+/* ============================================================ */
+/* SECTION 3: ROADMAP                                            */
+/* ============================================================ */
+function RoadmapSection({ latest, stats, tCareer }: { latest: Result | undefined; stats: Stats | null; tCareer: (n: string) => { name: string; reason: string } }) {
+  const targetCareer = latest?.careers?.[0] ? tCareer(latest.careers[0].name).name : "Your Future Path";
+
+  const skills = useMemo(() => {
+    const base = ["Critical Thinking", "Public Speaking", "Advanced Mathematics", "Data Analysis", "Creative Writing"];
+    if (latest?.weaknesses?.length) return [...latest.weaknesses.slice(0, 3), ...base].slice(0, 5);
+    return base;
+  }, [latest]);
+
+  const universities = ["MIT — Massachusetts Institute of Technology", "Stanford University", "ETH Zürich", "National University of Singapore", "University of Tokyo"];
+
+  const milestones = [
+    { time: "Next 30 days", title: "Foundation Sprint", desc: "Daily 45-min focused study sessions. Build a study rhythm.", icon: Rocket },
+    { time: "3 months", title: "Skill Acceleration", desc: `Reach intermediate level in ${skills[0] ?? "core skills"}.`, icon: Zap },
+    { time: "6 months", title: "First Major Project", desc: `Ship something real aligned with ${targetCareer}.`, icon: Target },
+    { time: "1 year", title: "Application Ready", desc: "University apps, portfolio, recommendation letters secured.", icon: GraduationCap },
+    { time: "3 years", title: "Launch Trajectory", desc: `Established path into ${targetCareer}.`, icon: Crown },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <GlassCard className="relative overflow-hidden p-8">
+        <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+          style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.4), transparent 70%)" }} />
+        <div className="relative">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
+            <Sparkles className="h-3 w-3" /> AI-Generated Roadmap
+          </div>
+          <h2 className="mt-4 text-2xl font-bold tracking-tight sm:text-3xl">
+            Your path to <span className="gradient-text">{targetCareer}</span>
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+            A personalized growth journey crafted from your cognitive profile, personality type, and goals.
+          </p>
+        </div>
+      </GlassCard>
+
+      {/* Timeline */}
+      <GlassCard className="p-7">
+        <SectionTitle icon={Compass}>Career Development Timeline</SectionTitle>
+        <div className="relative mt-8 pl-6 sm:pl-8">
+          <div className="absolute left-2 top-2 bottom-2 w-px bg-gradient-to-b from-primary via-accent to-transparent sm:left-3" />
+          <div className="space-y-6">
+            {milestones.map((m, i) => {
+              const Icon = m.icon;
+              return (
+                <div key={m.title} className="relative animate-fade-in" style={{ animationDelay: `${i * 80}ms` }}>
+                  <div className="absolute -left-[1.45rem] top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-gradient-to-br from-primary to-accent sm:-left-[1.95rem]"
+                    style={{ boxShadow: "0 0 12px oklch(0.65 0.22 295 / 0.7)" }}>
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />
+                  </div>
+                  <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/30 to-background/30 p-5 transition-all hover:border-primary/30 hover:-translate-y-0.5">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/10">
+                        <Icon className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{m.time}</div>
+                        <h4 className="text-sm font-semibold">{m.title}</h4>
+                      </div>
+                    </div>
+                    <p className="mt-3 text-xs text-muted-foreground">{m.desc}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </GlassCard>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <GlassCard className="p-7">
+          <SectionTitle icon={Lightbulb}>Skills to Sharpen</SectionTitle>
+          <div className="mt-5 space-y-3">
+            {skills.map((s, i) => (
+              <div key={s} className="flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3 transition-all hover:border-primary/30">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-accent/10 text-xs font-bold text-primary">{i + 1}</div>
+                <span className="text-sm">{s}</span>
+              </div>
+            ))}
+          </div>
+        </GlassCard>
+
+        <GlassCard className="p-7">
+          <SectionTitle icon={MapPin}>University Recommendations</SectionTitle>
+          <div className="mt-5 space-y-3">
+            {universities.map((u) => (
+              <div key={u} className="flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3 transition-all hover:border-primary/30">
+                <GraduationCap className="h-4 w-4 shrink-0 text-primary" />
+                <span className="text-sm">{u}</span>
+              </div>
+            ))}
+          </div>
+        </GlassCard>
+      </div>
+
+      <GlassCard className="p-7">
+        <SectionTitle icon={Zap}>Productivity & Growth Suggestions</SectionTitle>
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          {[
+            { t: "Deep Work Blocks", d: "90-minute distraction-free sessions, twice daily." },
+            { t: "Reading Diet", d: "1 nonfiction + 1 technical book per month." },
+            { t: "Reflection Ritual", d: "Weekly review every Sunday — what worked, what didn't." },
+          ].map((s) => (
+            <div key={s.t} className="rounded-xl border border-border/60 bg-secondary/30 p-4 transition-all hover:border-primary/30 hover:-translate-y-0.5">
+              <h4 className="text-sm font-semibold">{s.t}</h4>
+              <p className="mt-1 text-xs text-muted-foreground">{s.d}</p>
+            </div>
+          ))}
+        </div>
+      </GlassCard>
+    </div>
+  );
+}
+
+/* ============================================================ */
+/* SECTION 4: SETTINGS                                           */
+/* ============================================================ */
+function SettingsSection({
+  onLogout, email, profile, userId, onProfileUpdate, t,
+}: {
+  onLogout: () => Promise<void>;
+  email: string;
+  profile: Profile | null;
+  userId: string;
+  onProfileUpdate: (p: Profile) => void;
+  t: ReturnType<typeof useI18n>["t"];
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<Profile>({ name: profile?.name ?? "", surname: profile?.surname ?? "" });
+  const [msg, setMsg] = useState<string | null>(null);
+
+  async function saveProfile() {
+    const { error } = await supabase.from("profiles").update({ name: draft.name, surname: draft.surname }).eq("id", userId);
+    if (!error) { onProfileUpdate(draft); setEditing(false); }
+  }
+
+  async function changePassword() {
+    setMsg(null);
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) setMsg(error.message); else setMsg("Password reset link sent to your email.");
+  }
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      <GlassCard className="p-7">
+        <SectionTitle icon={UserIcon}>Profile</SectionTitle>
+        <div className="mt-5 space-y-3">
+          <Field label="Email" value={email} disabled />
+          {editing ? (
+            <>
+              <Field label="First name" value={draft.name} onChange={(v) => setDraft({ ...draft, name: v })} />
+              <Field label="Last name" value={draft.surname} onChange={(v) => setDraft({ ...draft, surname: v })} />
+              <div className="flex justify-end gap-2 pt-2">
+                <button onClick={() => { setDraft({ name: profile?.name ?? "", surname: profile?.surname ?? "" }); setEditing(false); }}
+                  className="rounded-full border border-border px-4 py-1.5 text-xs hover:bg-secondary">Cancel</button>
+                <button onClick={saveProfile} className="rounded-full bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground hover:glow-purple">Save</button>
+              </div>
+            </>
+          ) : (
+            <>
+              <Field label="First name" value={profile?.name ?? ""} disabled />
+              <Field label="Last name" value={profile?.surname ?? ""} disabled />
+              <button onClick={() => setEditing(true)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary hover:bg-primary/20">
+                <Pencil className="h-3.5 w-3.5" /> Edit profile
+              </button>
+            </>
+          )}
+        </div>
+      </GlassCard>
+
+      <GlassCard className="p-7">
+        <SectionTitle icon={SettingsIcon}>Preferences</SectionTitle>
+        <div className="mt-5 space-y-4">
+          <PrefRow icon={Languages} label="Language" hint="Switch interface language">
+            <LanguageSwitcher />
+          </PrefRow>
+          <PrefRow icon={Moon} label="Appearance" hint="Light or dark theme">
+            <ThemeToggle />
+          </PrefRow>
+          <PrefRow icon={Bell} label="Notifications" hint="Coming soon">
+            <span className="rounded-full bg-secondary px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">Soon</span>
+          </PrefRow>
+        </div>
+      </GlassCard>
+
+      <GlassCard className="p-7">
+        <SectionTitle icon={KeyRound}>Security</SectionTitle>
+        <p className="mt-3 text-sm text-muted-foreground">Reset your password — we'll send a secure link to your email.</p>
+        <button onClick={changePassword}
+          className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary hover:bg-primary/20">
+          <KeyRound className="h-3.5 w-3.5" /> Send reset link
+        </button>
+        {msg && <p className="mt-3 text-xs text-muted-foreground">{msg}</p>}
+      </GlassCard>
+
+      <GlassCard className="p-7">
+        <SectionTitle icon={LogOut}>Session</SectionTitle>
+        <p className="mt-3 text-sm text-muted-foreground">Sign out from this device. Your progress is saved.</p>
+        <button onClick={onLogout}
+          className="mt-4 inline-flex items-center gap-2 rounded-full border border-destructive/30 bg-destructive/10 px-4 py-2 text-xs font-medium text-destructive transition-all hover:bg-destructive/20">
+          <LogOut className="h-3.5 w-3.5" /> {t.dashboard.logout}
+        </button>
+      </GlassCard>
+    </div>
+  );
+}
+
+function Field({ label, value, disabled, onChange }: { label: string; value: string; disabled?: boolean; onChange?: (v: string) => void }) {
+  return (
+    <div>
+      <label className="mb-1 block text-[10px] uppercase tracking-wider text-muted-foreground">{label}</label>
+      <input
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange?.(e.target.value)}
+        className="w-full rounded-xl border border-border/60 bg-secondary/30 px-3 py-2 text-sm outline-none transition-all focus:border-primary/50 focus:bg-secondary/50 disabled:opacity-60"
+      />
+    </div>
+  );
+}
+
+function PrefRow({ icon: Icon, label, hint, children }: { icon: React.ElementType; label: string; hint: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-accent/10">
+          <Icon className="h-4 w-4 text-primary" />
+        </div>
+        <div className="min-w-0">
+          <div className="truncate text-sm font-medium">{label}</div>
+          <div className="truncate text-[11px] text-muted-foreground">{hint}</div>
+        </div>
+      </div>
+      <div className="shrink-0">{children}</div>
+    </div>
+  );
+}
+
+/* ============================================================ */
+/* SHARED                                                        */
+/* ============================================================ */
+function GlassCard({ className = "", children }: { className?: string; children: React.ReactNode }) {
+  return (
+    <div className={`rounded-3xl border border-border/60 bg-gradient-to-br from-secondary/30 via-background/40 to-background/30 backdrop-blur-xl ${className}`}
+      style={{ boxShadow: "0 10px 40px -20px oklch(0.55 0.22 295 / 0.25)" }}>
+      {children}
+    </div>
+  );
+}
+
+function SectionTitle({ icon: Icon, children }: { icon: React.ElementType; children: React.ReactNode }) {
+  return (
+    <h2 className="flex items-center gap-2 text-base font-semibold">
+      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-accent/10">
+        <Icon className="h-4 w-4 text-primary" />
+      </span>
+      {children}
+    </h2>
   );
 }

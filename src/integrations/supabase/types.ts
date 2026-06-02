@@ -314,6 +314,84 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_stats: {
+        Row: {
+          avatar_url: string | null
+          communication_score: number
+          created_at: string
+          creativity_score: number
+          emotional_intelligence: number
+          ielts_band: number | null
+          leadership_level: number
+          productivity_level: number
+          sat_score: number | null
+          study_progress: number
+          tagline: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          communication_score?: number
+          created_at?: string
+          creativity_score?: number
+          emotional_intelligence?: number
+          ielts_band?: number | null
+          leadership_level?: number
+          productivity_level?: number
+          sat_score?: number | null
+          study_progress?: number
+          tagline?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          communication_score?: number
+          created_at?: string
+          creativity_score?: number
+          emotional_intelligence?: number
+          ielts_band?: number | null
+          leadership_level?: number
+          productivity_level?: number
+          sat_score?: number | null
+          study_progress?: number
+          tagline?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
