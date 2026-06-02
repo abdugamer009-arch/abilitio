@@ -16,16 +16,12 @@ export function AmbientBackdrop() {
         }}
       />
 
-      {/* Horizontal soft gradient sweep — the signature line */}
+      {/* Horizontal soft gradient sweep — atmospheric only, kept low and blurred so it never crosses typography */}
       <div
-        className="absolute left-0 right-0 top-[38%] h-[1px] opacity-80 animate-shimmer-line"
-        style={{ background: "var(--gradient-line)" }}
-      />
-      <div
-        className="absolute left-0 right-0 top-[38%] h-[140px] -translate-y-1/2 opacity-60"
+        className="absolute left-0 right-0 top-[72%] h-[220px] -translate-y-1/2 opacity-25"
         style={{
           background: "var(--gradient-line)",
-          filter: "blur(40px)",
+          filter: "blur(90px)",
         }}
       />
 
