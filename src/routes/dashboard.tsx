@@ -968,6 +968,7 @@ function SettingsSection({
           <LogOut className="h-3.5 w-3.5" /> {t.dashboard.logout}
         </button>
       </GlassCard>
+      </div>
     </div>
   );
 }
