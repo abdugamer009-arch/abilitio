@@ -15,6 +15,7 @@ import { useAura } from "@/components/aura/AuraProvider";
 import { AuraCoin } from "@/components/aura/AuraCoin";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ProfilePhotoCard, resolveAvatarUrl } from "@/components/ProfilePhotoCard";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Abilitio" }] }),
@@ -172,6 +173,9 @@ function DashboardPage() {
                 profile={profile}
                 userId={user?.id ?? ""}
                 onProfileUpdate={setProfile}
+                stats={stats}
+                setStats={setStats}
+                initials={initials}
                 t={t}
               />
             )}
@@ -191,6 +195,15 @@ function ProfileHeader({
   fullName: string; email: string; initials: string; avatarUrl: string | null;
   balance: number; level: number; levelProgress: number; tagline: string;
 }) {
+  const [resolvedAvatar, setResolvedAvatar] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    resolveAvatarUrl(avatarUrl).then((u) => {
+      if (!cancelled) setResolvedAvatar(u);
+    });
+    return () => { cancelled = true; };
+  }, [avatarUrl]);
+
   return (
     <div className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-gradient-to-br from-secondary/40 via-background/60 to-background/40 p-6 backdrop-blur-xl sm:p-8"
       style={{ boxShadow: "0 20px 60px -20px oklch(0.55 0.22 295 / 0.35)" }}>
@@ -205,8 +218,8 @@ function ProfileHeader({
         <div className="relative shrink-0">
           <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-primary via-accent to-primary opacity-70 blur-md transition-opacity group-hover:opacity-100" />
           <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-accent text-3xl font-bold text-primary-foreground shadow-2xl sm:h-28 sm:w-28">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt={fullName} className="h-full w-full object-cover" />
+            {resolvedAvatar ? (
+              <img src={resolvedAvatar} alt={fullName} className="h-full w-full object-cover" />
             ) : (
               <span>{initials}</span>
             )}
@@ -850,13 +863,16 @@ function RoadmapSection({ latest, stats, tCareer }: { latest: Result | undefined
 /* SECTION 4: SETTINGS                                           */
 /* ============================================================ */
 function SettingsSection({
-  onLogout, email, profile, userId, onProfileUpdate, t,
+  onLogout, email, profile, userId, onProfileUpdate, stats, setStats, initials, t,
 }: {
   onLogout: () => Promise<void>;
   email: string;
   profile: Profile | null;
   userId: string;
   onProfileUpdate: (p: Profile) => void;
+  stats: Stats | null;
+  setStats: (s: Stats) => void;
+  initials: string;
   t: ReturnType<typeof useI18n>["t"];
 }) {
   const [editing, setEditing] = useState(false);
@@ -875,8 +891,24 @@ function SettingsSection({
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <GlassCard className="p-7">
+    <div className="space-y-6">
+      <ProfilePhotoCard
+        userId={userId}
+        avatarPath={stats?.avatar_url ?? null}
+        initials={initials}
+        onChange={(newPath) => {
+          const base: Stats = stats ?? {
+            user_id: userId,
+            sat_score: null, ielts_band: null,
+            study_progress: 0, leadership_level: 0, productivity_level: 0,
+            creativity_score: 0, communication_score: 0, emotional_intelligence: 0,
+            tagline: null, avatar_url: null,
+          };
+          setStats({ ...base, avatar_url: newPath });
+        }}
+      />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <GlassCard className="p-7">
         <SectionTitle icon={UserIcon}>Profile</SectionTitle>
         <div className="mt-5 space-y-3">
           <Field label="Email" value={email} disabled />
@@ -936,6 +968,7 @@ function SettingsSection({
           <LogOut className="h-3.5 w-3.5" /> {t.dashboard.logout}
         </button>
       </GlassCard>
+      </div>
     </div>
   );
 }

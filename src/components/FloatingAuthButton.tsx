@@ -1,10 +1,50 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { User } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { supabase } from "@/integrations/supabase/client";
+import { resolveAvatarUrl } from "@/components/ProfilePhotoCard";
 import { cn } from "@/lib/utils";
 
 export function FloatingAuthButton() {
   const { user, loading } = useAuth();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      setAvatarUrl(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("user_stats")
+        .select("avatar_url")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (cancelled) return;
+      const resolved = await resolveAvatarUrl(data?.avatar_url ?? null);
+      if (!cancelled) setAvatarUrl(resolved);
+    })();
+
+    const channel = supabase
+      .channel(`user_stats_avatar_${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "user_stats", filter: `user_id=eq.${user.id}` },
+        async (payload) => {
+          const next = (payload.new as { avatar_url?: string | null } | null)?.avatar_url ?? null;
+          const resolved = await resolveAvatarUrl(next);
+          setAvatarUrl(resolved);
+        },
+      )
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   if (loading) return null;
 
@@ -32,8 +72,12 @@ export function FloatingAuthButton() {
     return (
       <Link to="/dashboard" aria-label="Open dashboard" className={baseClass}>
         {glow}
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-sm font-semibold text-primary-foreground">
-          {initial}
+        <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-primary to-accent text-sm font-semibold text-primary-foreground ring-1 ring-white/20">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="Profile" className="h-full w-full object-cover" />
+          ) : (
+            initial
+          )}
         </span>
       </Link>
     );
