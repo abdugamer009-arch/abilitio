@@ -192,6 +192,15 @@ function ProfileHeader({
   fullName: string; email: string; initials: string; avatarUrl: string | null;
   balance: number; level: number; levelProgress: number; tagline: string;
 }) {
+  const [resolvedAvatar, setResolvedAvatar] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    resolveAvatarUrl(avatarUrl).then((u) => {
+      if (!cancelled) setResolvedAvatar(u);
+    });
+    return () => { cancelled = true; };
+  }, [avatarUrl]);
+
   return (
     <div className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-gradient-to-br from-secondary/40 via-background/60 to-background/40 p-6 backdrop-blur-xl sm:p-8"
       style={{ boxShadow: "0 20px 60px -20px oklch(0.55 0.22 295 / 0.35)" }}>
@@ -206,8 +215,8 @@ function ProfileHeader({
         <div className="relative shrink-0">
           <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-primary via-accent to-primary opacity-70 blur-md transition-opacity group-hover:opacity-100" />
           <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-accent text-3xl font-bold text-primary-foreground shadow-2xl sm:h-28 sm:w-28">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt={fullName} className="h-full w-full object-cover" />
+            {resolvedAvatar ? (
+              <img src={resolvedAvatar} alt={fullName} className="h-full w-full object-cover" />
             ) : (
               <span>{initials}</span>
             )}
