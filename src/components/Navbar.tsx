@@ -111,18 +111,7 @@ export function Navbar() {
                   </Link>
                 </li>
               ))}
-              {!user && (
-                <li>
-                  <Link
-                    to="/auth"
-                    search={{ mode: "login" }}
-                    onClick={() => setOpen(false)}
-                    className="mt-1 block rounded-xl bg-primary px-4 py-2.5 text-center text-sm font-medium text-primary-foreground"
-                  >
-                    {t.nav.signIn}
-                  </Link>
-                </li>
-              )}
+              {/* Sign-in is handled by the floating auth button */}
               {user && (
                 <li>
                   <Link
