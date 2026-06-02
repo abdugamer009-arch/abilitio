@@ -891,8 +891,24 @@ function SettingsSection({
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <GlassCard className="p-7">
+    <div className="space-y-6">
+      <ProfilePhotoCard
+        userId={userId}
+        avatarPath={stats?.avatar_url ?? null}
+        initials={initials}
+        onChange={(newPath) => {
+          const base: Stats = stats ?? {
+            user_id: userId,
+            sat_score: null, ielts_band: null,
+            study_progress: 0, leadership_level: 0, productivity_level: 0,
+            creativity_score: 0, communication_score: 0, emotional_intelligence: 0,
+            tagline: null, avatar_url: null,
+          };
+          setStats({ ...base, avatar_url: newPath });
+        }}
+      />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <GlassCard className="p-7">
         <SectionTitle icon={UserIcon}>Profile</SectionTitle>
         <div className="mt-5 space-y-3">
           <Field label="Email" value={email} disabled />
