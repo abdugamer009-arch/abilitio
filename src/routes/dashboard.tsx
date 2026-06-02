@@ -173,6 +173,9 @@ function DashboardPage() {
                 profile={profile}
                 userId={user?.id ?? ""}
                 onProfileUpdate={setProfile}
+                stats={stats}
+                setStats={setStats}
+                initials={initials}
                 t={t}
               />
             )}
