@@ -32,10 +32,15 @@ export function ProfilePhotoCard({
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Resolve signed URL when path changes
-  useState(() => {
-    resolveAvatarUrl(avatarPath).then(setResolved);
-  });
+  useEffect(() => {
+    let cancelled = false;
+    resolveAvatarUrl(avatarPath).then((u) => {
+      if (!cancelled) setResolved(u);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [avatarPath]);
 
   const displayed = preview ?? resolved;
 
