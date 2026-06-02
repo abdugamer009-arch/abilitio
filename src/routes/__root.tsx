@@ -127,6 +127,7 @@ function RootComponent() {
           <AuraProvider>
             {/* Required: nested routes render here. */}
             <Outlet />
+            <FloatingAuthButton />
             <AuraRewardToaster />
             <SonnerToaster />
 
