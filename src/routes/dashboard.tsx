@@ -15,6 +15,7 @@ import { useAura } from "@/components/aura/AuraProvider";
 import { AuraCoin } from "@/components/aura/AuraCoin";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ProfilePhotoCard, resolveAvatarUrl } from "@/components/ProfilePhotoCard";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Abilitio" }] }),
