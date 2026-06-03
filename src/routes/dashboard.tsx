@@ -65,6 +65,7 @@ function DashboardPage() {
   const { t, tCareer, tTrait, tIqLevel } = useI18n();
   const { wallet, pushLocalReward } = useAura();
   const claimBonusFn = useServerFn(claimNewUserBonus);
+  const queryClient = useQueryClient();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [results, setResults] = useState<Result[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -103,6 +104,7 @@ function DashboardPage() {
       try {
         const res = await claimBonusFn();
         if (res.awarded) {
+          queryClient.setQueryData(["aura", "wallet"], res.wallet);
           pushLocalReward({ amount: res.amount, label: "Welcome to Abilitio!", bonus: true });
         }
       } catch (e) {
