@@ -111,7 +111,7 @@ function DashboardPage() {
         console.error("claimNewUserBonus failed", e);
       }
     })();
-  }, [user, loading, claimBonusFn, pushLocalReward]);
+  }, [user, loading, claimBonusFn, pushLocalReward, queryClient]);
 
   const latest = results[0];
   const fullName = `${profile?.name ?? ""} ${profile?.surname ?? ""}`.trim() || user?.email?.split("@")[0] || "Explorer";
