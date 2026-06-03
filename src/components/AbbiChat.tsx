@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
 import ReactMarkdown from "react-markdown";
 import { Sparkles, Send, Bot, User as UserIcon, Coins, MessageCircle, X, Zap } from "lucide-react";
 import { useAura } from "@/components/aura/AuraProvider";
@@ -26,8 +27,9 @@ function todayKey(userId: string) {
 
 export function AbbiChat() {
   const { user } = useAuth();
-  const { wallet, pushLocalReward } = useAura();
+  const { wallet } = useAura();
   const spendFn = useServerFn(spendAbbiMessage);
+  const queryClient = useQueryClient();
 
   const [ctx, setCtx] = useState<AbbiContext>({});
   const [messages, setMessages] = useState<ChatMsg[]>([
@@ -107,7 +109,8 @@ export function AbbiChat() {
 
     try {
       if (needsCoins) {
-        await spendFn();
+        const res = await spendFn();
+        queryClient.setQueryData(["aura", "wallet"], res.wallet);
       } else {
         consumeFree();
       }
