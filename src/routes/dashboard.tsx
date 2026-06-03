@@ -16,6 +16,10 @@ import { AuraCoin } from "@/components/aura/AuraCoin";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfilePhotoCard, resolveAvatarUrl } from "@/components/ProfilePhotoCard";
+import { AbbiChat } from "@/components/AbbiChat";
+import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
+import { claimNewUserBonus } from "@/lib/abbi.functions";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Abilitio" }] }),
@@ -53,13 +57,15 @@ type Achievement = {
   created_at: string;
 };
 
-type TabKey = "results" | "stats" | "roadmap" | "settings";
+type TabKey = "results" | "stats" | "roadmap" | "abbi" | "settings";
 
 function DashboardPage() {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { t, tCareer, tTrait, tIqLevel } = useI18n();
-  const { wallet } = useAura();
+  const { wallet, pushLocalReward } = useAura();
+  const claimBonusFn = useServerFn(claimNewUserBonus);
+  const queryClient = useQueryClient();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [results, setResults] = useState<Result[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -87,6 +93,25 @@ function DashboardPage() {
       setBusy(false);
     })();
   }, [user, loading, navigate]);
+
+  // One-time new-user +20 Aura bonus (idempotent server-side).
+  useEffect(() => {
+    if (!user || loading) return;
+    const key = `abbi_bonus_claimed_${user.id}`;
+    if (typeof window === "undefined" || sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    (async () => {
+      try {
+        const res = await claimBonusFn();
+        if (res.awarded) {
+          queryClient.setQueryData(["aura", "wallet"], res.wallet);
+          pushLocalReward({ amount: res.amount, label: "Welcome to Abilitio!", bonus: true });
+        }
+      } catch (e) {
+        console.error("claimNewUserBonus failed", e);
+      }
+    })();
+  }, [user, loading, claimBonusFn, pushLocalReward, queryClient]);
 
   const latest = results[0];
   const fullName = `${profile?.name ?? ""} ${profile?.surname ?? ""}`.trim() || user?.email?.split("@")[0] || "Explorer";
@@ -166,6 +191,7 @@ function DashboardPage() {
             {tab === "roadmap" && (
               <RoadmapSection latest={latest} stats={stats} tCareer={tCareer} />
             )}
+            {tab === "abbi" && <AbbiChat />}
             {tab === "settings" && (
               <SettingsSection
                 onLogout={async () => { await signOut(); navigate({ to: "/" }); }}
@@ -280,6 +306,7 @@ function TabBar({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
     { key: "results", label: "Assessment Results", icon: Brain },
     { key: "stats", label: "My Stats", icon: BarChart3 },
     { key: "roadmap", label: "Career Roadmap", icon: Compass },
+    { key: "abbi", label: "ABBI AI", icon: Sparkles },
     { key: "settings", label: "Settings", icon: SettingsIcon },
   ];
   return (
