@@ -18,6 +18,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfilePhotoCard, resolveAvatarUrl } from "@/components/ProfilePhotoCard";
 import { AbbiChat } from "@/components/AbbiChat";
 import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
 import { claimNewUserBonus } from "@/lib/abbi.functions";
 
 export const Route = createFileRoute("/dashboard")({
