@@ -92,6 +92,24 @@ function DashboardPage() {
     })();
   }, [user, loading, navigate]);
 
+  // One-time new-user +20 Aura bonus (idempotent server-side).
+  useEffect(() => {
+    if (!user || loading) return;
+    const key = `abbi_bonus_claimed_${user.id}`;
+    if (typeof window === "undefined" || sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    (async () => {
+      try {
+        const res = await claimBonusFn();
+        if (res.awarded) {
+          pushLocalReward({ amount: res.amount, label: "Welcome to Abilitio!", bonus: true });
+        }
+      } catch (e) {
+        console.error("claimNewUserBonus failed", e);
+      }
+    })();
+  }, [user, loading, claimBonusFn, pushLocalReward]);
+
   const latest = results[0];
   const fullName = `${profile?.name ?? ""} ${profile?.surname ?? ""}`.trim() || user?.email?.split("@")[0] || "Explorer";
   const initials = useMemo(() => {
@@ -170,6 +188,7 @@ function DashboardPage() {
             {tab === "roadmap" && (
               <RoadmapSection latest={latest} stats={stats} tCareer={tCareer} />
             )}
+            {tab === "abbi" && <AbbiChat />}
             {tab === "settings" && (
               <SettingsSection
                 onLogout={async () => { await signOut(); navigate({ to: "/" }); }}
@@ -284,6 +303,7 @@ function TabBar({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
     { key: "results", label: "Assessment Results", icon: Brain },
     { key: "stats", label: "My Stats", icon: BarChart3 },
     { key: "roadmap", label: "Career Roadmap", icon: Compass },
+    { key: "abbi", label: "ABBI AI", icon: Sparkles },
     { key: "settings", label: "Settings", icon: SettingsIcon },
   ];
   return (
