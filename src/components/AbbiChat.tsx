@@ -108,7 +108,6 @@ export function AbbiChat() {
     try {
       if (needsCoins) {
         await spendFn();
-        pushLocalReward({ amount: -MESSAGE_COST, label: "ABBI AI question" });
       } else {
         consumeFree();
       }
