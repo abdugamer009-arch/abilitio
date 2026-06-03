@@ -16,6 +16,9 @@ import { AuraCoin } from "@/components/aura/AuraCoin";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfilePhotoCard, resolveAvatarUrl } from "@/components/ProfilePhotoCard";
+import { AbbiChat } from "@/components/AbbiChat";
+import { useServerFn } from "@tanstack/react-start";
+import { claimNewUserBonus } from "@/lib/abbi.functions";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Abilitio" }] }),
@@ -53,13 +56,14 @@ type Achievement = {
   created_at: string;
 };
 
-type TabKey = "results" | "stats" | "roadmap" | "settings";
+type TabKey = "results" | "stats" | "roadmap" | "abbi" | "settings";
 
 function DashboardPage() {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { t, tCareer, tTrait, tIqLevel } = useI18n();
-  const { wallet } = useAura();
+  const { wallet, pushLocalReward } = useAura();
+  const claimBonusFn = useServerFn(claimNewUserBonus);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [results, setResults] = useState<Result[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
