@@ -45,25 +45,38 @@ export function AbbiChat() {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data } = await supabase
-        .from("assessment_results")
-        .select("mbti_type, iq_score, top_strengths, interest_scores")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (!data) return;
-      const interestScores = (data.interest_scores ?? {}) as Record<string, number>;
-      const topInterests = Object.entries(interestScores)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 3)
-        .map(([k]) => k);
-      setCtx({
-        mbtiType: data.mbti_type,
-        iqScore: data.iq_score,
-        topStrengths: (data.top_strengths as string[]) ?? [],
-        topInterests,
-      });
+      const [{ data: result }, { data: profile }] = await Promise.all([
+        supabase
+          .from("assessment_results")
+          .select("mbti_type, iq_score, top_strengths, interest_scores, weaknesses, careers")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from("profiles")
+          .select("name, age_group")
+          .eq("id", user.id)
+          .maybeSingle(),
+      ]);
+      const next: AbbiContext = {
+        firstName: (profile?.name as string | undefined) || null,
+        ageGroup: ((profile as { age_group?: string } | null)?.age_group as AbbiContext["ageGroup"]) ?? null,
+      };
+      if (result) {
+        const interestScores = (result.interest_scores ?? {}) as Record<string, number>;
+        const topInterests = Object.entries(interestScores)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 3)
+          .map(([k]) => k);
+        next.mbtiType = result.mbti_type;
+        next.iqScore = result.iq_score;
+        next.topStrengths = (result.top_strengths as string[]) ?? [];
+        next.topInterests = topInterests;
+        next.weaknesses = (result.weaknesses as string[]) ?? [];
+        next.topCareers = ((result.careers ?? []) as { name: string; match: number; reason?: string }[]).slice(0, 3);
+      }
+      setCtx(next);
     })();
   }, [user]);
 
