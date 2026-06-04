@@ -21,6 +21,7 @@ import { Route as AuraMarketRouteImport } from './routes/aura-market'
 import { Route as AuraRouteImport } from './routes/aura'
 import { Route as AssessmentChildRouteImport } from './routes/assessment-child'
 import { Route as AssessmentRouteImport } from './routes/assessment'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AbbiRouteImport } from './routes/abbi'
 import { Route as IndexRouteImport } from './routes/index'
@@ -87,6 +88,11 @@ const AssessmentRoute = AssessmentRouteImport.update({
   path: '/assessment',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/abbi': typeof AbbiRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/assessment': typeof AssessmentRoute
   '/assessment-child': typeof AssessmentChildRoute
   '/aura': typeof AuraRouteWithChildren
@@ -136,6 +143,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/abbi': typeof AbbiRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/assessment': typeof AssessmentRoute
   '/assessment-child': typeof AssessmentChildRoute
   '/aura': typeof AuraRouteWithChildren
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/abbi': typeof AbbiRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/assessment': typeof AssessmentRoute
   '/assessment-child': typeof AssessmentChildRoute
   '/aura': typeof AuraRouteWithChildren
@@ -177,6 +186,7 @@ export interface FileRouteTypes {
     | '/'
     | '/abbi'
     | '/about'
+    | '/admin'
     | '/assessment'
     | '/assessment-child'
     | '/aura'
@@ -196,6 +206,7 @@ export interface FileRouteTypes {
     | '/'
     | '/abbi'
     | '/about'
+    | '/admin'
     | '/assessment'
     | '/assessment-child'
     | '/aura'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/'
     | '/abbi'
     | '/about'
+    | '/admin'
     | '/assessment'
     | '/assessment-child'
     | '/aura'
@@ -235,6 +247,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AbbiRoute: typeof AbbiRoute
   AboutRoute: typeof AboutRoute
+  AdminRoute: typeof AdminRoute
   AssessmentRoute: typeof AssessmentRoute
   AssessmentChildRoute: typeof AssessmentChildRoute
   AuraRoute: typeof AuraRouteWithChildren
@@ -335,6 +348,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssessmentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -389,6 +409,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AbbiRoute: AbbiRoute,
   AboutRoute: AboutRoute,
+  AdminRoute: AdminRoute,
   AssessmentRoute: AssessmentRoute,
   AssessmentChildRoute: AssessmentChildRoute,
   AuraRoute: AuraRouteWithChildren,
