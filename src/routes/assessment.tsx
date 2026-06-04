@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { useAura } from "@/components/aura/AuraProvider";
+import { AgeGate, type AgeGroup } from "@/components/AgeGate";
 
 export const Route = createFileRoute("/assessment")({
   head: () => ({
@@ -69,8 +70,34 @@ function AssessmentPage() {
   const [syncing, setSyncing] = useState(false);
   const [finishError, setFinishError] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [ageGroup, setAgeGroup] = useState<AgeGroup | null>(null);
+  const [ageLoaded, setAgeLoaded] = useState(false);
 
   useEffect(() => { clearLocal(); }, []);
+
+  // Load age_group from profile (or localStorage for guests)
+  useEffect(() => {
+    if (authLoading) return;
+    (async () => {
+      if (user) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("age_group")
+          .eq("id", user.id)
+          .maybeSingle();
+        setAgeGroup(((data as { age_group?: string } | null)?.age_group as AgeGroup) ?? null);
+      } else if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("abilitio_age_group") as AgeGroup | null;
+        setAgeGroup(stored ?? null);
+      }
+      setAgeLoaded(true);
+    })();
+  }, [user, authLoading]);
+
+  // If child, redirect to child assessment
+  useEffect(() => {
+    if (ageGroup === "child") navigate({ to: "/assessment-child" });
+  }, [ageGroup, navigate]);
 
   useEffect(() => {
     if (authLoading) return;
