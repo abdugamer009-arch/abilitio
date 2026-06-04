@@ -245,6 +245,23 @@ function AssessmentPage() {
   }
 
   if (!started) {
+    // Age gate first if not chosen yet
+    if (ageLoaded && !ageGroup) {
+      return (
+        <PageShell>
+          <section className="px-6 pt-20 pb-24">
+            <AgeGate onSelected={(g) => { setAgeGroup(g); if (g === "child") navigate({ to: "/assessment-child" }); }} />
+          </section>
+        </PageShell>
+      );
+    }
+
+    const adult = ageGroup === "adult";
+    const introTitle = adult ? "Professional Assessment" : t.assessment.title;
+    const introMeta = adult
+      ? "A 30-question evaluation tuned for working professionals — cognitive ability, work-style personality, and career transition fit."
+      : t.assessment.meta;
+
     return (
       <PageShell>
         <section className="px-6 pt-20 pb-24">
@@ -252,8 +269,20 @@ function AssessmentPage() {
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent glow-purple">
               <Sparkles className="h-8 w-8 text-primary-foreground" />
             </div>
-            <h1 className="mt-8 text-4xl font-bold md:text-5xl gradient-text">{t.assessment.title}</h1>
-            <p className="mt-4 text-muted-foreground">{t.assessment.meta}</p>
+            <h1 className="mt-8 text-4xl font-bold md:text-5xl gradient-text">{introTitle}</h1>
+            <p className="mt-4 text-muted-foreground">{introMeta}</p>
+            {ageGroup && (
+              <button
+                onClick={async () => {
+                  setAgeGroup(null);
+                  if (user) await supabase.from("profiles").update({ age_group: null }).eq("id", user.id);
+                  else if (typeof window !== "undefined") localStorage.removeItem("abilitio_age_group");
+                }}
+                className="mt-2 text-[11px] text-muted-foreground underline-offset-2 hover:underline"
+              >
+                Change age group
+              </button>
+            )}
 
             <div className="mt-10 grid gap-4 md:grid-cols-3">
               {(["iq", "interests", "mbti"] as const).map((k) => {
