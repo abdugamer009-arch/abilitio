@@ -289,11 +289,17 @@ export function findCareer(query: string): CareerInfo | null {
 }
 
 // ---------- Personalization context ----------
+export type AbbiAgeGroup = "child" | "teen" | "adult";
+export type TopCareer = { name: string; match: number; reason?: string };
 export type AbbiContext = {
   mbtiType?: string | null;
   iqScore?: number | null;
   topStrengths?: string[];
   topInterests?: string[]; // e.g. ["analytical","creativity"]
+  weaknesses?: string[];
+  topCareers?: TopCareer[];
+  ageGroup?: AbbiAgeGroup | null;
+  firstName?: string | null;
 };
 
 function personalizeFor(career: CareerInfo, ctx: AbbiContext): string | null {
