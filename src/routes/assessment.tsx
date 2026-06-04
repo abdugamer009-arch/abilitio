@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { useAura } from "@/components/aura/AuraProvider";
+import { AgeGate, type AgeGroup } from "@/components/AgeGate";
 
 export const Route = createFileRoute("/assessment")({
   head: () => ({
@@ -69,8 +70,34 @@ function AssessmentPage() {
   const [syncing, setSyncing] = useState(false);
   const [finishError, setFinishError] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [ageGroup, setAgeGroup] = useState<AgeGroup | null>(null);
+  const [ageLoaded, setAgeLoaded] = useState(false);
 
   useEffect(() => { clearLocal(); }, []);
+
+  // Load age_group from profile (or localStorage for guests)
+  useEffect(() => {
+    if (authLoading) return;
+    (async () => {
+      if (user) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("age_group")
+          .eq("id", user.id)
+          .maybeSingle();
+        setAgeGroup(((data as { age_group?: string } | null)?.age_group as AgeGroup) ?? null);
+      } else if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("abilitio_age_group") as AgeGroup | null;
+        setAgeGroup(stored ?? null);
+      }
+      setAgeLoaded(true);
+    })();
+  }, [user, authLoading]);
+
+  // If child, redirect to child assessment
+  useEffect(() => {
+    if (ageGroup === "child") navigate({ to: "/assessment-child" });
+  }, [ageGroup, navigate]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -218,6 +245,23 @@ function AssessmentPage() {
   }
 
   if (!started) {
+    // Age gate first if not chosen yet
+    if (ageLoaded && !ageGroup) {
+      return (
+        <PageShell>
+          <section className="px-6 pt-20 pb-24">
+            <AgeGate onSelected={(g) => { setAgeGroup(g); if (g === "child") navigate({ to: "/assessment-child" }); }} />
+          </section>
+        </PageShell>
+      );
+    }
+
+    const adult = ageGroup === "adult";
+    const introTitle = adult ? "Professional Assessment" : t.assessment.title;
+    const introMeta = adult
+      ? "A 30-question evaluation tuned for working professionals — cognitive ability, work-style personality, and career transition fit."
+      : t.assessment.meta;
+
     return (
       <PageShell>
         <section className="px-6 pt-20 pb-24">
@@ -225,8 +269,20 @@ function AssessmentPage() {
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent glow-purple">
               <Sparkles className="h-8 w-8 text-primary-foreground" />
             </div>
-            <h1 className="mt-8 text-4xl font-bold md:text-5xl gradient-text">{t.assessment.title}</h1>
-            <p className="mt-4 text-muted-foreground">{t.assessment.meta}</p>
+            <h1 className="mt-8 text-4xl font-bold md:text-5xl gradient-text">{introTitle}</h1>
+            <p className="mt-4 text-muted-foreground">{introMeta}</p>
+            {ageGroup && (
+              <button
+                onClick={async () => {
+                  setAgeGroup(null);
+                  if (user) await supabase.from("profiles").update({ age_group: null }).eq("id", user.id);
+                  else if (typeof window !== "undefined") localStorage.removeItem("abilitio_age_group");
+                }}
+                className="mt-2 text-[11px] text-muted-foreground underline-offset-2 hover:underline"
+              >
+                Change age group
+              </button>
+            )}
 
             <div className="mt-10 grid gap-4 md:grid-cols-3">
               {(["iq", "interests", "mbti"] as const).map((k) => {

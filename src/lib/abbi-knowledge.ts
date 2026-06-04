@@ -289,11 +289,17 @@ export function findCareer(query: string): CareerInfo | null {
 }
 
 // ---------- Personalization context ----------
+export type AbbiAgeGroup = "child" | "teen" | "adult";
+export type TopCareer = { name: string; match: number; reason?: string };
 export type AbbiContext = {
   mbtiType?: string | null;
   iqScore?: number | null;
   topStrengths?: string[];
   topInterests?: string[]; // e.g. ["analytical","creativity"]
+  weaknesses?: string[];
+  topCareers?: TopCareer[];
+  ageGroup?: AbbiAgeGroup | null;
+  firstName?: string | null;
 };
 
 function personalizeFor(career: CareerInfo, ctx: AbbiContext): string | null {
@@ -537,14 +543,69 @@ export function abbiGreeting(): string {
 
 export function generateAbbiReply(message: string, ctx: AbbiContext): string {
   const q = message.trim().toLowerCase();
+  const name = ctx.firstName ? ctx.firstName : "";
+  const greet = name ? `Hi ${name}! ` : "";
 
   // Greetings / smalltalk
   if (/^(hi|hello|hey|salom|assalom)/i.test(q)) {
     return `${abbiGreeting()}\n\nTry one of the suggested questions below to get started.`;
   }
 
+  // "What should I improve" — uses stored weaknesses
+  if (/(what.*improve|improve.*my|weak|grow.*areas|areas.*grow)/.test(q)) {
+    if (ctx.weaknesses?.length) {
+      return [
+        `### ${greet}Areas to grow`,
+        "Based on your Abilitio assessment, here are the dimensions where you have the most room to grow:",
+        ...ctx.weaknesses.slice(0, 5).map((w) => `- **${w}** — pick one small, concrete habit this week to practice it.`),
+        "",
+        ctx.mbtiType ? `As an **${ctx.mbtiType}**, growth often comes from intentionally stepping into situations that feel slightly uncomfortable.` : "",
+        "Want a 30-day growth plan? Ask me *Make a 30-day plan for [skill]*.",
+      ].filter(Boolean).join("\n");
+    }
+    return "Once you complete the Abilitio Assessment I can tell you exactly where to focus. Take it first, then ask me again.";
+  }
+
+  // "Should I become X" — cross-reference user's top careers
+  const becomeMatch = q.match(/should i (?:become|be) (?:a |an )?([a-z][a-z\s/&-]+)/);
+  if (becomeMatch) {
+    const target = becomeMatch[1].trim().replace(/[?.!]+$/, "");
+    const career = findCareer(target);
+    const top = ctx.topCareers?.[0];
+    const topMatchesTarget = top && career && top.name.toLowerCase().includes(career.name.toLowerCase().split(" ")[0]);
+    if (career && top) {
+      if (topMatchesTarget) {
+        return `${greet}**Yes** — ${career.name} is your **#1 assessment match (${top.match}%)**. Your profile aligns strongly with this path.\n\n${md(career)}`;
+      }
+      return [
+        `${greet}${career.name} matches some of your traits, but your assessment shows stronger compatibility with **${top.name} (${top.match}%)**.`,
+        "",
+        career.fitsMbti && ctx.mbtiType && career.fitsMbti.includes(ctx.mbtiType)
+          ? `Your **${ctx.mbtiType}** personality is compatible with ${career.name}, so it's a viable secondary path.`
+          : `Your personality and strengths point more naturally toward your top match — but ${career.name} is still achievable with focused effort.`,
+        "",
+        md(career),
+      ].filter(Boolean).join("\n");
+    }
+    if (career) {
+      return `${md(career)}\n\nComplete the Abilitio Assessment to see how ${career.name} ranks against your personal profile.`;
+    }
+  }
+
   // Best-fit personalization
-  if (q.includes("career fits me") || q.includes("best career for me") || q.includes("which career")) {
+  if (q.includes("career fits me") || q.includes("best career for me") || q.includes("which career") || q.includes("what career")) {
+    if (ctx.topCareers?.length) {
+      const lines = [
+        `### ${greet}Your top career matches`,
+        ...ctx.topCareers.slice(0, 3).map((c, i) => `**${i + 1}. ${c.name}** — ${c.match}% match${c.reason ? ` · ${c.reason}` : ""}`),
+        "",
+        ctx.mbtiType ? `These reflect your **${ctx.mbtiType}** personality${ctx.iqScore ? `, IQ ${ctx.iqScore}` : ""}${ctx.topStrengths?.length ? ` and standout strengths in ${ctx.topStrengths.slice(0, 2).join(" & ")}` : ""}.` : "",
+        ctx.ageGroup === "adult"
+          ? "Want me to break down salaries, growth, and next steps for any of these?"
+          : "Ask me about any of them to see skills, education path, and universities.",
+      ].filter(Boolean);
+      return lines.join("\n");
+    }
     return bestFitFromContext(ctx);
   }
 
@@ -569,6 +630,22 @@ export function generateAbbiReply(message: string, ctx: AbbiContext): string {
     ].join("\n");
   }
 
+  // Salary / jobs — adult-focused branch
+  if (ctx.ageGroup === "adult" && (q.includes("job") || q.includes("salary") || q.includes("career change") || q.includes("transition"))) {
+    const top = ctx.topCareers?.[0];
+    return [
+      `### ${greet}Career growth & transitions`,
+      top ? `Your strongest match is **${top.name} (${top.match}%)**. For a working adult, transitioning to a role like this typically takes **6–18 months** with focused upskilling.` : "I'd love to give you a personalized roadmap — complete the assessment first.",
+      "",
+      "**Plan**",
+      "1. **Audit transferable skills** — what from your current work maps onto the target role?",
+      "2. **Close the gap** — pick 2 critical skills and learn them via certifications or projects.",
+      "3. **Portfolio** — build 2–3 visible artifacts (case studies, demos, contributions).",
+      "4. **Network** — talk to 5 people in the target role each month.",
+      "5. **Apply strategically** — 3 high-quality applications a week beats 30 generic ones.",
+    ].filter(Boolean).join("\n");
+  }
+
   // CEO / entrepreneurship
   if (q.includes("ceo") || q.includes("startup founder") || q.includes("become a founder")) return ceoPath();
 
@@ -589,17 +666,32 @@ export function generateAbbiReply(message: string, ctx: AbbiContext): string {
     return personalized ? `${personalized}\n\n${body}` : body;
   }
 
-  // Salary fallback if career not matched but "earn/salary" detected
+  // Salary fallback
   if (q.includes("salary") || q.includes("earn")) {
     return "I can share salary ranges for any specific career — try asking me *How much does a Software Engineer earn?* or another role from the list below.";
   }
 
-  // Default reflective answer
+  // Child-friendly default
+  if (ctx.ageGroup === "child") {
+    return [
+      `${greet}I love your curiosity! 🌟`,
+      "",
+      "I can help you explore:",
+      "- 🚀 Cool jobs people do in the world",
+      "- 🧩 Why your strengths are special",
+      "- 📚 Fun things to learn this week",
+      "- 🎨 How to be more creative",
+      "",
+      "Try asking: *What jobs do scientists do?* or *Why is reading good for me?*",
+    ].join("\n");
+  }
+
   return [
-    "That's a great question. Here's how I can help:",
+    `${greet}Here's how I can help:`,
     "- Ask about a **specific career** (Software Engineer, Designer, Doctor, Lawyer, etc.) — I'll explain skills, education, salary and outlook.",
     "- Ask about **SAT** or **IELTS** prep plans.",
-    "- Ask **what career fits me best** to get a personalized match (works best after completing the Abilitio Assessment).",
+    "- Ask **what career fits me best** to get a personalized match based on your assessment.",
+    "- Ask **what should I improve** to get growth tips tied to your weakest dimensions.",
     "- Ask about **universities** for a major (e.g. Computer Science, Business, Medicine).",
     "",
     "Try one of the suggested prompts below 👇",

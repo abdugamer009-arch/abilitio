@@ -905,6 +905,18 @@ function SettingsSection({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<Profile>({ name: profile?.name ?? "", surname: profile?.surname ?? "" });
   const [msg, setMsg] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!userId) return;
+    supabase
+      .from("user_roles" as any)
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle()
+      .then(({ data }) => setIsAdmin(!!data));
+  }, [userId]);
 
   async function saveProfile() {
     const { error } = await supabase.from("profiles").update({ name: draft.name, surname: draft.surname }).eq("id", userId);
@@ -919,6 +931,29 @@ function SettingsSection({
 
   return (
     <div className="space-y-6">
+      {isAdmin && (
+        <Link
+          to="/admin"
+          className="group relative block overflow-hidden rounded-3xl border border-primary/40 bg-gradient-to-br from-primary/20 via-accent/10 to-background/40 p-6 backdrop-blur-xl transition-all hover:-translate-y-0.5"
+          style={{ boxShadow: "0 20px 60px -20px var(--glow)" }}
+        >
+          <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-50 blur-3xl"
+            style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }} />
+          <div className="relative flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg">
+                <Crown className="h-6 w-6" />
+              </div>
+              <div>
+                <div className="text-xs uppercase tracking-wider text-accent">Founder access</div>
+                <div className="text-lg font-bold gradient-text">Open Admin Dashboard</div>
+                <div className="text-xs text-muted-foreground">Analytics, users, Aura management</div>
+              </div>
+            </div>
+            <ChevronRight className="h-5 w-5 text-primary transition-transform group-hover:translate-x-1" />
+          </div>
+        </Link>
+      )}
       <ProfilePhotoCard
         userId={userId}
         avatarPath={stats?.avatar_url ?? null}

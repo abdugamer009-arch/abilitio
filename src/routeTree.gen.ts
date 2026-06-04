@@ -19,8 +19,11 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuraMarketRouteImport } from './routes/aura-market'
 import { Route as AuraRouteImport } from './routes/aura'
+import { Route as AssessmentChildRouteImport } from './routes/assessment-child'
 import { Route as AssessmentRouteImport } from './routes/assessment'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AbbiRouteImport } from './routes/abbi'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuraStoreRouteImport } from './routes/aura.store'
 import { Route as AuraGrowthRouteImport } from './routes/aura.growth'
@@ -75,14 +78,29 @@ const AuraRoute = AuraRouteImport.update({
   path: '/aura',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AssessmentChildRoute = AssessmentChildRouteImport.update({
+  id: '/assessment-child',
+  path: '/assessment-child',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AssessmentRoute = AssessmentRouteImport.update({
   id: '/assessment',
   path: '/assessment',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AbbiRoute = AbbiRouteImport.update({
+  id: '/abbi',
+  path: '/abbi',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -103,8 +121,11 @@ const AuraGrowthRoute = AuraGrowthRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/abbi': typeof AbbiRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/assessment': typeof AssessmentRoute
+  '/assessment-child': typeof AssessmentChildRoute
   '/aura': typeof AuraRouteWithChildren
   '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
@@ -120,8 +141,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/abbi': typeof AbbiRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/assessment': typeof AssessmentRoute
+  '/assessment-child': typeof AssessmentChildRoute
   '/aura': typeof AuraRouteWithChildren
   '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
@@ -138,8 +162,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/abbi': typeof AbbiRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/assessment': typeof AssessmentRoute
+  '/assessment-child': typeof AssessmentChildRoute
   '/aura': typeof AuraRouteWithChildren
   '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
@@ -157,8 +184,11 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/abbi'
     | '/about'
+    | '/admin'
     | '/assessment'
+    | '/assessment-child'
     | '/aura'
     | '/aura-market'
     | '/auth'
@@ -174,8 +204,11 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/abbi'
     | '/about'
+    | '/admin'
     | '/assessment'
+    | '/assessment-child'
     | '/aura'
     | '/aura-market'
     | '/auth'
@@ -191,8 +224,11 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/abbi'
     | '/about'
+    | '/admin'
     | '/assessment'
+    | '/assessment-child'
     | '/aura'
     | '/aura-market'
     | '/auth'
@@ -209,8 +245,11 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AbbiRoute: typeof AbbiRoute
   AboutRoute: typeof AboutRoute
+  AdminRoute: typeof AdminRoute
   AssessmentRoute: typeof AssessmentRoute
+  AssessmentChildRoute: typeof AssessmentChildRoute
   AuraRoute: typeof AuraRouteWithChildren
   AuraMarketRoute: typeof AuraMarketRoute
   AuthRoute: typeof AuthRoute
@@ -295,6 +334,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuraRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/assessment-child': {
+      id: '/assessment-child'
+      path: '/assessment-child'
+      fullPath: '/assessment-child'
+      preLoaderRoute: typeof AssessmentChildRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/assessment': {
       id: '/assessment'
       path: '/assessment'
@@ -302,11 +348,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssessmentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/abbi': {
+      id: '/abbi'
+      path: '/abbi'
+      fullPath: '/abbi'
+      preLoaderRoute: typeof AbbiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -347,8 +407,11 @@ const AuraRouteWithChildren = AuraRoute._addFileChildren(AuraRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AbbiRoute: AbbiRoute,
   AboutRoute: AboutRoute,
+  AdminRoute: AdminRoute,
   AssessmentRoute: AssessmentRoute,
+  AssessmentChildRoute: AssessmentChildRoute,
   AuraRoute: AuraRouteWithChildren,
   AuraMarketRoute: AuraMarketRoute,
   AuthRoute: AuthRoute,
@@ -363,13 +426,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
