@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as ResultsRouteImport } from './routes/results'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as IqTestRouteImport } from './routes/iq-test'
@@ -31,6 +32,11 @@ import { Route as AuraGrowthRouteImport } from './routes/aura.growth'
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoadmapRoute = RoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResultsRoute = ResultsRouteImport.update({
@@ -135,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/iq-test': typeof IqTestRoute
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
+  '/roadmap': typeof RoadmapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
@@ -155,6 +162,7 @@ export interface FileRoutesByTo {
   '/iq-test': typeof IqTestRoute
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
+  '/roadmap': typeof RoadmapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/iq-test': typeof IqTestRoute
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
+  '/roadmap': typeof RoadmapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
@@ -198,6 +207,7 @@ export interface FileRouteTypes {
     | '/iq-test'
     | '/pricing'
     | '/results'
+    | '/roadmap'
     | '/sitemap.xml'
     | '/aura/growth'
     | '/aura/store'
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/iq-test'
     | '/pricing'
     | '/results'
+    | '/roadmap'
     | '/sitemap.xml'
     | '/aura/growth'
     | '/aura/store'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/iq-test'
     | '/pricing'
     | '/results'
+    | '/roadmap'
     | '/sitemap.xml'
     | '/aura/growth'
     | '/aura/store'
@@ -259,6 +271,7 @@ export interface RootRouteChildren {
   IqTestRoute: typeof IqTestRoute
   PricingRoute: typeof PricingRoute
   ResultsRoute: typeof ResultsRoute
+  RoadmapRoute: typeof RoadmapRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
@@ -269,6 +282,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roadmap': {
+      id: '/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof RoadmapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/results': {
@@ -421,8 +441,19 @@ const rootRouteChildren: RootRouteChildren = {
   IqTestRoute: IqTestRoute,
   PricingRoute: PricingRoute,
   ResultsRoute: ResultsRoute,
+  RoadmapRoute: RoadmapRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
