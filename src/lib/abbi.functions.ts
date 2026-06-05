@@ -25,13 +25,16 @@ export const spendAbbiMessage = createServerFn({ method: "POST" })
     return { wallet: data as WalletDTO, amount: ABBI_MESSAGE_COST };
   });
 
-/** Award the +20 first-time-account bonus. Idempotent via aura_achievements row. */
+/** Award the +20 first-time-account bonus. Idempotent via aura_achievements row.
+ *  Uses service-role client for the achievement insert because the public
+ *  self-insert RLS policy has been removed for security. */
 export const claimNewUserBonus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: existing } = await supabase
+    const { data: existing } = await supabaseAdmin
       .from("aura_achievements")
       .select("id")
       .eq("user_id", userId)
@@ -56,7 +59,7 @@ export const claimNewUserBonus = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(error.message);
 
-    await supabase
+    await supabaseAdmin
       .from("aura_achievements")
       .insert({ user_id: userId, achievement_key: BONUS_KEY });
 
