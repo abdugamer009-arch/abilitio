@@ -16,10 +16,11 @@ export function Navbar() {
   const navItems = [
     { to: "/", label: t.nav.home, kind: "text" as const },
     { to: "/abbi", label: "ABBI AI", kind: "abbi" as const },
-    { to: "/features", label: t.nav.features, kind: "text" as const },
+    { to: "/roadmap", label: "Roadmap", kind: "text" as const },
     { to: "/aura-market", label: "Market", kind: "text" as const },
     { to: "/about", label: t.nav.about, kind: "text" as const },
   ] as const;
+
 
   return (
     <header className="sticky top-0 z-50 w-full">

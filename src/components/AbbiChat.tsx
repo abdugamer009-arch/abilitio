@@ -128,9 +128,13 @@ export function AbbiChat() {
         consumeFree();
       }
 
-      // Simulated thinking delay for premium feel
+      // Pre-compute reply, then simulate a natural "thinking → typing" cadence.
       const reply = generateAbbiReply(content, ctx);
-      await new Promise((r) => setTimeout(r, 700 + Math.random() * 500));
+      // Thinking pause: 600-1100ms before typing dots feel "engaged"
+      await new Promise((r) => setTimeout(r, 600 + Math.random() * 500));
+      // Typing duration: scales with reply length, capped to feel premium not slow
+      const typingMs = Math.min(2600, 700 + reply.length * 6);
+      await new Promise((r) => setTimeout(r, typingMs));
 
       setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "abbi", content: reply }]);
     } catch (err) {
@@ -150,6 +154,7 @@ export function AbbiChat() {
       setTyping(false);
     }
   }
+
 
   const statusBar = useMemo(
     () => (
@@ -341,19 +346,23 @@ function MessageBubble({ role, content }: { role: "user" | "abbi"; content: stri
 function TypingBubble() {
   return (
     <div className="flex items-start gap-3 animate-fade-in">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow">
+      <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow">
         <Bot className="h-4 w-4" />
+        <span className="absolute -inset-1 -z-10 rounded-full opacity-60 blur-md"
+          style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)" }} />
       </div>
-      <div className="rounded-2xl rounded-tl-md border border-border/40 bg-secondary/30 px-4 py-3 backdrop-blur-md">
-        <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2 rounded-2xl rounded-tl-md border border-border/40 bg-secondary/30 px-4 py-3 backdrop-blur-md">
+        <span className="text-[11px] uppercase tracking-wider text-muted-foreground">ABBI is thinking</span>
+        <span className="flex items-center gap-1">
           <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary" style={{ animationDelay: "0ms" }} />
-          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary" style={{ animationDelay: "120ms" }} />
-          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary" style={{ animationDelay: "240ms" }} />
-        </div>
+          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary" style={{ animationDelay: "150ms" }} />
+          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary" style={{ animationDelay: "300ms" }} />
+        </span>
       </div>
     </div>
   );
 }
+
 
 function OutOfCoinsModal({ onClose }: { onClose: () => void }) {
   return (

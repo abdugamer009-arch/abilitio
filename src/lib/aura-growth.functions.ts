@@ -30,6 +30,7 @@ export const evaluateAchievements = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<EvaluateResult> => {
     const { supabase, userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Load state
     const [walletRes, achRes, assessRes, unlockRes] = await Promise.all([
@@ -60,8 +61,8 @@ export const evaluateAchievements = createServerFn({ method: "POST" })
       if (owned.has(a.key)) continue;
       if (!a.check(state)) continue;
 
-      // Insert achievement
-      const { error: insErr } = await supabase
+      // Insert achievement via service-role (self-insert RLS removed for security)
+      const { error: insErr } = await supabaseAdmin
         .from("aura_achievements")
         .insert({ user_id: userId, achievement_key: a.key });
       if (insErr) continue; // skip duplicates / failures silently
@@ -82,6 +83,7 @@ export const evaluateAchievements = createServerFn({ method: "POST" })
     const totalReward = newlyUnlocked.reduce((sum, x) => sum + x.reward, 0);
     return { newlyUnlocked, totalReward };
   });
+
 
 /** Aggregated growth state for the dashboard. */
 export const getMyGrowthState = createServerFn({ method: "GET" })

@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { useEffect, useMemo, useState } from "react";
-import { Sparkles, Brain, Target, Activity, Trophy, Medal, Award, Heart, GraduationCap, MapPin } from "lucide-react";
+import { Sparkles, Brain, Target, Activity, Trophy, Medal, Award, Heart, GraduationCap, MapPin, Download, Share2, Copy, Check } from "lucide-react";
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer,
 } from "recharts";
@@ -247,7 +247,9 @@ function ResultsPage() {
             <p className="mt-5 text-lg leading-relaxed text-foreground/90 md:text-xl">{summary}</p>
           </div>
 
-          <div className="mt-10 flex flex-wrap justify-center gap-3">
+          <ShareActions result={result} summary={summary} tCareer={tCareer} />
+
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link to="/dashboard" className="rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:glow-purple">
               {t.results.goDashboard}
             </Link>
@@ -255,6 +257,7 @@ function ResultsPage() {
               {t.results.retake}
             </Link>
           </div>
+
         </div>
       </section>
     </PageShell>
@@ -354,3 +357,86 @@ function MbtiAxis({ a, b, scores }: { a: "E"|"S"|"T"|"J"; b: "I"|"N"|"F"|"P"; sc
     </div>
   );
 }
+
+/* =================== SHARE / DOWNLOAD =================== */
+function ShareActions({
+  result, summary, tCareer,
+}: {
+  result: ScoredResult;
+  summary: string;
+  tCareer: (name: string) => { name: string; reason: string };
+}) {
+  const [copied, setCopied] = useState<"summary" | "link" | null>(null);
+
+  const buildSummary = () => {
+    const top = result.careers.slice(0, 3).map((c) => `${tCareer(c.name).name} (${c.match}%)`).join(", ");
+    return [
+      `Abilitio Profile — ${result.mbti.type} · IQ ${result.iq.score}`,
+      ``,
+      `Top Strengths: ${result.strengths.join(", ")}`,
+      `Growth Areas: ${result.weaknesses.join(", ")}`,
+      `Top Careers: ${top}`,
+      ``,
+      summary,
+      ``,
+      `Discover yours at https://abilitio.lovable.app`,
+    ].join("\n");
+  };
+
+  async function copy(kind: "summary" | "link") {
+    const text = kind === "link" ? "https://abilitio.lovable.app" : buildSummary();
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(kind);
+      setTimeout(() => setCopied(null), 2200);
+    } catch { /* ignore */ }
+  }
+
+  async function share() {
+    const text = buildSummary();
+    const nav = typeof navigator !== "undefined" ? (navigator as Navigator & { share?: (data: ShareData) => Promise<void> }) : null;
+    if (nav?.share) {
+      try {
+        await nav.share({ title: "My Abilitio Profile", text, url: "https://abilitio.lovable.app" });
+        return;
+      } catch { /* fall through to copy */ }
+    }
+    copy("link");
+  }
+
+  return (
+    <div className="mt-12 glass rounded-3xl p-6 md:p-8 print:hidden">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span className="text-xs uppercase tracking-[0.18em] text-accent">Share Your Results</span>
+          <h3 className="mt-1 text-lg font-semibold">Take this with you</h3>
+          <p className="mt-1 text-xs text-muted-foreground">Download a premium PDF, share a link, or copy your summary.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-br from-primary to-accent px-5 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:-translate-y-0.5"
+            style={{ boxShadow: "0 10px 24px -10px oklch(0.55 0.22 295 / 0.6)" }}
+          >
+            <Download className="h-4 w-4" /> Download PDF
+          </button>
+          <button
+            onClick={share}
+            className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium transition-all hover:bg-secondary"
+          >
+            <Share2 className="h-4 w-4" /> Share Link
+          </button>
+          <button
+            onClick={() => copy("summary")}
+            className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium transition-all hover:bg-secondary"
+          >
+            {copied === "summary" ? <Check className="h-4 w-4 text-accent" /> : <Copy className="h-4 w-4" />}
+            {copied === "summary" ? "Copied!" : "Copy Summary"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
