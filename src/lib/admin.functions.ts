@@ -34,17 +34,19 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
     const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-    const [profiles, results, wallets, txns] = await Promise.all([
+    const [profiles, results, wallets, txns, adminRoles] = await Promise.all([
       supabase.from("profiles").select("id, created_at"),
-      supabase.from("assessment_results").select("id, mbti_type, careers"),
-      supabase.from("aura_wallets").select("balance, lifetime_earned, lifetime_spent"),
-      supabase.from("aura_transactions").select("amount, reason, created_at"),
+      supabase.from("assessment_results").select("id, user_id, mbti_type, careers"),
+      supabase.from("aura_wallets").select("user_id, balance, lifetime_earned, lifetime_spent"),
+      supabase.from("aura_transactions").select("user_id, amount, reason, created_at"),
+      supabase.from("user_roles").select("user_id").eq("role", "admin"),
     ]);
 
-    const allProfiles = profiles.data ?? [];
-    const allResults = results.data ?? [];
-    const allWallets = wallets.data ?? [];
-    const allTxns = txns.data ?? [];
+    const adminIds = new Set<string>((adminRoles.data ?? []).map((r: any) => r.user_id));
+    const allProfiles = (profiles.data ?? []).filter((p: any) => !adminIds.has(p.id));
+    const allResults = (results.data ?? []).filter((r: any) => !adminIds.has(r.user_id));
+    const allWallets = (wallets.data ?? []).filter((w: any) => !adminIds.has(w.user_id));
+    const allTxns = (txns.data ?? []).filter((t: any) => !adminIds.has(t.user_id));
 
     const newUsersThisWeek = allProfiles.filter((p: any) => p.created_at >= weekAgo).length;
     const newUsersThisMonth = allProfiles.filter((p: any) => p.created_at >= monthAgo).length;
@@ -66,7 +68,6 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
     const popularCareers = [...careerCount.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).map(([name, count]) => ({ name, count }));
     const popularMbti = [...mbtiCount.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([type, count]) => ({ type, count }));
 
-    // weekly signups (last 7 days)
     const days: { day: string; count: number }[] = [];
     for (let i = 6; i >= 0; i--) {
       const d = new Date(now.getTime() - i * 86400000);
