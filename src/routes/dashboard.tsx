@@ -57,7 +57,7 @@ type Achievement = {
   created_at: string;
 };
 
-type TabKey = "results" | "stats" | "roadmap" | "abbi" | "settings";
+type TabKey = "results" | "stats" | "abbi" | "settings";
 
 function DashboardPage() {
   const { user, loading, signOut } = useAuth();
@@ -188,9 +188,6 @@ function DashboardPage() {
                 setAchievements={setAchievements}
               />
             )}
-            {tab === "roadmap" && (
-              <RoadmapSection latest={latest} stats={stats} tCareer={tCareer} />
-            )}
             {tab === "abbi" && <AbbiChat />}
             {tab === "settings" && (
               <SettingsSection
@@ -305,7 +302,6 @@ function TabBar({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
   const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
     { key: "results", label: "Assessment Results", icon: Brain },
     { key: "stats", label: "My Stats", icon: BarChart3 },
-    { key: "roadmap", label: "Career Roadmap", icon: Compass },
     { key: "abbi", label: "ABBI AI", icon: Sparkles },
     { key: "settings", label: "Settings", icon: SettingsIcon },
   ];

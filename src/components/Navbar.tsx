@@ -15,8 +15,9 @@ export function Navbar() {
 
   const navItems = [
     { to: "/", label: t.nav.home, kind: "text" as const },
-    { to: "/abbi", label: "ABBI AI", kind: "abbi" as const },
+    { to: "/features", label: "Features", kind: "text" as const },
     { to: "/roadmap", label: "Roadmap", kind: "text" as const },
+    { to: "/community", label: "Community", kind: "text" as const },
     { to: "/aura-market", label: "Market", kind: "text" as const },
     { to: "/about", label: t.nav.about, kind: "text" as const },
   ] as const;
@@ -37,31 +38,14 @@ export function Navbar() {
             <ul className="hidden min-w-0 flex-1 items-center justify-center gap-1 md:flex lg:gap-1.5">
               {navItems.map((item) => (
                 <li key={item.to} className="shrink-0">
-                  {item.kind === "abbi" ? (
-                    <Link
-                      to={item.to}
-                      className="group relative inline-flex flex-col items-center justify-center whitespace-nowrap rounded-full px-3 py-1 leading-[1.05] text-muted-foreground transition-all duration-300 hover:text-foreground lg:px-3.5"
-                      activeProps={{ className: "text-foreground" }}
-                      activeOptions={{ exact: true }}
-                    >
-                      <span
-                        aria-hidden
-                        className="pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                        style={{ background: "radial-gradient(ellipse at center, oklch(0.65 0.24 295 / 0.25), transparent 70%)", boxShadow: "0 0 24px -6px var(--glow)" }}
-                      />
-                      <span className="relative text-[12px] font-semibold tracking-wide gradient-text">ABBI</span>
-                      <span className="relative text-[9px] font-medium uppercase tracking-[0.2em] text-primary/80">AI</span>
-                    </Link>
-                  ) : (
-                    <Link
-                      to={item.to}
-                      className="whitespace-nowrap rounded-full px-3 py-1.5 text-[13px] font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary/70 hover:text-foreground lg:px-3.5"
-                      activeProps={{ className: "bg-secondary text-foreground shadow-[0_0_20px_-6px_var(--glow)]" }}
-                      activeOptions={{ exact: true }}
-                    >
-                      {item.label}
-                    </Link>
-                  )}
+                  <Link
+                    to={item.to}
+                    className="whitespace-nowrap rounded-full px-3 py-1.5 text-[13px] font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary/70 hover:text-foreground lg:px-3.5"
+                    activeProps={{ className: "bg-secondary text-foreground shadow-[0_0_20px_-6px_var(--glow)]" }}
+                    activeOptions={{ exact: true }}
+                  >
+                    {item.label}
+                  </Link>
                 </li>
               ))}
             </ul>

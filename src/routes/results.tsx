@@ -51,6 +51,11 @@ function ResultsPage() {
         interest_scores: result.interests, top_strengths: result.strengths,
         weaknesses: result.weaknesses, careers: result.careers, answers, time_seconds: elapsed,
       });
+      // Auto-join the community for the top career match
+      const topCareer = result.careers?.[0]?.name;
+      if (topCareer) {
+        try { await supabase.rpc("assign_user_to_community", { _career_key: topCareer }); } catch (e) { console.error("community assign", e); }
+      }
       setSaved(true);
       sessionStorage.removeItem("assessment_answers");
       sessionStorage.removeItem("assessment_seconds");
