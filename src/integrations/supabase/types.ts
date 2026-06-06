@@ -245,6 +245,129 @@ export type Database = {
         }
         Relationships: []
       }
+      communities: {
+        Row: {
+          career_key: string
+          created_at: string
+          description: string
+          id: string
+          member_count: number
+          name: string
+          slug: string
+          welcome_message: string
+        }
+        Insert: {
+          career_key: string
+          created_at?: string
+          description?: string
+          id?: string
+          member_count?: number
+          name: string
+          slug: string
+          welcome_message?: string
+        }
+        Update: {
+          career_key?: string
+          created_at?: string
+          description?: string
+          id?: string
+          member_count?: number
+          name?: string
+          slug?: string
+          welcome_message?: string
+        }
+        Relationships: []
+      }
+      community_daily_questions: {
+        Row: {
+          community_id: string
+          created_at: string
+          id: string
+          question: string
+        }
+        Insert: {
+          community_id: string
+          created_at?: string
+          id?: string
+          question: string
+        }
+        Update: {
+          community_id?: string
+          created_at?: string
+          id?: string
+          question?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_daily_questions_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_members: {
+        Row: {
+          community_id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          community_id: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          community_id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_members_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_messages: {
+        Row: {
+          community_id: string
+          content: string
+          created_at: string
+          id: string
+          is_pinned: boolean
+          user_id: string
+        }
+        Insert: {
+          community_id: string
+          content: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean
+          user_id: string
+        }
+        Update: {
+          community_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_messages_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       iq_results: {
         Row: {
           analytical_score: number
@@ -447,6 +570,18 @@ export type Database = {
         Args: { _banned: boolean; _target: string }
         Returns: undefined
       }
+      admin_set_daily_question: {
+        Args: { _community: string; _q: string }
+        Returns: string
+      }
+      admin_toggle_pin: {
+        Args: { _msg: string; _pin: boolean }
+        Returns: undefined
+      }
+      assign_user_to_community: {
+        Args: { _career_key: string }
+        Returns: string
+      }
       aura_apply_delta: {
         Args: {
           _amount: number
@@ -472,6 +607,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      aura_unlock_feature: {
+        Args: { _feature_key: string; _price: number }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -480,6 +619,10 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_community_member: {
+        Args: { _community: string; _user: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "user"

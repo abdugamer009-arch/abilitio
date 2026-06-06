@@ -63,7 +63,7 @@ export const awardAura = createServerFn({ method: "POST" })
     return { wallet: w as WalletDTO, amount: entry.amount, label: entry.label };
   });
 
-/** Spend coins to unlock a feature. Idempotent — already-unlocked features return without charging. */
+/** Spend coins to unlock a feature via SECURITY DEFINER RPC. Idempotent. */
 export const unlockFeature = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -73,22 +73,14 @@ export const unlockFeature = createServerFn({ method: "POST" })
     }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: existing } = await supabase
-      .from("aura_unlocks").select("id").eq("user_id", userId).eq("feature_key", data.featureKey).maybeSingle();
-    if (existing) {
-      const { data: w } = await supabase
-        .from("aura_wallets").select("balance, lifetime_earned, lifetime_spent, streak_days, last_login_date")
-        .eq("user_id", userId).single();
-      return { alreadyUnlocked: true, wallet: w as WalletDTO };
-    }
-    const { data: w, error } = await supabase.rpc("aura_apply_delta", {
-      _user: userId, _amount: -data.price, _kind: "spend",
-      _reason: `unlock:${data.featureKey}`, _meta: { featureKey: data.featureKey },
+    const { supabase } = context;
+    const { data: res, error } = await supabase.rpc("aura_unlock_feature", {
+      _feature_key: data.featureKey,
+      _price: data.price,
     });
     if (error) throw new Error(error.message === "insufficient_balance" ? "insufficient_balance" : error.message);
-    await supabase.from("aura_unlocks").insert({ user_id: userId, feature_key: data.featureKey });
-    return { alreadyUnlocked: false, wallet: w as WalletDTO };
+    const payload = res as { alreadyUnlocked: boolean; wallet: WalletDTO };
+    return { alreadyUnlocked: payload.alreadyUnlocked, wallet: payload.wallet };
   });
 
 /** Daily-login streak handling. Returns the awarded amount (0 if already claimed today). */

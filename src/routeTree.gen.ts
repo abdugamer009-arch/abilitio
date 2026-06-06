@@ -17,6 +17,7 @@ import { Route as IqTestRouteImport } from './routes/iq-test'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CommunityRouteImport } from './routes/community'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuraMarketRouteImport } from './routes/aura-market'
 import { Route as AuraRouteImport } from './routes/aura'
@@ -67,6 +68,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityRoute = CommunityRouteImport.update({
+  id: '/community',
+  path: '/community',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -135,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/aura': typeof AuraRouteWithChildren
   '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
+  '/community': typeof CommunityRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
@@ -156,6 +163,7 @@ export interface FileRoutesByTo {
   '/aura': typeof AuraRouteWithChildren
   '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
+  '/community': typeof CommunityRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
@@ -178,6 +186,7 @@ export interface FileRoutesById {
   '/aura': typeof AuraRouteWithChildren
   '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
+  '/community': typeof CommunityRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
@@ -201,6 +210,7 @@ export interface FileRouteTypes {
     | '/aura'
     | '/aura-market'
     | '/auth'
+    | '/community'
     | '/contact'
     | '/dashboard'
     | '/features'
@@ -222,6 +232,7 @@ export interface FileRouteTypes {
     | '/aura'
     | '/aura-market'
     | '/auth'
+    | '/community'
     | '/contact'
     | '/dashboard'
     | '/features'
@@ -243,6 +254,7 @@ export interface FileRouteTypes {
     | '/aura'
     | '/aura-market'
     | '/auth'
+    | '/community'
     | '/contact'
     | '/dashboard'
     | '/features'
@@ -265,6 +277,7 @@ export interface RootRouteChildren {
   AuraRoute: typeof AuraRouteWithChildren
   AuraMarketRoute: typeof AuraMarketRoute
   AuthRoute: typeof AuthRoute
+  CommunityRoute: typeof CommunityRoute
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
   FeaturesRoute: typeof FeaturesRoute
@@ -331,6 +344,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community': {
+      id: '/community'
+      path: '/community'
+      fullPath: '/community'
+      preLoaderRoute: typeof CommunityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -435,6 +455,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuraRoute: AuraRouteWithChildren,
   AuraMarketRoute: AuraMarketRoute,
   AuthRoute: AuthRoute,
+  CommunityRoute: CommunityRoute,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
   FeaturesRoute: FeaturesRoute,
@@ -447,13 +468,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
