@@ -17,6 +17,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfilePhotoCard, resolveAvatarUrl } from "@/components/ProfilePhotoCard";
 import { AbbiChat } from "@/components/AbbiChat";
+import { SkillsSection, WeeklyReportSection, UniversitiesTabSection } from "@/components/dashboard/ExtraSections";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { claimNewUserBonus } from "@/lib/abbi.functions";
@@ -57,7 +58,7 @@ type Achievement = {
   created_at: string;
 };
 
-type TabKey = "results" | "stats" | "abbi" | "settings";
+type TabKey = "results" | "stats" | "skills" | "weekly" | "universities" | "abbi" | "settings";
 
 function DashboardPage() {
   const { user, loading, signOut } = useAuth();
@@ -188,6 +189,9 @@ function DashboardPage() {
                 setAchievements={setAchievements}
               />
             )}
+            {tab === "skills" && <SkillsSection stats={stats} mbti={latest?.mbti_type} />}
+            {tab === "weekly" && <WeeklyReportSection mbti={latest?.mbti_type} />}
+            {tab === "universities" && <UniversitiesTabSection />}
             {tab === "abbi" && <AbbiChat />}
             {tab === "settings" && (
               <SettingsSection
@@ -300,8 +304,11 @@ function ProfileHeader({
 /* ============================================================ */
 function TabBar({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
   const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
-    { key: "results", label: "Assessment Results", icon: Brain },
-    { key: "stats", label: "My Stats", icon: BarChart3 },
+    { key: "results", label: "Results", icon: Brain },
+    { key: "stats", label: "Stats", icon: BarChart3 },
+    { key: "skills", label: "Skills", icon: Trophy },
+    { key: "weekly", label: "Weekly", icon: TrendingUp },
+    { key: "universities", label: "Universities", icon: GraduationCap },
     { key: "abbi", label: "ABBI AI", icon: Sparkles },
     { key: "settings", label: "Settings", icon: SettingsIcon },
   ];
