@@ -9,15 +9,19 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UniversitiesRouteImport } from './routes/universities'
+import { Route as SuccessStoriesRouteImport } from './routes/success-stories'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as ResultsRouteImport } from './routes/results'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as MentorsRouteImport } from './routes/mentors'
 import { Route as IqTestRouteImport } from './routes/iq-test'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CommunityRouteImport } from './routes/community'
+import { Route as CareerBattlesRouteImport } from './routes/career-battles'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuraMarketRouteImport } from './routes/aura-market'
 import { Route as AuraRouteImport } from './routes/aura'
@@ -30,6 +34,16 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuraStoreRouteImport } from './routes/aura.store'
 import { Route as AuraGrowthRouteImport } from './routes/aura.growth'
 
+const UniversitiesRoute = UniversitiesRouteImport.update({
+  id: '/universities',
+  path: '/universities',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuccessStoriesRoute = SuccessStoriesRouteImport.update({
+  id: '/success-stories',
+  path: '/success-stories',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -48,6 +62,11 @@ const ResultsRoute = ResultsRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MentorsRoute = MentorsRouteImport.update({
+  id: '/mentors',
+  path: '/mentors',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IqTestRoute = IqTestRouteImport.update({
@@ -73,6 +92,11 @@ const ContactRoute = ContactRouteImport.update({
 const CommunityRoute = CommunityRouteImport.update({
   id: '/community',
   path: '/community',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareerBattlesRoute = CareerBattlesRouteImport.update({
+  id: '/career-battles',
+  path: '/career-battles',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -141,15 +165,19 @@ export interface FileRoutesByFullPath {
   '/aura': typeof AuraRouteWithChildren
   '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
+  '/career-battles': typeof CareerBattlesRoute
   '/community': typeof CommunityRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
   '/iq-test': typeof IqTestRoute
+  '/mentors': typeof MentorsRoute
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
   '/roadmap': typeof RoadmapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/success-stories': typeof SuccessStoriesRoute
+  '/universities': typeof UniversitiesRoute
   '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
 }
@@ -163,15 +191,19 @@ export interface FileRoutesByTo {
   '/aura': typeof AuraRouteWithChildren
   '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
+  '/career-battles': typeof CareerBattlesRoute
   '/community': typeof CommunityRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
   '/iq-test': typeof IqTestRoute
+  '/mentors': typeof MentorsRoute
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
   '/roadmap': typeof RoadmapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/success-stories': typeof SuccessStoriesRoute
+  '/universities': typeof UniversitiesRoute
   '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
 }
@@ -186,15 +218,19 @@ export interface FileRoutesById {
   '/aura': typeof AuraRouteWithChildren
   '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
+  '/career-battles': typeof CareerBattlesRoute
   '/community': typeof CommunityRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
   '/iq-test': typeof IqTestRoute
+  '/mentors': typeof MentorsRoute
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
   '/roadmap': typeof RoadmapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/success-stories': typeof SuccessStoriesRoute
+  '/universities': typeof UniversitiesRoute
   '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
 }
@@ -210,15 +246,19 @@ export interface FileRouteTypes {
     | '/aura'
     | '/aura-market'
     | '/auth'
+    | '/career-battles'
     | '/community'
     | '/contact'
     | '/dashboard'
     | '/features'
     | '/iq-test'
+    | '/mentors'
     | '/pricing'
     | '/results'
     | '/roadmap'
     | '/sitemap.xml'
+    | '/success-stories'
+    | '/universities'
     | '/aura/growth'
     | '/aura/store'
   fileRoutesByTo: FileRoutesByTo
@@ -232,15 +272,19 @@ export interface FileRouteTypes {
     | '/aura'
     | '/aura-market'
     | '/auth'
+    | '/career-battles'
     | '/community'
     | '/contact'
     | '/dashboard'
     | '/features'
     | '/iq-test'
+    | '/mentors'
     | '/pricing'
     | '/results'
     | '/roadmap'
     | '/sitemap.xml'
+    | '/success-stories'
+    | '/universities'
     | '/aura/growth'
     | '/aura/store'
   id:
@@ -254,15 +298,19 @@ export interface FileRouteTypes {
     | '/aura'
     | '/aura-market'
     | '/auth'
+    | '/career-battles'
     | '/community'
     | '/contact'
     | '/dashboard'
     | '/features'
     | '/iq-test'
+    | '/mentors'
     | '/pricing'
     | '/results'
     | '/roadmap'
     | '/sitemap.xml'
+    | '/success-stories'
+    | '/universities'
     | '/aura/growth'
     | '/aura/store'
   fileRoutesById: FileRoutesById
@@ -277,19 +325,37 @@ export interface RootRouteChildren {
   AuraRoute: typeof AuraRouteWithChildren
   AuraMarketRoute: typeof AuraMarketRoute
   AuthRoute: typeof AuthRoute
+  CareerBattlesRoute: typeof CareerBattlesRoute
   CommunityRoute: typeof CommunityRoute
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
   FeaturesRoute: typeof FeaturesRoute
   IqTestRoute: typeof IqTestRoute
+  MentorsRoute: typeof MentorsRoute
   PricingRoute: typeof PricingRoute
   ResultsRoute: typeof ResultsRoute
   RoadmapRoute: typeof RoadmapRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  SuccessStoriesRoute: typeof SuccessStoriesRoute
+  UniversitiesRoute: typeof UniversitiesRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/universities': {
+      id: '/universities'
+      path: '/universities'
+      fullPath: '/universities'
+      preLoaderRoute: typeof UniversitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/success-stories': {
+      id: '/success-stories'
+      path: '/success-stories'
+      fullPath: '/success-stories'
+      preLoaderRoute: typeof SuccessStoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -316,6 +382,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mentors': {
+      id: '/mentors'
+      path: '/mentors'
+      fullPath: '/mentors'
+      preLoaderRoute: typeof MentorsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/iq-test': {
@@ -351,6 +424,13 @@ declare module '@tanstack/react-router' {
       path: '/community'
       fullPath: '/community'
       preLoaderRoute: typeof CommunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/career-battles': {
+      id: '/career-battles'
+      path: '/career-battles'
+      fullPath: '/career-battles'
+      preLoaderRoute: typeof CareerBattlesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -455,15 +535,19 @@ const rootRouteChildren: RootRouteChildren = {
   AuraRoute: AuraRouteWithChildren,
   AuraMarketRoute: AuraMarketRoute,
   AuthRoute: AuthRoute,
+  CareerBattlesRoute: CareerBattlesRoute,
   CommunityRoute: CommunityRoute,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
   FeaturesRoute: FeaturesRoute,
   IqTestRoute: IqTestRoute,
+  MentorsRoute: MentorsRoute,
   PricingRoute: PricingRoute,
   ResultsRoute: ResultsRoute,
   RoadmapRoute: RoadmapRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  SuccessStoriesRoute: SuccessStoriesRoute,
+  UniversitiesRoute: UniversitiesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

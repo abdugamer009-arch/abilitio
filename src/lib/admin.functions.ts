@@ -19,6 +19,14 @@ export type AdminAnalytics = {
   totalAbbiQuestions: number;
   newUsersThisWeek: number;
   newUsersThisMonth: number;
+  dau: number;
+  wau: number;
+  mau: number;
+  payingUsers: number;
+  revenueToday: number;
+  revenueMonth: number;
+  revenueYear: number;
+  mostActiveCommunity: { name: string; messageCount: number } | null;
   popularCareers: { name: string; count: number }[];
   popularMbti: { type: string; count: number }[];
   weeklySignups: { day: string; count: number }[];
@@ -31,15 +39,21 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
     await ensureAdmin(supabase, userId);
 
     const now = new Date();
+    const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
     const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const yearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000).toISOString();
+    const todayStr = now.toISOString().slice(0, 10);
+    const monthStr = now.toISOString().slice(0, 7);
 
-    const [profiles, results, wallets, txns, adminRoles] = await Promise.all([
-      supabase.from("profiles").select("id, created_at"),
-      supabase.from("assessment_results").select("id, user_id, mbti_type, careers"),
-      supabase.from("aura_wallets").select("user_id, balance, lifetime_earned, lifetime_spent"),
+    const [profiles, results, wallets, txns, adminRoles, communities, messages] = await Promise.all([
+      supabase.from("profiles").select("id, created_at, updated_at"),
+      supabase.from("assessment_results").select("id, user_id, mbti_type, careers, created_at"),
+      supabase.from("aura_wallets").select("user_id, balance, lifetime_earned, lifetime_spent, updated_at"),
       supabase.from("aura_transactions").select("user_id, amount, reason, created_at"),
       supabase.from("user_roles").select("user_id").eq("role", "admin"),
+      supabase.from("communities").select("id, name"),
+      supabase.from("community_messages").select("community_id, user_id, created_at"),
     ]);
 
     const adminIds = new Set<string>((adminRoles.data ?? []).map((r: any) => r.user_id));
@@ -47,15 +61,49 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
     const allResults = (results.data ?? []).filter((r: any) => !adminIds.has(r.user_id));
     const allWallets = (wallets.data ?? []).filter((w: any) => !adminIds.has(w.user_id));
     const allTxns = (txns.data ?? []).filter((t: any) => !adminIds.has(t.user_id));
+    const allMessages = (messages.data ?? []).filter((m: any) => !adminIds.has(m.user_id));
 
     const newUsersThisWeek = allProfiles.filter((p: any) => p.created_at >= weekAgo).length;
     const newUsersThisMonth = allProfiles.filter((p: any) => p.created_at >= monthAgo).length;
 
+    // DAU/WAU/MAU approximated by last activity (transactions or profile updates)
+    const activitySets = { dau: new Set<string>(), wau: new Set<string>(), mau: new Set<string>() };
+    for (const t of allTxns) {
+      if (t.created_at >= dayAgo) activitySets.dau.add(t.user_id);
+      if (t.created_at >= weekAgo) activitySets.wau.add(t.user_id);
+      if (t.created_at >= monthAgo) activitySets.mau.add(t.user_id);
+    }
+    for (const m of allMessages) {
+      if (m.created_at >= dayAgo) activitySets.dau.add(m.user_id);
+      if (m.created_at >= weekAgo) activitySets.wau.add(m.user_id);
+      if (m.created_at >= monthAgo) activitySets.mau.add(m.user_id);
+    }
+
     const totalAuraInCirculation = allWallets.reduce((s: number, w: any) => s + (w.balance || 0), 0);
-    const totalAuraPurchased = allTxns
-      .filter((t: any) => t.reason === "purchase" || t.reason?.startsWith("purchase"))
-      .reduce((s: number, t: any) => s + (t.amount > 0 ? t.amount : 0), 0);
+    const purchaseTxns = allTxns.filter((t: any) => typeof t.reason === "string" && t.reason.startsWith("purchase"));
+    const totalAuraPurchased = purchaseTxns.reduce((s: number, t: any) => s + (t.amount > 0 ? t.amount : 0), 0);
     const totalAbbiQuestions = allTxns.filter((t: any) => t.reason === "abbi_ai_message").length;
+
+    const payingUsers = new Set<string>(purchaseTxns.map((t: any) => t.user_id)).size;
+    // Revenue is recorded as Aura purchased (1 coin ~ proxy unit). Real $ revenue
+    // would come from aura_purchase_requests; we approximate here.
+    const revenueToday = purchaseTxns
+      .filter((t: any) => t.created_at.slice(0, 10) === todayStr)
+      .reduce((s: number, t: any) => s + (t.amount > 0 ? t.amount : 0), 0);
+    const revenueMonth = purchaseTxns
+      .filter((t: any) => t.created_at.slice(0, 7) === monthStr)
+      .reduce((s: number, t: any) => s + (t.amount > 0 ? t.amount : 0), 0);
+    const revenueYear = purchaseTxns
+      .filter((t: any) => t.created_at >= yearAgo)
+      .reduce((s: number, t: any) => s + (t.amount > 0 ? t.amount : 0), 0);
+
+    const commNameMap = new Map<string, string>((communities.data ?? []).map((c: any) => [c.id, c.name]));
+    const commCount = new Map<string, number>();
+    for (const m of allMessages) commCount.set(m.community_id, (commCount.get(m.community_id) || 0) + 1);
+    const sortedComm = [...commCount.entries()].sort((a, b) => b[1] - a[1]);
+    const mostActiveCommunity = sortedComm[0]
+      ? { name: commNameMap.get(sortedComm[0][0]) ?? "—", messageCount: sortedComm[0][1] }
+      : null;
 
     const mbtiCount = new Map<string, number>();
     const careerCount = new Map<string, number>();
@@ -85,6 +133,14 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
       totalAbbiQuestions,
       newUsersThisWeek,
       newUsersThisMonth,
+      dau: activitySets.dau.size,
+      wau: activitySets.wau.size,
+      mau: activitySets.mau.size,
+      payingUsers,
+      revenueToday,
+      revenueMonth,
+      revenueYear,
+      mostActiveCommunity,
       popularCareers,
       popularMbti,
       weeklySignups: days,
