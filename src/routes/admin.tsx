@@ -114,7 +114,25 @@ function AdminDashboardPage() {
 
           {analytics && (
             <>
-              <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {/* Founder analytics */}
+              <h2 className="mt-8 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Engagement</h2>
+              <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <StatCard icon={Users} label="Daily Active Users" value={analytics.dau} />
+                <StatCard icon={Users} label="Weekly Active Users" value={analytics.wau} />
+                <StatCard icon={Users} label="Monthly Active Users" value={analytics.mau} />
+                <StatCard icon={Crown} label="Paying Users" value={analytics.payingUsers} />
+              </div>
+
+              <h2 className="mt-8 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Revenue (Aura)</h2>
+              <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <StatCard icon={Coins} label="Revenue Today" value={analytics.revenueToday} />
+                <StatCard icon={Coins} label="Revenue This Month" value={analytics.revenueMonth} />
+                <StatCard icon={Coins} label="Revenue This Year" value={analytics.revenueYear} />
+                <StatCard icon={TrendingUp} label="Most Popular Career" valueText={analytics.popularCareers[0]?.name ?? "—"} />
+              </div>
+
+              <h2 className="mt-8 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Platform</h2>
+              <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard icon={Users} label="Total Users" value={analytics.totalUsers} />
                 <StatCard icon={Brain} label="Completed Assessments" value={analytics.completedAssessments} />
                 <StatCard icon={Coins} label="Aura In Circulation" value={analytics.totalAuraInCirculation} />
@@ -122,7 +140,7 @@ function AdminDashboardPage() {
                 <StatCard icon={TrendingUp} label="New This Week" value={analytics.newUsersThisWeek} />
                 <StatCard icon={TrendingUp} label="New This Month" value={analytics.newUsersThisMonth} />
                 <StatCard icon={Coins} label="Aura Purchased" value={analytics.totalAuraPurchased} />
-                <StatCard icon={Crown} label="Avg Aura / User" value={analytics.totalUsers ? Math.round(analytics.totalAuraInCirculation / analytics.totalUsers) : 0} />
+                <StatCard icon={Sparkles} label="Most Active Community" valueText={analytics.mostActiveCommunity?.name ?? "—"} hint={analytics.mostActiveCommunity ? `${analytics.mostActiveCommunity.messageCount} msgs` : undefined} />
               </div>
 
               <div className="mt-6 grid gap-6 lg:grid-cols-2">
