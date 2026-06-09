@@ -266,7 +266,8 @@ function AdminDashboardPage() {
   );
 }
 
-function StatCard({ icon: Icon, label, value }: { icon: any; label: string; value: number }) {
+function StatCard({ icon: Icon, label, value, valueText, hint }: { icon: any; label: string; value?: number; valueText?: string; hint?: string }) {
+  const display = valueText ?? (typeof value === "number" ? value.toLocaleString() : "—");
   return (
     <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-5 backdrop-blur-xl"
       style={{ boxShadow: "0 10px 30px -15px oklch(0.55 0.22 295 / 0.4)" }}>
@@ -275,7 +276,8 @@ function StatCard({ icon: Icon, label, value }: { icon: any; label: string; valu
       <div className="relative">
         <Icon className="h-4 w-4 text-primary" />
         <div className="mt-3 text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-        <div className="mt-1 text-2xl font-bold tabular-nums gradient-text">{value.toLocaleString()}</div>
+        <div className="mt-1 truncate text-2xl font-bold tabular-nums gradient-text" title={display}>{display}</div>
+        {hint && <div className="mt-1 text-[11px] text-muted-foreground">{hint}</div>}
       </div>
     </div>
   );
