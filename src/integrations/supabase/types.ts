@@ -443,6 +443,169 @@ export type Database = {
         }
         Relationships: []
       }
+      school_classes: {
+        Row: {
+          created_at: string
+          grade: number | null
+          id: string
+          name: string
+          school_id: string
+        }
+        Insert: {
+          created_at?: string
+          grade?: number | null
+          id?: string
+          name: string
+          school_id: string
+        }
+        Update: {
+          created_at?: string
+          grade?: number | null
+          id?: string
+          name?: string
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_classes_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_members: {
+        Row: {
+          class_id: string | null
+          id: string
+          joined_at: string
+          role: string
+          school_id: string
+          user_id: string
+        }
+        Insert: {
+          class_id?: string | null
+          id?: string
+          joined_at?: string
+          role: string
+          school_id: string
+          user_id: string
+        }
+        Update: {
+          class_id?: string | null
+          id?: string
+          joined_at?: string
+          role?: string
+          school_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_members_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "school_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_members_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_specialized_classes: {
+        Row: {
+          created_at: string
+          created_by: string
+          focus: string
+          id: string
+          reason: string
+          school_id: string
+          student_user_ids: string[]
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          focus: string
+          id?: string
+          reason: string
+          school_id: string
+          student_user_ids?: string[]
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          focus?: string
+          id?: string
+          reason?: string
+          school_id?: string
+          student_user_ids?: string[]
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_specialized_classes_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schools: {
+        Row: {
+          city: string | null
+          code: string
+          country: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          owner_user_id: string
+          phone: string | null
+          plan: string
+          principal_name: string
+          student_count_estimate: number | null
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          code: string
+          country?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          owner_user_id: string
+          phone?: string | null
+          plan?: string
+          principal_name: string
+          student_count_estimate?: number | null
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          code?: string
+          country?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          owner_user_id?: string
+          phone?: string | null
+          plan?: string
+          principal_name?: string
+          student_count_estimate?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           created_at: string
@@ -611,6 +774,7 @@ export type Database = {
         Args: { _feature_key: string; _price: number }
         Returns: Json
       }
+      generate_school_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -622,6 +786,50 @@ export type Database = {
       is_community_member: {
         Args: { _community: string; _user: string }
         Returns: boolean
+      }
+      is_school_member: {
+        Args: { _school: string; _user: string }
+        Returns: boolean
+      }
+      is_school_principal: {
+        Args: { _school: string; _user: string }
+        Returns: boolean
+      }
+      join_school: {
+        Args: { _class_name: string; _code: string }
+        Returns: string
+      }
+      register_school: {
+        Args: {
+          _city: string
+          _country: string
+          _email: string
+          _name: string
+          _phone: string
+          _principal_name: string
+          _students: number
+        }
+        Returns: {
+          city: string | null
+          code: string
+          country: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          owner_user_id: string
+          phone: string | null
+          plan: string
+          principal_name: string
+          student_count_estimate: number | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "schools"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
     }
     Enums: {
