@@ -33,6 +33,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AbbiRouteImport } from './routes/abbi'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SchoolRegisterRouteImport } from './routes/school.register'
+import { Route as SchoolJoinRouteImport } from './routes/school.join'
 import { Route as AuraStoreRouteImport } from './routes/aura.store'
 import { Route as AuraGrowthRouteImport } from './routes/aura.growth'
 
@@ -156,6 +157,11 @@ const SchoolRegisterRoute = SchoolRegisterRouteImport.update({
   path: '/school/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SchoolJoinRoute = SchoolJoinRouteImport.update({
+  id: '/school/join',
+  path: '/school/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuraStoreRoute = AuraStoreRouteImport.update({
   id: '/store',
   path: '/store',
@@ -193,6 +199,7 @@ export interface FileRoutesByFullPath {
   '/universities': typeof UniversitiesRoute
   '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
+  '/school/join': typeof SchoolJoinRoute
   '/school/register': typeof SchoolRegisterRoute
 }
 export interface FileRoutesByTo {
@@ -221,6 +228,7 @@ export interface FileRoutesByTo {
   '/universities': typeof UniversitiesRoute
   '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
+  '/school/join': typeof SchoolJoinRoute
   '/school/register': typeof SchoolRegisterRoute
 }
 export interface FileRoutesById {
@@ -250,6 +258,7 @@ export interface FileRoutesById {
   '/universities': typeof UniversitiesRoute
   '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
+  '/school/join': typeof SchoolJoinRoute
   '/school/register': typeof SchoolRegisterRoute
 }
 export interface FileRouteTypes {
@@ -280,6 +289,7 @@ export interface FileRouteTypes {
     | '/universities'
     | '/aura/growth'
     | '/aura/store'
+    | '/school/join'
     | '/school/register'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -308,6 +318,7 @@ export interface FileRouteTypes {
     | '/universities'
     | '/aura/growth'
     | '/aura/store'
+    | '/school/join'
     | '/school/register'
   id:
     | '__root__'
@@ -336,6 +347,7 @@ export interface FileRouteTypes {
     | '/universities'
     | '/aura/growth'
     | '/aura/store'
+    | '/school/join'
     | '/school/register'
   fileRoutesById: FileRoutesById
 }
@@ -363,6 +375,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SuccessStoriesRoute: typeof SuccessStoriesRoute
   UniversitiesRoute: typeof UniversitiesRoute
+  SchoolJoinRoute: typeof SchoolJoinRoute
   SchoolRegisterRoute: typeof SchoolRegisterRoute
 }
 
@@ -536,6 +549,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SchoolRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/school/join': {
+      id: '/school/join'
+      path: '/school/join'
+      fullPath: '/school/join'
+      preLoaderRoute: typeof SchoolJoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/aura/store': {
       id: '/aura/store'
       path: '/store'
@@ -589,6 +609,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SuccessStoriesRoute: SuccessStoriesRoute,
   UniversitiesRoute: UniversitiesRoute,
+  SchoolJoinRoute: SchoolJoinRoute,
   SchoolRegisterRoute: SchoolRegisterRoute,
 }
 export const routeTree = rootRouteImport
