@@ -32,6 +32,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AbbiRouteImport } from './routes/abbi'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SchoolReportRouteImport } from './routes/school.report'
 import { Route as SchoolRegisterRouteImport } from './routes/school.register'
 import { Route as SchoolJoinRouteImport } from './routes/school.join'
 import { Route as SchoolDashboardRouteImport } from './routes/school.dashboard'
@@ -153,6 +154,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SchoolReportRoute = SchoolReportRouteImport.update({
+  id: '/school/report',
+  path: '/school/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SchoolRegisterRoute = SchoolRegisterRouteImport.update({
   id: '/school/register',
   path: '/school/register',
@@ -208,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/school/dashboard': typeof SchoolDashboardRoute
   '/school/join': typeof SchoolJoinRoute
   '/school/register': typeof SchoolRegisterRoute
+  '/school/report': typeof SchoolReportRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -238,6 +245,7 @@ export interface FileRoutesByTo {
   '/school/dashboard': typeof SchoolDashboardRoute
   '/school/join': typeof SchoolJoinRoute
   '/school/register': typeof SchoolRegisterRoute
+  '/school/report': typeof SchoolReportRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -269,6 +277,7 @@ export interface FileRoutesById {
   '/school/dashboard': typeof SchoolDashboardRoute
   '/school/join': typeof SchoolJoinRoute
   '/school/register': typeof SchoolRegisterRoute
+  '/school/report': typeof SchoolReportRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -301,6 +310,7 @@ export interface FileRouteTypes {
     | '/school/dashboard'
     | '/school/join'
     | '/school/register'
+    | '/school/report'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -331,6 +341,7 @@ export interface FileRouteTypes {
     | '/school/dashboard'
     | '/school/join'
     | '/school/register'
+    | '/school/report'
   id:
     | '__root__'
     | '/'
@@ -361,6 +372,7 @@ export interface FileRouteTypes {
     | '/school/dashboard'
     | '/school/join'
     | '/school/register'
+    | '/school/report'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -390,6 +402,7 @@ export interface RootRouteChildren {
   SchoolDashboardRoute: typeof SchoolDashboardRoute
   SchoolJoinRoute: typeof SchoolJoinRoute
   SchoolRegisterRoute: typeof SchoolRegisterRoute
+  SchoolReportRoute: typeof SchoolReportRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -555,6 +568,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/school/report': {
+      id: '/school/report'
+      path: '/school/report'
+      fullPath: '/school/report'
+      preLoaderRoute: typeof SchoolReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/school/register': {
       id: '/school/register'
       path: '/school/register'
@@ -632,6 +652,7 @@ const rootRouteChildren: RootRouteChildren = {
   SchoolDashboardRoute: SchoolDashboardRoute,
   SchoolJoinRoute: SchoolJoinRoute,
   SchoolRegisterRoute: SchoolRegisterRoute,
+  SchoolReportRoute: SchoolReportRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
