@@ -18,6 +18,7 @@ export function Navbar() {
     { to: "/roadmap", label: "Roadmap", kind: "text" as const },
     { to: "/community", label: "Community", kind: "text" as const },
     { to: "/aura-market", label: "Market", kind: "text" as const },
+    { to: "/for-schools", label: "For Schools", kind: "text" as const },
     { to: "/about", label: t.nav.about, kind: "text" as const },
   ] as const;
 
