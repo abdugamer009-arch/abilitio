@@ -17,6 +17,7 @@ import { Route as ResultsRouteImport } from './routes/results'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as MentorsRouteImport } from './routes/mentors'
 import { Route as IqTestRouteImport } from './routes/iq-test'
+import { Route as ForSchoolsRouteImport } from './routes/for-schools'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -31,6 +32,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AbbiRouteImport } from './routes/abbi'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SchoolRegisterRouteImport } from './routes/school.register'
 import { Route as AuraStoreRouteImport } from './routes/aura.store'
 import { Route as AuraGrowthRouteImport } from './routes/aura.growth'
 
@@ -72,6 +74,11 @@ const MentorsRoute = MentorsRouteImport.update({
 const IqTestRoute = IqTestRouteImport.update({
   id: '/iq-test',
   path: '/iq-test',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForSchoolsRoute = ForSchoolsRouteImport.update({
+  id: '/for-schools',
+  path: '/for-schools',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeaturesRoute = FeaturesRouteImport.update({
@@ -144,6 +151,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SchoolRegisterRoute = SchoolRegisterRouteImport.update({
+  id: '/school/register',
+  path: '/school/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuraStoreRoute = AuraStoreRouteImport.update({
   id: '/store',
   path: '/store',
@@ -170,6 +182,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
+  '/for-schools': typeof ForSchoolsRoute
   '/iq-test': typeof IqTestRoute
   '/mentors': typeof MentorsRoute
   '/pricing': typeof PricingRoute
@@ -180,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/universities': typeof UniversitiesRoute
   '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
+  '/school/register': typeof SchoolRegisterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -196,6 +210,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
+  '/for-schools': typeof ForSchoolsRoute
   '/iq-test': typeof IqTestRoute
   '/mentors': typeof MentorsRoute
   '/pricing': typeof PricingRoute
@@ -206,6 +221,7 @@ export interface FileRoutesByTo {
   '/universities': typeof UniversitiesRoute
   '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
+  '/school/register': typeof SchoolRegisterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -223,6 +239,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
+  '/for-schools': typeof ForSchoolsRoute
   '/iq-test': typeof IqTestRoute
   '/mentors': typeof MentorsRoute
   '/pricing': typeof PricingRoute
@@ -233,6 +250,7 @@ export interface FileRoutesById {
   '/universities': typeof UniversitiesRoute
   '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
+  '/school/register': typeof SchoolRegisterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -251,6 +269,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/features'
+    | '/for-schools'
     | '/iq-test'
     | '/mentors'
     | '/pricing'
@@ -261,6 +280,7 @@ export interface FileRouteTypes {
     | '/universities'
     | '/aura/growth'
     | '/aura/store'
+    | '/school/register'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -277,6 +297,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/features'
+    | '/for-schools'
     | '/iq-test'
     | '/mentors'
     | '/pricing'
@@ -287,6 +308,7 @@ export interface FileRouteTypes {
     | '/universities'
     | '/aura/growth'
     | '/aura/store'
+    | '/school/register'
   id:
     | '__root__'
     | '/'
@@ -303,6 +325,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/features'
+    | '/for-schools'
     | '/iq-test'
     | '/mentors'
     | '/pricing'
@@ -313,6 +336,7 @@ export interface FileRouteTypes {
     | '/universities'
     | '/aura/growth'
     | '/aura/store'
+    | '/school/register'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -330,6 +354,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
   FeaturesRoute: typeof FeaturesRoute
+  ForSchoolsRoute: typeof ForSchoolsRoute
   IqTestRoute: typeof IqTestRoute
   MentorsRoute: typeof MentorsRoute
   PricingRoute: typeof PricingRoute
@@ -338,6 +363,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SuccessStoriesRoute: typeof SuccessStoriesRoute
   UniversitiesRoute: typeof UniversitiesRoute
+  SchoolRegisterRoute: typeof SchoolRegisterRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -396,6 +422,13 @@ declare module '@tanstack/react-router' {
       path: '/iq-test'
       fullPath: '/iq-test'
       preLoaderRoute: typeof IqTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/for-schools': {
+      id: '/for-schools'
+      path: '/for-schools'
+      fullPath: '/for-schools'
+      preLoaderRoute: typeof ForSchoolsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/features': {
@@ -496,6 +529,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/school/register': {
+      id: '/school/register'
+      path: '/school/register'
+      fullPath: '/school/register'
+      preLoaderRoute: typeof SchoolRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/aura/store': {
       id: '/aura/store'
       path: '/store'
@@ -540,6 +580,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
   FeaturesRoute: FeaturesRoute,
+  ForSchoolsRoute: ForSchoolsRoute,
   IqTestRoute: IqTestRoute,
   MentorsRoute: MentorsRoute,
   PricingRoute: PricingRoute,
@@ -548,7 +589,18 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SuccessStoriesRoute: SuccessStoriesRoute,
   UniversitiesRoute: UniversitiesRoute,
+  SchoolRegisterRoute: SchoolRegisterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
