@@ -85,10 +85,10 @@ export const registerSchool = createServerFn({ method: "POST" })
       _name: data.name,
       _principal_name: data.principalName,
       _email: data.email,
-      _phone: data.phone || null,
+      _phone: data.phone ?? "",
       _students: data.students,
-      _city: data.city || null,
-      _country: data.country || null,
+      _city: data.city ?? "",
+      _country: data.country ?? "",
     });
     if (error) throw new Error(error.message);
     return { school: school as SchoolDTO };
