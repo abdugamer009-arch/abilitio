@@ -49,9 +49,9 @@ export const submitPersonality = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }): Promise<{ result: PersonalityResult; type: MbtiType | null }> => {
     const { supabase, userId } = context;
-    const { data: row, error } = await supabase.rpc("submit_personality_assessment" as never, {
-      _answers: data.answers as never,
-    });
+    const { data: row, error } = await (supabase as unknown as {
+      rpc: (n: string, p: unknown) => Promise<{ data: unknown; error: { message: string } | null }>;
+    }).rpc("submit_personality_assessment", { _answers: data.answers });
     if (error) throw new Error(error.message);
     const result = row as unknown as PersonalityResult;
 
