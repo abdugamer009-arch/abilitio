@@ -25,22 +25,22 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full">
-      <div className="mx-auto mt-4 max-w-6xl px-4">
-        <nav className="glass flex min-h-14 items-center gap-3 rounded-full px-3 sm:px-4 md:px-5">
-          <div className="flex min-w-0 flex-1 items-center gap-6 md:gap-10">
+      <div className="mx-auto mt-4 max-w-[1500px] px-4 lg:px-6">
+        <nav className="glass flex min-h-16 items-center gap-4 rounded-full px-4 sm:px-5 md:px-6 lg:min-h-[68px]">
+          <div className="flex min-w-0 flex-1 items-center gap-6 md:gap-12">
             <Link to="/" className="group flex shrink-0 items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent shadow-[0_4px_18px_-6px_var(--glow)] transition-all duration-300 group-hover:shadow-[0_6px_24px_-4px_var(--glow)]">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent shadow-[0_4px_18px_-6px_var(--glow)] transition-all duration-300 group-hover:shadow-[0_6px_24px_-4px_var(--glow)]">
               <Sparkles className="h-4 w-4 text-primary-foreground" />
               </div>
-              <span className="text-[15px] font-semibold tracking-tight">Abilitio</span>
+              <span className="text-base font-semibold tracking-tight lg:text-[17px]">Abilitio</span>
             </Link>
 
-            <ul className="hidden min-w-0 flex-1 items-center justify-start gap-2 md:flex lg:gap-3">
+            <ul className="hidden min-w-0 flex-1 items-center justify-start gap-2 md:flex lg:gap-4">
               {navItems.map((item) => (
                 <li key={item.to} className="shrink-0">
                   <Link
                     to={item.to}
-                    className="whitespace-nowrap rounded-full px-3 py-1.5 text-[13px] font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary/70 hover:text-foreground lg:px-3.5"
+                    className="whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary/70 hover:text-foreground lg:px-4 lg:text-[15px]"
                     activeProps={{ className: "bg-secondary text-foreground shadow-[0_0_20px_-6px_var(--glow)]" }}
                     activeOptions={{ exact: true }}
                   >

@@ -264,13 +264,13 @@ function AssessmentPage() {
 
     return (
       <PageShell>
-        <section className="px-6 pt-20 pb-24">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent glow-purple">
-              <Sparkles className="h-8 w-8 text-primary-foreground" />
+        <section className="px-6 pt-24 pb-28 lg:pt-28">
+          <div className="mx-auto max-w-5xl text-center">
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent glow-purple">
+              <Sparkles className="h-10 w-10 text-primary-foreground" />
             </div>
-            <h1 className="mt-8 text-4xl font-bold md:text-5xl gradient-text">{introTitle}</h1>
-            <p className="mt-4 text-muted-foreground">{introMeta}</p>
+            <h1 className="mt-10 text-5xl font-bold md:text-6xl lg:text-7xl gradient-text">{introTitle}</h1>
+            <p className="mt-6 text-lg text-muted-foreground md:text-xl">{introMeta}</p>
             {ageGroup && (
               <button
                 onClick={async () => {
@@ -278,25 +278,28 @@ function AssessmentPage() {
                   if (user) await supabase.from("profiles").update({ age_group: null }).eq("id", user.id);
                   else if (typeof window !== "undefined") localStorage.removeItem("abilitio_age_group");
                 }}
-                className="mt-2 text-[11px] text-muted-foreground underline-offset-2 hover:underline"
+                className="mt-3 text-xs text-muted-foreground underline-offset-2 hover:underline"
               >
                 Change age group
               </button>
             )}
 
-            <div className="mt-10 grid gap-4 md:grid-cols-3">
+            <div className="mt-14 grid gap-6 md:grid-cols-3">
               {(["iq", "interests", "mbti"] as const).map((k) => {
                 const m = t.assessment.sections[k];
                 const Icon = SECTION_ICONS[k];
                 return (
-                  <div key={k} className="glass rounded-2xl p-6 text-left hover-glow">
-                    <Icon className="h-5 w-5 text-accent" />
-                    <h3 className="mt-4 font-semibold">{m.label}</h3>
-                    <p className="mt-1 text-xs text-muted-foreground">{m.desc} · {t.assessment.tenQuestions}</p>
+                  <div key={k} className="glass rounded-3xl p-8 text-left hover-glow lg:p-10">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20">
+                      <Icon className="h-6 w-6 text-accent" />
+                    </div>
+                    <h3 className="mt-6 text-lg font-semibold lg:text-xl">{m.label}</h3>
+                    <p className="mt-2 text-sm text-muted-foreground lg:text-base">{m.desc} · {t.assessment.tenQuestions}</p>
                   </div>
                 );
               })}
             </div>
+
 
             <div className="glass mt-8 rounded-3xl p-7 text-left text-sm text-muted-foreground">
               <ul className="space-y-2">
