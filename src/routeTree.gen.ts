@@ -15,7 +15,6 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as ResultsRouteImport } from './routes/results'
 import { Route as PricingRouteImport } from './routes/pricing'
-import { Route as PersonalityRouteImport } from './routes/personality'
 import { Route as MentorsRouteImport } from './routes/mentors'
 import { Route as IqTestRouteImport } from './routes/iq-test'
 import { Route as ForSchoolsRouteImport } from './routes/for-schools'
@@ -68,11 +67,6 @@ const ResultsRoute = ResultsRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PersonalityRoute = PersonalityRouteImport.update({
-  id: '/personality',
-  path: '/personality',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MentorsRoute = MentorsRouteImport.update({
@@ -209,7 +203,6 @@ export interface FileRoutesByFullPath {
   '/for-schools': typeof ForSchoolsRoute
   '/iq-test': typeof IqTestRoute
   '/mentors': typeof MentorsRoute
-  '/personality': typeof PersonalityRoute
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
   '/roadmap': typeof RoadmapRoute
@@ -241,7 +234,6 @@ export interface FileRoutesByTo {
   '/for-schools': typeof ForSchoolsRoute
   '/iq-test': typeof IqTestRoute
   '/mentors': typeof MentorsRoute
-  '/personality': typeof PersonalityRoute
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
   '/roadmap': typeof RoadmapRoute
@@ -274,7 +266,6 @@ export interface FileRoutesById {
   '/for-schools': typeof ForSchoolsRoute
   '/iq-test': typeof IqTestRoute
   '/mentors': typeof MentorsRoute
-  '/personality': typeof PersonalityRoute
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
   '/roadmap': typeof RoadmapRoute
@@ -308,7 +299,6 @@ export interface FileRouteTypes {
     | '/for-schools'
     | '/iq-test'
     | '/mentors'
-    | '/personality'
     | '/pricing'
     | '/results'
     | '/roadmap'
@@ -340,7 +330,6 @@ export interface FileRouteTypes {
     | '/for-schools'
     | '/iq-test'
     | '/mentors'
-    | '/personality'
     | '/pricing'
     | '/results'
     | '/roadmap'
@@ -372,7 +361,6 @@ export interface FileRouteTypes {
     | '/for-schools'
     | '/iq-test'
     | '/mentors'
-    | '/personality'
     | '/pricing'
     | '/results'
     | '/roadmap'
@@ -405,7 +393,6 @@ export interface RootRouteChildren {
   ForSchoolsRoute: typeof ForSchoolsRoute
   IqTestRoute: typeof IqTestRoute
   MentorsRoute: typeof MentorsRoute
-  PersonalityRoute: typeof PersonalityRoute
   PricingRoute: typeof PricingRoute
   ResultsRoute: typeof ResultsRoute
   RoadmapRoute: typeof RoadmapRoute
@@ -460,13 +447,6 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/personality': {
-      id: '/personality'
-      path: '/personality'
-      fullPath: '/personality'
-      preLoaderRoute: typeof PersonalityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mentors': {
@@ -663,7 +643,6 @@ const rootRouteChildren: RootRouteChildren = {
   ForSchoolsRoute: ForSchoolsRoute,
   IqTestRoute: IqTestRoute,
   MentorsRoute: MentorsRoute,
-  PersonalityRoute: PersonalityRoute,
   PricingRoute: PricingRoute,
   ResultsRoute: ResultsRoute,
   RoadmapRoute: RoadmapRoute,
