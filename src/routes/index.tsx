@@ -24,30 +24,30 @@ function LandingPage() {
   return (
     <PageShell>
       {/* Hero */}
-      <section className="relative px-6 pt-24 pb-32 text-center">
+      <section className="relative px-6 pt-32 pb-40 text-center lg:pt-40 lg:pb-48">
         <FloatingShapes />
-        <div key={t.hero.titleA} className="mx-auto max-w-4xl animate-fade-up">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border/60 bg-secondary/40 px-4 py-1.5 text-xs text-muted-foreground backdrop-blur">
-            <Sparkles className="h-3 w-3 text-accent" />
+        <div key={t.hero.titleA} className="mx-auto max-w-5xl animate-fade-up">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-border/60 bg-secondary/40 px-5 py-2 text-sm text-muted-foreground backdrop-blur">
+            <Sparkles className="h-3.5 w-3.5 text-accent" />
             {t.hero.badge}
           </div>
-          <h1 className="text-5xl font-bold tracking-tight md:text-7xl">
+          <h1 className="text-6xl font-bold tracking-tight md:text-7xl lg:text-[88px] lg:leading-[1.05]">
             {t.hero.titleA} <span className="gradient-text">{t.hero.titleB}</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
+          <p className="mx-auto mt-8 max-w-3xl text-xl text-muted-foreground md:text-2xl lg:text-[22px] lg:leading-relaxed">
             {t.hero.subtitle}
           </p>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
             <Link
               to="/assessment"
-              className="group inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground transition-all hover:glow-purple"
+              className="group inline-flex items-center gap-2 rounded-full bg-primary px-9 py-4 text-base font-medium text-primary-foreground transition-all hover:glow-purple lg:px-10 lg:py-5 lg:text-lg"
             >
               {t.hero.cta}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
               to="/features"
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/60 px-7 py-3.5 text-sm font-medium backdrop-blur transition-colors hover:bg-secondary"
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/60 px-9 py-4 text-base font-medium backdrop-blur transition-colors hover:bg-secondary lg:px-10 lg:py-5 lg:text-lg"
             >
               {t.hero.learnMore}
             </Link>
@@ -55,9 +55,10 @@ function LandingPage() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-5xl px-6">
+      <div className="mx-auto max-w-6xl px-6">
         <GradientDivider />
       </div>
+
 
       {/* How it works */}
       <Section id="how" eyebrow={t.steps.eyebrow} title={t.steps.title}>
