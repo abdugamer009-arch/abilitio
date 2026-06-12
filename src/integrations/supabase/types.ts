@@ -413,6 +413,122 @@ export type Database = {
         }
         Relationships: []
       }
+      mbti_types: {
+        Row: {
+          description: string
+          strengths: Json
+          title: string
+          type_code: string
+          weaknesses: Json
+        }
+        Insert: {
+          description: string
+          strengths?: Json
+          title: string
+          type_code: string
+          weaknesses?: Json
+        }
+        Update: {
+          description?: string
+          strengths?: Json
+          title?: string
+          type_code?: string
+          weaknesses?: Json
+        }
+        Relationships: []
+      }
+      personality_answers: {
+        Row: {
+          answer_value: number
+          created_at: string
+          id: string
+          question_id: string
+          user_id: string
+        }
+        Insert: {
+          answer_value: number
+          created_at?: string
+          id?: string
+          question_id: string
+          user_id: string
+        }
+        Update: {
+          answer_value?: number
+          created_at?: string
+          id?: string
+          question_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personality_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "personality_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      personality_questions: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          left_statement: string
+          question_number: number
+          right_statement: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          left_statement: string
+          question_number: number
+          right_statement: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          left_statement?: string
+          question_number?: number
+          right_statement?: string
+        }
+        Relationships: []
+      }
+      personality_results: {
+        Row: {
+          created_at: string
+          ft_score: number
+          id: string
+          ie_score: number
+          jp_score: number
+          mbti_type: string
+          sn_score: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ft_score: number
+          id?: string
+          ie_score: number
+          jp_score: number
+          mbti_type: string
+          sn_score: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ft_score?: number
+          id?: string
+          ie_score?: number
+          jp_score?: number
+          mbti_type?: string
+          sn_score?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age_group: string | null
@@ -827,6 +943,25 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "schools"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      submit_personality_assessment: {
+        Args: { _answers: Json }
+        Returns: {
+          created_at: string
+          ft_score: number
+          id: string
+          ie_score: number
+          jp_score: number
+          mbti_type: string
+          sn_score: number
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "personality_results"
           isOneToOne: true
           isSetofReturn: false
         }
