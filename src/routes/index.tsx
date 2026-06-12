@@ -187,11 +187,11 @@ function LandingPage() {
 
 function Section({ id, eyebrow, title, children }: { id?: string; eyebrow: string; title: string; children: React.ReactNode }) {
   return (
-    <section id={id} className="px-6 py-20">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-12 text-center">
+    <section id={id} className="px-6 py-24 lg:py-28">
+      <div className="mx-auto max-w-[1400px]">
+        <div className="mb-14 text-center">
           <div className="text-xs uppercase tracking-widest text-accent">{eyebrow}</div>
-          <h2 className="mt-3 text-3xl font-bold md:text-4xl">{title}</h2>
+          <h2 className="mt-3 text-3xl font-bold md:text-4xl lg:text-5xl">{title}</h2>
         </div>
         {children}
       </div>
