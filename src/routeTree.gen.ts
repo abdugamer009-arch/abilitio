@@ -22,7 +22,9 @@ import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CommunityRouteImport } from './routes/community'
+import { Route as CareerResultsRouteImport } from './routes/career-results'
 import { Route as CareerBattlesRouteImport } from './routes/career-battles'
+import { Route as CareerAssessmentRouteImport } from './routes/career-assessment'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuraMarketRouteImport } from './routes/aura-market'
 import { Route as AuraRouteImport } from './routes/aura'
@@ -36,6 +38,8 @@ import { Route as SchoolReportRouteImport } from './routes/school.report'
 import { Route as SchoolRegisterRouteImport } from './routes/school.register'
 import { Route as SchoolJoinRouteImport } from './routes/school.join'
 import { Route as SchoolDashboardRouteImport } from './routes/school.dashboard'
+import { Route as SchoolClassBuilderRouteImport } from './routes/school.class-builder'
+import { Route as SchoolAnalyticsRouteImport } from './routes/school.analytics'
 import { Route as AuraStoreRouteImport } from './routes/aura.store'
 import { Route as AuraGrowthRouteImport } from './routes/aura.growth'
 
@@ -104,9 +108,19 @@ const CommunityRoute = CommunityRouteImport.update({
   path: '/community',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CareerResultsRoute = CareerResultsRouteImport.update({
+  id: '/career-results',
+  path: '/career-results',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CareerBattlesRoute = CareerBattlesRouteImport.update({
   id: '/career-battles',
   path: '/career-battles',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareerAssessmentRoute = CareerAssessmentRouteImport.update({
+  id: '/career-assessment',
+  path: '/career-assessment',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -174,6 +188,16 @@ const SchoolDashboardRoute = SchoolDashboardRouteImport.update({
   path: '/school/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SchoolClassBuilderRoute = SchoolClassBuilderRouteImport.update({
+  id: '/school/class-builder',
+  path: '/school/class-builder',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SchoolAnalyticsRoute = SchoolAnalyticsRouteImport.update({
+  id: '/school/analytics',
+  path: '/school/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuraStoreRoute = AuraStoreRouteImport.update({
   id: '/store',
   path: '/store',
@@ -195,7 +219,9 @@ export interface FileRoutesByFullPath {
   '/aura': typeof AuraRouteWithChildren
   '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
+  '/career-assessment': typeof CareerAssessmentRoute
   '/career-battles': typeof CareerBattlesRoute
+  '/career-results': typeof CareerResultsRoute
   '/community': typeof CommunityRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
@@ -211,6 +237,8 @@ export interface FileRoutesByFullPath {
   '/universities': typeof UniversitiesRoute
   '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
+  '/school/analytics': typeof SchoolAnalyticsRoute
+  '/school/class-builder': typeof SchoolClassBuilderRoute
   '/school/dashboard': typeof SchoolDashboardRoute
   '/school/join': typeof SchoolJoinRoute
   '/school/register': typeof SchoolRegisterRoute
@@ -226,7 +254,9 @@ export interface FileRoutesByTo {
   '/aura': typeof AuraRouteWithChildren
   '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
+  '/career-assessment': typeof CareerAssessmentRoute
   '/career-battles': typeof CareerBattlesRoute
+  '/career-results': typeof CareerResultsRoute
   '/community': typeof CommunityRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
@@ -242,6 +272,8 @@ export interface FileRoutesByTo {
   '/universities': typeof UniversitiesRoute
   '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
+  '/school/analytics': typeof SchoolAnalyticsRoute
+  '/school/class-builder': typeof SchoolClassBuilderRoute
   '/school/dashboard': typeof SchoolDashboardRoute
   '/school/join': typeof SchoolJoinRoute
   '/school/register': typeof SchoolRegisterRoute
@@ -258,7 +290,9 @@ export interface FileRoutesById {
   '/aura': typeof AuraRouteWithChildren
   '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
+  '/career-assessment': typeof CareerAssessmentRoute
   '/career-battles': typeof CareerBattlesRoute
+  '/career-results': typeof CareerResultsRoute
   '/community': typeof CommunityRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
@@ -274,6 +308,8 @@ export interface FileRoutesById {
   '/universities': typeof UniversitiesRoute
   '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
+  '/school/analytics': typeof SchoolAnalyticsRoute
+  '/school/class-builder': typeof SchoolClassBuilderRoute
   '/school/dashboard': typeof SchoolDashboardRoute
   '/school/join': typeof SchoolJoinRoute
   '/school/register': typeof SchoolRegisterRoute
@@ -291,7 +327,9 @@ export interface FileRouteTypes {
     | '/aura'
     | '/aura-market'
     | '/auth'
+    | '/career-assessment'
     | '/career-battles'
+    | '/career-results'
     | '/community'
     | '/contact'
     | '/dashboard'
@@ -307,6 +345,8 @@ export interface FileRouteTypes {
     | '/universities'
     | '/aura/growth'
     | '/aura/store'
+    | '/school/analytics'
+    | '/school/class-builder'
     | '/school/dashboard'
     | '/school/join'
     | '/school/register'
@@ -322,7 +362,9 @@ export interface FileRouteTypes {
     | '/aura'
     | '/aura-market'
     | '/auth'
+    | '/career-assessment'
     | '/career-battles'
+    | '/career-results'
     | '/community'
     | '/contact'
     | '/dashboard'
@@ -338,6 +380,8 @@ export interface FileRouteTypes {
     | '/universities'
     | '/aura/growth'
     | '/aura/store'
+    | '/school/analytics'
+    | '/school/class-builder'
     | '/school/dashboard'
     | '/school/join'
     | '/school/register'
@@ -353,7 +397,9 @@ export interface FileRouteTypes {
     | '/aura'
     | '/aura-market'
     | '/auth'
+    | '/career-assessment'
     | '/career-battles'
+    | '/career-results'
     | '/community'
     | '/contact'
     | '/dashboard'
@@ -369,6 +415,8 @@ export interface FileRouteTypes {
     | '/universities'
     | '/aura/growth'
     | '/aura/store'
+    | '/school/analytics'
+    | '/school/class-builder'
     | '/school/dashboard'
     | '/school/join'
     | '/school/register'
@@ -385,7 +433,9 @@ export interface RootRouteChildren {
   AuraRoute: typeof AuraRouteWithChildren
   AuraMarketRoute: typeof AuraMarketRoute
   AuthRoute: typeof AuthRoute
+  CareerAssessmentRoute: typeof CareerAssessmentRoute
   CareerBattlesRoute: typeof CareerBattlesRoute
+  CareerResultsRoute: typeof CareerResultsRoute
   CommunityRoute: typeof CommunityRoute
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
@@ -399,6 +449,8 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SuccessStoriesRoute: typeof SuccessStoriesRoute
   UniversitiesRoute: typeof UniversitiesRoute
+  SchoolAnalyticsRoute: typeof SchoolAnalyticsRoute
+  SchoolClassBuilderRoute: typeof SchoolClassBuilderRoute
   SchoolDashboardRoute: typeof SchoolDashboardRoute
   SchoolJoinRoute: typeof SchoolJoinRoute
   SchoolRegisterRoute: typeof SchoolRegisterRoute
@@ -498,11 +550,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CommunityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/career-results': {
+      id: '/career-results'
+      path: '/career-results'
+      fullPath: '/career-results'
+      preLoaderRoute: typeof CareerResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/career-battles': {
       id: '/career-battles'
       path: '/career-battles'
       fullPath: '/career-battles'
       preLoaderRoute: typeof CareerBattlesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/career-assessment': {
+      id: '/career-assessment'
+      path: '/career-assessment'
+      fullPath: '/career-assessment'
+      preLoaderRoute: typeof CareerAssessmentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -596,6 +662,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SchoolDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/school/class-builder': {
+      id: '/school/class-builder'
+      path: '/school/class-builder'
+      fullPath: '/school/class-builder'
+      preLoaderRoute: typeof SchoolClassBuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/school/analytics': {
+      id: '/school/analytics'
+      path: '/school/analytics'
+      fullPath: '/school/analytics'
+      preLoaderRoute: typeof SchoolAnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/aura/store': {
       id: '/aura/store'
       path: '/store'
@@ -635,7 +715,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuraRoute: AuraRouteWithChildren,
   AuraMarketRoute: AuraMarketRoute,
   AuthRoute: AuthRoute,
+  CareerAssessmentRoute: CareerAssessmentRoute,
   CareerBattlesRoute: CareerBattlesRoute,
+  CareerResultsRoute: CareerResultsRoute,
   CommunityRoute: CommunityRoute,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
@@ -649,6 +731,8 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SuccessStoriesRoute: SuccessStoriesRoute,
   UniversitiesRoute: UniversitiesRoute,
+  SchoolAnalyticsRoute: SchoolAnalyticsRoute,
+  SchoolClassBuilderRoute: SchoolClassBuilderRoute,
   SchoolDashboardRoute: SchoolDashboardRoute,
   SchoolJoinRoute: SchoolJoinRoute,
   SchoolRegisterRoute: SchoolRegisterRoute,
@@ -657,13 +741,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

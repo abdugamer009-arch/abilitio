@@ -245,6 +245,135 @@ export type Database = {
         }
         Relationships: []
       }
+      career_assessment_answers: {
+        Row: {
+          answer: Json
+          created_at: string
+          id: string
+          question_id: string
+          user_id: string
+        }
+        Insert: {
+          answer: Json
+          created_at?: string
+          id?: string
+          question_id: string
+          user_id: string
+        }
+        Update: {
+          answer?: Json
+          created_at?: string
+          id?: string
+          question_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      career_assessment_results: {
+        Row: {
+          career_matches: Json | null
+          cognitive_profile: string | null
+          cognitive_score: number | null
+          cognitive_tier: string | null
+          created_at: string
+          id: string
+          improvements: Json | null
+          interests: Json | null
+          leadership_style: string | null
+          learning_style: string | null
+          personality_type: string | null
+          strengths: Json | null
+          team_style: string | null
+          university_matches: Json | null
+          user_id: string
+          work_style: string | null
+        }
+        Insert: {
+          career_matches?: Json | null
+          cognitive_profile?: string | null
+          cognitive_score?: number | null
+          cognitive_tier?: string | null
+          created_at?: string
+          id?: string
+          improvements?: Json | null
+          interests?: Json | null
+          leadership_style?: string | null
+          learning_style?: string | null
+          personality_type?: string | null
+          strengths?: Json | null
+          team_style?: string | null
+          university_matches?: Json | null
+          user_id: string
+          work_style?: string | null
+        }
+        Update: {
+          career_matches?: Json | null
+          cognitive_profile?: string | null
+          cognitive_score?: number | null
+          cognitive_tier?: string | null
+          created_at?: string
+          id?: string
+          improvements?: Json | null
+          interests?: Json | null
+          leadership_style?: string | null
+          learning_style?: string | null
+          personality_type?: string | null
+          strengths?: Json | null
+          team_style?: string | null
+          university_matches?: Json | null
+          user_id?: string
+          work_style?: string | null
+        }
+        Relationships: []
+      }
+      careers: {
+        Row: {
+          category: string
+          created_at: string
+          demand_score: number | null
+          description: string | null
+          id: string
+          key: string
+          name: string
+          required_interests: string[] | null
+          required_profile: string[] | null
+          required_skills: string[] | null
+          required_traits: Json | null
+          salary_max: number | null
+          salary_min: number | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          demand_score?: number | null
+          description?: string | null
+          id?: string
+          key: string
+          name: string
+          required_interests?: string[] | null
+          required_profile?: string[] | null
+          required_skills?: string[] | null
+          required_traits?: Json | null
+          salary_max?: number | null
+          salary_min?: number | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          demand_score?: number | null
+          description?: string | null
+          id?: string
+          key?: string
+          name?: string
+          required_interests?: string[] | null
+          required_profile?: string[] | null
+          required_skills?: string[] | null
+          required_traits?: Json | null
+          salary_max?: number | null
+          salary_min?: number | null
+        }
+        Relationships: []
+      }
       communities: {
         Row: {
           career_key: string
@@ -638,6 +767,7 @@ export type Database = {
           created_at: string
           created_by: string
           focus: string
+          focus_key: string | null
           id: string
           reason: string
           school_id: string
@@ -648,6 +778,7 @@ export type Database = {
           created_at?: string
           created_by: string
           focus: string
+          focus_key?: string | null
           id?: string
           reason: string
           school_id: string
@@ -658,6 +789,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           focus?: string
+          focus_key?: string | null
           id?: string
           reason?: string
           school_id?: string
@@ -667,6 +799,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "school_specialized_classes_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_users: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          role: string
+          school_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          role: string
+          school_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          role?: string
+          school_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_users_school_id_fkey"
             columns: ["school_id"]
             isOneToOne: false
             referencedRelation: "schools"
@@ -719,6 +889,42 @@ export type Database = {
           principal_name?: string
           student_count_estimate?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      university_majors: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          key: string
+          name: string
+          related_career_keys: string[] | null
+          required_interests: string[] | null
+          required_profile: string[] | null
+          required_traits: Json | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          key: string
+          name: string
+          related_career_keys?: string[] | null
+          required_interests?: string[] | null
+          required_profile?: string[] | null
+          required_traits?: Json | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          key?: string
+          name?: string
+          related_career_keys?: string[] | null
+          required_interests?: string[] | null
+          required_profile?: string[] | null
+          required_traits?: Json | null
         }
         Relationships: []
       }
@@ -946,6 +1152,17 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      school_save_specialized_class: {
+        Args: {
+          _focus: string
+          _focus_key: string
+          _reason: string
+          _school: string
+          _students: string[]
+          _title: string
+        }
+        Returns: string
       }
       submit_personality_assessment: {
         Args: { _answers: Json }
