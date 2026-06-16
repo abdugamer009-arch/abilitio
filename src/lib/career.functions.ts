@@ -287,7 +287,7 @@ export const buildSpecializedClass = createServerFn({ method: "POST" })
 
     const ranked = overview.students
       .map((s) => {
-        const best = s.matches.find((m) => m.category.toLowerCase() === data.focusCategory.toLowerCase());
+        const best = s.matches.find((m: { name: string; category: string; score: number }) => m.category.toLowerCase() === data.focusCategory.toLowerCase());
         return { ...s, score: best?.score ?? 0, best };
       })
       .filter((s) => s.score > 0)
