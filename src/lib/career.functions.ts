@@ -136,7 +136,7 @@ export const getMyCareerResult = createServerFn({ method: "GET" })
       university_matches: data.university_matches as CareerResultDTO["university_matches"],
       strengths: data.strengths as string[],
       improvements: data.improvements as string[],
-      recommended_skills: RECOMMENDED_SKILLS_BY_PROFILE[data.cognitive_profile] ?? [],
+      recommended_skills: RECOMMENDED_SKILLS_BY_PROFILE[data.cognitive_profile ?? ""] ?? [],
       created_at: data.created_at,
     };
   });
