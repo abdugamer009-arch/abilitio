@@ -10,14 +10,14 @@ import { COGNITIVE } from "./career-assessment";
 
 export type CareerResultDTO = {
   id: string;
-  personality_type: string;
-  work_style: string;
-  leadership_style: string;
-  learning_style: string;
-  team_style: string;
-  cognitive_score: number;
-  cognitive_tier: string;
-  cognitive_profile: string;
+  personality_type: string | null;
+  work_style: string | null;
+  leadership_style: string | null;
+  learning_style: string | null;
+  team_style: string | null;
+  cognitive_score: number | null;
+  cognitive_tier: string | null;
+  cognitive_profile: string | null;
   interests: { key: string; weight: number }[];
   career_matches: { key: string; name: string; category: string; score: number }[];
   university_matches: { key: string; name: string; category: string; score: number }[];
