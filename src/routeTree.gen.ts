@@ -16,7 +16,6 @@ import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as ResultsRouteImport } from './routes/results'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as MentorsRouteImport } from './routes/mentors'
-import { Route as IqTestRouteImport } from './routes/iq-test'
 import { Route as ForSchoolsRouteImport } from './routes/for-schools'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -28,7 +27,6 @@ import { Route as CareerAssessmentRouteImport } from './routes/career-assessment
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuraMarketRouteImport } from './routes/aura-market'
 import { Route as AuraRouteImport } from './routes/aura'
-import { Route as AssessmentChildRouteImport } from './routes/assessment-child'
 import { Route as AssessmentRouteImport } from './routes/assessment'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
@@ -76,11 +74,6 @@ const PricingRoute = PricingRouteImport.update({
 const MentorsRoute = MentorsRouteImport.update({
   id: '/mentors',
   path: '/mentors',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IqTestRoute = IqTestRouteImport.update({
-  id: '/iq-test',
-  path: '/iq-test',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForSchoolsRoute = ForSchoolsRouteImport.update({
@@ -136,11 +129,6 @@ const AuraMarketRoute = AuraMarketRouteImport.update({
 const AuraRoute = AuraRouteImport.update({
   id: '/aura',
   path: '/aura',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AssessmentChildRoute = AssessmentChildRouteImport.update({
-  id: '/assessment-child',
-  path: '/assessment-child',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AssessmentRoute = AssessmentRouteImport.update({
@@ -215,7 +203,6 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/assessment': typeof AssessmentRoute
-  '/assessment-child': typeof AssessmentChildRoute
   '/aura': typeof AuraRouteWithChildren
   '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
@@ -227,7 +214,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
   '/for-schools': typeof ForSchoolsRoute
-  '/iq-test': typeof IqTestRoute
   '/mentors': typeof MentorsRoute
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
@@ -250,7 +236,6 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/assessment': typeof AssessmentRoute
-  '/assessment-child': typeof AssessmentChildRoute
   '/aura': typeof AuraRouteWithChildren
   '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
@@ -262,7 +247,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
   '/for-schools': typeof ForSchoolsRoute
-  '/iq-test': typeof IqTestRoute
   '/mentors': typeof MentorsRoute
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
@@ -286,7 +270,6 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/assessment': typeof AssessmentRoute
-  '/assessment-child': typeof AssessmentChildRoute
   '/aura': typeof AuraRouteWithChildren
   '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
@@ -298,7 +281,6 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
   '/for-schools': typeof ForSchoolsRoute
-  '/iq-test': typeof IqTestRoute
   '/mentors': typeof MentorsRoute
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
@@ -323,7 +305,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/assessment'
-    | '/assessment-child'
     | '/aura'
     | '/aura-market'
     | '/auth'
@@ -335,7 +316,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/features'
     | '/for-schools'
-    | '/iq-test'
     | '/mentors'
     | '/pricing'
     | '/results'
@@ -358,7 +338,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/assessment'
-    | '/assessment-child'
     | '/aura'
     | '/aura-market'
     | '/auth'
@@ -370,7 +349,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/features'
     | '/for-schools'
-    | '/iq-test'
     | '/mentors'
     | '/pricing'
     | '/results'
@@ -393,7 +371,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/assessment'
-    | '/assessment-child'
     | '/aura'
     | '/aura-market'
     | '/auth'
@@ -405,7 +382,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/features'
     | '/for-schools'
-    | '/iq-test'
     | '/mentors'
     | '/pricing'
     | '/results'
@@ -429,7 +405,6 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
   AssessmentRoute: typeof AssessmentRoute
-  AssessmentChildRoute: typeof AssessmentChildRoute
   AuraRoute: typeof AuraRouteWithChildren
   AuraMarketRoute: typeof AuraMarketRoute
   AuthRoute: typeof AuthRoute
@@ -441,7 +416,6 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   FeaturesRoute: typeof FeaturesRoute
   ForSchoolsRoute: typeof ForSchoolsRoute
-  IqTestRoute: typeof IqTestRoute
   MentorsRoute: typeof MentorsRoute
   PricingRoute: typeof PricingRoute
   ResultsRoute: typeof ResultsRoute
@@ -506,13 +480,6 @@ declare module '@tanstack/react-router' {
       path: '/mentors'
       fullPath: '/mentors'
       preLoaderRoute: typeof MentorsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/iq-test': {
-      id: '/iq-test'
-      path: '/iq-test'
-      fullPath: '/iq-test'
-      preLoaderRoute: typeof IqTestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/for-schools': {
@@ -590,13 +557,6 @@ declare module '@tanstack/react-router' {
       path: '/aura'
       fullPath: '/aura'
       preLoaderRoute: typeof AuraRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/assessment-child': {
-      id: '/assessment-child'
-      path: '/assessment-child'
-      fullPath: '/assessment-child'
-      preLoaderRoute: typeof AssessmentChildRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/assessment': {
@@ -711,7 +671,6 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
   AssessmentRoute: AssessmentRoute,
-  AssessmentChildRoute: AssessmentChildRoute,
   AuraRoute: AuraRouteWithChildren,
   AuraMarketRoute: AuraMarketRoute,
   AuthRoute: AuthRoute,
@@ -723,7 +682,6 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   FeaturesRoute: FeaturesRoute,
   ForSchoolsRoute: ForSchoolsRoute,
-  IqTestRoute: IqTestRoute,
   MentorsRoute: MentorsRoute,
   PricingRoute: PricingRoute,
   ResultsRoute: ResultsRoute,
@@ -741,13 +699,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
