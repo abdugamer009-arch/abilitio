@@ -83,12 +83,29 @@ function DashboardPage() {
     (async () => {
       const [{ data: p }, { data: r }, { data: s }, { data: a }] = await Promise.all([
         supabase.from("profiles").select("name, surname").eq("id", user.id).maybeSingle(),
-        supabase.from("assessment_results").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("career_assessment_results").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("user_stats").select("*").eq("user_id", user.id).maybeSingle(),
         supabase.from("user_achievements").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       ]);
       setProfile(p ?? null);
-      setResults(((r as unknown) as Result[]) ?? []);
+      const mapped: Result[] = ((r as unknown as Array<Record<string, unknown>>) ?? []).map((row) => {
+        const cog = (row.cognitive_score as number | null) ?? 0;
+        const matches = (row.career_matches as Array<{ name: string; score: number; category?: string }> | null) ?? [];
+        return {
+          id: row.id as string,
+          iq_score: Math.round(70 + cog * 8),
+          iq_level: (row.cognitive_tier as string) ?? "—",
+          logical_score: Math.round(cog * 10),
+          analytical_score: Math.round(cog * 10),
+          pattern_score: Math.round(cog * 10),
+          mbti_type: (row.personality_type as string) ?? "—",
+          top_strengths: (row.strengths as string[]) ?? [],
+          weaknesses: (row.improvements as string[]) ?? [],
+          careers: matches.map((c) => ({ name: c.name, match: Math.round(c.score), reason: c.category ?? "" })),
+          created_at: row.created_at as string,
+        };
+      });
+      setResults(mapped);
       setStats((s as unknown as Stats) ?? null);
       setAchievements(((a as unknown) as Achievement[]) ?? []);
       setBusy(false);
