@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
-import { MBTI_DESCRIPTIONS } from "@/lib/assessment";
+import { MBTI_DESCRIPTIONS } from "@/lib/mbti-descriptions";
 import { useI18n } from "@/lib/i18n";
 import { useAura } from "@/components/aura/AuraProvider";
 import { AuraCoin } from "@/components/aura/AuraCoin";
