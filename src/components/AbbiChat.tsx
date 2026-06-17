@@ -41,14 +41,14 @@ export function AbbiChat() {
   const [outOfCoinsOpen, setOutOfCoinsOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
-  // Load assessment-based context (best-effort; safe if no result yet).
+  // Load career-assessment context (best-effort; safe if no result yet).
   useEffect(() => {
     if (!user) return;
     (async () => {
       const [{ data: result }, { data: profile }] = await Promise.all([
         supabase
-          .from("assessment_results")
-          .select("mbti_type, iq_score, top_strengths, interest_scores, weaknesses, careers")
+          .from("career_assessment_results")
+          .select("personality_type, cognitive_score, strengths, improvements, interests, career_matches")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(1)
@@ -64,17 +64,17 @@ export function AbbiChat() {
         ageGroup: ((profile as { age_group?: string } | null)?.age_group as AbbiContext["ageGroup"]) ?? null,
       };
       if (result) {
-        const interestScores = (result.interest_scores ?? {}) as Record<string, number>;
-        const topInterests = Object.entries(interestScores)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 3)
-          .map(([k]) => k);
-        next.mbtiType = result.mbti_type;
-        next.iqScore = result.iq_score;
-        next.topStrengths = (result.top_strengths as string[]) ?? [];
+        const interests = (result.interests as Array<{ key: string; weight: number }> | null) ?? [];
+        const topInterests = [...interests].sort((a, b) => b.weight - a.weight).slice(0, 3).map((i) => i.key);
+        const cog = (result.cognitive_score as number | null) ?? 0;
+        next.mbtiType = result.personality_type as string;
+        next.iqScore = Math.round(70 + cog * 8);
+        next.topStrengths = (result.strengths as string[]) ?? [];
         next.topInterests = topInterests;
-        next.weaknesses = (result.weaknesses as string[]) ?? [];
-        next.topCareers = ((result.careers ?? []) as { name: string; match: number; reason?: string }[]).slice(0, 3);
+        next.weaknesses = (result.improvements as string[]) ?? [];
+        next.topCareers = ((result.career_matches ?? []) as Array<{ name: string; score: number; category?: string }>)
+          .slice(0, 3)
+          .map((c) => ({ name: c.name, match: Math.round(c.score), reason: c.category ?? "" }));
       }
       setCtx(next);
     })();
