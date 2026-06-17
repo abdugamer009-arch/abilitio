@@ -15,7 +15,7 @@ export function Navbar() {
 
   const navItems = [
     { to: "/", label: t.nav.home, kind: "text" as const },
-    { to: "/career-assessment", label: "Career Test", kind: "text" as const },
+    { to: "/assessment", label: t.nav.assessment, kind: "text" as const },
     { to: "/roadmap", label: "Roadmap", kind: "text" as const },
     { to: "/community", label: "Community", kind: "text" as const },
     { to: "/aura-market", label: "Market", kind: "text" as const },
