@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Brain, Compass, LineChart, Sparkles, Target, Users, Zap, ShieldCheck, Star } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
-import { FloatingShapes } from "@/components/FloatingShapes";
+import { ParticleConstellation } from "@/components/ParticleConstellation";
 import { GradientDivider } from "@/components/GradientDivider";
 import { useT } from "@/lib/i18n";
 
@@ -25,8 +25,8 @@ function LandingPage() {
     <PageShell>
       {/* Hero */}
       <section className="relative px-6 pt-32 pb-40 text-center lg:pt-40 lg:pb-48">
-        <FloatingShapes />
-        <div key={t.hero.titleA} className="mx-auto max-w-5xl animate-fade-up">
+        <ParticleConstellation />
+        <div key={t.hero.titleA} className="relative z-10 mx-auto max-w-5xl animate-fade-up">
           <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-border/60 bg-secondary/40 px-5 py-2 text-sm text-muted-foreground backdrop-blur">
             <Sparkles className="h-3.5 w-3.5 text-accent" />
             {t.hero.badge}
