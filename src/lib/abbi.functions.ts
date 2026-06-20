@@ -60,5 +60,5 @@ export const claimNewUserBonus = createServerFn({ method: "POST" })
       .from("aura_achievements")
       .insert({ user_id: userId, achievement_key: ABBI_BONUS_KEY });
 
-    return { awarded: true, amount: NEW_USER_BONUS, wallet: w as WalletDTO };
+    return { awarded: true, amount: ABBI_NEW_USER_BONUS, wallet: w as WalletDTO };
   });
