@@ -6,7 +6,7 @@ import {
   deriveStrengths, deriveImprovements, RECOMMENDED_SKILLS_BY_PROFILE,
   type Career, type Major,
 } from "./career-engine";
-import { COGNITIVE } from "./career-assessment";
+import { PERSONALITY_BANK, getIQCorrect } from "./question-bank";
 
 export type CareerResultDTO = {
   id: string;
@@ -28,9 +28,12 @@ export type CareerResultDTO = {
 };
 
 const submitSchema = z.object({
-  personality: z.array(z.number().int().min(1).max(5)).length(16),
-  cognitive: z.array(z.number().int().min(0).max(3)).length(10),
-  interests: z.array(z.array(z.string()).max(20)).length(4),
+  personalityQIds: z.array(z.string()).length(10),
+  personalityAnswers: z.array(z.number().int().min(1).max(5)).length(10),
+  iqQIds: z.array(z.string()).length(10),
+  iqAnswers: z.array(z.number().int().min(0).max(5)).length(10),
+  interestQIds: z.array(z.string()).length(10),
+  interestAnswers: z.array(z.array(z.string()).max(20)).length(10),
 });
 
 export const submitCareerAssessment = createServerFn({ method: "POST" })
@@ -38,11 +41,18 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
   .inputValidator((d) => submitSchema.parse(d))
   .handler(async ({ data, context }): Promise<CareerResultDTO> => {
     const { supabase, userId } = context;
-    const correct = COGNITIVE.map((q) => q.correct);
 
-    const personality = scorePersonality(data.personality);
-    const cognitive = scoreCognitive(data.cognitive, correct, personality.mbti);
-    const { interests } = scoreInterests(data.interests);
+    // Resolve personality questions from bank (server authoritative)
+    const personalityQs = data.personalityQIds.map(
+      (id) => PERSONALITY_BANK.find((q) => q.id === id)
+    ).filter(Boolean) as NonNullable<typeof PERSONALITY_BANK[number]>[];
+
+    // Resolve IQ correct answers server-side (never sent to client)
+    const iqCorrect = data.iqQIds.map((id) => getIQCorrect(id) ?? -1);
+
+    const personality = scorePersonality(data.personalityAnswers, personalityQs);
+    const cognitive = scoreCognitive(data.iqAnswers, iqCorrect, personality.mbti);
+    const { interests } = scoreInterests(data.interestAnswers);
 
     const [{ data: careers }, { data: majors }] = await Promise.all([
       supabase.from("careers").select("*"),

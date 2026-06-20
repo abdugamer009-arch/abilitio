@@ -1,6 +1,8 @@
 // Career matching engine — runs server-side inside the submit fn.
 // Formula: 40% personality fit + 35% cognitive fit + 25% interest fit.
 
+import type { PersonalityQ } from "./career-assessment";
+
 export type Career = {
   key: string;
   name: string;
@@ -43,19 +45,11 @@ export type CognitiveScore = {
 export type Match = { key: string; name: string; category: string; score: number };
 
 // ---------- Personality ----------
-export function scorePersonality(answers: number[]): PersonalityScore {
-  // answers are 1..5 for 16 personality Qs in fixed order matching career-assessment.ts
-  // axes order: EI x4, SN x4, TF x4, JP x4
-  const axes: Array<{ axis: "EI" | "SN" | "TF" | "JP"; dir: 1 | -1 }> = [
-    { axis: "EI", dir: 1 }, { axis: "EI", dir: -1 }, { axis: "EI", dir: 1 }, { axis: "EI", dir: -1 },
-    { axis: "SN", dir: 1 }, { axis: "SN", dir: -1 }, { axis: "SN", dir: 1 }, { axis: "SN", dir: -1 },
-    { axis: "TF", dir: 1 }, { axis: "TF", dir: -1 }, { axis: "TF", dir: 1 }, { axis: "TF", dir: -1 },
-    { axis: "JP", dir: 1 }, { axis: "JP", dir: -1 }, { axis: "JP", dir: 1 }, { axis: "JP", dir: -1 },
-  ];
+export function scorePersonality(answers: number[], questions: PersonalityQ[]): PersonalityScore {
   const sums = { EI: 0, SN: 0, TF: 0, JP: 0 };
-  axes.forEach((a, i) => {
+  questions.forEach((q, i) => {
     const v = (answers[i] ?? 3) - 3; // -2..+2
-    sums[a.axis] += v * a.dir;
+    sums[q.axis] += v * q.direction;
   });
   const mbti =
     (sums.EI > 0 ? "E" : "I") +
