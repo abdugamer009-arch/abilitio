@@ -40,6 +40,7 @@ import { Route as SchoolClassBuilderRouteImport } from './routes/school.class-bu
 import { Route as SchoolAnalyticsRouteImport } from './routes/school.analytics'
 import { Route as AuraStoreRouteImport } from './routes/aura.store'
 import { Route as AuraGrowthRouteImport } from './routes/aura.growth'
+import { Route as IqTestRouteImport } from './routes/iq-test'
 
 const UniversitiesRoute = UniversitiesRouteImport.update({
   id: '/universities',
@@ -196,10 +197,16 @@ const AuraGrowthRoute = AuraGrowthRouteImport.update({
   path: '/growth',
   getParentRoute: () => AuraRoute,
 } as any)
+const IqTestRoute = IqTestRouteImport.update({
+  id: '/iq-test',
+  path: '/iq-test',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/abbi': typeof AbbiRoute
+  '/iq-test': typeof IqTestRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/assessment': typeof AssessmentRoute
@@ -233,6 +240,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/abbi': typeof AbbiRoute
+  '/iq-test': typeof IqTestRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/assessment': typeof AssessmentRoute
@@ -267,6 +275,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/abbi': typeof AbbiRoute
+  '/iq-test': typeof IqTestRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/assessment': typeof AssessmentRoute
@@ -302,6 +311,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/abbi'
+    | '/iq-test'
     | '/about'
     | '/admin'
     | '/assessment'
@@ -335,6 +345,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/abbi'
+    | '/iq-test'
     | '/about'
     | '/admin'
     | '/assessment'
@@ -368,6 +379,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/abbi'
+    | '/iq-test'
     | '/about'
     | '/admin'
     | '/assessment'
@@ -402,6 +414,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AbbiRoute: typeof AbbiRoute
+  IqTestRoute: typeof IqTestRoute
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
   AssessmentRoute: typeof AssessmentRoute
@@ -587,6 +600,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AbbiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/iq-test': {
+      id: '/iq-test'
+      path: '/iq-test'
+      fullPath: '/iq-test'
+      preLoaderRoute: typeof IqTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -668,6 +688,7 @@ const AuraRouteWithChildren = AuraRoute._addFileChildren(AuraRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AbbiRoute: AbbiRoute,
+  IqTestRoute: IqTestRoute,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
   AssessmentRoute: AssessmentRoute,
