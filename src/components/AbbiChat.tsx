@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import ReactMarkdown from "react-markdown";
+import rehypeSanitize from "rehype-sanitize";
 import { Sparkles, Send, Bot, User as UserIcon, Coins, MessageCircle, X, Zap } from "lucide-react";
 import { useAura } from "@/components/aura/AuraProvider";
 import { AuraCoin } from "@/components/aura/AuraCoin";
@@ -15,11 +16,9 @@ import {
   type AbbiContext,
 } from "@/lib/abbi-knowledge";
 import { spendAbbiMessage } from "@/lib/abbi.functions";
+import { ABBI_FREE_PER_DAY, ABBI_MESSAGE_COST } from "@/lib/constants";
 
 type ChatMsg = { id: string; role: "user" | "abbi"; content: string };
-
-const FREE_PER_DAY = 3;
-const MESSAGE_COST = 2;
 
 function todayKey(userId: string) {
   return `abbi_free_${userId}_${new Date().toISOString().slice(0, 10)}`;
@@ -37,7 +36,7 @@ export function AbbiChat() {
   ]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
-  const [freeLeft, setFreeLeft] = useState(FREE_PER_DAY);
+  const [freeLeft, setFreeLeft] = useState(ABBI_FREE_PER_DAY);
   const [outOfCoinsOpen, setOutOfCoinsOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -85,7 +84,7 @@ export function AbbiChat() {
     if (!user || typeof window === "undefined") return;
     const raw = localStorage.getItem(todayKey(user.id));
     const used = raw ? parseInt(raw, 10) || 0 : 0;
-    setFreeLeft(Math.max(0, FREE_PER_DAY - used));
+    setFreeLeft(Math.max(0, ABBI_FREE_PER_DAY - used));
   }, [user]);
 
   function consumeFree() {
@@ -93,7 +92,7 @@ export function AbbiChat() {
     const key = todayKey(user.id);
     const used = parseInt(localStorage.getItem(key) || "0", 10) || 0;
     localStorage.setItem(key, String(used + 1));
-    setFreeLeft(Math.max(0, FREE_PER_DAY - (used + 1)));
+    setFreeLeft(Math.max(0, ABBI_FREE_PER_DAY - (used + 1)));
   }
 
   // Auto-scroll to bottom on new message
@@ -103,13 +102,13 @@ export function AbbiChat() {
 
   const balance = wallet?.balance ?? 0;
   const needsCoins = freeLeft <= 0;
-  const canSend = !typing && input.trim().length > 0 && (!needsCoins || balance >= MESSAGE_COST);
+  const canSend = !typing && input.trim().length > 0 && (!needsCoins || balance >= ABBI_MESSAGE_COST);
 
   async function handleSend(text?: string) {
     const content = (text ?? input).trim();
     if (!content || typing) return;
 
-    if (needsCoins && balance < MESSAGE_COST) {
+    if (needsCoins && balance < ABBI_MESSAGE_COST) {
       setOutOfCoinsOpen(true);
       return;
     }
@@ -169,11 +168,11 @@ export function AbbiChat() {
               : "border-border bg-secondary/50 text-muted-foreground"
           }`}
         >
-          <MessageCircle className="h-3 w-3" /> Free today: {freeLeft}/{FREE_PER_DAY}
+          <MessageCircle className="h-3 w-3" /> Free today: {freeLeft}/{ABBI_FREE_PER_DAY}
         </span>
         {needsCoins && (
           <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-secondary/40 px-3 py-1 text-[11px] text-muted-foreground">
-            <Coins className="h-3 w-3" /> {MESSAGE_COST} Aura per question
+            <Coins className="h-3 w-3" /> {ABBI_MESSAGE_COST} Aura per question
           </span>
         )}
       </div>
@@ -271,7 +270,7 @@ export function AbbiChat() {
                 rows={1}
                 placeholder={
                   needsCoins
-                    ? `Ask ABBI anything — costs ${MESSAGE_COST} Aura per question`
+                    ? `Ask ABBI anything — costs ${ABBI_MESSAGE_COST} Aura per question`
                     : "Ask ABBI anything about careers, universities, SAT/IELTS…"
                 }
                 className="flex-1 resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
@@ -292,7 +291,7 @@ export function AbbiChat() {
             <div className="mt-2 flex items-center justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-[11px] text-muted-foreground">
               <span className="inline-flex items-center gap-1.5">
                 <Zap className="h-3 w-3 text-primary" />
-                Each ABBI question now costs {MESSAGE_COST} Aura Coins.
+                Each ABBI question now costs {ABBI_MESSAGE_COST} Aura Coins.
               </span>
               <Link
                 to="/aura"
@@ -337,7 +336,7 @@ function MessageBubble({ role, content }: { role: "user" | "abbi"; content: stri
       <div className="prose prose-sm prose-invert max-w-[85%] rounded-2xl rounded-tl-md border border-border/40 bg-secondary/30 px-4 py-3 text-sm leading-relaxed text-foreground backdrop-blur-md
                       prose-headings:mt-2 prose-headings:mb-1 prose-headings:font-semibold prose-headings:text-foreground
                       prose-h3:text-base prose-p:my-2 prose-strong:text-foreground prose-ul:my-2 prose-li:my-0.5">
-        <ReactMarkdown>{content}</ReactMarkdown>
+        <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{content}</ReactMarkdown>
       </div>
     </div>
   );
@@ -388,7 +387,7 @@ function OutOfCoinsModal({ onClose }: { onClose: () => void }) {
           </div>
           <h3 className="mt-4 text-xl font-bold tracking-tight">Out of Aura Coins</h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            You need {MESSAGE_COST} Aura Coins to ask ABBI another question. Top up to keep your
+            You need {ABBI_MESSAGE_COST} Aura Coins to ask ABBI another question. Top up to keep your
             momentum going.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-end gap-2">

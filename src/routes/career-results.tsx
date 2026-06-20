@@ -39,7 +39,7 @@ function CareerResultsPage() {
 
   async function share() {
     const url = `${window.location.origin}/career-results`;
-    if (navigator.share) { try { await navigator.share({ title: "My Abilitio Career Profile", url }); return; } catch {} }
+    if (navigator.share) { try { await navigator.share({ title: "My Abilitio Career Profile", url }); return; } catch { /* user cancelled share dialog */ } }
     await navigator.clipboard.writeText(url);
     alert("Link copied");
   }

@@ -1,6 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { Database } from "@/integrations/supabase/types";
 
 export type CommunityDTO = {
   id: string;
@@ -28,7 +31,7 @@ export type AuthorDTO = {
   is_admin: boolean;
 };
 
-async function isAdmin(supabase: any, userId: string): Promise<boolean> {
+async function isAdmin(supabase: SupabaseClient<Database>, userId: string): Promise<boolean> {
   const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle();
   return !!data;
 }
@@ -77,7 +80,7 @@ export const getCommunityMessages = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     const messages = (rows ?? []) as CommunityMessageDTO[];
     const ids = Array.from(new Set(messages.map((m) => m.user_id)));
-    const authors = await fetchAuthors(supabase, ids);
+    const authors = await fetchAuthors(ids);
     return { messages, authors };
   });
 
@@ -85,12 +88,11 @@ export const fetchMessageAuthors = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { userIds: string[] }) => input)
   .handler(async ({ data, context }): Promise<AuthorDTO[]> => {
-    return fetchAuthors(context.supabase, data.userIds);
+    return fetchAuthors(data.userIds);
   });
 
-async function fetchAuthors(supabase: any, userIds: string[]): Promise<AuthorDTO[]> {
+async function fetchAuthors(userIds: string[]): Promise<AuthorDTO[]> {
   if (!userIds.length) return [];
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const [profiles, stats, roles] = await Promise.all([
     supabaseAdmin.from("profiles").select("id, name, surname").in("id", userIds),
     supabaseAdmin.from("user_stats").select("user_id, avatar_url").in("user_id", userIds),
@@ -127,9 +129,30 @@ export const deleteCommunityMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+
+    // Verify ownership or admin role before deleting
+    const { data: msg } = await supabase
+      .from("community_messages")
+      .select("user_id")
+      .eq("id", data.id)
+      .maybeSingle();
+
+    if (!msg) throw new Error("Message not found");
+
+    const isOwner = (msg as { user_id: string }).user_id === userId;
+    if (!isOwner) {
+      const { data: role } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("role", "admin")
+        .maybeSingle();
+      if (!role) throw new Error("forbidden");
+    }
+
     const { error } = await supabase.from("community_messages").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
+    if (error) throw new Error("Failed to delete message");
     return { ok: true };
   });
 

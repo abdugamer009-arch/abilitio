@@ -1,10 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { WalletDTO } from "./aura.functions";
-
-const ABBI_MESSAGE_COST = 2;
-const NEW_USER_BONUS = 20;
-const BONUS_KEY = "new_user_bonus";
+import { ABBI_MESSAGE_COST, ABBI_NEW_USER_BONUS, ABBI_BONUS_KEY } from "./constants";
 
 /** Spend 2 Aura coins to ask ABBI a paid question. */
 export const spendAbbiMessage = createServerFn({ method: "POST" })
@@ -32,13 +30,12 @@ export const claimNewUserBonus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: existing } = await supabaseAdmin
       .from("aura_achievements")
       .select("id")
       .eq("user_id", userId)
-      .eq("achievement_key", BONUS_KEY)
+      .eq("achievement_key", ABBI_BONUS_KEY)
       .maybeSingle();
 
     if (existing) {
@@ -52,16 +49,16 @@ export const claimNewUserBonus = createServerFn({ method: "POST" })
 
     const { data: w, error } = await supabase.rpc("aura_apply_delta", {
       _user: userId,
-      _amount: NEW_USER_BONUS,
+      _amount: ABBI_NEW_USER_BONUS,
       _kind: "earn",
-      _reason: BONUS_KEY,
+      _reason: ABBI_BONUS_KEY,
       _meta: {},
     });
     if (error) throw new Error(error.message);
 
     await supabaseAdmin
       .from("aura_achievements")
-      .insert({ user_id: userId, achievement_key: BONUS_KEY });
+      .insert({ user_id: userId, achievement_key: ABBI_BONUS_KEY });
 
     return { awarded: true, amount: NEW_USER_BONUS, wallet: w as WalletDTO };
   });

@@ -86,7 +86,7 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
         _user: userId, _amount: 20, _kind: "earn",
         _reason: "career_assessment_completed", _meta: { resultId: row.id },
       });
-    } catch { /* non-fatal */ }
+    } catch (err) { console.warn("[career] aura award failed", err); }
 
     return {
       id: row.id,

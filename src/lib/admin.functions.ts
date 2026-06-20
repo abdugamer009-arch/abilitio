@@ -1,7 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { Database } from "@/integrations/supabase/types";
 
-async function ensureAdmin(supabase: any, userId: string) {
+type DbClient = SupabaseClient<Database>;
+
+async function ensureAdmin(supabase: DbClient, userId: string) {
   const { data } = await supabase
     .from("user_roles")
     .select("role")
@@ -56,17 +62,16 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
       supabase.from("community_messages").select("community_id, user_id, created_at"),
     ]);
 
-    const adminIds = new Set<string>((adminRoles.data ?? []).map((r: any) => r.user_id));
-    const allProfiles = (profiles.data ?? []).filter((p: any) => !adminIds.has(p.id));
-    const allResults = (results.data ?? []).filter((r: any) => !adminIds.has(r.user_id));
-    const allWallets = (wallets.data ?? []).filter((w: any) => !adminIds.has(w.user_id));
-    const allTxns = (txns.data ?? []).filter((t: any) => !adminIds.has(t.user_id));
-    const allMessages = (messages.data ?? []).filter((m: any) => !adminIds.has(m.user_id));
+    const adminIds = new Set<string>((adminRoles.data ?? []).map((r) => (r as { user_id: string }).user_id));
+    const allProfiles = (profiles.data ?? []).filter((p) => !adminIds.has((p as { id: string }).id)) as { id: string; created_at: string; updated_at: string }[];
+    const allResults = (results.data ?? []).filter((r) => !adminIds.has((r as { user_id: string }).user_id)) as { user_id: string; mbti_type: string | null; careers: unknown }[];
+    const allWallets = (wallets.data ?? []).filter((w) => !adminIds.has((w as { user_id: string }).user_id)) as { user_id: string; balance: number }[];
+    const allTxns = (txns.data ?? []).filter((t) => !adminIds.has((t as { user_id: string }).user_id)) as { user_id: string; amount: number; reason: string; created_at: string }[];
+    const allMessages = (messages.data ?? []).filter((m) => !adminIds.has((m as { user_id: string }).user_id)) as { community_id: string; user_id: string; created_at: string }[];
 
-    const newUsersThisWeek = allProfiles.filter((p: any) => p.created_at >= weekAgo).length;
-    const newUsersThisMonth = allProfiles.filter((p: any) => p.created_at >= monthAgo).length;
+    const newUsersThisWeek = allProfiles.filter((p) => p.created_at >= weekAgo).length;
+    const newUsersThisMonth = allProfiles.filter((p) => p.created_at >= monthAgo).length;
 
-    // DAU/WAU/MAU approximated by last activity (transactions or profile updates)
     const activitySets = { dau: new Set<string>(), wau: new Set<string>(), mau: new Set<string>() };
     for (const t of allTxns) {
       if (t.created_at >= dayAgo) activitySets.dau.add(t.user_id);
@@ -79,25 +84,23 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
       if (m.created_at >= monthAgo) activitySets.mau.add(m.user_id);
     }
 
-    const totalAuraInCirculation = allWallets.reduce((s: number, w: any) => s + (w.balance || 0), 0);
-    const purchaseTxns = allTxns.filter((t: any) => typeof t.reason === "string" && t.reason.startsWith("purchase"));
-    const totalAuraPurchased = purchaseTxns.reduce((s: number, t: any) => s + (t.amount > 0 ? t.amount : 0), 0);
-    const totalAbbiQuestions = allTxns.filter((t: any) => t.reason === "abbi_ai_message").length;
+    const totalAuraInCirculation = allWallets.reduce((s, w) => s + (w.balance || 0), 0);
+    const purchaseTxns = allTxns.filter((t) => typeof t.reason === "string" && t.reason.startsWith("purchase"));
+    const totalAuraPurchased = purchaseTxns.reduce((s, t) => s + (t.amount > 0 ? t.amount : 0), 0);
+    const totalAbbiQuestions = allTxns.filter((t) => t.reason === "abbi_ai_message").length;
 
-    const payingUsers = new Set<string>(purchaseTxns.map((t: any) => t.user_id)).size;
-    // Revenue is recorded as Aura purchased (1 coin ~ proxy unit). Real $ revenue
-    // would come from aura_purchase_requests; we approximate here.
+    const payingUsers = new Set<string>(purchaseTxns.map((t) => t.user_id)).size;
     const revenueToday = purchaseTxns
-      .filter((t: any) => t.created_at.slice(0, 10) === todayStr)
-      .reduce((s: number, t: any) => s + (t.amount > 0 ? t.amount : 0), 0);
+      .filter((t) => t.created_at.slice(0, 10) === todayStr)
+      .reduce((s, t) => s + (t.amount > 0 ? t.amount : 0), 0);
     const revenueMonth = purchaseTxns
-      .filter((t: any) => t.created_at.slice(0, 7) === monthStr)
-      .reduce((s: number, t: any) => s + (t.amount > 0 ? t.amount : 0), 0);
+      .filter((t) => t.created_at.slice(0, 7) === monthStr)
+      .reduce((s, t) => s + (t.amount > 0 ? t.amount : 0), 0);
     const revenueYear = purchaseTxns
-      .filter((t: any) => t.created_at >= yearAgo)
-      .reduce((s: number, t: any) => s + (t.amount > 0 ? t.amount : 0), 0);
+      .filter((t) => t.created_at >= yearAgo)
+      .reduce((s, t) => s + (t.amount > 0 ? t.amount : 0), 0);
 
-    const commNameMap = new Map<string, string>((communities.data ?? []).map((c: any) => [c.id, c.name]));
+    const commNameMap = new Map<string, string>((communities.data ?? []).map((c) => [(c as { id: string }).id, (c as { name: string }).name]));
     const commCount = new Map<string, number>();
     for (const m of allMessages) commCount.set(m.community_id, (commCount.get(m.community_id) || 0) + 1);
     const sortedComm = [...commCount.entries()].sort((a, b) => b[1] - a[1]);
@@ -109,7 +112,7 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
     const careerCount = new Map<string, number>();
     for (const r of allResults) {
       if (r.mbti_type) mbtiCount.set(r.mbti_type, (mbtiCount.get(r.mbti_type) || 0) + 1);
-      const careers = (r.careers as any[]) || [];
+      const careers = (r.careers as { name?: string }[]) || [];
       const top = careers[0];
       if (top?.name) careerCount.set(top.name, (careerCount.get(top.name) || 0) + 1);
     }
@@ -121,7 +124,7 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
       const d = new Date(now.getTime() - i * 86400000);
       const key = d.toISOString().slice(0, 10);
       const label = d.toLocaleDateString("en-US", { weekday: "short" });
-      const count = allProfiles.filter((p: any) => p.created_at.slice(0, 10) === key).length;
+      const count = allProfiles.filter((p) => p.created_at.slice(0, 10) === key).length;
       days.push({ day: label, count });
     }
 
@@ -159,20 +162,19 @@ export type AdminUserRow = {
   has_assessment: boolean;
 };
 
+const ADMIN_USER_PAGE_SIZE = 500;
+
 export const getAdminUsers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminUserRow[]> => {
     const { supabase, userId } = context;
     await ensureAdmin(supabase, userId);
 
-    // Use admin client to read auth.users emails
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
     const [profiles, wallets, results, authRes] = await Promise.all([
       supabase.from("profiles").select("id, name, surname, age_group, is_banned, created_at"),
       supabase.from("aura_wallets").select("user_id, balance"),
       supabase.from("assessment_results").select("user_id"),
-      supabaseAdmin.auth.admin.listUsers({ perPage: 1000 }),
+      supabaseAdmin.auth.admin.listUsers({ perPage: ADMIN_USER_PAGE_SIZE }),
     ]);
 
     const emailMap = new Map<string, string>();
@@ -180,25 +182,40 @@ export const getAdminUsers = createServerFn({ method: "GET" })
       if (u.email) emailMap.set(u.id, u.email);
     }
     const walletMap = new Map<string, number>();
-    for (const w of wallets.data ?? []) walletMap.set((w as any).user_id, (w as any).balance);
-    const assessedSet = new Set<string>((results.data ?? []).map((r: any) => r.user_id));
+    for (const w of wallets.data ?? []) {
+      const row = w as { user_id: string; balance: number };
+      walletMap.set(row.user_id, row.balance);
+    }
+    const assessedSet = new Set<string>((results.data ?? []).map((r) => (r as { user_id: string }).user_id));
 
-    return (profiles.data ?? []).map((p: any) => ({
-      id: p.id,
-      name: p.name ?? "",
-      surname: p.surname ?? "",
-      email: emailMap.get(p.id) ?? "—",
-      age_group: p.age_group ?? null,
-      is_banned: !!p.is_banned,
-      created_at: p.created_at,
-      aura_balance: walletMap.get(p.id) ?? 0,
-      has_assessment: assessedSet.has(p.id),
-    })).sort((a, b) => (a.created_at > b.created_at ? -1 : 1));
+    return ((profiles.data ?? []) as { id: string; name: string | null; surname: string | null; age_group: string | null; is_banned: boolean | null; created_at: string }[])
+      .map((p) => ({
+        id: p.id,
+        name: p.name ?? "",
+        surname: p.surname ?? "",
+        email: emailMap.get(p.id) ?? "—",
+        age_group: p.age_group ?? null,
+        is_banned: !!p.is_banned,
+        created_at: p.created_at,
+        aura_balance: walletMap.get(p.id) ?? 0,
+        has_assessment: assessedSet.has(p.id),
+      })).sort((a, b) => (a.created_at > b.created_at ? -1 : 1));
   });
+
+const adjustAuraSchema = z.object({
+  target: z.string().uuid("target must be a valid user UUID"),
+  amount: z.number().int().min(-10000).max(10000),
+  reason: z.string().min(1).max(200).optional(),
+});
+
+const setBanSchema = z.object({
+  target: z.string().uuid("target must be a valid user UUID"),
+  banned: z.boolean(),
+});
 
 export const adminAdjustAura = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { target: string; amount: number; reason?: string }) => input)
+  .inputValidator((input) => adjustAuraSchema.parse(input))
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
     await ensureAdmin(supabase, userId);
@@ -207,13 +224,13 @@ export const adminAdjustAura = createServerFn({ method: "POST" })
       _amount: data.amount,
       _reason: data.reason ?? "admin_adjust",
     });
-    if (error) throw new Error(error.message);
+    if (error) throw new Error("Failed to adjust aura balance");
     return { ok: true };
   });
 
 export const adminSetBan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { target: string; banned: boolean }) => input)
+  .inputValidator((input) => setBanSchema.parse(input))
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
     await ensureAdmin(supabase, userId);
@@ -221,7 +238,7 @@ export const adminSetBan = createServerFn({ method: "POST" })
       _target: data.target,
       _banned: data.banned,
     });
-    if (error) throw new Error(error.message);
+    if (error) throw new Error("Failed to update ban status");
     return { ok: true };
   });
 
