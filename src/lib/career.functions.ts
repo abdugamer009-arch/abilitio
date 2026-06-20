@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import {
   scorePersonality, scoreCognitive, scoreInterests, matchCareers, matchMajors,
   deriveStrengths, deriveImprovements, RECOMMENDED_SKILLS_BY_PROFILE,
@@ -28,12 +29,12 @@ export type CareerResultDTO = {
 };
 
 const submitSchema = z.object({
-  personalityQIds: z.array(z.string()).length(10),
-  personalityAnswers: z.array(z.number().int().min(1).max(5)).length(10),
-  iqQIds: z.array(z.string()).length(10),
-  iqAnswers: z.array(z.number().int().min(0).max(5)).length(10),
-  interestQIds: z.array(z.string()).length(10),
-  interestAnswers: z.array(z.array(z.string()).max(20)).length(10),
+  personalityQIds: z.array(z.string()).length(12),
+  personalityAnswers: z.array(z.number().int().min(1).max(5)).length(12),
+  iqQIds: z.array(z.string()).length(9),
+  iqAnswers: z.array(z.number().int().min(-1).max(3)).length(9),
+  interestQIds: z.array(z.string()).length(9),
+  interestAnswers: z.array(z.array(z.string()).max(20)).length(9),
 });
 
 export const submitCareerAssessment = createServerFn({ method: "POST" })
@@ -90,12 +91,25 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    // Award Aura (best-effort)
+    // Award Aura once per calendar day (prevent farming)
     try {
-      await supabase.rpc("aura_apply_delta", {
-        _user: userId, _amount: 20, _kind: "earn",
-        _reason: "career_assessment_completed", _meta: { resultId: row.id },
-      });
+      const today = new Date().toISOString().slice(0, 10);
+      const achievementKey = `career_assessment_completed_${today}`;
+      const { data: existing } = await supabaseAdmin
+        .from("aura_achievements")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("achievement_key", achievementKey)
+        .maybeSingle();
+      if (!existing) {
+        await supabase.rpc("aura_apply_delta", {
+          _user: userId, _amount: 20, _kind: "earn",
+          _reason: "career_assessment_completed", _meta: { resultId: row.id },
+        });
+        await supabaseAdmin
+          .from("aura_achievements")
+          .insert({ user_id: userId, achievement_key: achievementKey });
+      }
     } catch (err) { console.warn("[career] aura award failed", err); }
 
     return {

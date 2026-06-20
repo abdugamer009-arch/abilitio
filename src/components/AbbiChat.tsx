@@ -12,10 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   ABBI_SUGGESTIONS,
   abbiGreeting,
-  generateAbbiReply,
-  type AbbiContext,
 } from "@/lib/abbi-knowledge";
-import { spendAbbiMessage } from "@/lib/abbi.functions";
+import { spendAbbiMessage, generateAbbiMessage } from "@/lib/abbi.functions";
 import { ABBI_FREE_PER_DAY, ABBI_MESSAGE_COST } from "@/lib/constants";
 
 type ChatMsg = { id: string; role: "user" | "abbi"; content: string };
@@ -28,9 +26,10 @@ export function AbbiChat() {
   const { user } = useAuth();
   const { wallet } = useAura();
   const spendFn = useServerFn(spendAbbiMessage);
+  const replyFn = useServerFn(generateAbbiMessage);
   const queryClient = useQueryClient();
 
-  const [ctx, setCtx] = useState<AbbiContext>({});
+  const [ctx, setCtx] = useState<Record<string, unknown>>({});
   const [messages, setMessages] = useState<ChatMsg[]>([
     { id: "welcome", role: "abbi", content: abbiGreeting() },
   ]);
@@ -58,9 +57,9 @@ export function AbbiChat() {
           .eq("id", user.id)
           .maybeSingle(),
       ]);
-      const next: AbbiContext = {
+      const next: Record<string, unknown> = {
         firstName: (profile?.name as string | undefined) || null,
-        ageGroup: ((profile as { age_group?: string } | null)?.age_group as AbbiContext["ageGroup"]) ?? null,
+        ageGroup: ((profile as { age_group?: string } | null)?.age_group) ?? null,
       };
       if (result) {
         const interests = (result.interests as Array<{ key: string; weight: number }> | null) ?? [];
@@ -127,13 +126,10 @@ export function AbbiChat() {
         consumeFree();
       }
 
-      // Pre-compute reply, then simulate a natural "thinking → typing" cadence.
-      const reply = generateAbbiReply(content, ctx);
-      // Thinking pause: 600-1100ms before typing dots feel "engaged"
-      await new Promise((r) => setTimeout(r, 600 + Math.random() * 500));
-      // Typing duration: scales with reply length, capped to feel premium not slow
-      const typingMs = Math.min(2600, 700 + reply.length * 6);
-      await new Promise((r) => setTimeout(r, typingMs));
+      // Fetch reply from server (Claude API or template fallback)
+      const { reply } = await replyFn({ data: { message: content, ctx } });
+      // Thinking pause so the response feels natural, not instant
+      await new Promise((r) => setTimeout(r, 400 + Math.random() * 400));
 
       setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "abbi", content: reply }]);
     } catch (err) {

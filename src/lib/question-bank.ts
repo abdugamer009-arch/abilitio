@@ -262,7 +262,7 @@ export const IQ_BANK: CognitiveQ[] = [
   { id: "iq21", section: "cognitive", prompt: "Switch A toggles lights 1 and 2. Switch B toggles lights 2 and 4. Switch C toggles lights 1 and 3. Switches A, C, B are thrown. Start: 1●,2○,3●,4○ → Result: 1●,2●,3○,4○. Which switch is faulty?", options: ["Switch A","Switch B","Switch C","None"], correct: 2 },
   { id: "iq22", section: "cognitive", prompt: "Three overlapping circles. Left: 3.5, 5, 1.5, 4.5. Centre: 7.5, 11, 3.5, ?. Right: 2, 8.5, 3. Rule: left + right = centre. What replaces the question mark?", options: ["5.5","6.5","7.5","8.0"], correct: 1 },
   { id: "iq23", section: "cognitive", prompt: "What number replaces the question mark?\n49  615  62\n85  177  29\n53   ?   74", options: ["910","127","821","635"], correct: 0 },
-  { id: "iq24", section: "cognitive", prompt: "A barrel contains 85 litres. After using 40%, how many litres remain?", options: ["34","45","51","55"], correct: 2 },
+  { id: "iq24", section: "cognitive", prompt: "A clock shows 3:15. What is the angle between the hour and minute hands?", options: ["0°","7.5°","15°","22.5°"], correct: 1 },
   { id: "iq25", section: "cognitive", prompt: "Which word is the odd one out?\nArthropod, Artificer, Arteriole, Artichoke — which comes LAST alphabetically?", options: ["Arthropod","Artificer","Arteriole","Artichoke"], correct: 1 },
   { id: "iq26", section: "cognitive", prompt: "Identify two words (one from each bracket) that form a connection with the word in capitals.\nRESTRAIN (suppress / deny / conceal) | WITHHOLD (curb / reserve / conceal)", options: ["deny / curb","suppress / reserve","conceal / conceal","suppress / curb"], correct: 1 },
   { id: "iq27", section: "cognitive", prompt: "ENCYCLOPEDIA: Which adjacent-letter path (horizontal and vertical only) can spell this word in a letter grid?", options: ["Yes, it can be spelled","No, it cannot","Only diagonally","Only backwards"], correct: 0 },
@@ -694,24 +694,20 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export function pickSessionQuestions(): SessionQuestions {
-  // Personality: pick 10 with guaranteed ≥2 per axis (EI, SN, TF, JP)
+  // Personality: 12 questions with guaranteed 3 per axis (EI, SN, TF, JP)
+  // 3 per axis = 12 fixed slots — no random padding needed
   const axes = ["EI", "SN", "TF", "JP"] as const;
   const byAxis = Object.fromEntries(
     axes.map((ax) => [ax, shuffle(PERSONALITY_BANK.filter((q) => q.axis === ax))])
   ) as Record<typeof axes[number], PersonalityQ[]>;
 
   const personality: PersonalityQ[] = [];
-  // First: guarantee 2 per axis (8 total)
-  for (const ax of axes) personality.push(byAxis[ax][0], byAxis[ax][1]);
-  // Remaining 2: pick from all un-selected, shuffled
-  const used = new Set(personality.map((q) => q.id));
-  const remaining = shuffle(PERSONALITY_BANK.filter((q) => !used.has(q.id)));
-  personality.push(...remaining.slice(0, 2));
+  for (const ax of axes) personality.push(byAxis[ax][0], byAxis[ax][1], byAxis[ax][2]);
 
   return {
     personality: shuffle(personality),
-    iq: shuffle(IQ_BANK).slice(0, 10),
-    interest: shuffle(INTEREST_BANK).slice(0, 10),
+    iq: shuffle(IQ_BANK).slice(0, 9),
+    interest: shuffle(INTEREST_BANK).slice(0, 9),
   };
 }
 

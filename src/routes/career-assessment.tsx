@@ -19,16 +19,23 @@ export const Route = createFileRoute("/career-assessment")({
 });
 
 const LIKERT = ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"];
-const TOTAL = 30;
+const P_COUNT = 12;
+const IQ_COUNT = 9;
+const INT_COUNT = 9;
+const TOTAL = P_COUNT + IQ_COUNT + INT_COUNT; // 30
 
 type Answers = {
-  personality: (number | null)[];  // 10 likert 1..5
-  iq: (number | null)[];           // 10 option indices
-  interest: string[][];            // 10 multi-select arrays
+  personality: (number | null)[];  // 12 likert 1..5
+  iq: (number | null)[];           // 9 option indices
+  interest: string[][];            // 9 multi-select arrays
 };
 
 function makeAnswers(): Answers {
-  return { personality: Array(10).fill(null), iq: Array(10).fill(null), interest: Array(10).fill(null).map(() => []) };
+  return {
+    personality: Array(P_COUNT).fill(null),
+    iq: Array(IQ_COUNT).fill(null),
+    interest: Array(INT_COUNT).fill(null).map(() => []),
+  };
 }
 
 function CareerAssessmentPage() {
@@ -49,9 +56,9 @@ function CareerAssessmentPage() {
 
   const current = useMemo(() => {
     if (!session) return null;
-    if (step < 10) return { kind: "p" as const, q: session.personality[step] as PersonalityQ, idx: step };
-    if (step < 20) return { kind: "c" as const, q: session.iq[step - 10] as CognitiveQ, idx: step - 10 };
-    return { kind: "i" as const, q: session.interest[step - 20] as InterestQ, idx: step - 20 };
+    if (step < P_COUNT) return { kind: "p" as const, q: session.personality[step] as PersonalityQ, idx: step };
+    if (step < P_COUNT + IQ_COUNT) return { kind: "c" as const, q: session.iq[step - P_COUNT] as CognitiveQ, idx: step - P_COUNT };
+    return { kind: "i" as const, q: session.interest[step - P_COUNT - IQ_COUNT] as InterestQ, idx: step - P_COUNT - IQ_COUNT };
   }, [session, step]);
 
   const value = useMemo(() => {
@@ -86,7 +93,7 @@ function CareerAssessmentPage() {
           personalityQIds: session.personality.map((q) => q.id),
           personalityAnswers: answers.personality.map((v) => v ?? 3),
           iqQIds: session.iq.map((q) => q.id),
-          iqAnswers: answers.iq.map((v) => v ?? -1),
+          iqAnswers: answers.iq.map((v) => v ?? -1),  // -1 = unanswered (skipped)
           interestQIds: session.interest.map((q) => q.id),
           interestAnswers: answers.interest,
         },
@@ -139,7 +146,7 @@ function CareerAssessmentPage() {
   }
 
   const progress = (step / TOTAL) * 100;
-  const sectionLabel = step < 10 ? "Personality" : step < 20 ? "Cognitive / IQ" : "Interests";
+  const sectionLabel = step < P_COUNT ? "Personality" : step < P_COUNT + IQ_COUNT ? "Cognitive / IQ" : "Interests";
 
   return (
     <PageShell>
