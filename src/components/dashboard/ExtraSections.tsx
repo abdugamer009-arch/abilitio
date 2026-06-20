@@ -31,7 +31,7 @@ export function SkillsSection({ stats, mbti }: { stats: StatsLite; mbti?: string
           streakDays: g.streakDays,
           stats,
         }));
-      } catch { /* noop */ }
+      } catch (err) { console.warn("[ExtraSections]", err); }
     })();
     return () => { cancel = true; };
   }, [fn, stats]);
@@ -98,7 +98,7 @@ export function WeeklyReportSection({ mbti }: { mbti?: string | null }) {
           unlocksCount: g.unlocksCount,
           mbti,
         }));
-      } catch { /* noop */ }
+      } catch (err) { console.warn("[ExtraSections]", err); }
     })();
     return () => { cancel = true; };
   }, [fn, mbti]);
