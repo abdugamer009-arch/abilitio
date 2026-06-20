@@ -16,6 +16,7 @@ import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as ResultsRouteImport } from './routes/results'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as MentorsRouteImport } from './routes/mentors'
+import { Route as IqTestRouteImport } from './routes/iq-test'
 import { Route as ForSchoolsRouteImport } from './routes/for-schools'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -40,7 +41,6 @@ import { Route as SchoolClassBuilderRouteImport } from './routes/school.class-bu
 import { Route as SchoolAnalyticsRouteImport } from './routes/school.analytics'
 import { Route as AuraStoreRouteImport } from './routes/aura.store'
 import { Route as AuraGrowthRouteImport } from './routes/aura.growth'
-import { Route as IqTestRouteImport } from './routes/iq-test'
 
 const UniversitiesRoute = UniversitiesRouteImport.update({
   id: '/universities',
@@ -75,6 +75,11 @@ const PricingRoute = PricingRouteImport.update({
 const MentorsRoute = MentorsRouteImport.update({
   id: '/mentors',
   path: '/mentors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IqTestRoute = IqTestRouteImport.update({
+  id: '/iq-test',
+  path: '/iq-test',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForSchoolsRoute = ForSchoolsRouteImport.update({
@@ -197,16 +202,10 @@ const AuraGrowthRoute = AuraGrowthRouteImport.update({
   path: '/growth',
   getParentRoute: () => AuraRoute,
 } as any)
-const IqTestRoute = IqTestRouteImport.update({
-  id: '/iq-test',
-  path: '/iq-test',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/abbi': typeof AbbiRoute
-  '/iq-test': typeof IqTestRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/assessment': typeof AssessmentRoute
@@ -221,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
   '/for-schools': typeof ForSchoolsRoute
+  '/iq-test': typeof IqTestRoute
   '/mentors': typeof MentorsRoute
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
@@ -240,7 +240,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/abbi': typeof AbbiRoute
-  '/iq-test': typeof IqTestRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/assessment': typeof AssessmentRoute
@@ -255,6 +254,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
   '/for-schools': typeof ForSchoolsRoute
+  '/iq-test': typeof IqTestRoute
   '/mentors': typeof MentorsRoute
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
@@ -275,7 +275,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/abbi': typeof AbbiRoute
-  '/iq-test': typeof IqTestRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/assessment': typeof AssessmentRoute
@@ -290,6 +289,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
   '/for-schools': typeof ForSchoolsRoute
+  '/iq-test': typeof IqTestRoute
   '/mentors': typeof MentorsRoute
   '/pricing': typeof PricingRoute
   '/results': typeof ResultsRoute
@@ -311,7 +311,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/abbi'
-    | '/iq-test'
     | '/about'
     | '/admin'
     | '/assessment'
@@ -326,6 +325,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/features'
     | '/for-schools'
+    | '/iq-test'
     | '/mentors'
     | '/pricing'
     | '/results'
@@ -345,7 +345,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/abbi'
-    | '/iq-test'
     | '/about'
     | '/admin'
     | '/assessment'
@@ -360,6 +359,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/features'
     | '/for-schools'
+    | '/iq-test'
     | '/mentors'
     | '/pricing'
     | '/results'
@@ -379,7 +379,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/abbi'
-    | '/iq-test'
     | '/about'
     | '/admin'
     | '/assessment'
@@ -394,6 +393,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/features'
     | '/for-schools'
+    | '/iq-test'
     | '/mentors'
     | '/pricing'
     | '/results'
@@ -414,7 +414,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AbbiRoute: typeof AbbiRoute
-  IqTestRoute: typeof IqTestRoute
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
   AssessmentRoute: typeof AssessmentRoute
@@ -429,6 +428,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   FeaturesRoute: typeof FeaturesRoute
   ForSchoolsRoute: typeof ForSchoolsRoute
+  IqTestRoute: typeof IqTestRoute
   MentorsRoute: typeof MentorsRoute
   PricingRoute: typeof PricingRoute
   ResultsRoute: typeof ResultsRoute
@@ -493,6 +493,13 @@ declare module '@tanstack/react-router' {
       path: '/mentors'
       fullPath: '/mentors'
       preLoaderRoute: typeof MentorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/iq-test': {
+      id: '/iq-test'
+      path: '/iq-test'
+      fullPath: '/iq-test'
+      preLoaderRoute: typeof IqTestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/for-schools': {
@@ -600,13 +607,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AbbiRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/iq-test': {
-      id: '/iq-test'
-      path: '/iq-test'
-      fullPath: '/iq-test'
-      preLoaderRoute: typeof IqTestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -688,7 +688,6 @@ const AuraRouteWithChildren = AuraRoute._addFileChildren(AuraRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AbbiRoute: AbbiRoute,
-  IqTestRoute: IqTestRoute,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
   AssessmentRoute: AssessmentRoute,
@@ -703,6 +702,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   FeaturesRoute: FeaturesRoute,
   ForSchoolsRoute: ForSchoolsRoute,
+  IqTestRoute: IqTestRoute,
   MentorsRoute: MentorsRoute,
   PricingRoute: PricingRoute,
   ResultsRoute: ResultsRoute,
