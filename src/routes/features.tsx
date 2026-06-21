@@ -58,7 +58,12 @@ function FeaturesPage() {
       {groups.map((g) => (
         <section key={g.title} className="px-6 py-12">
           <div className="mx-auto max-w-6xl">
-            <Reveal><h2 className="mb-8 text-2xl font-semibold">{g.title}</h2></Reveal>
+            <Reveal>
+              <h2 className="mb-8 flex items-center gap-3 text-2xl font-semibold">
+                <span className="h-px flex-shrink-0 w-6 bg-gradient-to-r from-primary to-accent opacity-60" />
+                {g.title}
+              </h2>
+            </Reveal>
             <Reveal delay={100}>
               <div className="grid gap-5 md:grid-cols-3">
                 {g.items.map((f) => (
