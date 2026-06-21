@@ -165,7 +165,7 @@ function LandingPage() {
               <h3 className="mt-1 text-lg font-semibold">{c.title}</h3>
               <div className="mt-4 flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">{t.careersSec.match}</span>
-                <span className="text-accent font-medium">{c.match}%</span>
+                <span className="text-accent font-medium"><CountUp value={c.match} suffix="%" duration={1200} /></span>
               </div>
               <div className="mt-2 h-1.5 rounded-full bg-secondary overflow-hidden">
                 <div className="h-full bg-gradient-to-r from-primary to-accent" style={{ width: `${c.match}%` }} />
@@ -245,7 +245,7 @@ function LandingPage() {
       <Section eyebrow={t.faq.eyebrow} title={t.faq.title}>
         <div className="mx-auto max-w-3xl space-y-3">
           {t.faq.items.map((f) => (
-            <details key={f.q} className="glass group rounded-2xl p-6 [&_summary::-webkit-details-marker]:hidden">
+            <details key={f.q} className="glass group rounded-2xl p-6 transition-all duration-300 hover:border hover:border-primary/20 [&_summary::-webkit-details-marker]:hidden">
               <summary className="flex cursor-pointer items-center justify-between gap-4 text-sm font-medium">
                 {f.q}
                 <span className="text-muted-foreground transition-transform group-open:rotate-45 text-xl leading-none">+</span>
