@@ -76,7 +76,7 @@ export function Navbar() {
                 </Link>
                 <button
                   onClick={async () => { await signOut(); navigate({ to: "/" }); }}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground transition-all hover:glow-purple hover:-translate-y-0.5"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_10px_-4px_var(--glow)] transition-all hover:-translate-y-0.5"
                   aria-label="Sign out"
                 >
                   <LogOut className="h-4 w-4" />
@@ -115,7 +115,7 @@ export function Navbar() {
                     to={item.to}
                     onClick={() => setOpen(false)}
                     className="block rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-secondary/70 hover:text-foreground"
-                    activeProps={{ className: "text-foreground bg-secondary" }}
+                    activeProps={{ className: "text-foreground bg-gradient-to-r from-primary/15 to-accent/10 border border-primary/20" }}
                     activeOptions={{ exact: true }}
                   >
                     {item.label}
