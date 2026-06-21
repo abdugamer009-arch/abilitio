@@ -119,7 +119,7 @@ function PricingPage() {
               {p.planId === null ? (
                 <Link
                   to="/assessment"
-                  className="mt-8 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-medium transition-all border border-border bg-secondary/40 hover:bg-secondary"
+                  className="mt-8 inline-flex w-full items-center justify-center rounded-full border border-primary/30 bg-primary/10 px-5 py-3 text-sm font-medium text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_6px_16px_-6px_oklch(0.55_0.22_295_/_0.3)]"
                 >
                   {p.cta}
                 </Link>
@@ -127,10 +127,10 @@ function PricingPage() {
                 <button
                   onClick={() => handlePlanClick(p.planId!)}
                   disabled={loadingPlan !== null}
-                  className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-medium transition-all disabled:opacity-60 ${
+                  className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-medium transition-all disabled:opacity-60 hover:-translate-y-0.5 ${
                     p.highlight
-                      ? "cta-sheen relative overflow-hidden bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] hover:-translate-y-0.5"
-                      : "border border-border bg-secondary/40 hover:bg-secondary"
+                      ? "cta-sheen relative overflow-hidden bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)]"
+                      : "border border-primary/30 bg-primary/10 text-primary hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_6px_16px_-6px_oklch(0.55_0.22_295_/_0.3)]"
                   }`}
                 >
                   {loadingPlan === p.planId ? <Loader2 className="h-4 w-4 animate-spin" /> : null}

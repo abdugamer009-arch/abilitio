@@ -218,7 +218,7 @@ function LandingPage() {
                   <div className="mt-1 text-[10px] text-primary">{battle.b.demand}% demand</div>
                 </div>
               </div>
-              <Link to="/career-battles" className="relative mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-medium text-primary hover:bg-primary/20 transition-colors">
+              <Link to="/career-battles" className="relative mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-medium text-primary transition-all hover:border-primary/50 hover:bg-primary/15 hover:-translate-y-0.5 hover:shadow-[0_6px_16px_-6px_oklch(0.55_0.22_295_/_0.3)]">
                 See full comparison <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>

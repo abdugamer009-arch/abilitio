@@ -50,8 +50,10 @@ export function SkillsSection({ stats, mbti }: { stats: StatsLite; mbti?: string
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           {(skills ?? Array.from({ length: 7 })).map((s: SkillSnapshot | undefined, i) =>
             s ? (
-              <div key={s.key} className="group rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/30 to-background/40 p-5 transition-all hover:border-primary/30">
-                <div className="flex items-center justify-between">
+              <div key={s.key} className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/30 to-background/40 p-5 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]">
+                <div className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-40"
+                  style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.8), transparent 70%)" }} />
+                <div className="relative flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-xl">{s.emoji}</span>
                     <span className="font-medium">{s.label}</span>
