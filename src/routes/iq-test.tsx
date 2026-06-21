@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Brain, Clock, Trophy, BarChart3 } from "lucide-react";
+import { CountUp } from "@/components/CountUp";
 import {
   IQ_QUESTIONS,
   IQ_BAND,
@@ -132,12 +133,19 @@ function IQTestPage() {
   if (phase === "results") {
     return (
       <PageShell>
-        <section className="px-6 pt-12 pb-24">
-          <div className="mx-auto max-w-3xl space-y-6">
+        <section className="relative px-6 pt-12 pb-24">
+          <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
+          <div className="relative mx-auto max-w-3xl space-y-6">
             {/* Score card */}
-            <div className="glass rounded-3xl p-10 text-center">
-              <Trophy className="mx-auto h-12 w-12 text-primary" />
-              <div className="mt-4 text-7xl font-bold gradient-text">{score}<span className="text-3xl text-muted-foreground">/40</span></div>
+            <div className="glass rounded-3xl p-10 text-center animate-fade-up">
+              <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_30px_-10px_var(--glow)]">
+                <Trophy className="h-8 w-8" />
+                <span className="absolute -inset-1 -z-10 rounded-2xl opacity-50 blur-md" style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }} />
+              </div>
+              <div className="mt-4 text-7xl font-bold gradient-text tabular-nums">
+                <CountUp value={score} duration={1200} />
+                <span className="text-3xl text-muted-foreground">/40</span>
+              </div>
               <div
                 className="mt-3 inline-block rounded-full px-5 py-1.5 text-sm font-semibold text-white"
                 style={{ background: band.color }}
