@@ -155,8 +155,9 @@ function DashboardPage() {
   if (loading || busy) {
     return (
       <PageShell>
-        <section className="px-4 pt-10 pb-24 sm:px-6">
-          <div className="mx-auto max-w-6xl">
+        <section className="relative px-4 pt-10 pb-24 sm:px-6">
+          <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
+          <div className="relative mx-auto max-w-6xl">
             <div className="skeleton h-44 rounded-[2rem]" />
             <div className="mt-8 skeleton h-12 rounded-2xl" />
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -183,8 +184,9 @@ function DashboardPage() {
           style={{ background: "radial-gradient(ellipse, oklch(0.55 0.22 295 / 0.35), transparent 60%)" }} />
       </div>
 
-      <section className="px-4 pt-10 pb-24 sm:px-6">
-        <div className="mx-auto max-w-6xl">
+      <section className="relative px-4 pt-10 pb-24 sm:px-6">
+        <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
+        <div className="relative mx-auto max-w-6xl">
           {/* PROFILE HEADER */}
           <ProfileHeader
             fullName={fullName}
