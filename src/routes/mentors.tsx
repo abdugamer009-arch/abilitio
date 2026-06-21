@@ -59,7 +59,7 @@ function MentorsPage() {
                       href={m.bookingUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:glow-purple"
+                      className="cta-sheen relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-4 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_28px_-10px_var(--glow)]"
                     >
                       <Calendar className="h-4 w-4" /> Book a Session
                     </a>

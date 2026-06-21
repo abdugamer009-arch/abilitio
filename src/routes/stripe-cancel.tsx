@@ -12,9 +12,12 @@ function StripeCancelPage() {
     <PageShell>
       <section className="relative flex min-h-[80vh] items-center justify-center px-6 py-24">
         <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          <div className="absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-destructive/5 blur-[80px]" />
+        </div>
         <div className="glass relative w-full max-w-md rounded-[2rem] p-10 text-center animate-fade-up">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-border/60 bg-secondary">
-            <X className="h-7 w-7 text-muted-foreground" />
+          <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-destructive/30 bg-destructive/10">
+            <X className="h-7 w-7 text-destructive" />
           </div>
           <h1 className="mt-6 text-3xl font-bold">Checkout cancelled</h1>
           <p className="mt-3 text-muted-foreground">No charge was made. You can try again whenever you're ready.</p>
