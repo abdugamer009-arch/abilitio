@@ -31,10 +31,10 @@ function LandingPage() {
         <div aria-hidden className="bg-grid pointer-events-none absolute inset-0 z-0" />
         <ParticleConstellation />
         <div key={t.hero.titleA} className="relative z-10 mx-auto max-w-5xl animate-fade-up">
-          <div className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-border/60 bg-secondary/40 px-5 py-2 text-sm text-muted-foreground backdrop-blur">
+          <div className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/8 px-5 py-2 text-sm text-primary/90 backdrop-blur shadow-[0_0_20px_-8px_var(--glow)]">
             <span className="relative flex h-2 w-2 shrink-0">
-              <span className="absolute inset-0 rounded-full bg-accent animate-ping opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+              <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-gradient-to-br from-primary to-accent" />
             </span>
             {t.hero.badge}
           </div>
