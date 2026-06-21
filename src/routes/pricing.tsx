@@ -129,7 +129,7 @@ function PricingPage() {
                   disabled={loadingPlan !== null}
                   className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-medium transition-all disabled:opacity-60 ${
                     p.highlight
-                      ? "cta-sheen relative overflow-hidden bg-primary text-primary-foreground hover:glow-purple hover:-translate-y-0.5"
+                      ? "cta-sheen relative overflow-hidden bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] hover:-translate-y-0.5"
                       : "border border-border bg-secondary/40 hover:bg-secondary"
                   }`}
                 >
