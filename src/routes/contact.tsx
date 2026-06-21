@@ -87,8 +87,8 @@ function ContactPage() {
           </a>
 
           <a href="mailto:ibodullayevabdurahmon95@gmail.com" className="group glass relative w-full max-w-sm overflow-hidden rounded-3xl p-8 text-center transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_60px_-10px_var(--glow)] md:w-auto md:flex-1">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 ring-1 ring-border transition-all duration-500 group-hover:scale-110 group-hover:from-primary/30 group-hover:to-accent/30">
-              <Mail className="h-6 w-6 text-primary transition-transform duration-500 group-hover:scale-110" />
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_24px_-8px_var(--glow)] transition-all duration-500 group-hover:scale-110">
+              <Mail className="h-6 w-6 transition-transform duration-500 group-hover:scale-110" />
             </div>
             <div className="mt-5 text-xs uppercase tracking-widest text-muted-foreground">{t.contact.email}</div>
             <div className="mt-2 text-lg font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary md:text-xl">ibodullayevabdurahmon95@gmail.com</div>

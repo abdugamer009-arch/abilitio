@@ -41,8 +41,14 @@ function MentorsPage() {
                   </div>
                 </div>
                 <div className="relative mt-5 space-y-2 text-xs text-muted-foreground">
-                  <div className="flex items-start gap-2"><Briefcase className="mt-0.5 h-3.5 w-3.5 text-primary" /><span>{m.experience}</span></div>
-                  <div className="flex items-start gap-2"><Star className="mt-0.5 h-3.5 w-3.5 text-primary" /><span>{m.specialization}</span></div>
+                  <div className="flex items-start gap-2">
+                    <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded bg-gradient-to-br from-primary to-accent text-primary-foreground"><Briefcase className="h-2.5 w-2.5" /></span>
+                    <span>{m.experience}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded bg-gradient-to-br from-primary to-accent text-primary-foreground"><Star className="h-2.5 w-2.5" /></span>
+                    <span>{m.specialization}</span>
+                  </div>
                 </div>
                 <blockquote className="relative mt-5 flex-1 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm italic text-foreground/90">
                   "{m.advice}"

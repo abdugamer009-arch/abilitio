@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Brain, Compass, LineChart, Sparkles, Target, Users, Zap, ShieldCheck, Star, Swords } from "lucide-react";
+import { ArrowRight, Brain, Compass, LineChart, Sparkles, Target, Users, Zap, ShieldCheck, Star, Swords, ChevronDown } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { ParticleConstellation } from "@/components/ParticleConstellation";
 import { GradientDivider } from "@/components/GradientDivider";
@@ -262,10 +262,12 @@ function LandingPage() {
       <Section eyebrow={t.faq.eyebrow} title={t.faq.title}>
         <div className="mx-auto max-w-3xl space-y-3">
           {t.faq.items.map((f) => (
-            <details key={f.q} className="glass group rounded-2xl p-6 transition-all duration-300 hover:border hover:border-primary/20 [&_summary::-webkit-details-marker]:hidden">
+            <details key={f.q} className="glass group rounded-2xl p-6 transition-all duration-300 hover:border-primary/20 [&_summary::-webkit-details-marker]:hidden">
               <summary className="flex cursor-pointer items-center justify-between gap-4 text-sm font-medium">
                 {f.q}
-                <span className="text-muted-foreground transition-transform group-open:rotate-45 text-xl leading-none">+</span>
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition-all group-open:border-primary/40 group-open:bg-primary/10 group-open:text-primary">
+                  <ChevronDown className="h-3.5 w-3.5 transition-transform duration-300 group-open:rotate-180" />
+                </span>
               </summary>
               <p className="mt-3 text-sm text-muted-foreground">{f.a}</p>
             </details>
