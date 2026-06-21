@@ -138,8 +138,8 @@ export function ProfilePhotoCard({
       />
 
       <h2 className="flex items-center gap-2 text-base font-semibold">
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-accent/10">
-          <Camera className="h-4 w-4 text-primary" />
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">
+          <Camera className="h-3.5 w-3.5" />
         </span>
         Profile Photo
       </h2>
@@ -179,8 +179,8 @@ export function ProfilePhotoCard({
                 : "border-primary/30 bg-secondary/20 hover:border-primary/60 hover:bg-primary/5",
             )}
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary/25 to-accent/15">
-              <UploadCloud className="h-5 w-5 text-primary" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-accent/10 ring-1 ring-primary/30 shadow-[0_4px_14px_-4px_var(--glow)] transition-transform duration-300 group-hover:scale-105">
+              <UploadCloud className="h-5 w-5 text-primary transition-transform duration-300 group-hover:scale-110" />
             </div>
             <p className="mt-3 text-sm font-medium">
               Drag & drop or <span className="text-primary">browse</span>
