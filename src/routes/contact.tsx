@@ -75,8 +75,8 @@ function ContactPage() {
       <section className="px-6 pb-12">
         <Reveal className="mx-auto flex max-w-3xl flex-col items-center gap-6 md:flex-row md:justify-center">
           <a href="tel:+998880481881" className="group glass relative w-full max-w-sm overflow-hidden rounded-3xl p-8 text-center transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_60px_-10px_var(--glow)] md:w-auto md:flex-1">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 ring-1 ring-border transition-all duration-500 group-hover:scale-110 group-hover:from-primary/30 group-hover:to-accent/30">
-              <Phone className="h-6 w-6 text-primary transition-transform duration-500 group-hover:scale-110" />
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_24px_-8px_var(--glow)] transition-all duration-500 group-hover:scale-110">
+              <Phone className="h-6 w-6 transition-transform duration-500 group-hover:scale-110" />
             </div>
             <div className="mt-5 text-xs uppercase tracking-widest text-muted-foreground">{t.contact.phone}</div>
             <div className="mt-2 text-2xl font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary">+998 88 048 18 81</div>
@@ -108,7 +108,9 @@ function ContactPage() {
               { icon: MapPin, label: t.contact.basedIn, value: t.contact.basedVal },
             ].map((c) => (
               <div key={c.label} className="glass rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_40px_-5px_var(--glow)]">
-                <c.icon className="h-4 w-4 text-accent" />
+                <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_4px_12px_-4px_var(--glow)]">
+                  <c.icon className="h-4 w-4" />
+                </div>
                 <div className="mt-3 text-xs text-muted-foreground">{c.label}</div>
                 <div className="text-sm font-medium">{c.value}</div>
               </div>
