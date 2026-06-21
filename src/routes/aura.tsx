@@ -83,13 +83,13 @@ function AuraPage() {
             <h2 className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Ways to earn</h2>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               {EARN_WAYS.map((w) => (
-                <div key={w.label} className="glass flex items-center justify-between rounded-2xl px-5 py-4">
+                <div key={w.label} className="glass flex items-center justify-between rounded-2xl px-5 py-4 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_6px_18px_-8px_oklch(0.55_0.22_295_/_0.3)]">
                   <div>
                     <div className="text-sm font-medium">{w.label}</div>
                     <div className="text-xs text-muted-foreground">{w.hint}</div>
                   </div>
-                  <div className="flex items-center gap-1.5 text-sm font-semibold gradient-text tabular-nums">
-                    <AuraCoin size={16} animated={false} /> +{w.amount}
+                  <div className="flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-sm font-semibold gradient-text tabular-nums">
+                    <AuraCoin size={14} animated={false} /> +{w.amount}
                   </div>
                 </div>
               ))}
@@ -107,7 +107,7 @@ function AuraPage() {
                       <div className="text-sm font-medium">{f.name}</div>
                       <div className="text-xs text-muted-foreground">{f.tagline}</div>
                     </div>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2.5 py-1 text-[10px] uppercase tracking-wider text-primary">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary/20 to-accent/10 border border-primary/30 px-2.5 py-1 text-[10px] uppercase tracking-wider text-primary">
                       <Check className="h-3 w-3" /> Owned
                     </span>
                   </div>
@@ -122,7 +122,7 @@ function AuraPage() {
               className="absolute inset-0 opacity-60"
               style={{ background: "radial-gradient(60% 50% at 50% 0%, oklch(0.65 0.18 295 / 0.22), transparent 70%)" }}
             />
-            <Sparkles className="relative mx-auto h-5 w-5 text-primary" />
+            <div className="relative mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_24px_-8px_var(--glow)]"><Sparkles className="h-6 w-6" /></div>
             <h3 className="relative mt-4 text-2xl font-semibold tracking-tight">The Aura Store</h3>
             <p className="relative mx-auto mt-2 max-w-md text-sm text-muted-foreground">
               Unlock premium reports, advanced cognitive breakdowns, and your personal AI mentor — or top up with coin packages.
@@ -177,9 +177,9 @@ const EARN_WAYS = [
 
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="glass rounded-3xl p-6">
+    <div className="glass rounded-3xl p-6 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_10px_28px_-10px_oklch(0.55_0.22_295_/_0.3)]">
       <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-        <span className="text-primary">{icon}</span> {label}
+        <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_6px_-2px_var(--glow)]">{icon}</span> {label}
       </div>
       <div className="mt-3 text-3xl font-semibold tabular-nums gradient-text">{value}</div>
     </div>
