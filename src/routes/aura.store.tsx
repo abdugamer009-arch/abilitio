@@ -14,6 +14,7 @@ import {
   getMyUnlocks,
 } from "@/lib/aura-store.functions";
 import { Check, Lock, Sparkles, Crown, Zap, X, Clock } from "lucide-react";
+import { SpotlightCard } from "@/components/SpotlightCard";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/aura/store")({
@@ -131,9 +132,9 @@ function AuraStorePage() {
                 const affordable = balance >= f.price;
                 const busy = busyKey === f.key;
                 return (
-                  <article
+                  <SpotlightCard
                     key={f.key}
-                    className="glass group relative flex flex-col rounded-3xl p-6 transition-all hover:-translate-y-0.5"
+                    className="glass group relative flex flex-col rounded-3xl p-6 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover-glow"
                   >
                     {f.tier === "elite" && (
                       <span className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-primary">
@@ -168,7 +169,7 @@ function AuraStorePage() {
                         </button>
                       )}
                     </div>
-                  </article>
+                  </SpotlightCard>
                 );
               })}
             </div>

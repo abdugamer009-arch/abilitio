@@ -13,6 +13,7 @@ import {
   getMyGrowthState,
 } from "@/lib/aura-growth.functions";
 import { Flame, Lock, Check, ArrowRight } from "lucide-react";
+import { SpotlightCard } from "@/components/SpotlightCard";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/aura/growth")({
@@ -160,9 +161,9 @@ function AuraGrowthPage() {
                   const mastered = pct >= 1;
                   const Icon = node.icon;
                   return (
-                    <article
+                    <SpotlightCard
                       key={node.key}
-                      className="glass relative overflow-hidden rounded-3xl p-6"
+                      className="glass relative overflow-hidden rounded-3xl p-6 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover-glow"
                     >
                       {mastered && (
                         <div
@@ -205,7 +206,7 @@ function AuraGrowthPage() {
                           style={{ width: `${pct * 100}%`, boxShadow: "0 0 8px oklch(0.65 0.22 295 / 0.4)" }}
                         />
                       </div>
-                    </article>
+                    </SpotlightCard>
                   );
                 })}
               </div>
@@ -266,9 +267,9 @@ function AuraGrowthPage() {
                 const owned = ownedAch.has(a.key);
                 const Icon = a.icon;
                 return (
-                  <article
+                  <SpotlightCard
                     key={a.key}
-                    className={`glass rounded-2xl p-5 transition-all ${owned ? "" : "opacity-60"}`}
+                    className={`glass rounded-2xl p-5 transition-all ${owned ? "hover:-translate-y-0.5 hover:border-primary/30 hover-glow" : "opacity-60"}`}
                   >
                     <div className="flex items-start gap-3">
                       <div
@@ -288,7 +289,7 @@ function AuraGrowthPage() {
                         <p className="mt-0.5 text-xs text-muted-foreground">{a.description}</p>
                       </div>
                     </div>
-                  </article>
+                  </SpotlightCard>
                 );
               })}
             </div>
