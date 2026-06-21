@@ -167,15 +167,15 @@ function LandingPage() {
             { title: "Research Scientist", match: 89 },
             { title: "Product Strategist", match: 86 },
           ].map((c) => (
-            <SpotlightCard key={c.title} className="glass rounded-2xl p-6 hover-glow">
+            <SpotlightCard key={c.title} className="glass rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-20px_oklch(0.55_0.22_295_/_0.35)]">
               <div className="text-xs text-muted-foreground">{t.careersSec.recommended}</div>
               <h3 className="mt-1 text-lg font-semibold">{c.title}</h3>
               <div className="mt-4 flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">{t.careersSec.match}</span>
-                <span className="text-accent font-medium"><CountUp value={c.match} suffix="%" duration={1200} /></span>
+                <span className="font-semibold gradient-text"><CountUp value={c.match} suffix="%" duration={1200} /></span>
               </div>
-              <div className="mt-2 h-1.5 rounded-full bg-secondary overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-primary to-accent" style={{ width: `${c.match}%` }} />
+              <div className="mt-2 h-1.5 rounded-full bg-secondary/60 overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-primary to-accent" style={{ width: `${c.match}%`, boxShadow: "0 0 8px oklch(0.65 0.22 295 / 0.4)" }} />
               </div>
             </SpotlightCard>
           ))}

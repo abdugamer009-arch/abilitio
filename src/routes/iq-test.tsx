@@ -98,9 +98,9 @@ function IQTestPage() {
 
               <div className="mt-8 grid gap-4 md:grid-cols-4 text-left">
                 {(["verbal", "numerical", "spatial", "logical"] as IQCategory[]).map((cat) => (
-                  <div key={cat} className="rounded-2xl border border-border bg-secondary/30 p-4">
+                  <div key={cat} className="rounded-2xl border border-border/60 bg-secondary/30 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/30">
                     <span
-                      className="inline-block mb-2 rounded-full px-2.5 py-0.5 text-[10px] font-semibold text-white"
+                      className="inline-block mb-2 rounded-full px-2.5 py-0.5 text-[10px] font-semibold text-white shadow-sm"
                       style={{ background: CATEGORY_COLORS[cat] }}
                     >
                       {CATEGORY_LABELS[cat]}
