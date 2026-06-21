@@ -155,7 +155,22 @@ function DashboardPage() {
   if (loading || busy) {
     return (
       <PageShell>
-        <div className="px-6 pt-32 text-center text-sm text-muted-foreground">{t.dashboard.loading}</div>
+        <section className="px-4 pt-10 pb-24 sm:px-6">
+          <div className="mx-auto max-w-6xl">
+            <div className="skeleton h-44 rounded-[2rem]" />
+            <div className="mt-8 skeleton h-12 rounded-2xl" />
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="skeleton h-28 rounded-3xl" />
+              ))}
+            </div>
+            <div className="mt-6 grid gap-6 lg:grid-cols-2">
+              <div className="skeleton h-56 rounded-3xl" />
+              <div className="skeleton h-56 rounded-3xl" />
+            </div>
+            <span className="sr-only">{t.dashboard.loading}</span>
+          </div>
+        </section>
       </PageShell>
     );
   }

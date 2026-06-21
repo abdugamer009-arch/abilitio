@@ -18,15 +18,37 @@ function CareerResultsPage() {
   const fetchResult = useServerFn(getMyCareerResult);
   const [r, setR] = useState<CareerResultDTO | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     if (loading) return;
     if (!user) { navigate({ to: "/auth", search: { mode: "login", next: "/career-results" } }); return; }
-    fetchResult().then(setR).catch((e) => setErr(String(e?.message ?? "")));
+    fetchResult()
+      .then(setR)
+      .catch((e) => setErr(String(e?.message ?? "")))
+      .finally(() => setLoaded(true));
   }, [user, loading, navigate, fetchResult]);
 
   if (!user) return null;
   if (err) return <PageShell><div className="px-6 pt-32 text-center text-sm text-destructive">{err}</div></PageShell>;
+
+  // Still fetching — show a skeleton instead of a misleading empty state
+  if (!loaded) {
+    return (
+      <PageShell>
+        <section className="px-6 pt-12 pb-20">
+          <div className="mx-auto max-w-5xl">
+            <div className="skeleton h-10 w-72 rounded-2xl" />
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => <div key={i} className="skeleton h-44 rounded-3xl" />)}
+            </div>
+            <div className="mt-6 skeleton h-64 rounded-3xl" />
+          </div>
+        </section>
+      </PageShell>
+    );
+  }
+
   if (!r) {
     return (
       <PageShell>

@@ -419,6 +419,29 @@ button, [role="button"], .btn, a.inline-flex {
   outline-color: oklch(0.5 0.18 285 / 0.7);
 }
 
+/* Shimmer skeleton — sweeping highlight instead of a flat pulse */
+@utility skeleton {
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in oklab, var(--primary) 8%, transparent);
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklab, var(--primary) 12%, transparent),
+      transparent
+    );
+    animation: skeleton-sweep 1.6s ease-in-out infinite;
+  }
+}
+@keyframes skeleton-sweep {
+  100% { transform: translateX(100%); }
+}
+
 /* Faint grid texture — depth without noise, fades out toward edges */
 @utility bg-grid {
   background-image:
