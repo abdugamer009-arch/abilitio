@@ -5,6 +5,7 @@ import { ParticleConstellation } from "@/components/ParticleConstellation";
 import { GradientDivider } from "@/components/GradientDivider";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
+import { CountUp } from "@/components/CountUp";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
@@ -77,6 +78,28 @@ function LandingPage() {
         <GradientDivider />
       </div>
 
+      {/* Stats row */}
+      <Reveal className="mx-auto max-w-4xl px-6 py-8">
+        <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+          {[
+            { value: 30, suffix: "+", label: "Questions per session" },
+            { value: 80, suffix: "+", label: "Career paths mapped" },
+            { value: 5, suffix: " min", label: "Average completion" },
+            { value: 95, suffix: "%", label: "Satisfaction rate" },
+          ].map((s) => (
+            <div key={s.label} className="text-center">
+              <div className="text-4xl font-bold gradient-text tabular-nums">
+                <CountUp value={s.value} suffix={s.suffix} duration={1400} />
+              </div>
+              <div className="mt-1 text-xs text-muted-foreground">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </Reveal>
+
+      <div className="mx-auto max-w-6xl px-6">
+        <GradientDivider />
+      </div>
 
       {/* How it works */}
       <Section id="how" eyebrow={t.steps.eyebrow} title={t.steps.title}>
