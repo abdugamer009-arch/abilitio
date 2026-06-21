@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UniversitiesRouteImport } from './routes/universities'
 import { Route as SuccessStoriesRouteImport } from './routes/success-stories'
+import { Route as StripeSuccessRouteImport } from './routes/stripe-success'
+import { Route as StripeCancelRouteImport } from './routes/stripe-cancel'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as ResultsRouteImport } from './routes/results'
@@ -50,6 +52,16 @@ const UniversitiesRoute = UniversitiesRouteImport.update({
 const SuccessStoriesRoute = SuccessStoriesRouteImport.update({
   id: '/success-stories',
   path: '/success-stories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StripeSuccessRoute = StripeSuccessRouteImport.update({
+  id: '/stripe-success',
+  path: '/stripe-success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StripeCancelRoute = StripeCancelRouteImport.update({
+  id: '/stripe-cancel',
+  path: '/stripe-cancel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -226,6 +238,8 @@ export interface FileRoutesByFullPath {
   '/results': typeof ResultsRoute
   '/roadmap': typeof RoadmapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stripe-cancel': typeof StripeCancelRoute
+  '/stripe-success': typeof StripeSuccessRoute
   '/success-stories': typeof SuccessStoriesRoute
   '/universities': typeof UniversitiesRoute
   '/aura/growth': typeof AuraGrowthRoute
@@ -260,6 +274,8 @@ export interface FileRoutesByTo {
   '/results': typeof ResultsRoute
   '/roadmap': typeof RoadmapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stripe-cancel': typeof StripeCancelRoute
+  '/stripe-success': typeof StripeSuccessRoute
   '/success-stories': typeof SuccessStoriesRoute
   '/universities': typeof UniversitiesRoute
   '/aura/growth': typeof AuraGrowthRoute
@@ -295,6 +311,8 @@ export interface FileRoutesById {
   '/results': typeof ResultsRoute
   '/roadmap': typeof RoadmapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stripe-cancel': typeof StripeCancelRoute
+  '/stripe-success': typeof StripeSuccessRoute
   '/success-stories': typeof SuccessStoriesRoute
   '/universities': typeof UniversitiesRoute
   '/aura/growth': typeof AuraGrowthRoute
@@ -331,6 +349,8 @@ export interface FileRouteTypes {
     | '/results'
     | '/roadmap'
     | '/sitemap.xml'
+    | '/stripe-cancel'
+    | '/stripe-success'
     | '/success-stories'
     | '/universities'
     | '/aura/growth'
@@ -365,6 +385,8 @@ export interface FileRouteTypes {
     | '/results'
     | '/roadmap'
     | '/sitemap.xml'
+    | '/stripe-cancel'
+    | '/stripe-success'
     | '/success-stories'
     | '/universities'
     | '/aura/growth'
@@ -399,6 +421,8 @@ export interface FileRouteTypes {
     | '/results'
     | '/roadmap'
     | '/sitemap.xml'
+    | '/stripe-cancel'
+    | '/stripe-success'
     | '/success-stories'
     | '/universities'
     | '/aura/growth'
@@ -434,6 +458,8 @@ export interface RootRouteChildren {
   ResultsRoute: typeof ResultsRoute
   RoadmapRoute: typeof RoadmapRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  StripeCancelRoute: typeof StripeCancelRoute
+  StripeSuccessRoute: typeof StripeSuccessRoute
   SuccessStoriesRoute: typeof SuccessStoriesRoute
   UniversitiesRoute: typeof UniversitiesRoute
   SchoolAnalyticsRoute: typeof SchoolAnalyticsRoute
@@ -458,6 +484,20 @@ declare module '@tanstack/react-router' {
       path: '/success-stories'
       fullPath: '/success-stories'
       preLoaderRoute: typeof SuccessStoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stripe-success': {
+      id: '/stripe-success'
+      path: '/stripe-success'
+      fullPath: '/stripe-success'
+      preLoaderRoute: typeof StripeSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stripe-cancel': {
+      id: '/stripe-cancel'
+      path: '/stripe-cancel'
+      fullPath: '/stripe-cancel'
+      preLoaderRoute: typeof StripeCancelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -708,6 +748,8 @@ const rootRouteChildren: RootRouteChildren = {
   ResultsRoute: ResultsRoute,
   RoadmapRoute: RoadmapRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  StripeCancelRoute: StripeCancelRoute,
+  StripeSuccessRoute: StripeSuccessRoute,
   SuccessStoriesRoute: SuccessStoriesRoute,
   UniversitiesRoute: UniversitiesRoute,
   SchoolAnalyticsRoute: SchoolAnalyticsRoute,
@@ -720,3 +762,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

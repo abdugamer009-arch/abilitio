@@ -129,9 +129,9 @@ function CareerAssessmentPage() {
               </div>
 
               <div className="mt-8 grid gap-4 md:grid-cols-3 text-left">
-                <Section icon={<Brain className="h-4 w-4" />} title="Personality" caption="10 Q · MBTI-style traits, work, leadership & team style." />
-                <Section icon={<Target className="h-4 w-4" />} title="Cognitive / IQ" caption="10 Q · logic, pattern recognition & analytical reasoning." />
-                <Section icon={<Sparkles className="h-4 w-4" />} title="Interests" caption="10 Q · fields, impact areas & career motivations." />
+                <Section icon={<Brain className="h-4 w-4" />} title="Personality" caption="12 Q · MBTI-style traits, work, leadership & team style." />
+                <Section icon={<Target className="h-4 w-4" />} title="Cognitive / IQ" caption="9 Q · logic, pattern recognition & analytical reasoning." />
+                <Section icon={<Sparkles className="h-4 w-4" />} title="Interests" caption="9 Q · fields, impact areas & career motivations." />
               </div>
 
               <button onClick={startSession} className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground hover:glow-purple hover:-translate-y-0.5 transition">

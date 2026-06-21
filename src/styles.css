@@ -357,3 +357,74 @@ button, [role="button"], .btn, a.inline-flex {
     box-shadow 0.22s ease,
     transform 0.18s ease;
 }
+
+/* ============================================================
+   Micro-polish — the details that make it feel hand-crafted
+   ============================================================ */
+
+/* Themed text selection */
+::selection {
+  background: oklch(0.7 0.14 290 / 0.28);
+  color: var(--foreground);
+}
+:root:not(.dark) ::selection {
+  background: oklch(0.5 0.18 285 / 0.18);
+  color: var(--foreground);
+}
+
+/* Custom scrollbar — subtle, themed, premium */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.5 0.08 290 / 0.4) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: oklch(0.5 0.08 290 / 0.35);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background 0.2s ease;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.6 0.12 290 / 0.55);
+  background-clip: padding-box;
+}
+:root:not(.dark) ::-webkit-scrollbar-thumb {
+  background: oklch(0.55 0.12 290 / 0.3);
+  background-clip: padding-box;
+}
+:root:not(.dark) ::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.5 0.16 290 / 0.45);
+  background-clip: padding-box;
+}
+
+/* Remove the grey tap flash on mobile — feels native */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Consistent, accessible focus ring for keyboard users */
+:where(a, button, [role="button"], input, textarea, select, summary):focus-visible {
+  outline: 2px solid oklch(0.7 0.14 290 / 0.6);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+:root:not(.dark) :where(a, button, [role="button"], input, textarea, select, summary):focus-visible {
+  outline-color: oklch(0.5 0.18 285 / 0.7);
+}
+
+/* Respect users who prefer less motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
