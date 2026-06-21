@@ -148,8 +148,9 @@ function RoadmapPage() {
         />
       </div>
 
-      <section className="px-4 pt-10 pb-24 sm:px-6">
-        <div className="mx-auto max-w-6xl">
+      <section className="relative px-4 pt-10 pb-24 sm:px-6">
+        <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
+        <div className="relative mx-auto max-w-6xl">
           {/* Header */}
           <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
