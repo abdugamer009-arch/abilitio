@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
+import { Reveal } from "@/components/Reveal";
 import { Mail, MessageSquare, MapPin, Send, Phone, Copy, Check, Loader2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { useT } from "@/lib/i18n";
@@ -62,14 +63,17 @@ function ContactPage() {
 
   return (
     <PageShell>
-      <section className="px-6 pt-20 pb-12 text-center">
-        <div className="text-xs uppercase tracking-widest text-accent">{t.contact.eyebrow}</div>
-        <h1 className="mt-3 text-4xl font-bold md:text-6xl">{t.contact.titleA} <span className="gradient-text">{t.contact.titleB}</span></h1>
-        <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">{t.contact.subtitle}</p>
+      <section className="relative px-6 pt-20 pb-12 text-center">
+        <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
+        <div className="relative animate-fade-up">
+          <div className="text-xs uppercase tracking-widest text-accent">{t.contact.eyebrow}</div>
+          <h1 className="mt-3 text-4xl font-bold md:text-6xl">{t.contact.titleA} <span className="gradient-text">{t.contact.titleB}</span></h1>
+          <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">{t.contact.subtitle}</p>
+        </div>
       </section>
 
       <section className="px-6 pb-12">
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 md:flex-row md:justify-center">
+        <Reveal className="mx-auto flex max-w-3xl flex-col items-center gap-6 md:flex-row md:justify-center">
           <a href="tel:+998880481881" className="group glass relative w-full max-w-sm overflow-hidden rounded-3xl p-8 text-center transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_60px_-10px_var(--glow)] md:w-auto md:flex-1">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 ring-1 ring-border transition-all duration-500 group-hover:scale-110 group-hover:from-primary/30 group-hover:to-accent/30">
               <Phone className="h-6 w-6 text-primary transition-transform duration-500 group-hover:scale-110" />
@@ -93,11 +97,11 @@ function ContactPage() {
               {copiedEmail ? t.contact.copied : t.contact.copy}
             </button>
           </a>
-        </div>
+        </Reveal>
       </section>
 
       <section className="px-6 pb-24">
-        <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+        <Reveal className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
           <div className="space-y-4 md:col-span-1">
             {[
               { icon: MessageSquare, label: t.contact.support, value: t.contact.supportVal },
@@ -151,7 +155,7 @@ function ContactPage() {
               </div>
             )}
           </form>
-        </div>
+        </Reveal>
       </section>
     </PageShell>
   );
