@@ -391,7 +391,9 @@ function ResultsSection({
   if (!latest) {
     return (
       <GlassCard className="p-10 text-center">
-        <Brain className="mx-auto h-12 w-12 text-primary" />
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_30px_-10px_var(--glow)]">
+          <Brain className="h-8 w-8" />
+        </div>
         <h3 className="mt-4 text-xl font-semibold">No assessment yet</h3>
         <p className="mt-2 text-sm text-muted-foreground">Take your first assessment to unlock your AI-powered insights.</p>
         <Link to="/assessment" className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple">
@@ -518,7 +520,7 @@ function CareerCard({ career, rank, featured, tCareer }: { career: Career; rank:
       )}
       <div className="relative flex items-center justify-between">
         <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
-          featured ? "bg-primary/20 text-primary" : "bg-secondary text-muted-foreground"
+          featured ? "bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-[0_2px_10px_-4px_var(--glow)]" : "bg-secondary text-muted-foreground"
         }`}>
           {featured && <Crown className="h-3 w-3" />} #{rank} {featured ? "Best Match" : ""}
         </span>
