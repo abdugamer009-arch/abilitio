@@ -15,6 +15,7 @@ import {
 } from "@/lib/aura-store.functions";
 import { Check, Lock, Sparkles, Crown, Zap, X, Clock } from "lucide-react";
 import { SpotlightCard } from "@/components/SpotlightCard";
+import { Reveal } from "@/components/Reveal";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/aura/store")({
@@ -116,7 +117,7 @@ function AuraStorePage() {
 
           {/* Premium Unlocks */}
           <div className="mt-16">
-            <div className="flex items-end justify-between">
+            <Reveal className="flex items-end justify-between">
               <div>
                 <h2 className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Premium unlocks</h2>
                 <p className="mt-1 text-lg font-medium">Spend Aura Coins to unlock</p>
@@ -124,9 +125,9 @@ function AuraStorePage() {
               <Link to="/aura" className="text-xs text-muted-foreground hover:text-foreground">
                 ← Back to Aura
               </Link>
-            </div>
+            </Reveal>
 
-            <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <Reveal delay={100} className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {AURA_FEATURES.map((f) => {
                 const owned = ownedKeys.has(f.key);
                 const affordable = balance >= f.price;
@@ -172,18 +173,20 @@ function AuraStorePage() {
                   </SpotlightCard>
                 );
               })}
-            </div>
+            </Reveal>
           </div>
 
           {/* Coin Packages */}
           <div className="mt-20">
-            <h2 className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Top up</h2>
-            <p className="mt-1 text-lg font-medium">Aura Coin packages</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Prices in Uzbek Som (UZS). Submit a request and our team will contact you to complete payment.
-            </p>
+            <Reveal>
+              <h2 className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Top up</h2>
+              <p className="mt-1 text-lg font-medium">Aura Coin packages</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Prices in Uzbek Som (UZS). Submit a request and our team will contact you to complete payment.
+              </p>
+            </Reveal>
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <Reveal delay={100} className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
               {AURA_PACKAGES.map((p) => {
                 const total = p.coins + p.bonus;
                 const busy = pkgBusy === p.key;
@@ -233,7 +236,7 @@ function AuraStorePage() {
                   </article>
                 );
               })}
-            </div>
+            </Reveal>
           </div>
 
           {/* Purchase history */}
