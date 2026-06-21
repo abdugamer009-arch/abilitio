@@ -94,7 +94,13 @@ function ForSchoolsPage() {
               </div>
             ))}
           </Reveal>
-          <div className="mt-10 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <div className="mt-8 text-center">
+            <p className="text-sm text-muted-foreground">
+              Questions about Professional or Enterprise pricing?{" "}
+              <Link to="/contact" className="font-medium text-accent hover:underline">Get in touch →</Link>
+            </p>
+          </div>
+          <div className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <Shield className="h-3.5 w-3.5" /> Student data is private and visible only to your school's principal.
           </div>
         </div>
