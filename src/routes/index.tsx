@@ -4,6 +4,7 @@ import { PageShell } from "@/components/PageShell";
 import { ParticleConstellation } from "@/components/ParticleConstellation";
 import { GradientDivider } from "@/components/GradientDivider";
 import { Reveal } from "@/components/Reveal";
+import { SpotlightCard } from "@/components/SpotlightCard";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
@@ -67,14 +68,14 @@ function LandingPage() {
           {t.steps.items.map((s, i) => {
             const Icon = stepIcons[i];
             return (
-              <div key={s.title} className="glass hover-glow rounded-2xl p-8">
+              <SpotlightCard key={s.title} className="glass hover-glow rounded-2xl p-8">
                 <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent">
                   <Icon className="h-5 w-5 text-primary-foreground" />
                 </div>
                 <div className="text-xs text-muted-foreground">{t.steps.step} {i + 1}</div>
                 <h3 className="mt-1 text-xl font-semibold">{s.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
-              </div>
+              </SpotlightCard>
             );
           })}
         </div>
@@ -86,11 +87,11 @@ function LandingPage() {
           {t.featuresSection.items.map((f, i) => {
             const Icon = featureIcons[i];
             return (
-              <div key={f.title} className="glass rounded-2xl p-6 hover-glow">
+              <SpotlightCard key={f.title} className="glass rounded-2xl p-6 hover-glow">
                 <Icon className="h-5 w-5 text-accent" />
                 <h3 className="mt-4 font-semibold">{f.title}</h3>
                 <p className="mt-1.5 text-sm text-muted-foreground">{f.desc}</p>
-              </div>
+              </SpotlightCard>
             );
           })}
         </div>
@@ -120,7 +121,7 @@ function LandingPage() {
             { title: "Research Scientist", match: 89 },
             { title: "Product Strategist", match: 86 },
           ].map((c) => (
-            <div key={c.title} className="glass rounded-2xl p-6 hover-glow">
+            <SpotlightCard key={c.title} className="glass rounded-2xl p-6 hover-glow">
               <div className="text-xs text-muted-foreground">{t.careersSec.recommended}</div>
               <h3 className="mt-1 text-lg font-semibold">{c.title}</h3>
               <div className="mt-4 flex items-center justify-between text-xs">
@@ -130,7 +131,7 @@ function LandingPage() {
               <div className="mt-2 h-1.5 rounded-full bg-secondary overflow-hidden">
                 <div className="h-full bg-gradient-to-r from-primary to-accent" style={{ width: `${c.match}%` }} />
               </div>
-            </div>
+            </SpotlightCard>
           ))}
         </div>
       </Section>
