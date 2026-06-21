@@ -86,10 +86,14 @@ function PricingPage() {
           {plans.map((p) => (
             <div
               key={p.name}
-              className={`relative rounded-3xl p-8 transition-all duration-300 hover:-translate-y-1 ${
+              className={`relative overflow-hidden rounded-3xl p-8 transition-all duration-300 hover:-translate-y-1 ${
                 p.highlight ? "glass glow-purple border border-primary/40" : "glass hover-glow"
               }`}
             >
+              {p.highlight && (
+                <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-40 blur-3xl"
+                  style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)" }} />
+              )}
               {p.highlight && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary to-accent px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground">
                   Most popular
@@ -125,7 +129,7 @@ function PricingPage() {
                   disabled={loadingPlan !== null}
                   className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-medium transition-all disabled:opacity-60 ${
                     p.highlight
-                      ? "bg-primary text-primary-foreground hover:glow-purple"
+                      ? "cta-sheen relative overflow-hidden bg-primary text-primary-foreground hover:glow-purple hover:-translate-y-0.5"
                       : "border border-border bg-secondary/40 hover:bg-secondary"
                   }`}
                 >
