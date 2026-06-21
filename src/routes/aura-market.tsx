@@ -278,7 +278,7 @@ function PurchaseModal({
                             </div>
                             <span className={cn(
                               "h-4 w-4 rounded-full border-2 transition-all",
-                              active ? "border-primary bg-primary" : "border-border",
+                              active ? "border-transparent bg-gradient-to-br from-primary to-accent shadow-[0_0_6px_-1px_var(--glow)]" : "border-border",
                             )} />
                           </button>
                         );

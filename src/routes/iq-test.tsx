@@ -362,7 +362,7 @@ function IQTestPage() {
                     title={`Question ${i + 1}`}
                     className={`h-2 w-2 rounded-full transition-all ${
                       i === step
-                        ? "bg-primary scale-125"
+                        ? "bg-gradient-to-br from-primary to-accent scale-125 shadow-[0_0_6px_-1px_var(--glow)]"
                         : answers[i] !== null
                         ? "bg-primary/40"
                         : "bg-border"
