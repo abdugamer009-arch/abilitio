@@ -226,7 +226,7 @@ function LandingPage() {
       <Section eyebrow={t.testimonials.eyebrow} title={t.testimonials.title}>
         <div className="grid gap-5 md:grid-cols-3">
           {t.testimonials.items.map((tt) => (
-            <figure key={tt.name} className="glass rounded-2xl p-6">
+            <figure key={tt.name} className="glass rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover-glow">
               <div className="flex gap-0.5 text-accent">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star key={i} className="h-3.5 w-3.5 fill-current" />
@@ -258,16 +258,25 @@ function LandingPage() {
 
       {/* CTA */}
       <section className="relative px-6 py-24">
-        <div className="mx-auto max-w-4xl glass rounded-3xl p-12 text-center glow-purple">
-          <h2 className="text-3xl font-bold md:text-5xl">{t.finalCta.title}</h2>
-          <p className="mx-auto mt-4 max-w-xl text-muted-foreground">{t.finalCta.desc}</p>
-          <Link
-            to="/assessment"
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground hover:glow-purple"
-          >
-            {t.finalCta.cta} <ArrowRight className="h-4 w-4" />
-          </Link>
+        <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute left-1/2 top-1/2 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30 blur-[120px]"
+            style={{ background: "radial-gradient(ellipse, oklch(0.6 0.22 290 / 0.5), transparent 65%)" }} />
         </div>
+        <Reveal className="mx-auto max-w-4xl">
+          <div className="glass relative overflow-hidden rounded-3xl p-12 text-center" style={{ boxShadow: "0 0 80px -20px oklch(0.6 0.22 295 / 0.4)" }}>
+            <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
+            <div className="relative">
+              <h2 className="text-3xl font-bold md:text-5xl">{t.finalCta.title}</h2>
+              <p className="mx-auto mt-4 max-w-xl text-muted-foreground">{t.finalCta.desc}</p>
+              <Link
+                to="/assessment"
+                className="cta-sheen relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground hover:glow-purple hover:-translate-y-0.5 transition-all"
+              >
+                {t.finalCta.cta} <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </Reveal>
       </section>
     </PageShell>
   );
