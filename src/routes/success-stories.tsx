@@ -47,9 +47,19 @@ function SuccessPage() {
             ))}
           </Reveal>
 
-          <div className="mt-10 rounded-3xl border border-dashed border-border/60 bg-secondary/30 p-8 text-center">
-            <p className="text-sm text-muted-foreground">Have a story to share? Story submissions open soon — earn an Aura badge when featured.</p>
-          </div>
+          <Reveal>
+            <div className="mt-10 relative overflow-hidden rounded-3xl border border-dashed border-primary/30 bg-gradient-to-br from-primary/5 via-secondary/30 to-background/40 p-10 text-center">
+              <div className="pointer-events-none absolute left-1/2 top-0 h-32 w-64 -translate-x-1/2 rounded-full opacity-30 blur-3xl"
+                style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)" }} />
+              <div className="relative">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_24px_-8px_var(--glow)]">
+                  <Sparkles className="h-6 w-6" />
+                </div>
+                <h3 className="mt-4 text-lg font-semibold">Have a story to share?</h3>
+                <p className="mt-2 text-sm text-muted-foreground">Story submissions open soon — earn an Aura badge when featured.</p>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </section>
     </PageShell>
