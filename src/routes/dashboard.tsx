@@ -538,10 +538,12 @@ function MetricRing({ label, value, max, hint, icon: Icon }: { label: string; va
   const circumference = 2 * Math.PI * 30;
   const offset = circumference - (pct / 100) * circumference;
   return (
-    <GlassCard className="p-5">
+    <GlassCard className="p-5 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]">
       <div className="flex items-center justify-between">
         <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-        <Icon className="h-4 w-4 text-primary/70" />
+        <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]">
+          <Icon className="h-3 w-3" />
+        </span>
       </div>
       <div className="mt-3 flex items-center gap-4">
         <div className="relative h-20 w-20">
@@ -569,10 +571,12 @@ function MetricRing({ label, value, max, hint, icon: Icon }: { label: string; va
 
 function MetricCard({ label, value, hint, icon: Icon }: { label: string; value: string; hint: string; icon: React.ElementType }) {
   return (
-    <GlassCard className="p-5">
+    <GlassCard className="p-5 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]">
       <div className="flex items-center justify-between">
         <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-        <Icon className="h-4 w-4 text-primary/70" />
+        <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]">
+          <Icon className="h-3 w-3" />
+        </span>
       </div>
       <div className="mt-3 text-3xl font-bold gradient-text">{value}</div>
       <div className="mt-1 line-clamp-2 text-[11px] text-muted-foreground">{hint}</div>
@@ -657,9 +661,11 @@ function StatsSection({
             const value = raw ?? 0;
             const pct = f.max ? Math.min(100, (Number(value) / f.max) * 100) : 0;
             return (
-              <div key={String(f.key)} className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-4 transition-all hover:border-primary/30 hover:-translate-y-0.5">
+              <div key={String(f.key)} className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-4 transition-all hover:border-primary/30 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]">
                 <div className="flex items-center justify-between">
-                  <Icon className="h-4 w-4 text-primary/70" />
+                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]">
+                    <Icon className="h-3 w-3" />
+                  </span>
                   <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{f.label}</span>
                 </div>
                 {editing ? (
