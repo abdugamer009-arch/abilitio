@@ -162,7 +162,7 @@ function IQTestPage() {
 
               {/* Band table */}
               <div className="mt-6 text-left">
-                <div className="overflow-hidden rounded-2xl border border-border">
+                <div className="overflow-hidden rounded-2xl border border-border/60">
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="border-b border-border bg-secondary/40">
