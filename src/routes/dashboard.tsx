@@ -787,8 +787,8 @@ function AchievementsBlock({
           return (
             <div key={a.id} className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/30 to-background/30 p-4 transition-all hover:border-primary/30">
               <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/10">
-                  <Trophy className="h-4 w-4 text-primary" />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">
+                  <Trophy className="h-4 w-4" />
                 </div>
                 <div className="min-w-0 flex-1">
                   {isEditing ? (
