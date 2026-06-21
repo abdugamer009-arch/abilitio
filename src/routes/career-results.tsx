@@ -172,8 +172,9 @@ function CareerResultsPage() {
         }
       `}</style>
 
-      <section className="px-6 pt-12 pb-20 print:pt-4">
-        <div className="mx-auto max-w-5xl">
+      <section className="relative px-6 pt-12 pb-20 print:pt-4">
+        <div aria-hidden className="bg-grid pointer-events-none absolute inset-0 print:hidden" />
+        <div className="relative mx-auto max-w-5xl">
           <header className="mb-8 flex flex-wrap items-end justify-between gap-4 print:hidden">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
