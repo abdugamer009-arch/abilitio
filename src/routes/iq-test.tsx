@@ -261,7 +261,7 @@ function IQTestPage() {
             <div className="text-center">
               <button
                 onClick={start}
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground hover:glow-purple hover:-translate-y-0.5 transition"
+                className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground hover:glow-purple hover:-translate-y-0.5 transition"
               >
                 Retake Test <ArrowRight className="h-4 w-4" />
               </button>
