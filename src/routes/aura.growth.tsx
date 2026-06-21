@@ -136,7 +136,7 @@ function AuraGrowthPage() {
                       <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted/40">
                         <div
                           className="h-full rounded-full bg-gradient-to-r from-primary via-fuchsia-400 to-primary transition-all"
-                          style={{ width: `${milestone.progress * 100}%` }}
+                          style={{ width: `${milestone.progress * 100}%`, boxShadow: "0 0 10px oklch(0.65 0.22 295 / 0.5)" }}
                         />
                       </div>
                     </>
@@ -176,8 +176,8 @@ function AuraGrowthPage() {
                       <div className="relative flex items-start justify-between">
                         <div className="flex items-center gap-3">
                           <div
-                            className={`flex h-11 w-11 items-center justify-center rounded-2xl ${
-                              mastered ? "bg-primary/20 text-primary" : "bg-muted/30 text-muted-foreground"
+                            className={`flex h-11 w-11 items-center justify-center rounded-2xl transition-all ${
+                              mastered ? "bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_4px_16px_-6px_var(--glow)]" : "bg-muted/30 text-muted-foreground"
                             }`}
                           >
                             <Icon className="h-5 w-5" />
@@ -202,7 +202,7 @@ function AuraGrowthPage() {
                       <div className="relative mt-2 h-1.5 overflow-hidden rounded-full bg-muted/40">
                         <div
                           className="h-full rounded-full bg-gradient-to-r from-primary to-fuchsia-400 transition-all"
-                          style={{ width: `${pct * 100}%` }}
+                          style={{ width: `${pct * 100}%`, boxShadow: "0 0 8px oklch(0.65 0.22 295 / 0.4)" }}
                         />
                       </div>
                     </article>
@@ -218,7 +218,7 @@ function AuraGrowthPage() {
               <h2 className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Streak</h2>
               <div className="mt-4 glass rounded-3xl p-6 md:p-8">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_6px_24px_-8px_var(--glow)]">
                     <Flame className="h-7 w-7" />
                   </div>
                   <div>
@@ -272,8 +272,8 @@ function AuraGrowthPage() {
                   >
                     <div className="flex items-start gap-3">
                       <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-xl ${
-                          owned ? "bg-primary/20 text-primary" : "bg-muted/30 text-muted-foreground"
+                        className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all ${
+                          owned ? "bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_4px_14px_-6px_var(--glow)]" : "bg-muted/30 text-muted-foreground"
                         }`}
                       >
                         {owned ? <Icon className="h-5 w-5" /> : <Lock className="h-4 w-4" />}
@@ -299,7 +299,7 @@ function AuraGrowthPage() {
             {user ? (
               <Link
                 to="/aura/store"
-                className="inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple"
+                className="cta-sheen relative overflow-hidden inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"
               >
                 Spend in the Aura Store <ArrowRight className="h-4 w-4" />
               </Link>
@@ -307,7 +307,7 @@ function AuraGrowthPage() {
               <Link
                 to="/auth"
                 search={{ mode: "login" }}
-                className="inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple"
+                className="cta-sheen relative overflow-hidden inline-flex rounded-full bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"
               >
                 Sign in to start your path
               </Link>

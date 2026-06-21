@@ -136,7 +136,7 @@ function CareerAssessmentPage() {
                 <Section icon={<Sparkles className="h-4 w-4" />} title="Interests" caption="9 Q · fields, impact areas & career motivations." />
               </div>
 
-              <button onClick={startSession} className="cta-sheen relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground hover:glow-purple hover:-translate-y-0.5 transition">
+              <button onClick={startSession} className="cta-sheen relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 text-sm font-medium text-primary-foreground shadow-[0_8px_28px_-8px_var(--glow)] hover:-translate-y-0.5 transition-all">
                 Start Assessment <ArrowRight className="h-4 w-4" />
               </button>
               <p className="mt-3 text-xs text-muted-foreground">Reward: +20 Aura Coins on completion ✨</p>
@@ -233,7 +233,7 @@ function CareerAssessmentPage() {
                 <button
                   onClick={() => setStep((s) => s + 1)}
                   disabled={!canNext}
-                  className="cta-sheen relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-primary px-6 py-2 text-sm text-primary-foreground transition-all hover:glow-purple hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
+                  className="cta-sheen relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
                 >
                   Next <ArrowRight className="h-4 w-4" />
                 </button>
@@ -241,7 +241,7 @@ function CareerAssessmentPage() {
                 <button
                   onClick={finish}
                   disabled={!canNext || submitting}
-                  className="cta-sheen relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-primary px-6 py-2 text-sm text-primary-foreground transition-all hover:glow-purple hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
+                  className="cta-sheen relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
                 >
                   {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                   See My Results

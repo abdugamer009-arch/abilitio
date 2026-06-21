@@ -47,7 +47,7 @@ function LandingPage() {
           <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
             <Link
               to="/assessment"
-              className="cta-sheen group inline-flex items-center gap-2 rounded-full bg-primary px-9 py-4 text-base font-medium text-primary-foreground transition-all hover:glow-purple hover:-translate-y-0.5 lg:px-10 lg:py-5 lg:text-lg"
+              className="cta-sheen group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-9 py-4 text-base font-medium text-primary-foreground shadow-[0_10px_36px_-10px_var(--glow)] transition-all hover:-translate-y-0.5 lg:px-10 lg:py-5 lg:text-lg"
             >
               {t.hero.cta}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -225,7 +225,7 @@ function LandingPage() {
           ))}
         </div>
         <div className="mt-6 text-center">
-          <Link to="/career-battles" className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple hover:-translate-y-0.5 transition-all">
+          <Link to="/career-battles" className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all">
             <Swords className="h-4 w-4" /> Explore All Career Battles
           </Link>
         </div>
@@ -289,7 +289,7 @@ function LandingPage() {
               <p className="mx-auto mt-4 max-w-xl text-muted-foreground">{t.finalCta.desc}</p>
               <Link
                 to="/assessment"
-                className="cta-sheen relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground hover:glow-purple hover:-translate-y-0.5 transition-all"
+                className="cta-sheen relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-7 py-3.5 text-sm font-medium text-primary-foreground shadow-[0_8px_28px_-8px_var(--glow)] hover:-translate-y-0.5 transition-all"
               >
                 {t.finalCta.cta} <ArrowRight className="h-4 w-4" />
               </Link>
