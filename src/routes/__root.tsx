@@ -8,6 +8,8 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 
+import { Sparkles, Home, RefreshCw } from "lucide-react";
+
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth-context";
 import { LanguageProvider } from "@/lib/i18n";
@@ -16,25 +18,47 @@ import { AuraRewardToaster } from "@/components/aura/AuraRewardToaster";
 import { FloatingAuthButton } from "@/components/FloatingAuthButton";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
+function CenteredGlow({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4">
+      {/* ambient brand glow */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <div
+          className="absolute left-1/2 top-[-10%] h-[55vh] w-[110vw] -translate-x-1/2 rounded-[50%] opacity-50"
+          style={{ background: "radial-gradient(ellipse at center, oklch(0.6 0.18 290 / 0.3), transparent 68%)", filter: "blur(70px)" }}
+        />
+        <div
+          className="absolute -bottom-32 right-[-10%] h-[45vh] w-[55vw] rounded-full opacity-35"
+          style={{ background: "radial-gradient(ellipse at center, oklch(0.55 0.17 275 / 0.3), transparent 70%)", filter: "blur(80px)" }}
+        />
+      </div>
+      {children}
+    </div>
+  );
+}
+
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+    <CenteredGlow>
+      <div className="glass max-w-md rounded-3xl p-10 text-center animate-fade-up">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-[0_10px_30px_-10px_var(--glow)]">
+          <Sparkles className="h-7 w-7 text-primary-foreground" />
+        </div>
+        <h1 className="mt-6 text-7xl font-bold gradient-text">404</h1>
+        <h2 className="mt-2 text-xl font-semibold text-foreground">Page not found</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          This page wandered off the map. Let's get you back to discovering your potential.
         </p>
-        <div className="mt-6">
+        <div className="mt-7">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all hover:glow-purple hover:-translate-y-0.5"
           >
-            Go home
+            <Home className="h-4 w-4" /> Back home
           </Link>
         </div>
       </div>
-    </div>
+    </CenteredGlow>
   );
 }
 
@@ -43,33 +67,33 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
+    <CenteredGlow>
+      <div className="glass max-w-md rounded-3xl p-10 text-center animate-fade-up">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-destructive/80 to-primary/60 shadow-[0_10px_30px_-10px_var(--glow)]">
+          <Sparkles className="h-7 w-7 text-primary-foreground" />
+        </div>
+        <h1 className="mt-6 text-2xl font-semibold tracking-tight text-foreground">
           This page didn't load
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-3 text-sm text-muted-foreground">
           Something went wrong on our end. You can try refreshing or head back home.
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
+        <div className="mt-7 flex flex-wrap justify-center gap-2">
           <button
-            onClick={() => {
-              router.invalidate();
-              reset();
-            }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            onClick={() => { router.invalidate(); reset(); }}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all hover:glow-purple hover:-translate-y-0.5"
           >
-            Try again
+            <RefreshCw className="h-4 w-4" /> Try again
           </button>
           <a
             href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary/60"
           >
-            Go home
+            <Home className="h-4 w-4" /> Go home
           </a>
         </div>
       </div>
-    </div>
+    </CenteredGlow>
   );
 }
 
@@ -92,6 +116,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+      { rel: "apple-touch-icon", href: "/favicon.svg" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" },
