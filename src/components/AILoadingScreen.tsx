@@ -52,8 +52,9 @@ export function AILoadingScreen({ onDone, durationMs = 3600 }: { onDone: () => v
             style={{ animation: "spin 9s linear infinite reverse" }}
           />
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg">
+            <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-[0_8px_28px_-8px_var(--glow)]">
               <Sparkles className="h-6 w-6 text-primary-foreground" />
+              <span className="absolute -inset-1 -z-10 rounded-2xl opacity-40 blur-md" style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }} />
             </div>
           </div>
         </div>
@@ -74,7 +75,7 @@ export function AILoadingScreen({ onDone, durationMs = 3600 }: { onDone: () => v
                 key={s.label}
                 className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition-all duration-500 ${
                   current
-                    ? "border-primary/40 bg-primary/10"
+                    ? "border-primary/40 bg-gradient-to-r from-primary/12 to-accent/8 shadow-[0_2px_12px_-4px_var(--glow)]"
                     : done
                     ? "border-border/60 bg-secondary/40 opacity-80"
                     : "border-border/40 bg-transparent opacity-40"
