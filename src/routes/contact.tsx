@@ -80,7 +80,7 @@ function ContactPage() {
             </div>
             <div className="mt-5 text-xs uppercase tracking-widest text-muted-foreground">{t.contact.phone}</div>
             <div className="mt-2 text-2xl font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary">+998 88 048 18 81</div>
-            <button type="button" onClick={(e) => { e.preventDefault(); handleCopy("+998880481881", "phone"); }} className="mx-auto mt-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/50 px-3 py-1.5 text-xs text-muted-foreground transition-all duration-300 hover:border-primary/30 hover:text-foreground">
+            <button type="button" onClick={(e) => { e.preventDefault(); handleCopy("+998880481881", "phone"); }} className="mx-auto mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs text-muted-foreground transition-all duration-300 hover:border-primary/40 hover:bg-primary/10 hover:text-primary">
               {copiedPhone ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
               {copiedPhone ? t.contact.copied : t.contact.copy}
             </button>
@@ -92,7 +92,7 @@ function ContactPage() {
             </div>
             <div className="mt-5 text-xs uppercase tracking-widest text-muted-foreground">{t.contact.email}</div>
             <div className="mt-2 text-lg font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary md:text-xl">ibodullayevabdurahmon95@gmail.com</div>
-            <button type="button" onClick={(e) => { e.preventDefault(); handleCopy("ibodullayevabdurahmon95@gmail.com", "email"); }} className="mx-auto mt-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/50 px-3 py-1.5 text-xs text-muted-foreground transition-all duration-300 hover:border-primary/30 hover:text-foreground">
+            <button type="button" onClick={(e) => { e.preventDefault(); handleCopy("ibodullayevabdurahmon95@gmail.com", "email"); }} className="mx-auto mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs text-muted-foreground transition-all duration-300 hover:border-primary/40 hover:bg-primary/10 hover:text-primary">
               {copiedEmail ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
               {copiedEmail ? t.contact.copied : t.contact.copy}
             </button>
@@ -125,7 +125,7 @@ function ContactPage() {
                 </div>
                 <h3 className="mt-6 text-2xl font-semibold">{t.contact.successTitle}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{t.contact.successBody}</p>
-                <button type="button" onClick={() => setStatus("idle")} className="mt-6 rounded-full border border-border bg-secondary/50 px-5 py-2 text-xs text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground">
+                <button type="button" onClick={() => setStatus("idle")} className="mt-6 rounded-full border border-primary/20 bg-primary/5 px-5 py-2 text-xs text-muted-foreground transition-all hover:border-primary/40 hover:bg-primary/10 hover:text-primary">
                   {t.contact.sendAnother}
                 </button>
               </div>
