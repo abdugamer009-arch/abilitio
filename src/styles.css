@@ -419,6 +419,39 @@ button, [role="button"], .btn, a.inline-flex {
   outline-color: oklch(0.5 0.18 285 / 0.7);
 }
 
+/* Faint grid texture — depth without noise, fades out toward edges */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, oklch(0.7 0.1 290 / 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(0.7 0.1 290 / 0.06) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 38%, #000 0%, transparent 78%);
+  mask-image: radial-gradient(ellipse 60% 55% at 50% 38%, #000 0%, transparent 78%);
+}
+:root:not(.dark) .bg-grid {
+  background-image:
+    linear-gradient(to right, oklch(0.5 0.14 285 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(0.5 0.14 285 / 0.07) 1px, transparent 1px);
+}
+
+/* Animated sheen for hero CTA — a soft light sweeps across on hover */
+@utility cta-sheen {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 30%, oklch(1 0 0 / 0.25) 50%, transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 0.7s ease;
+    pointer-events: none;
+  }
+  &:hover::after {
+    transform: translateX(120%);
+  }
+}
+
 /* Respect users who prefer less motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

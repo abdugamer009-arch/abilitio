@@ -27,6 +27,7 @@ function LandingPage() {
     <PageShell>
       {/* Hero */}
       <section className="relative px-6 pt-32 pb-40 text-center lg:pt-40 lg:pb-48">
+        <div aria-hidden className="bg-grid pointer-events-none absolute inset-0 z-0" />
         <ParticleConstellation />
         <div key={t.hero.titleA} className="relative z-10 mx-auto max-w-5xl animate-fade-up">
           <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-border/60 bg-secondary/40 px-5 py-2 text-sm text-muted-foreground backdrop-blur">
@@ -42,7 +43,7 @@ function LandingPage() {
           <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
             <Link
               to="/assessment"
-              className="group inline-flex items-center gap-2 rounded-full bg-primary px-9 py-4 text-base font-medium text-primary-foreground transition-all hover:glow-purple lg:px-10 lg:py-5 lg:text-lg"
+              className="cta-sheen group inline-flex items-center gap-2 rounded-full bg-primary px-9 py-4 text-base font-medium text-primary-foreground transition-all hover:glow-purple hover:-translate-y-0.5 lg:px-10 lg:py-5 lg:text-lg"
             >
               {t.hero.cta}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -53,6 +54,21 @@ function LandingPage() {
             >
               {t.hero.learnMore}
             </Link>
+          </div>
+
+          {/* Honest trust signals */}
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5">
+              <Star className="h-3.5 w-3.5 fill-accent text-accent" /> Free to start
+            </span>
+            <span className="hidden h-3 w-px bg-border sm:block" aria-hidden />
+            <span className="inline-flex items-center gap-1.5">
+              <ShieldCheck className="h-3.5 w-3.5 text-accent" /> No credit card needed
+            </span>
+            <span className="hidden h-3 w-px bg-border sm:block" aria-hidden />
+            <span className="inline-flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5 text-accent" /> 30-question AI assessment
+            </span>
           </div>
         </div>
       </section>
