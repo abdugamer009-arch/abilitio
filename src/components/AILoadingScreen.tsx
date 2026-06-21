@@ -81,14 +81,15 @@ export function AILoadingScreen({ onDone, durationMs = 3600 }: { onDone: () => v
                 }`}
               >
                 <span
-                  className={`flex h-7 w-7 items-center justify-center rounded-full ${
+                  className={`relative flex h-7 w-7 items-center justify-center rounded-full ${
                     done
-                      ? "bg-gradient-to-br from-primary to-accent text-primary-foreground"
+                      ? "bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]"
                       : current
-                      ? "bg-primary/20 text-accent"
+                      ? "bg-gradient-to-br from-primary to-accent text-primary-foreground"
                       : "bg-secondary text-muted-foreground"
                   }`}
                 >
+                  {current && <span className="absolute inset-0 rounded-full animate-ping bg-primary/30" />}
                   {done ? <Check className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
                 </span>
                 <span className={current ? "text-foreground" : "text-muted-foreground"}>{s.label}</span>
