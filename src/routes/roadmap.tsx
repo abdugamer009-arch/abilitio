@@ -507,7 +507,7 @@ function TaskNode({
             ${done
               ? "border-accent bg-accent/20 text-accent"
               : isCurrent
-              ? "border-primary bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground"
+              ? "border-primary/60 bg-gradient-to-br from-primary/15 to-accent/10 text-primary hover:border-transparent hover:from-primary hover:to-accent hover:text-primary-foreground hover:shadow-[0_0_16px_-4px_var(--glow)]"
               : "border-border bg-background/50 text-muted-foreground"}
           `}
           aria-label={done ? "Completed" : "Mark complete"}
@@ -521,7 +521,7 @@ function TaskNode({
               {task.title}
             </h3>
             {isCurrent && (
-              <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-primary">
+              <span className="rounded-full border border-primary/30 bg-gradient-to-r from-primary/15 to-accent/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-primary shadow-[0_0_8px_-2px_var(--glow)]">
                 Up next · ABBI is here
               </span>
             )}
