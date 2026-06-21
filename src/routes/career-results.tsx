@@ -5,6 +5,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth-context";
 import { getMyCareerResult, type CareerResultDTO } from "@/lib/career.functions";
 import { UNIVERSITIES } from "@/lib/abbi-extras";
+import { Reveal } from "@/components/Reveal";
+import { CountUp } from "@/components/CountUp";
 import { Brain, Target, Sparkles, Trophy, GraduationCap, Printer, Share2, RefreshCw, TrendingUp, Lightbulb, ImageIcon } from "lucide-react";
 
 export const Route = createFileRoute("/career-results")({
@@ -199,7 +201,7 @@ function CareerResultsPage() {
               </ul>
             </Card>
             <Card icon={<Target className="h-4 w-4" />} title="Cognitive Profile">
-              <div className="text-4xl font-bold gradient-text">{r.cognitive_score}/10</div>
+              <div className="text-4xl font-bold gradient-text"><CountUp value={r.cognitive_score} decimals={r.cognitive_score % 1 === 0 ? 0 : 1} />/10</div>
               <div className="mt-2 text-sm font-medium">{r.cognitive_tier}</div>
               <div className="text-xs text-muted-foreground">{r.cognitive_profile} Thinker</div>
             </Card>
@@ -236,7 +238,7 @@ function CareerResultsPage() {
                 <div key={m.key} className="rounded-2xl border border-border bg-secondary/30 p-4">
                   <div className="flex items-center justify-between">
                     <div className="text-sm font-semibold">{m.name}</div>
-                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">{m.score}%</span>
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"><CountUp value={m.score} suffix="%" /></span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">{m.category}</p>
                   <div className="mt-2 h-1.5 rounded-full bg-secondary"><div className="h-full rounded-full bg-primary" style={{ width: `${m.score}%` }} /></div>
