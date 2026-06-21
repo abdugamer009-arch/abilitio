@@ -184,9 +184,9 @@ function CareerResultsPage() {
               <p className="text-xs text-muted-foreground">Generated {new Date(r.created_at).toLocaleDateString()}</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <button onClick={share} className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-secondary/30 px-4 py-2 text-sm transition-all hover:border-primary/30 hover:bg-secondary/60 hover:-translate-y-0.5"><Share2 className="h-4 w-4" />Share</button>
-              <button onClick={shareCard} className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-secondary/30 px-4 py-2 text-sm transition-all hover:border-primary/30 hover:bg-secondary/60 hover:-translate-y-0.5"><ImageIcon className="h-4 w-4" />Share Card</button>
-              <button onClick={() => window.print()} className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-secondary/30 px-4 py-2 text-sm transition-all hover:border-primary/30 hover:bg-secondary/60 hover:-translate-y-0.5"><Printer className="h-4 w-4" />Download PDF</button>
+              <button onClick={share} className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_4px_12px_-4px_oklch(0.55_0.22_295_/_0.3)]"><Share2 className="h-4 w-4" />Share</button>
+              <button onClick={shareCard} className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_4px_12px_-4px_oklch(0.55_0.22_295_/_0.3)]"><ImageIcon className="h-4 w-4" />Share Card</button>
+              <button onClick={() => window.print()} className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_4px_12px_-4px_oklch(0.55_0.22_295_/_0.3)]"><Printer className="h-4 w-4" />Download PDF</button>
               <Link to="/career-assessment" className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-4 py-2 text-sm text-primary-foreground shadow-[0_4px_16px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"><RefreshCw className="h-4 w-4" />Retake</Link>
             </div>
           </header>
