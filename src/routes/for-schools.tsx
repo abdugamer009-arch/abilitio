@@ -76,16 +76,22 @@ function ForSchoolsPage() {
           </Reveal>
           <Reveal delay={100} className="grid gap-5 md:grid-cols-3">
             {PLANS.map((p) => (
-              <div key={p.name} className={`glass rounded-3xl p-7 transition-all duration-300 hover:-translate-y-1 ${p.highlight ? "ring-1 ring-primary/40 shadow-[0_20px_60px_-30px_var(--glow)]" : "hover-glow"}`}>
-                {p.highlight && <div className="mb-3 inline-flex rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] font-medium text-primary">Most popular</div>}
+              <div key={p.name} className={`relative overflow-hidden glass rounded-3xl p-7 transition-all duration-300 hover:-translate-y-1 ${p.highlight ? "ring-1 ring-primary/40 shadow-[0_20px_60px_-30px_var(--glow)]" : "hover-glow"}`}>
+                {p.highlight && (
+                  <>
+                    <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-40 blur-3xl"
+                      style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)" }} />
+                    <div className="relative mb-3 inline-flex rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] font-medium text-primary">Most popular</div>
+                  </>
+                )}
                 <div className="text-sm text-muted-foreground">{p.name}</div>
                 <div className="mt-1 text-2xl font-bold gradient-text">{p.price}</div>
                 <div className="mt-1 text-xs text-muted-foreground">{p.limit}</div>
                 <ul className="mt-5 space-y-2 text-sm">
                   {p.features.map((f) => (
                     <li key={f} className="flex items-start gap-2">
-                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent/20">
-                        <Check className="h-2.5 w-2.5 text-accent" />
+                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]">
+                        <Check className="h-2.5 w-2.5" />
                       </span>
                       {f}
                     </li>

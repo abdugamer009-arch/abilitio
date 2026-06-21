@@ -104,8 +104,8 @@ function UniCard({ u, fit, major }: { u: University; fit: number; major: string 
       <div className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full opacity-30 blur-3xl"
         style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)" }} />
       <div className="relative flex items-start justify-between gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/25 to-accent/15">
-          <GraduationCap className="h-5 w-5 text-primary" />
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_6px_20px_-8px_var(--glow)] transition-transform duration-300 group-hover:scale-105">
+          <GraduationCap className="h-5 w-5" />
         </div>
         <span className={`rounded-full bg-gradient-to-br ${compColor} px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider`}>
           {u.competitiveness}

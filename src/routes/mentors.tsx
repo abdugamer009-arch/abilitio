@@ -31,7 +31,8 @@ function MentorsPage() {
                 <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-30 blur-3xl"
                   style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)" }} />
                 <div className="relative flex items-center gap-4">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/25 to-accent/15 text-2xl">
+                  <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/10 ring-1 ring-primary/30 text-2xl shadow-[0_6px_20px_-8px_var(--glow)]">
+                    <span className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: "radial-gradient(circle at 50% 50%, oklch(0.65 0.24 295 / 0.15), transparent 70%)" }} />
                     {m.emoji}
                   </div>
                   <div>
@@ -57,8 +58,8 @@ function MentorsPage() {
                       <Calendar className="h-4 w-4" /> Book a Session
                     </a>
                   ) : (
-                    <div className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border/60 bg-secondary/20 px-4 py-2.5 text-sm text-muted-foreground">
-                      <Calendar className="h-4 w-4" /> Coming soon
+                    <div className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border/40 bg-secondary/20 px-4 py-2.5 text-xs text-muted-foreground/60 cursor-not-allowed">
+                      <Calendar className="h-3.5 w-3.5" /> Booking opens soon
                     </div>
                   )}
                 </div>
