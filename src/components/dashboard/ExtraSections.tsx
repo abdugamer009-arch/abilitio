@@ -187,7 +187,7 @@ export function QuickLinks() {
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {items.map((it) => (
           <Link key={it.to} to={it.to}
-            className="group flex items-center justify-between gap-3 rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/30 to-background/40 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/40">
+            className="group flex items-center justify-between gap-3 rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/30 to-background/40 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_4px_14px_-4px_var(--glow)]">
                 <it.icon className="h-4 w-4" />
