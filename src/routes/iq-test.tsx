@@ -190,7 +190,7 @@ function IQTestPage() {
             {/* Category breakdown */}
             <div className="glass rounded-3xl p-8">
               <div className="flex items-center gap-2 mb-6">
-                <BarChart3 className="h-5 w-5 text-primary" />
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]"><BarChart3 className="h-4 w-4" /></span>
                 <h2 className="text-lg font-semibold">Performance by Category</h2>
               </div>
               <div className="space-y-4">

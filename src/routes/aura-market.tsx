@@ -166,8 +166,8 @@ function PackageCard({ pkg, onBuy }: { pkg: Pkg; onBuy: () => void }) {
             <span className={cn(
               "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full",
               isPopular
-                ? "bg-gradient-to-br from-primary to-accent text-primary-foreground"
-                : "bg-secondary text-primary",
+                ? "bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]"
+                : "bg-gradient-to-br from-primary to-accent text-primary-foreground",
             )}>
               <Check className="h-3 w-3" strokeWidth={3} />
             </span>
