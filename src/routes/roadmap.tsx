@@ -541,7 +541,7 @@ function TaskNode({
 /* =================== HELPERS =================== */
 function Pill({ children, icon }: { children: React.ReactNode; icon: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-background/40 px-3 py-1 text-[11px] font-medium">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-gradient-to-r from-primary/10 to-accent/5 px-3 py-1 text-[11px] font-medium">
       {icon} {children}
     </span>
   );

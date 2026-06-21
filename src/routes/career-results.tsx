@@ -332,12 +332,14 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
 
 function Card({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
-    <div className="glass rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-20px_oklch(0.55_0.22_295_/_0.4)]">
-      <div className="flex items-center gap-2.5">
+    <div className="group relative glass rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-[0_20px_50px_-20px_oklch(0.55_0.22_295_/_0.4)]">
+      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-0 blur-3xl transition-opacity duration-300 group-hover:opacity-40"
+        style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)" }} />
+      <div className="relative flex items-center gap-2.5">
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">{icon}</span>
         <h3 className="text-xs font-semibold uppercase tracking-wide">{title}</h3>
       </div>
-      <div className="mt-3">{children}</div>
+      <div className="relative mt-3">{children}</div>
     </div>
   );
 }

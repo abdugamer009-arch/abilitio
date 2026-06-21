@@ -99,14 +99,16 @@ function IQTestPage() {
 
               <div className="mt-8 grid gap-4 md:grid-cols-4 text-left">
                 {(["verbal", "numerical", "spatial", "logical"] as IQCategory[]).map((cat) => (
-                  <div key={cat} className="rounded-2xl border border-border/60 bg-secondary/30 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/30">
+                  <div key={cat} className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]">
+                    <div className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full opacity-30 blur-2xl transition-opacity group-hover:opacity-60"
+                      style={{ background: CATEGORY_COLORS[cat] }} />
                     <span
-                      className="inline-block mb-2 rounded-full px-2.5 py-0.5 text-[10px] font-semibold text-white shadow-sm"
+                      className="relative inline-block mb-2 rounded-full px-2.5 py-0.5 text-[10px] font-semibold text-white shadow-[0_2px_8px_-2px_rgba(0,0,0,0.3)]"
                       style={{ background: CATEGORY_COLORS[cat] }}
                     >
                       {CATEGORY_LABELS[cat]}
                     </span>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="relative text-xs text-muted-foreground">
                       {IQ_QUESTIONS.filter((q) => q.category === cat).length} questions
                     </p>
                   </div>

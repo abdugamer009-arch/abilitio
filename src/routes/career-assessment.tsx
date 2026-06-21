@@ -257,12 +257,14 @@ function CareerAssessmentPage() {
 
 function Section({ icon, title, caption }: { icon: React.ReactNode; title: string; caption: string }) {
   return (
-    <div className="rounded-2xl border border-border/60 bg-secondary/30 p-4 transition-all hover:border-primary/30">
-      <div className="flex items-center gap-2.5">
+    <div className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]">
+      <div className="pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full opacity-20 blur-2xl transition-opacity group-hover:opacity-40"
+        style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.8), transparent 70%)" }} />
+      <div className="relative flex items-center gap-2.5">
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">{icon}</span>
         <span className="text-xs font-semibold">{title}</span>
       </div>
-      <p className="mt-2 text-xs text-muted-foreground">{caption}</p>
+      <p className="relative mt-2 text-xs text-muted-foreground">{caption}</p>
     </div>
   );
 }
