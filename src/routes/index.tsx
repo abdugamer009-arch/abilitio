@@ -126,9 +126,11 @@ function LandingPage() {
           {t.featuresSection.items.map((f, i) => {
             const Icon = featureIcons[i];
             return (
-              <SpotlightCard key={f.title} className="glass rounded-2xl p-6 hover-glow">
-                <Icon className="h-5 w-5 text-accent" />
-                <h3 className="mt-4 font-semibold">{f.title}</h3>
+              <SpotlightCard key={f.title} className="glass rounded-2xl p-6 hover-glow transition-all duration-300 hover:-translate-y-1">
+                <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_6px_24px_-8px_var(--glow)]">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h3 className="font-semibold">{f.title}</h3>
                 <p className="mt-1.5 text-sm text-muted-foreground">{f.desc}</p>
               </SpotlightCard>
             );

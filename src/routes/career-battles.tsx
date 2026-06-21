@@ -33,7 +33,7 @@ function CareerBattlesPage() {
           <div className="mb-6 flex flex-wrap justify-center gap-2">
             {CAREER_BATTLES.map((bt) => (
               <button key={bt.a + bt.b} onClick={() => { setA(bt.a); setB(bt.b); }}
-                className="rounded-full border border-border/60 bg-secondary/40 px-3 py-1 text-xs hover:border-primary/40 hover:text-primary">
+                className="rounded-full border border-border/60 bg-secondary/40 px-3 py-1 text-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/10 hover:text-primary">
                 {bt.a} vs {bt.b}
               </button>
             ))}
@@ -70,10 +70,12 @@ function Picker({ value, onChange, options }: { value: string; onChange: (v: str
 
 function CareerCard({ c, winner }: { c: CareerSpec; accent: "left" | "right"; winner: boolean }) {
   return (
-    <div className={`relative overflow-hidden rounded-3xl border p-6 backdrop-blur-xl transition-all ${
+    <div className={`relative overflow-hidden rounded-3xl border p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 ${
       winner ? "border-primary/40 bg-gradient-to-br from-primary/15 to-accent/10" : "border-border/60 bg-gradient-to-br from-secondary/40 to-background/40"
     }`}
       style={{ boxShadow: winner ? "0 16px 40px -16px oklch(0.55 0.22 295 / 0.55)" : "0 10px 30px -15px oklch(0.55 0.22 295 / 0.3)" }}>
+      <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-30 blur-3xl"
+        style={{ background: `radial-gradient(circle, oklch(${winner ? "0.65 0.24 295" : "0.60 0.18 285"} / 0.6), transparent 70%)` }} />
       {winner && (
         <div className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow">
           <TrendingUp className="h-3 w-3" /> Higher demand
