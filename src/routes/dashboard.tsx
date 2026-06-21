@@ -787,7 +787,7 @@ function AchievementsBlock({
         {achievements.map((a) => {
           const isEditing = editingId === a.id;
           return (
-            <div key={a.id} className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/30 to-background/30 p-4 transition-all hover:border-primary/30">
+            <div key={a.id} className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/30 to-background/30 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]">
               <div className="flex items-start gap-3">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">
                   <Trophy className="h-4 w-4" />
@@ -914,7 +914,7 @@ function RoadmapSection({ latest, stats, tCareer }: { latest: Result | undefined
           <SectionTitle icon={Lightbulb}>Skills to Sharpen</SectionTitle>
           <div className="mt-5 space-y-3">
             {skills.map((s, i) => (
-              <div key={s} className="flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3 transition-all hover:border-primary/30">
+              <div key={s} className="flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_6px_16px_-8px_oklch(0.55_0.22_295_/_0.3)]">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-xs font-bold text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">{i + 1}</div>
                 <span className="text-sm">{s}</span>
               </div>
