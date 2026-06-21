@@ -421,7 +421,7 @@ function OutOfCoinsModal({ onClose }: { onClose: () => void }) {
           <div className="mt-6 flex flex-wrap items-center justify-end gap-2">
             <button
               onClick={onClose}
-              className="rounded-full border border-border px-4 py-2 text-xs hover:bg-secondary"
+              className="rounded-full border border-border/60 bg-secondary/40 px-4 py-2 text-xs transition-colors hover:bg-secondary/70"
             >
               Close
             </button>

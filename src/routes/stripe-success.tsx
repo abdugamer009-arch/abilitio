@@ -54,7 +54,7 @@ function StripeSuccessPage() {
             </Link>
             <Link
               to="/career-assessment"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium transition-all hover:bg-secondary/50"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-6 py-3 text-sm font-medium text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15"
             >
               <BarChart2 className="h-4 w-4" /> Start Assessment <ArrowRight className="h-3.5 w-3.5" />
             </Link>
