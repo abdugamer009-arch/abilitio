@@ -60,8 +60,9 @@ function FeaturesPage() {
           <div className="mx-auto max-w-6xl">
             <Reveal>
               <h2 className="mb-8 flex items-center gap-3 text-2xl font-semibold">
-                <span className="h-px flex-shrink-0 w-6 bg-gradient-to-r from-primary to-accent opacity-60" />
+                <span className="h-px w-8 shrink-0 rounded-full bg-gradient-to-r from-transparent via-primary to-accent opacity-70" />
                 {g.title}
+                <span className="h-px flex-1 rounded-full bg-gradient-to-r from-accent/40 to-transparent opacity-40" />
               </h2>
             </Reveal>
             <Reveal delay={100}>
