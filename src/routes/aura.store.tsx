@@ -119,8 +119,11 @@ function AuraStorePage() {
           <div className="mt-16">
             <Reveal className="flex items-end justify-between">
               <div>
-                <h2 className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Premium unlocks</h2>
-                <p className="mt-1 text-lg font-medium">Spend Aura Coins to unlock</p>
+                <h2 className="mb-1 flex items-center gap-3 text-xs uppercase tracking-[0.22em] text-muted-foreground">
+                  <span className="h-px w-6 rounded-full bg-gradient-to-r from-transparent via-primary to-accent opacity-70" />
+                  Premium unlocks
+                </h2>
+                <p className="text-lg font-medium">Spend Aura Coins to unlock</p>
               </div>
               <Link to="/aura" className="text-xs text-muted-foreground hover:text-foreground">
                 ← Back to Aura
@@ -179,8 +182,11 @@ function AuraStorePage() {
           {/* Coin Packages */}
           <div className="mt-20">
             <Reveal>
-              <h2 className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Top up</h2>
-              <p className="mt-1 text-lg font-medium">Aura Coin packages</p>
+              <h2 className="mb-1 flex items-center gap-3 text-xs uppercase tracking-[0.22em] text-muted-foreground">
+                <span className="h-px w-6 rounded-full bg-gradient-to-r from-transparent via-primary to-accent opacity-70" />
+                Top up
+              </h2>
+              <p className="text-lg font-medium">Aura Coin packages</p>
               <p className="mt-1 text-xs text-muted-foreground">
                 Prices in Uzbek Som (UZS). Submit a request and our team will contact you to complete payment.
               </p>

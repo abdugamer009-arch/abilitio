@@ -89,8 +89,10 @@ function AuraGrowthPage() {
       <section className="px-6 pt-12 pb-24">
         <div className="mx-auto max-w-6xl">
           {/* Header */}
-          <div className="flex flex-col items-center text-center">
-            <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Growth</p>
+          <div className="flex flex-col items-center text-center animate-fade-up">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
+              <Flame className="h-3 w-3" /> Aura Growth
+            </span>
             <h1 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">
               <span className="gradient-text">Your Aura Path</span>
             </h1>
@@ -152,7 +154,11 @@ function AuraGrowthPage() {
           {/* Skill tree */}
           {user && state && (
             <div className="mt-16">
-              <h2 className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Skill tree</h2>
+              <h2 className="mb-1 flex items-center gap-3 text-xs uppercase tracking-[0.22em] text-muted-foreground">
+                <span className="h-px w-6 rounded-full bg-gradient-to-r from-transparent via-primary to-accent opacity-70" />
+                Skill tree
+                <span className="h-px flex-1 rounded-full bg-gradient-to-r from-accent/30 to-transparent opacity-40" />
+              </h2>
               <p className="mt-1 text-lg font-medium">Five paths of growth</p>
               <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {SKILL_NODES.map((node) => {
@@ -216,7 +222,11 @@ function AuraGrowthPage() {
           {/* Streak ladder */}
           {user && (
             <div className="mt-16">
-              <h2 className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Streak</h2>
+              <h2 className="flex items-center gap-3 text-xs uppercase tracking-[0.22em] text-muted-foreground">
+                <span className="h-px w-6 rounded-full bg-gradient-to-r from-transparent via-primary to-accent opacity-70" />
+                Streak
+                <span className="h-px flex-1 rounded-full bg-gradient-to-r from-accent/30 to-transparent opacity-40" />
+              </h2>
               <div className="mt-4 glass rounded-3xl p-6 md:p-8">
                 <div className="flex items-center gap-4">
                   <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_6px_24px_-8px_var(--glow)]">
@@ -258,7 +268,11 @@ function AuraGrowthPage() {
 
           {/* Achievements */}
           <div className="mt-16">
-            <h2 className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Achievements</h2>
+            <h2 className="flex items-center gap-3 text-xs uppercase tracking-[0.22em] text-muted-foreground">
+              <span className="h-px w-6 rounded-full bg-gradient-to-r from-transparent via-primary to-accent opacity-70" />
+              Achievements
+              <span className="h-px flex-1 rounded-full bg-gradient-to-r from-accent/30 to-transparent opacity-40" />
+            </h2>
             <p className="mt-1 text-lg font-medium">
               {user ? `${ownedAch.size} / ${ACHIEVEMENTS.length} unlocked` : `${ACHIEVEMENTS.length} to earn`}
             </p>

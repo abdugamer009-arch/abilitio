@@ -80,7 +80,11 @@ function AuraPage() {
 
           {/* Earn ways */}
           <div className="mt-16">
-            <h2 className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Ways to earn</h2>
+            <h2 className="mb-1 flex items-center gap-3 text-xs uppercase tracking-[0.22em] text-muted-foreground">
+              <span className="h-px w-6 rounded-full bg-gradient-to-r from-transparent via-primary to-accent opacity-70" />
+              Ways to earn
+              <span className="h-px flex-1 rounded-full bg-gradient-to-r from-accent/30 to-transparent opacity-40" />
+            </h2>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               {EARN_WAYS.map((w) => (
                 <div key={w.label} className="glass flex items-center justify-between rounded-2xl px-5 py-4 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_6px_18px_-8px_oklch(0.55_0.22_295_/_0.3)]">
@@ -99,7 +103,11 @@ function AuraPage() {
           {/* Owned unlocks */}
           {user && ownedFeatures.length > 0 && (
             <div className="mt-16">
-              <h2 className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Your unlocks</h2>
+              <h2 className="mb-1 flex items-center gap-3 text-xs uppercase tracking-[0.22em] text-muted-foreground">
+                <span className="h-px w-6 rounded-full bg-gradient-to-r from-transparent via-primary to-accent opacity-70" />
+                Your unlocks
+                <span className="h-px flex-1 rounded-full bg-gradient-to-r from-accent/30 to-transparent opacity-40" />
+              </h2>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 {ownedFeatures.map((f) => (
                   <div key={f.key} className="glass flex items-center justify-between rounded-2xl px-5 py-4">
