@@ -325,13 +325,15 @@ function AnalyticsPreview() {
       </div>
       <div className="mt-6 flex h-40 items-end justify-between gap-3">
         {bars.map((b, i) => (
-          <div key={i} className="flex-1 rounded-t-lg bg-gradient-to-t from-primary/40 to-accent transition-all duration-700"
-            style={{ height: `${b}%`, transitionDelay: `${i * 60}ms` }} />
+          <div key={i} className="relative flex-1 rounded-t-lg bg-gradient-to-t from-primary/60 to-accent/80 transition-all duration-700"
+            style={{ height: `${b}%`, transitionDelay: `${i * 60}ms`, boxShadow: "0 -4px 16px oklch(0.65 0.22 295 / 0.3)" }}>
+            <div className="absolute inset-x-0 top-0 h-px rounded-full bg-white/40" />
+          </div>
         ))}
       </div>
       <div className="mt-6 grid grid-cols-3 gap-3 text-center text-xs">
         {[{ l: t.analytics.cognitive, v: 91 }, { l: t.analytics.creative, v: 88 }, { l: t.analytics.social, v: 76 }].map((s) => (
-          <div key={s.l} className="rounded-lg bg-secondary/60 py-3">
+          <div key={s.l} className="rounded-xl border border-primary/15 bg-gradient-to-br from-primary/10 to-secondary/40 py-3 transition-all hover:-translate-y-0.5">
             <div className="text-base font-semibold gradient-text"><CountUp value={s.v} duration={1600} /></div>
             <div className="text-muted-foreground">{s.l}</div>
           </div>
