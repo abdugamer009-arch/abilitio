@@ -81,7 +81,7 @@ function ForSchoolsPage() {
                   <>
                     <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-40 blur-3xl"
                       style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)" }} />
-                    <div className="relative mb-3 inline-flex rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] font-medium text-primary">Most popular</div>
+                    <div className="relative mb-3 inline-flex rounded-full bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 text-[11px] font-semibold text-primary-foreground shadow-[0_2px_10px_-4px_var(--glow)]">Most popular</div>
                   </>
                 )}
                 <div className="text-sm text-muted-foreground">{p.name}</div>
@@ -107,7 +107,7 @@ function ForSchoolsPage() {
             </p>
           </div>
           <div className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <Shield className="h-3.5 w-3.5" /> Student data is private and visible only to your school's principal.
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]"><Shield className="h-3 w-3" /></span> Student data is private and visible only to your school's principal.
           </div>
         </div>
       </section>

@@ -7,7 +7,7 @@ import { getMyCareerResult, type CareerResultDTO } from "@/lib/career.functions"
 import { UNIVERSITIES } from "@/lib/abbi-extras";
 import { Reveal } from "@/components/Reveal";
 import { CountUp } from "@/components/CountUp";
-import { Brain, Target, Sparkles, Trophy, GraduationCap, Printer, Share2, RefreshCw, TrendingUp, Lightbulb, ImageIcon } from "lucide-react";
+import { Brain, Target, Sparkles, Trophy, GraduationCap, Printer, Share2, RefreshCw, TrendingUp, Lightbulb, ImageIcon, ChevronDown } from "lucide-react";
 
 export const Route = createFileRoute("/career-results")({
   head: () => ({ meta: [{ title: "Your Career Profile — Abilitio" }] }),
@@ -268,7 +268,7 @@ function CareerResultsPage() {
                 ).slice(0, 3);
 
                 return (
-                  <details key={m.key} className="rounded-2xl border border-border bg-secondary/30 [&_summary::-webkit-details-marker]:hidden">
+                  <details key={m.key} className="group/uni rounded-2xl border border-border bg-secondary/30 [&_summary::-webkit-details-marker]:hidden">
                     <summary className="flex cursor-pointer items-center justify-between gap-4 p-4 hover:bg-secondary/40 rounded-2xl transition-colors">
                       <div>
                         <div className="text-sm font-semibold">{m.name}</div>
@@ -276,7 +276,9 @@ function CareerResultsPage() {
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
                         <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">{m.score}%</span>
-                        <span className="text-lg leading-none text-muted-foreground transition-transform [[open]_&]:rotate-45">+</span>
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition-all group-open/uni:border-primary/40 group-open/uni:bg-primary/10 group-open/uni:text-primary">
+                          <ChevronDown className="h-3.5 w-3.5 transition-transform duration-300 group-open/uni:rotate-180" />
+                        </span>
                       </div>
                     </summary>
                     {matchingUnis.length > 0 && (
