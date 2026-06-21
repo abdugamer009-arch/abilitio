@@ -3,6 +3,7 @@ import { ArrowRight, Brain, Compass, LineChart, Sparkles, Target, Users, Zap, Sh
 import { PageShell } from "@/components/PageShell";
 import { ParticleConstellation } from "@/components/ParticleConstellation";
 import { GradientDivider } from "@/components/GradientDivider";
+import { Reveal } from "@/components/Reveal";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
@@ -236,11 +237,11 @@ function Section({ id, eyebrow, title, children }: { id?: string; eyebrow: strin
   return (
     <section id={id} className="px-6 py-24 lg:py-28">
       <div className="mx-auto max-w-[1400px]">
-        <div className="mb-14 text-center">
+        <Reveal className="mb-14 text-center">
           <div className="text-xs uppercase tracking-widest text-accent">{eyebrow}</div>
           <h2 className="mt-3 text-3xl font-bold md:text-4xl lg:text-5xl">{title}</h2>
-        </div>
-        {children}
+        </Reveal>
+        <Reveal delay={120}>{children}</Reveal>
       </div>
     </section>
   );
