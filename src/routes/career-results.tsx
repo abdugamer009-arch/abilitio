@@ -70,6 +70,7 @@ function CareerResultsPage() {
   }
 
   async function shareCard() {
+    if (!r) return;
     const canvas = document.createElement("canvas");
     canvas.width = 1200;
     canvas.height = 630;
@@ -201,7 +202,7 @@ function CareerResultsPage() {
               </ul>
             </Card>
             <Card icon={<Target className="h-4 w-4" />} title="Cognitive Profile">
-              <div className="text-4xl font-bold gradient-text"><CountUp value={r.cognitive_score} decimals={r.cognitive_score % 1 === 0 ? 0 : 1} />/10</div>
+              <div className="text-4xl font-bold gradient-text"><CountUp value={r.cognitive_score ?? 0} decimals={(r.cognitive_score ?? 0) % 1 === 0 ? 0 : 1} />/10</div>
               <div className="mt-2 text-sm font-medium">{r.cognitive_tier}</div>
               <div className="text-xs text-muted-foreground">{r.cognitive_profile} Thinker</div>
             </Card>
@@ -231,7 +232,7 @@ function CareerResultsPage() {
           </div>
 
           {/* Career matches */}
-          <div className="glass mt-6 rounded-3xl p-6">
+          <Reveal className="glass mt-6 block rounded-3xl p-6">
             <div className="flex items-center gap-2"><Trophy className="h-4 w-4 text-primary" /><h3 className="text-sm font-semibold">Top 15 Career Matches</h3></div>
             <div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {r.career_matches.map((m) => (
@@ -245,10 +246,10 @@ function CareerResultsPage() {
                 </div>
               ))}
             </div>
-          </div>
+          </Reveal>
 
           {/* University majors — with expandable university intelligence */}
-          <div className="glass mt-6 rounded-3xl p-6">
+          <Reveal className="glass mt-6 block rounded-3xl p-6">
             <div className="flex items-center gap-2"><GraduationCap className="h-4 w-4 text-primary" /><h3 className="text-sm font-semibold">Top 10 University Majors</h3></div>
             <div className="mt-4 grid gap-3">
               {r.university_matches.map((m) => {
@@ -299,7 +300,7 @@ function CareerResultsPage() {
                 );
               })}
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
     </PageShell>

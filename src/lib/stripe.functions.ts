@@ -6,7 +6,8 @@ async function getStripe() {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) return null;
   const Stripe = (await import("stripe")).default;
-  return new Stripe(key, { apiVersion: "2025-01-27.acacia" as const });
+  // Use the SDK's pinned default apiVersion (matches the installed package).
+  return new Stripe(key);
 }
 
 const PRICE_IDS = {
