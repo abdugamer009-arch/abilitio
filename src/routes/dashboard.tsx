@@ -18,6 +18,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfilePhotoCard, resolveAvatarUrl } from "@/components/ProfilePhotoCard";
 import { AbbiChat } from "@/components/AbbiChat";
 import { SkillsSection, WeeklyReportSection, UniversitiesTabSection } from "@/components/dashboard/ExtraSections";
+import { CountUp } from "@/components/CountUp";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { claimNewUserBonus } from "@/lib/abbi.functions";
@@ -649,7 +650,9 @@ function StatsSection({
                     className="mt-3 w-full bg-transparent text-2xl font-bold outline-none ring-1 ring-border/60 rounded-lg px-2 py-1 focus:ring-primary/50"
                   />
                 ) : (
-                  <div className="mt-3 text-2xl font-bold gradient-text tabular-nums">{raw ?? "—"}{f.unit && raw !== null ? f.unit : ""}</div>
+                  <div className="mt-3 text-2xl font-bold gradient-text tabular-nums">
+                    {raw !== null ? <CountUp value={raw} suffix={f.unit ?? ""} duration={1000} /> : "—"}
+                  </div>
                 )}
                 {f.max && (
                   <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-secondary/60">
