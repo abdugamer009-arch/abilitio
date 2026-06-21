@@ -350,7 +350,7 @@ function IQTestPage() {
               <button
                 onClick={() => setStep((s) => Math.max(0, s - 1))}
                 disabled={step === 0}
-                className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2 text-sm disabled:opacity-40 hover:bg-secondary/50 transition"
+                className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-5 py-2 text-sm text-primary/80 disabled:opacity-40 hover:border-primary/50 hover:bg-primary/10 transition-all"
               >
                 <ArrowLeft className="h-4 w-4" /> Back
               </button>
