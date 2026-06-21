@@ -189,19 +189,21 @@ function LandingPage() {
             { a: { name: "Software Engineer", salary: "$70k → $250k", demand: 95, emoji: "💻" }, b: { name: "Data Scientist", salary: "$80k → $230k", demand: 90, emoji: "📊" } },
             { a: { name: "Doctor", salary: "$200k → $500k+", demand: 88, emoji: "🩺" }, b: { name: "Psychologist", salary: "$60k → $180k", demand: 72, emoji: "🧠" } },
           ].map((battle, i) => (
-            <div key={i} className="glass rounded-2xl p-6 hover-glow">
-              <div className="flex items-center justify-between gap-4">
+            <div key={i} className="group relative overflow-hidden glass rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-20px_oklch(0.55_0.22_295_/_0.4)]">
+              <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-20 blur-3xl transition-opacity duration-300 group-hover:opacity-40"
+                style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)" }} />
+              <div className="relative flex items-center justify-between gap-4">
                 <div className="flex-1 text-center">
                   <div className="text-3xl">{battle.a.emoji}</div>
                   <div className="mt-2 text-sm font-semibold">{battle.a.name}</div>
                   <div className="mt-1 text-[11px] text-muted-foreground">{battle.a.salary}</div>
-                  <div className="mt-2 flex items-center justify-center gap-1 text-[10px] text-accent">
-                    <span className="h-1.5 w-1.5 rounded-full bg-accent inline-block" />
-                    {battle.a.demand}% demand
+                  <div className="mt-2 h-1.5 rounded-full bg-secondary/60 overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent" style={{ width: `${battle.a.demand}%` }} />
                   </div>
+                  <div className="mt-1 text-[10px] text-primary">{battle.a.demand}% demand</div>
                 </div>
                 <div className="flex flex-col items-center gap-1 shrink-0">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_4px_14px_-4px_var(--glow)]">
                     <Swords className="h-4 w-4" />
                   </div>
                   <span className="text-[10px] uppercase tracking-wider text-muted-foreground">vs</span>
@@ -210,20 +212,20 @@ function LandingPage() {
                   <div className="text-3xl">{battle.b.emoji}</div>
                   <div className="mt-2 text-sm font-semibold">{battle.b.name}</div>
                   <div className="mt-1 text-[11px] text-muted-foreground">{battle.b.salary}</div>
-                  <div className="mt-2 flex items-center justify-center gap-1 text-[10px] text-accent">
-                    <span className="h-1.5 w-1.5 rounded-full bg-accent inline-block" />
-                    {battle.b.demand}% demand
+                  <div className="mt-2 h-1.5 rounded-full bg-secondary/60 overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-accent/70 to-primary/70" style={{ width: `${battle.b.demand}%` }} />
                   </div>
+                  <div className="mt-1 text-[10px] text-primary">{battle.b.demand}% demand</div>
                 </div>
               </div>
-              <Link to="/career-battles" className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-medium text-primary hover:bg-primary/20 transition-colors">
+              <Link to="/career-battles" className="relative mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-medium text-primary hover:bg-primary/20 transition-colors">
                 See full comparison <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
           ))}
         </div>
         <div className="mt-6 text-center">
-          <Link to="/career-battles" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple transition-all">
+          <Link to="/career-battles" className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple hover:-translate-y-0.5 transition-all">
             <Swords className="h-4 w-4" /> Explore All Career Battles
           </Link>
         </div>
