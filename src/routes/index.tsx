@@ -243,7 +243,8 @@ function LandingPage() {
                   <Star key={i} className="h-3.5 w-3.5 fill-current" />
                 ))}
               </div>
-              <blockquote className="mt-4 text-sm leading-relaxed text-foreground/90">"{tt.quote}"</blockquote>
+              <div aria-hidden className="pointer-events-none mt-3 text-5xl font-serif leading-none text-primary/20 select-none">"</div>
+              <blockquote className="-mt-2 text-sm leading-relaxed text-foreground/90">{tt.quote}</blockquote>
               <figcaption className="mt-5 flex items-center gap-3">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-[11px] font-bold text-primary-foreground shadow-[0_4px_12px_-4px_var(--glow)]">
                   {tt.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
@@ -262,10 +263,10 @@ function LandingPage() {
       <Section eyebrow={t.faq.eyebrow} title={t.faq.title}>
         <div className="mx-auto max-w-3xl space-y-3">
           {t.faq.items.map((f) => (
-            <details key={f.q} className="glass group rounded-2xl p-6 transition-all duration-300 hover:border-primary/20 [&_summary::-webkit-details-marker]:hidden">
+            <details key={f.q} className="glass group rounded-2xl p-6 transition-all duration-300 hover:border-primary/20 open:border-primary/20 open:bg-gradient-to-br open:from-primary/5 open:to-secondary/30 [&_summary::-webkit-details-marker]:hidden">
               <summary className="flex cursor-pointer items-center justify-between gap-4 text-sm font-medium">
                 {f.q}
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition-all group-open:border-primary/40 group-open:bg-primary/10 group-open:text-primary">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition-all duration-300 group-open:border-primary/40 group-open:bg-gradient-to-br group-open:from-primary group-open:to-accent group-open:text-primary-foreground group-open:shadow-[0_2px_8px_-2px_var(--glow)]">
                   <ChevronDown className="h-3.5 w-3.5 transition-transform duration-300 group-open:rotate-180" />
                 </span>
               </summary>
