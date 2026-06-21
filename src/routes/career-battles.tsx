@@ -31,12 +31,15 @@ function CareerBattlesPage() {
 
           {/* Quick presets */}
           <div className="mb-6 flex flex-wrap justify-center gap-2">
-            {CAREER_BATTLES.map((bt) => (
-              <button key={bt.a + bt.b} onClick={() => { setA(bt.a); setB(bt.b); }}
-                className="rounded-full border border-border/60 bg-secondary/40 px-3 py-1 text-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/10 hover:text-primary">
-                {bt.a} vs {bt.b}
-              </button>
-            ))}
+            {CAREER_BATTLES.map((bt) => {
+              const active = bt.a === a && bt.b === b;
+              return (
+                <button key={bt.a + bt.b} onClick={() => { setA(bt.a); setB(bt.b); }}
+                  className={`rounded-full border px-3 py-1 text-xs transition-all duration-200 hover:-translate-y-0.5 ${active ? "border-primary/40 bg-gradient-to-r from-primary/15 to-accent/10 text-primary shadow-[0_0_10px_-3px_var(--glow)]" : "border-border/60 bg-secondary/40 hover:border-primary/40 hover:bg-primary/10 hover:text-primary"}`}>
+                  {bt.a} vs {bt.b}
+                </button>
+              );
+            })}
           </div>
 
           {/* Pickers */}

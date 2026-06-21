@@ -684,7 +684,7 @@ function StatsSection({
                 )}
                 {f.max && (
                   <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-secondary/60">
-                    <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all duration-700" style={{ width: `${pct}%` }} />
+                    <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all duration-700" style={{ width: `${pct}%`, boxShadow: "0 0 8px oklch(0.65 0.22 295 / 0.4)" }} />
                   </div>
                 )}
               </div>
@@ -1126,7 +1126,7 @@ function WeeklyEmailToggle({ userId }: { userId: string }) {
       <button
         onClick={toggle}
         aria-pressed={enabled}
-        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none ${enabled ? "bg-primary" : "bg-secondary"}`}
+        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-all duration-300 focus-visible:outline-none ${enabled ? "bg-gradient-to-r from-primary to-accent shadow-[0_0_12px_-3px_var(--glow)]" : "bg-secondary"}`}
       >
         <span className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-lg ring-0 transition-transform ${enabled ? "translate-x-4" : "translate-x-0"}`} />
       </button>
