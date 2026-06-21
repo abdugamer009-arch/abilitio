@@ -4,6 +4,8 @@ import { Check, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { createCheckoutSession } from "@/lib/stripe.functions";
+import { Reveal } from "@/components/Reveal";
+import { SpotlightCard } from "@/components/SpotlightCard";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -71,19 +73,22 @@ function PricingPage() {
 
   return (
     <PageShell>
-      <section className="px-6 pt-20 pb-12 text-center">
-        <div className="text-xs uppercase tracking-widest text-accent">Pricing</div>
-        <h1 className="mt-3 text-4xl font-bold md:text-6xl">Simple, <span className="gradient-text">honest pricing</span></h1>
-        <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">No hidden fees. Cancel anytime. Schools get custom plans.</p>
+      <section className="relative px-6 pt-20 pb-12 text-center">
+        <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
+        <div className="relative animate-fade-up">
+          <div className="text-xs uppercase tracking-widest text-accent">Pricing</div>
+          <h1 className="mt-3 text-4xl font-bold md:text-6xl">Simple, <span className="gradient-text">honest pricing</span></h1>
+          <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">No hidden fees. Cancel anytime. Schools get custom plans.</p>
+        </div>
       </section>
 
       <section className="px-6 pb-20">
-        <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
+        <Reveal className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
           {plans.map((p) => (
             <div
               key={p.name}
-              className={`relative rounded-3xl p-8 ${
-                p.highlight ? "glass glow-purple border border-primary/40" : "glass"
+              className={`relative rounded-3xl p-8 transition-all duration-300 hover:-translate-y-1 ${
+                p.highlight ? "glass glow-purple border border-primary/40" : "glass hover-glow"
               }`}
             >
               {p.highlight && (
@@ -131,7 +136,7 @@ function PricingPage() {
               )}
             </div>
           ))}
-        </div>
+        </Reveal>
 
         {checkoutError && (
           <div className="mx-auto mt-6 max-w-xl rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-center text-sm text-destructive">

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { GraduationCap, MapPin, Award, Sparkles, Search, Filter } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
+import { Reveal } from "@/components/Reveal";
 import { UNIVERSITIES, COUNTRIES, MAJORS, type University } from "@/lib/abbi-extras";
 
 export const Route = createFileRoute("/universities")({
@@ -69,9 +70,9 @@ function UniversitiesPage() {
           </div>
 
           {/* Results */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <Reveal className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {filtered.map(({ u, fit }) => <UniCard key={u.name} u={u} fit={fit} major={major} />)}
-          </div>
+          </Reveal>
           {filtered.length === 0 && (
             <p className="mt-12 text-center text-sm text-muted-foreground">No matches yet. Try widening your filters.</p>
           )}

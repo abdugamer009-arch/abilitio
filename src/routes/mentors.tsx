@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Sparkles, Briefcase, Star, Calendar } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
+import { Reveal } from "@/components/Reveal";
 import { MENTORS } from "@/lib/abbi-extras";
 
 export const Route = createFileRoute("/mentors")({
@@ -21,7 +22,7 @@ function MentorsPage() {
             <p className="mt-2 text-sm text-muted-foreground">Curated mentors aligned with the careers ABBI recommends.</p>
           </header>
 
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <Reveal className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {MENTORS.map((m) => (
               <article key={m.name}
                 className="group relative flex flex-col overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-6 backdrop-blur-xl transition-all hover:-translate-y-1 hover:border-primary/40"
@@ -62,7 +63,7 @@ function MentorsPage() {
                 </div>
               </article>
             ))}
-          </div>
+          </Reveal>
         </div>
       </section>
     </PageShell>
