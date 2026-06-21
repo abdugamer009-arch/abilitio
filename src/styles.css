@@ -358,6 +358,12 @@ button, [role="button"], .btn, a.inline-flex {
     transform 0.18s ease;
 }
 
+/* Satisfying press state — feels native, like iOS */
+button:active:not(:disabled), [role="button"]:active, a.inline-flex:active {
+  transform: scale(0.97);
+  transition-duration: 0.08s;
+}
+
 /* ============================================================
    Micro-polish — the details that make it feel hand-crafted
    ============================================================ */
@@ -472,6 +478,35 @@ button, [role="button"], .btn, a.inline-flex {
   }
   &:hover::after {
     transform: translateX(120%);
+  }
+}
+
+/* Live status pulse dot — for badges showing active/online states */
+@utility pulse-dot {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+@keyframes pulse-ring {
+  0%, 100% { opacity: 0; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.6); }
+}
+
+/* Subtle card lift with border brightening — a refined hover pattern */
+@utility card-lift {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+  &:hover {
+    transform: translateY(-3px);
+    border-color: oklch(0.7 0.14 290 / 35%);
+    box-shadow:
+      0 0 0 1px oklch(0.7 0.14 290 / 12%),
+      0 20px 50px -20px oklch(0.55 0.22 295 / 0.35);
   }
 }
 
