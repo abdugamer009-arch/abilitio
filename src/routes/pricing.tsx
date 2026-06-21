@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { createCheckoutSession } from "@/lib/stripe.functions";
 import { Reveal } from "@/components/Reveal";
-import { SpotlightCard } from "@/components/SpotlightCard";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
