@@ -45,7 +45,7 @@ export function SkillsSection({ stats, mbti }: { stats: StatsLite; mbti?: string
             <h3 className="text-xl font-semibold">Skill Levels</h3>
             <p className="mt-1 text-xs text-muted-foreground">XP grows as you assess, unlock, and stay consistent.</p>
           </div>
-          <Sparkles className="h-5 w-5 text-primary" />
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]"><Sparkles className="h-4 w-4" /></span>
         </div>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           {(skills ?? Array.from({ length: 7 })).map((s: SkillSnapshot | undefined, i) =>
@@ -147,7 +147,7 @@ export function WeeklyReportSection({ mbti }: { mbti?: string | null }) {
             <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
               {report.suggestions.map((s, i) => (
                 <li key={i} className="flex items-start gap-2 rounded-xl border border-border/60 bg-background/30 px-3 py-2">
-                  <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                  <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded bg-gradient-to-br from-primary to-accent text-primary-foreground"><Sparkles className="h-2.5 w-2.5" /></span>
                   <span>{s}</span>
                 </li>
               ))}
@@ -166,7 +166,7 @@ function Metric({ icon: Icon, label, value }: { icon: React.ElementType; label: 
     <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-4">
       <div className="flex items-center justify-between">
         <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</span>
-        <Icon className="h-4 w-4 text-primary/70" />
+        <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]"><Icon className="h-3 w-3" /></span>
       </div>
       <div className="mt-2 text-2xl font-bold gradient-text">{value}</div>
     </div>

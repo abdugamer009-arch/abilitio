@@ -109,7 +109,10 @@ function Row({ icon: Icon, label, value, bar }: { icon: React.ElementType; label
   return (
     <div className="rounded-xl border border-border/60 bg-secondary/30 p-3">
       <div className="flex items-center justify-between text-xs">
-        <span className="flex items-center gap-1.5 text-muted-foreground"><Icon className="h-3.5 w-3.5 text-primary" /> {label}</span>
+        <span className="flex items-center gap-1.5 text-muted-foreground">
+          <span className="flex h-4 w-4 items-center justify-center rounded bg-gradient-to-br from-primary to-accent text-primary-foreground"><Icon className="h-2.5 w-2.5" /></span>
+          {label}
+        </span>
         <span className="font-semibold">{value}</span>
       </div>
       {typeof bar === "number" && (
