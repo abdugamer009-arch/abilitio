@@ -82,7 +82,7 @@ function CareerCard({ c, winner }: { c: CareerSpec; accent: "left" | "right"; wi
         </div>
       )}
       <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/25 to-accent/15 text-2xl">{c.emoji}</div>
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/10 ring-1 ring-primary/30 text-2xl shadow-[0_4px_16px_-6px_var(--glow)]">{c.emoji}</div>
         <h3 className="text-xl font-bold">{c.name}</h3>
       </div>
 
