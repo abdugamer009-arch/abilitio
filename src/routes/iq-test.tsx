@@ -80,9 +80,10 @@ function IQTestPage() {
   if (phase === "intro") {
     return (
       <PageShell>
-        <section className="px-6 pt-16 pb-24">
-          <div className="mx-auto max-w-3xl">
-            <div className="glass rounded-3xl p-10 text-center">
+        <section className="relative px-6 pt-16 pb-24">
+          <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
+          <div className="relative mx-auto max-w-3xl">
+            <div className="glass rounded-3xl p-10 text-center animate-fade-up">
               <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent">
                 <Brain className="h-10 w-10 text-primary-foreground" />
               </div>
@@ -116,7 +117,7 @@ function IQTestPage() {
 
               <button
                 onClick={start}
-                className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground hover:glow-purple hover:-translate-y-0.5 transition"
+                className="cta-sheen relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground hover:glow-purple hover:-translate-y-0.5 transition"
               >
                 Start Test <ArrowRight className="h-4 w-4" />
               </button>
