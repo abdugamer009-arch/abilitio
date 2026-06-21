@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
+import { CountUp } from "@/components/CountUp";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
@@ -60,8 +61,8 @@ export function SkillsSection({ stats, mbti }: { stats: StatsLite; mbti?: string
                   </span>
                 </div>
                 <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
-                  <span>{s.xp.toLocaleString()} XP</span>
-                  <span className="tabular-nums">{s.progress}% to next</span>
+                  <span><CountUp value={s.xp} className="tabular-nums" /> XP</span>
+                  <span className="tabular-nums"><CountUp value={s.progress} suffix="%" /> to next</span>
                 </div>
                 <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary/60">
                   <div className="h-full rounded-full bg-gradient-to-r from-primary via-accent to-primary transition-all duration-700"
