@@ -95,8 +95,9 @@ function AboutPage() {
               key={person.name}
               className="glass rounded-3xl p-8 text-center transition-all duration-500 hover:-translate-y-2"
             >
-              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-accent/20 ring-1 ring-primary/30">
-                <User className="h-8 w-8 text-accent" />
+              <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_24px_-8px_var(--glow)]">
+                <span className="absolute -inset-1 rounded-full opacity-40 blur-md" style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }} />
+                <User className="h-8 w-8" />
               </div>
               <h3 className="mt-6 text-xl font-semibold">{person.name}</h3>
               <p className="mt-2 text-sm font-medium text-accent uppercase tracking-wider">{person.role}</p>
@@ -123,8 +124,8 @@ function AboutPage() {
             href="tel:+998880481881"
             className="glass group flex items-center gap-4 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_-12px_var(--glow)]"
           >
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 ring-1 ring-primary/20">
-              <Phone className="h-4.5 w-4.5 text-accent" />
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_4px_14px_-4px_var(--glow)] transition-transform duration-300 group-hover:scale-105">
+              <Phone className="h-4.5 w-4.5" />
             </div>
             <div className="min-w-0">
               <div className="text-[11px] uppercase tracking-widest text-muted-foreground">{t.contact.phone}</div>
@@ -135,8 +136,8 @@ function AboutPage() {
             href="mailto:ibodullayevabdurahmon95@gmail.com"
             className="glass group flex items-center gap-4 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_-12px_var(--glow)]"
           >
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 ring-1 ring-primary/20">
-              <Mail className="h-4.5 w-4.5 text-accent" />
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_4px_14px_-4px_var(--glow)] transition-transform duration-300 group-hover:scale-105">
+              <Mail className="h-4.5 w-4.5" />
             </div>
             <div className="min-w-0">
               <div className="text-[11px] uppercase tracking-widest text-muted-foreground">{t.contact.email}</div>
