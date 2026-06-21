@@ -162,7 +162,7 @@ function AuraStorePage() {
                         <button
                           onClick={() => handleUnlock(f)}
                           disabled={!user || !affordable || busy}
-                          className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground transition-all hover:glow-purple disabled:opacity-40 disabled:hover:shadow-none"
+                          className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary to-accent px-4 py-1.5 text-xs font-medium text-primary-foreground shadow-[0_4px_14px_-6px_var(--glow)] transition-all hover:-translate-y-0.5 disabled:opacity-40 disabled:hover:translate-y-0"
                         >
                           {busy ? "Unlocking…" : !user ? "Sign in" : !affordable ? "Need more" : "Unlock"}
                         </button>
@@ -194,7 +194,7 @@ function AuraStorePage() {
                     }`}
                   >
                     {p.popular && (
-                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-primary px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-primary-foreground">
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]">
                         Popular
                       </span>
                     )}
@@ -225,7 +225,7 @@ function AuraStorePage() {
                     <button
                       onClick={() => handleBuyPackage(p)}
                       disabled={!user || busy}
-                      className="mt-4 w-full rounded-full bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition-all hover:glow-purple disabled:opacity-40"
+                      className="mt-4 w-full rounded-full bg-gradient-to-r from-primary to-accent px-3 py-2 text-xs font-medium text-primary-foreground shadow-[0_4px_14px_-6px_var(--glow)] transition-all hover:-translate-y-0.5 disabled:opacity-40 disabled:hover:translate-y-0"
                     >
                       {busy ? "Submitting…" : !user ? "Sign in" : "Request"}
                     </button>
@@ -278,7 +278,7 @@ function AuraStorePage() {
               <Link
                 to="/auth"
                 search={{ mode: "login" }}
-                className="inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple"
+                className="cta-sheen relative overflow-hidden inline-flex rounded-full bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"
               >
                 Sign in to access the store
               </Link>

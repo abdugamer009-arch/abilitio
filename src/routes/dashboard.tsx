@@ -396,7 +396,7 @@ function ResultsSection({
         </div>
         <h3 className="mt-4 text-xl font-semibold">No assessment yet</h3>
         <p className="mt-2 text-sm text-muted-foreground">Take your first assessment to unlock your AI-powered insights.</p>
-        <Link to="/assessment" className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple">
+        <Link to="/assessment" className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_4px_16px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all">
           {t.dashboard.startFirst} <ChevronRight className="h-4 w-4" />
         </Link>
       </GlassCard>
@@ -773,7 +773,7 @@ function AchievementsBlock({
           />
           <div className="mt-3 flex items-center justify-end gap-2">
             <button onClick={() => setAdding(false)} className="rounded-full border border-border px-3 py-1 text-[11px] hover:bg-secondary">Cancel</button>
-            <button onClick={addOne} className="rounded-full bg-primary px-3 py-1 text-[11px] font-medium text-primary-foreground hover:glow-purple">Save</button>
+            <button onClick={addOne} className="rounded-full bg-gradient-to-r from-primary to-accent px-3 py-1 text-[11px] font-medium text-primary-foreground shadow-[0_2px_8px_-3px_var(--glow)] hover:-translate-y-0.5 transition-all">Save</button>
           </div>
         </div>
       )}
@@ -1055,7 +1055,7 @@ function SettingsSection({
               <div className="flex justify-end gap-2 pt-2">
                 <button onClick={() => { setDraft({ name: profile?.name ?? "", surname: profile?.surname ?? "" }); setEditing(false); }}
                   className="rounded-full border border-border px-4 py-1.5 text-xs hover:bg-secondary">Cancel</button>
-                <button onClick={saveProfile} className="rounded-full bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground hover:glow-purple">Save</button>
+                <button onClick={saveProfile} className="rounded-full bg-gradient-to-r from-primary to-accent px-4 py-1.5 text-xs font-medium text-primary-foreground shadow-[0_2px_8px_-3px_var(--glow)] hover:-translate-y-0.5 transition-all">Save</button>
               </div>
             </>
           ) : (

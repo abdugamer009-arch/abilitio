@@ -183,7 +183,7 @@ function AboutPage() {
                   {errorMsg || t.contact.errors.generic}
                 </div>
               )}
-              <button type="submit" disabled={status === "sending"} className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all duration-300 hover:glow-purple hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0">
+              <button type="submit" disabled={status === "sending"} className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-3 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0">
                 {status === "sending" ? (<>{t.contact.sending} <Loader2 className="h-4 w-4 animate-spin" /></>) : (<>{t.contact.send} <Send className="h-4 w-4" /></>)}
               </button>
             </div>

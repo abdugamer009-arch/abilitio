@@ -86,7 +86,7 @@ export function Navbar() {
               <Link
                 to="/auth"
                 search={{ mode: "login" }}
-                className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-[13px] font-medium text-primary-foreground transition-all hover:glow-purple hover:-translate-y-0.5"
+                className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary to-accent px-4 py-1.5 text-[13px] font-medium text-primary-foreground shadow-[0_4px_14px_-6px_var(--glow)] transition-all hover:-translate-y-0.5"
               >
                 Sign in
               </Link>
@@ -128,7 +128,7 @@ export function Navbar() {
                     to="/auth"
                     search={{ mode: "login" }}
                     onClick={() => setOpen(false)}
-                    className="mt-1 flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"
+                    className="mt-1 flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-primary to-accent px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_4px_14px_-6px_var(--glow)]"
                   >
                     Sign in
                   </Link>

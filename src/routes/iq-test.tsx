@@ -119,7 +119,7 @@ function IQTestPage() {
 
               <button
                 onClick={start}
-                className="cta-sheen relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground hover:glow-purple hover:-translate-y-0.5 transition"
+                className="cta-sheen relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 text-sm font-medium text-primary-foreground shadow-[0_8px_28px_-8px_var(--glow)] hover:-translate-y-0.5 transition-all"
               >
                 Start Test <ArrowRight className="h-4 w-4" />
               </button>
@@ -265,7 +265,7 @@ function IQTestPage() {
             <div className="text-center">
               <button
                 onClick={start}
-                className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground hover:glow-purple hover:-translate-y-0.5 transition"
+                className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 text-sm font-medium text-primary-foreground shadow-[0_8px_28px_-8px_var(--glow)] hover:-translate-y-0.5 transition-all"
               >
                 Retake Test <ArrowRight className="h-4 w-4" />
               </button>
@@ -374,14 +374,14 @@ function IQTestPage() {
               {step < 39 ? (
                 <button
                   onClick={() => setStep((s) => s + 1)}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2 text-sm text-primary-foreground hover:glow-purple transition"
+                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm text-primary-foreground shadow-[0_4px_16px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"
                 >
                   Next <ArrowRight className="h-4 w-4" />
                 </button>
               ) : (
                 <button
                   onClick={finish}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2 text-sm text-primary-foreground hover:glow-purple transition"
+                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm text-primary-foreground shadow-[0_4px_16px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"
                 >
                   <Trophy className="h-4 w-4" /> Submit
                 </button>

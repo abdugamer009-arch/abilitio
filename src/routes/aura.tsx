@@ -130,7 +130,7 @@ function AuraPage() {
             {user ? (
               <Link
                 to="/aura/store"
-                className="relative mt-6 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple"
+                className="cta-sheen relative mt-6 inline-flex items-center gap-1.5 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"
               >
                 Enter the store <ArrowRight className="h-4 w-4" />
               </Link>
@@ -138,7 +138,7 @@ function AuraPage() {
               <Link
                 to="/auth"
                 search={{ mode: "login" }}
-                className="relative mt-6 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple"
+                className="cta-sheen relative mt-6 inline-flex items-center gap-1.5 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"
               >
                 Sign in to start earning <ArrowRight className="h-4 w-4" />
               </Link>

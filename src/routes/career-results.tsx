@@ -56,7 +56,7 @@ function CareerResultsPage() {
       <PageShell>
         <div className="px-6 pt-32 text-center">
           <p className="text-sm text-muted-foreground">No career assessment yet.</p>
-          <Link to="/career-assessment" className="mt-4 inline-flex rounded-full bg-primary px-6 py-2 text-sm text-primary-foreground hover:glow-purple">Take the assessment</Link>
+          <Link to="/career-assessment" className="mt-4 inline-flex rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm text-primary-foreground shadow-[0_4px_16px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all">Take the assessment</Link>
         </div>
       </PageShell>
     );
@@ -187,7 +187,7 @@ function CareerResultsPage() {
               <button onClick={share} className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-secondary/30 px-4 py-2 text-sm transition-all hover:border-primary/30 hover:bg-secondary/60 hover:-translate-y-0.5"><Share2 className="h-4 w-4" />Share</button>
               <button onClick={shareCard} className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-secondary/30 px-4 py-2 text-sm transition-all hover:border-primary/30 hover:bg-secondary/60 hover:-translate-y-0.5"><ImageIcon className="h-4 w-4" />Share Card</button>
               <button onClick={() => window.print()} className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-secondary/30 px-4 py-2 text-sm transition-all hover:border-primary/30 hover:bg-secondary/60 hover:-translate-y-0.5"><Printer className="h-4 w-4" />Download PDF</button>
-              <Link to="/career-assessment" className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground hover:glow-purple hover:-translate-y-0.5 transition-all"><RefreshCw className="h-4 w-4" />Retake</Link>
+              <Link to="/career-assessment" className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-4 py-2 text-sm text-primary-foreground shadow-[0_4px_16px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"><RefreshCw className="h-4 w-4" />Retake</Link>
             </div>
           </header>
 

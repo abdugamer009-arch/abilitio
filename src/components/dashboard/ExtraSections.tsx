@@ -220,7 +220,7 @@ export function UniversitiesTabSection() {
             Filter universities by SAT, IELTS, country, and major. ABBI ranks fit and scholarships.
           </p>
           <Link to="/universities"
-            className="cta-sheen relative mt-6 inline-flex items-center gap-2 overflow-hidden rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple hover:-translate-y-0.5 transition-all">
+            className="cta-sheen relative mt-6 inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all">
             Open University Explorer <ChevronRight className="h-4 w-4" />
           </Link>
         </div>

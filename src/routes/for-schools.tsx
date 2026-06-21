@@ -40,7 +40,7 @@ function ForSchoolsPage() {
             cognitive profile, interests, and career fit — then helps design data-driven specialized classes.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link to="/school/register" className="cta-sheen relative inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all hover:glow-purple overflow-hidden">
+            <Link to="/school/register" className="cta-sheen relative inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-3 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] transition-all hover:-translate-y-0.5 overflow-hidden">
               Register your school <ArrowRight className="h-4 w-4" />
             </Link>
             <Link to="/school/join" className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/40 px-6 py-3 text-sm font-medium transition-all hover:bg-secondary">
