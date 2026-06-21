@@ -83,14 +83,14 @@ function LandingPage() {
 
       {/* Stats row */}
       <Reveal className="mx-auto max-w-4xl px-6 py-8">
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {[
             { value: 30, suffix: "+", label: "Questions per session" },
             { value: 80, suffix: "+", label: "Career paths mapped" },
             { value: 5, suffix: " min", label: "Average completion" },
             { value: 95, suffix: "%", label: "Satisfaction rate" },
           ].map((s) => (
-            <div key={s.label} className="text-center">
+            <div key={s.label} className="glass rounded-2xl p-5 text-center transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]">
               <div className="text-4xl font-bold gradient-text tabular-nums">
                 <CountUp value={s.value} suffix={s.suffix} duration={1400} />
               </div>
