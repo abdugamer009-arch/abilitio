@@ -235,15 +235,23 @@ function LandingPage() {
       <Section eyebrow={t.testimonials.eyebrow} title={t.testimonials.title}>
         <div className="grid gap-5 md:grid-cols-3">
           {t.testimonials.items.map((tt) => (
-            <figure key={tt.name} className="glass rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover-glow">
+            <figure key={tt.name} className="relative overflow-hidden glass rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-20px_oklch(0.55_0.22_295_/_0.35)]">
+              <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-15 blur-2xl"
+                style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.7), transparent 70%)" }} />
               <div className="flex gap-0.5 text-accent">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star key={i} className="h-3.5 w-3.5 fill-current" />
                 ))}
               </div>
               <blockquote className="mt-4 text-sm leading-relaxed text-foreground/90">"{tt.quote}"</blockquote>
-              <figcaption className="mt-4 text-xs text-muted-foreground">
-                <span className="font-medium text-foreground">{tt.name}</span> · {tt.role}
+              <figcaption className="mt-5 flex items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-[11px] font-bold text-primary-foreground shadow-[0_4px_12px_-4px_var(--glow)]">
+                  {tt.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
+                </div>
+                <div className="text-xs">
+                  <div className="font-medium text-foreground">{tt.name}</div>
+                  <div className="text-muted-foreground">{tt.role}</div>
+                </div>
               </figcaption>
             </figure>
           ))}
