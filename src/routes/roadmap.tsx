@@ -152,7 +152,7 @@ function RoadmapPage() {
         <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
         <div className="relative mx-auto max-w-6xl">
           {/* Header */}
-          <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between animate-fade-up">
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
                 <MapIcon className="h-3 w-3" /> Roadmap World · {TRACK_LABEL[track]}

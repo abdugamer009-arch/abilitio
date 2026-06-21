@@ -110,14 +110,16 @@ function LandingPage() {
           {t.steps.items.map((s, i) => {
             const Icon = stepIcons[i];
             return (
-              <SpotlightCard key={s.title} className="glass hover-glow rounded-2xl p-8">
-                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent">
-                  <Icon className="h-5 w-5 text-primary-foreground" />
-                </div>
-                <div className="text-xs text-muted-foreground">{t.steps.step} {i + 1}</div>
-                <h3 className="mt-1 text-xl font-semibold">{s.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
-              </SpotlightCard>
+              <Reveal key={s.title} delay={i * 100}>
+                <SpotlightCard className="glass hover-glow rounded-2xl p-8 h-full">
+                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-[0_6px_24px_-8px_var(--glow)]">
+                    <Icon className="h-5 w-5 text-primary-foreground" />
+                  </div>
+                  <div className="text-xs text-muted-foreground">{t.steps.step} {i + 1}</div>
+                  <h3 className="mt-1 text-xl font-semibold">{s.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+                </SpotlightCard>
+              </Reveal>
             );
           })}
         </div>
@@ -293,7 +295,8 @@ function Section({ id, eyebrow, title, children }: { id?: string; eyebrow: strin
       <div className="mx-auto max-w-[1400px]">
         <Reveal className="mb-14 text-center">
           <div className="text-xs uppercase tracking-widest text-accent">{eyebrow}</div>
-          <h2 className="mt-3 text-3xl font-bold md:text-4xl lg:text-5xl">{title}</h2>
+          <div aria-hidden className="mx-auto mt-2 h-px w-8 rounded-full bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
+          <h2 className="mt-4 text-3xl font-bold md:text-4xl lg:text-5xl">{title}</h2>
         </Reveal>
         <Reveal delay={120}>{children}</Reveal>
       </div>
