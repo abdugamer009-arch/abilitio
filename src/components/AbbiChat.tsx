@@ -39,6 +39,35 @@ export function AbbiChat() {
   const [outOfCoinsOpen, setOutOfCoinsOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
+  function historyKey(userId: string) {
+    return `abbi_history_${userId}_${new Date().toISOString().slice(0, 10)}`;
+  }
+
+  // Load chat history from localStorage on mount
+  useEffect(() => {
+    if (!user || typeof window === "undefined") return;
+    const raw = localStorage.getItem(historyKey(user.id));
+    if (raw) {
+      try {
+        const saved: ChatMsg[] = JSON.parse(raw);
+        if (saved.length > 0) setMessages(saved);
+      } catch { /* corrupt data — keep welcome message */ }
+    }
+  }, [user]);
+
+  // Save chat history to localStorage on message changes
+  useEffect(() => {
+    if (!user || typeof window === "undefined" || messages.length <= 1) return;
+    const trimmed = messages.slice(-50);
+    localStorage.setItem(historyKey(user.id), JSON.stringify(trimmed));
+  }, [messages, user]);
+
+  function clearHistory() {
+    if (!user || typeof window === "undefined") return;
+    localStorage.removeItem(historyKey(user.id));
+    setMessages([{ id: "welcome", role: "abbi", content: abbiGreeting() }]);
+  }
+
   // Load career-assessment context (best-effort; safe if no result yet).
   useEffect(() => {
     if (!user) return;
@@ -297,6 +326,9 @@ export function AbbiChat() {
               </Link>
             </div>
           )}
+          <div className="mt-2 flex justify-end">
+            <button onClick={clearHistory} className="text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors">Clear history</button>
+          </div>
         </div>
       </div>
 

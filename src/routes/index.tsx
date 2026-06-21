@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Brain, Compass, LineChart, Sparkles, Target, Users, Zap, ShieldCheck, Star } from "lucide-react";
+import { ArrowRight, Brain, Compass, LineChart, Sparkles, Target, Users, Zap, ShieldCheck, Star, Swords } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { ParticleConstellation } from "@/components/ParticleConstellation";
 import { GradientDivider } from "@/components/GradientDivider";
@@ -131,6 +131,53 @@ function LandingPage() {
               </div>
             </div>
           ))}
+        </div>
+      </Section>
+
+      {/* Career Battles */}
+      <Section eyebrow="Career Intelligence" title="Which path fits you best?">
+        <div className="grid gap-5 md:grid-cols-2">
+          {[
+            { a: { name: "Software Engineer", salary: "$70k → $250k", demand: 95, emoji: "💻" }, b: { name: "Data Scientist", salary: "$80k → $230k", demand: 90, emoji: "📊" } },
+            { a: { name: "Doctor", salary: "$200k → $500k+", demand: 88, emoji: "🩺" }, b: { name: "Psychologist", salary: "$60k → $180k", demand: 72, emoji: "🧠" } },
+          ].map((battle, i) => (
+            <div key={i} className="glass rounded-2xl p-6 hover-glow">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1 text-center">
+                  <div className="text-3xl">{battle.a.emoji}</div>
+                  <div className="mt-2 text-sm font-semibold">{battle.a.name}</div>
+                  <div className="mt-1 text-[11px] text-muted-foreground">{battle.a.salary}</div>
+                  <div className="mt-2 flex items-center justify-center gap-1 text-[10px] text-accent">
+                    <span className="h-1.5 w-1.5 rounded-full bg-accent inline-block" />
+                    {battle.a.demand}% demand
+                  </div>
+                </div>
+                <div className="flex flex-col items-center gap-1 shrink-0">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                    <Swords className="h-4 w-4" />
+                  </div>
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">vs</span>
+                </div>
+                <div className="flex-1 text-center">
+                  <div className="text-3xl">{battle.b.emoji}</div>
+                  <div className="mt-2 text-sm font-semibold">{battle.b.name}</div>
+                  <div className="mt-1 text-[11px] text-muted-foreground">{battle.b.salary}</div>
+                  <div className="mt-2 flex items-center justify-center gap-1 text-[10px] text-accent">
+                    <span className="h-1.5 w-1.5 rounded-full bg-accent inline-block" />
+                    {battle.b.demand}% demand
+                  </div>
+                </div>
+              </div>
+              <Link to="/career-battles" className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-medium text-primary hover:bg-primary/20 transition-colors">
+                See full comparison <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          ))}
+        </div>
+        <div className="mt-6 text-center">
+          <Link to="/career-battles" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple transition-all">
+            <Swords className="h-4 w-4" /> Explore All Career Battles
+          </Link>
         </div>
       </Section>
 

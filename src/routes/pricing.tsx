@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { createCheckoutSession } from "@/lib/stripe.functions";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -15,6 +18,7 @@ export const Route = createFileRoute("/pricing")({
 const plans = [
   {
     name: "Explorer",
+    planId: null as null,
     price: "Free",
     desc: "Begin your discovery journey.",
     features: ["1 talent assessment", "Basic dashboard", "Top 3 career matches"],
@@ -23,6 +27,7 @@ const plans = [
   },
   {
     name: "Student",
+    planId: "student" as const,
     price: "$12",
     period: "/month",
     desc: "For ambitious students.",
@@ -32,6 +37,7 @@ const plans = [
   },
   {
     name: "Family",
+    planId: "family" as const,
     price: "$24",
     period: "/month",
     desc: "Up to 4 family members.",
@@ -42,6 +48,27 @@ const plans = [
 ];
 
 function PricingPage() {
+  const checkoutFn = useServerFn(createCheckoutSession);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
+  async function handlePlanClick(planId: "student" | "family") {
+    setLoadingPlan(planId);
+    setCheckoutError(null);
+    try {
+      const result = await checkoutFn({ data: { planId } });
+      if (result.url) {
+        window.location.href = result.url;
+      } else {
+        setCheckoutError("Payment is not configured yet — contact us to upgrade.");
+      }
+    } catch {
+      setCheckoutError("Something went wrong. Please try again.");
+    } finally {
+      setLoadingPlan(null);
+    }
+  }
+
   return (
     <PageShell>
       <section className="px-6 pt-20 pb-12 text-center">
@@ -80,19 +107,37 @@ function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <Link
-                to="/assessment"
-                className={`mt-8 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-medium transition-all ${
-                  p.highlight
-                    ? "bg-primary text-primary-foreground hover:glow-purple"
-                    : "border border-border bg-secondary/40 hover:bg-secondary"
-                }`}
-              >
-                {p.cta}
-              </Link>
+
+              {p.planId === null ? (
+                <Link
+                  to="/assessment"
+                  className="mt-8 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-medium transition-all border border-border bg-secondary/40 hover:bg-secondary"
+                >
+                  {p.cta}
+                </Link>
+              ) : (
+                <button
+                  onClick={() => handlePlanClick(p.planId!)}
+                  disabled={loadingPlan !== null}
+                  className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-medium transition-all disabled:opacity-60 ${
+                    p.highlight
+                      ? "bg-primary text-primary-foreground hover:glow-purple"
+                      : "border border-border bg-secondary/40 hover:bg-secondary"
+                  }`}
+                >
+                  {loadingPlan === p.planId ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  {p.cta}
+                </button>
+              )}
             </div>
           ))}
         </div>
+
+        {checkoutError && (
+          <div className="mx-auto mt-6 max-w-xl rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-center text-sm text-destructive">
+            {checkoutError}
+          </div>
+        )}
 
         <div className="mx-auto mt-10 max-w-2xl text-center text-sm text-muted-foreground">
           Looking for a school or district plan? <Link to="/contact" className="text-accent hover:underline">Get in touch</Link>.

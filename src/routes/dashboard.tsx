@@ -5,7 +5,7 @@ import {
   Brain, Calendar, LogOut, User as UserIcon, TrendingUp, Trophy, Heart,
   Sparkles, Target, Award, Zap, Plus, Pencil, Trash2, Check, X, Rocket,
   GraduationCap, MapPin, Lightbulb, Activity, BarChart3, Settings as SettingsIcon,
-  Compass, Star, Gauge, Languages, Moon, KeyRound, Bell, ChevronRight, Crown,
+  Compass, Star, Gauge, Languages, Moon, KeyRound, Bell, ChevronRight, Crown, Mail,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
@@ -1029,6 +1029,7 @@ function SettingsSection({
           <PrefRow icon={Bell} label="Notifications" hint="Coming soon">
             <span className="rounded-full bg-secondary px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">Soon</span>
           </PrefRow>
+          <WeeklyEmailToggle userId={userId} />
         </div>
       </GlassCard>
 
@@ -1052,6 +1053,30 @@ function SettingsSection({
       </GlassCard>
       </div>
     </div>
+  );
+}
+
+function WeeklyEmailToggle({ userId }: { userId: string }) {
+  const key = `pref_weekly_email_${userId}`;
+  const [enabled, setEnabled] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem(key) === "true";
+  });
+  function toggle() {
+    const next = !enabled;
+    setEnabled(next);
+    if (typeof window !== "undefined") localStorage.setItem(key, String(next));
+  }
+  return (
+    <PrefRow icon={Mail} label="Weekly digest email" hint="Activate in Lovable integrations to enable sending">
+      <button
+        onClick={toggle}
+        aria-pressed={enabled}
+        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none ${enabled ? "bg-primary" : "bg-secondary"}`}
+      >
+        <span className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-lg ring-0 transition-transform ${enabled ? "translate-x-4" : "translate-x-0"}`} />
+      </button>
+    </PrefRow>
   );
 }
 

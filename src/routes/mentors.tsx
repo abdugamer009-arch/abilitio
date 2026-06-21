@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Sparkles, Briefcase, Star } from "lucide-react";
+import { Sparkles, Briefcase, Star, Calendar } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { MENTORS } from "@/lib/abbi-extras";
 
@@ -18,13 +18,13 @@ function MentorsPage() {
               <Sparkles className="h-3 w-3" /> Career Mentors
             </span>
             <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Learn from people already there</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Curated mentors aligned with the careers ABBI recommends. Real humans coming soon.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Curated mentors aligned with the careers ABBI recommends.</p>
           </header>
 
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {MENTORS.map((m) => (
               <article key={m.name}
-                className="group relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-6 backdrop-blur-xl transition-all hover:-translate-y-1 hover:border-primary/40"
+                className="group relative flex flex-col overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-6 backdrop-blur-xl transition-all hover:-translate-y-1 hover:border-primary/40"
                 style={{ boxShadow: "0 10px 30px -15px oklch(0.55 0.22 295 / 0.4)" }}>
                 <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-30 blur-3xl"
                   style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)" }} />
@@ -41,9 +41,25 @@ function MentorsPage() {
                   <div className="flex items-start gap-2"><Briefcase className="mt-0.5 h-3.5 w-3.5 text-primary" /><span>{m.experience}</span></div>
                   <div className="flex items-start gap-2"><Star className="mt-0.5 h-3.5 w-3.5 text-primary" /><span>{m.specialization}</span></div>
                 </div>
-                <blockquote className="relative mt-5 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm italic text-foreground/90">
+                <blockquote className="relative mt-5 flex-1 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm italic text-foreground/90">
                   "{m.advice}"
                 </blockquote>
+                <div className="relative mt-4">
+                  {m.bookingUrl ? (
+                    <a
+                      href={m.bookingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:glow-purple"
+                    >
+                      <Calendar className="h-4 w-4" /> Book a Session
+                    </a>
+                  ) : (
+                    <div className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border/60 bg-secondary/20 px-4 py-2.5 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4" /> Coming soon
+                    </div>
+                  )}
+                </div>
               </article>
             ))}
           </div>

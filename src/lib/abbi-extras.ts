@@ -47,6 +47,7 @@ export type Mentor = {
   specialization: string;
   advice: string;
   emoji: string;
+  bookingUrl?: string;
 };
 
 export const MENTORS: Mentor[] = [
