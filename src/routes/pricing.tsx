@@ -108,8 +108,8 @@ function PricingPage() {
               <ul className="mt-6 space-y-3 text-sm">
                 {p.features.map((f) => (
                   <li key={f} className="flex items-center gap-2">
-                    <span className="flex h-4 w-4 items-center justify-center rounded-full bg-accent/20">
-                      <Check className="h-2.5 w-2.5 text-accent" />
+                    <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]">
+                      <Check className="h-2.5 w-2.5" />
                     </span>
                     {f}
                   </li>
