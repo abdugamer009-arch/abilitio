@@ -184,10 +184,10 @@ function CareerResultsPage() {
               <p className="text-xs text-muted-foreground">Generated {new Date(r.created_at).toLocaleDateString()}</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <button onClick={share} className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm hover:bg-secondary/50 transition-colors"><Share2 className="h-4 w-4" />Share</button>
-              <button onClick={shareCard} className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm hover:bg-secondary/50 transition-colors"><ImageIcon className="h-4 w-4" />Share Card</button>
-              <button onClick={() => window.print()} className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm hover:bg-secondary/50 transition-colors"><Printer className="h-4 w-4" />Download PDF</button>
-              <Link to="/career-assessment" className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground hover:glow-purple transition-all"><RefreshCw className="h-4 w-4" />Retake</Link>
+              <button onClick={share} className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-secondary/30 px-4 py-2 text-sm transition-all hover:border-primary/30 hover:bg-secondary/60 hover:-translate-y-0.5"><Share2 className="h-4 w-4" />Share</button>
+              <button onClick={shareCard} className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-secondary/30 px-4 py-2 text-sm transition-all hover:border-primary/30 hover:bg-secondary/60 hover:-translate-y-0.5"><ImageIcon className="h-4 w-4" />Share Card</button>
+              <button onClick={() => window.print()} className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-secondary/30 px-4 py-2 text-sm transition-all hover:border-primary/30 hover:bg-secondary/60 hover:-translate-y-0.5"><Printer className="h-4 w-4" />Download PDF</button>
+              <Link to="/career-assessment" className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground hover:glow-purple hover:-translate-y-0.5 transition-all"><RefreshCw className="h-4 w-4" />Retake</Link>
             </div>
           </header>
 
@@ -212,7 +212,7 @@ function CareerResultsPage() {
                 {r.interests.slice(0, 6).map((i) => (
                   <li key={i.key} className="flex items-center justify-between">
                     <span className="capitalize">{i.key}</span>
-                    <div className="h-1.5 w-24 rounded-full bg-secondary"><div className="h-full rounded-full bg-primary" style={{ width: `${Math.round(i.weight * 100)}%` }} /></div>
+                    <div className="h-1.5 w-24 rounded-full bg-secondary/60"><div className="h-full rounded-full bg-gradient-to-r from-primary to-accent" style={{ width: `${Math.round(i.weight * 100)}%` }} /></div>
                   </li>
                 ))}
               </ul>
@@ -222,19 +222,22 @@ function CareerResultsPage() {
           {/* Strengths / improvements / skills */}
           <div className="mt-4 grid gap-4 md:grid-cols-3">
             <Card icon={<TrendingUp className="h-4 w-4" />} title="Top Strengths">
-              <ul className="space-y-1.5 text-sm">{r.strengths.map((s) => <li key={s}>· {s}</li>)}</ul>
+              <ul className="space-y-1.5 text-sm">{r.strengths.map((s) => <li key={s} className="flex items-start gap-2"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gradient-to-br from-primary to-accent" />{s}</li>)}</ul>
             </Card>
             <Card icon={<Lightbulb className="h-4 w-4" />} title="Areas to Improve">
-              <ul className="space-y-1.5 text-sm">{r.improvements.map((s) => <li key={s}>· {s}</li>)}</ul>
+              <ul className="space-y-1.5 text-sm">{r.improvements.map((s) => <li key={s} className="flex items-start gap-2"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gradient-to-br from-accent/60 to-primary/60" />{s}</li>)}</ul>
             </Card>
             <Card icon={<Sparkles className="h-4 w-4" />} title="Skills to Develop">
-              <ul className="space-y-1.5 text-sm">{r.recommended_skills.map((s) => <li key={s}>· {s}</li>)}</ul>
+              <ul className="space-y-1.5 text-sm">{r.recommended_skills.map((s) => <li key={s} className="flex items-start gap-2"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gradient-to-br from-primary to-accent" />{s}</li>)}</ul>
             </Card>
           </div>
 
           {/* Career matches */}
           <Reveal className="glass mt-6 block rounded-3xl p-6">
-            <div className="flex items-center gap-2"><Trophy className="h-4 w-4 text-primary" /><h3 className="text-sm font-semibold">Top 15 Career Matches</h3></div>
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]"><Trophy className="h-3.5 w-3.5" /></span>
+              <h3 className="text-sm font-semibold">Top 15 Career Matches</h3>
+            </div>
             <div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {r.career_matches.map((m) => (
                 <div key={m.key} className="rounded-2xl border border-border bg-secondary/30 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:bg-secondary/50">
@@ -243,7 +246,7 @@ function CareerResultsPage() {
                     <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"><CountUp value={m.score} suffix="%" /></span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">{m.category}</p>
-                  <div className="mt-2 h-1.5 rounded-full bg-secondary"><div className="h-full rounded-full bg-primary" style={{ width: `${m.score}%` }} /></div>
+                  <div className="mt-2 h-1.5 rounded-full bg-secondary/60"><div className="h-full rounded-full bg-gradient-to-r from-primary to-accent" style={{ width: `${m.score}%`, boxShadow: "0 0 8px oklch(0.65 0.22 295 / 0.4)" }} /></div>
                 </div>
               ))}
             </div>
@@ -251,7 +254,10 @@ function CareerResultsPage() {
 
           {/* University majors — with expandable university intelligence */}
           <Reveal className="glass mt-6 block rounded-3xl p-6">
-            <div className="flex items-center gap-2"><GraduationCap className="h-4 w-4 text-primary" /><h3 className="text-sm font-semibold">Top 10 University Majors</h3></div>
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]"><GraduationCap className="h-3.5 w-3.5" /></span>
+              <h3 className="text-sm font-semibold">Top 10 University Majors</h3>
+            </div>
             <div className="mt-4 grid gap-3">
               {r.university_matches.map((m) => {
                 const matchingUnis = UNIVERSITIES.filter((u) =>
@@ -324,8 +330,11 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
 
 function Card({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
-    <div className="glass rounded-3xl p-6 transition-all duration-300 hover:-translate-y-0.5 hover-glow">
-      <div className="flex items-center gap-2 text-primary">{icon}<h3 className="text-xs font-semibold uppercase tracking-wide">{title}</h3></div>
+    <div className="glass rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-20px_oklch(0.55_0.22_295_/_0.4)]">
+      <div className="flex items-center gap-2.5">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">{icon}</span>
+        <h3 className="text-xs font-semibold uppercase tracking-wide">{title}</h3>
+      </div>
       <div className="mt-3">{children}</div>
     </div>
   );
