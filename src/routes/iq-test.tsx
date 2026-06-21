@@ -85,8 +85,9 @@ function IQTestPage() {
           <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
           <div className="relative mx-auto max-w-3xl">
             <div className="glass rounded-3xl p-10 text-center animate-fade-up">
-              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent">
+              <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-[0_12px_40px_-12px_var(--glow)]">
                 <Brain className="h-10 w-10 text-primary-foreground" />
+                <span className="absolute -inset-1 -z-10 rounded-2xl opacity-50 blur-md" style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }} />
               </div>
               <h1 className="mt-6 text-4xl font-bold gradient-text">IQ Test</h1>
               <p className="mt-3 text-muted-foreground text-sm">
@@ -224,7 +225,10 @@ function IQTestPage() {
 
             {/* Question review */}
             <div className="glass rounded-3xl p-8">
-              <h2 className="text-lg font-semibold mb-4">Question Review</h2>
+              <div className="flex items-center gap-2.5 mb-4">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]"><BarChart3 className="h-4 w-4" /></span>
+                <h2 className="text-lg font-semibold">Question Review</h2>
+              </div>
               <div className="space-y-3">
                 {IQ_QUESTIONS.map((q, i) => {
                   const given = answers[i];
@@ -298,7 +302,7 @@ function IQTestPage() {
           <div className="h-2 w-full overflow-hidden rounded-full bg-secondary/60">
             <div
               className="h-full bg-gradient-to-r from-primary to-accent transition-all"
-              style={{ width: `${progress}%` }}
+              style={{ width: `${progress}%`, boxShadow: "0 0 8px oklch(0.65 0.22 295 / 0.5)" }}
             />
           </div>
 
