@@ -82,7 +82,15 @@ export function Navbar() {
                   <LogOut className="h-4 w-4" />
                 </button>
               </>
-            ) : null}
+            ) : (
+              <Link
+                to="/auth"
+                search={{ mode: "login" }}
+                className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-[13px] font-medium text-primary-foreground transition-all hover:glow-purple hover:-translate-y-0.5"
+              >
+                Sign in
+              </Link>
+            )}
 
             {/* Mobile hamburger */}
             <button
@@ -114,7 +122,18 @@ export function Navbar() {
                   </Link>
                 </li>
               ))}
-              {/* Sign-in is handled by the floating auth button */}
+              {!user && (
+                <li>
+                  <Link
+                    to="/auth"
+                    search={{ mode: "login" }}
+                    onClick={() => setOpen(false)}
+                    className="mt-1 flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"
+                  >
+                    Sign in
+                  </Link>
+                </li>
+              )}
               {user && (
                 <li>
                   <Link
