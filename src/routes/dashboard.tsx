@@ -1166,8 +1166,8 @@ function GlassCard({ className = "", children }: { className?: string; children:
 function SectionTitle({ icon: Icon, children }: { icon: React.ElementType; children: React.ReactNode }) {
   return (
     <h2 className="flex items-center gap-2 text-base font-semibold">
-      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-accent/10">
-        <Icon className="h-4 w-4 text-primary" />
+      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">
+        <Icon className="h-3.5 w-3.5" />
       </span>
       {children}
     </h2>
