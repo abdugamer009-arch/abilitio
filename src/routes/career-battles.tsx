@@ -72,6 +72,11 @@ function CareerCard({ c, winner }: { c: CareerSpec; accent: "left" | "right"; wi
       winner ? "border-primary/40 bg-gradient-to-br from-primary/15 to-accent/10" : "border-border/60 bg-gradient-to-br from-secondary/40 to-background/40"
     }`}
       style={{ boxShadow: winner ? "0 16px 40px -16px oklch(0.55 0.22 295 / 0.55)" : "0 10px 30px -15px oklch(0.55 0.22 295 / 0.3)" }}>
+      {winner && (
+        <div className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow">
+          <TrendingUp className="h-3 w-3" /> Higher demand
+        </div>
+      )}
       <div className="flex items-center gap-3">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/25 to-accent/15 text-2xl">{c.emoji}</div>
         <h3 className="text-xl font-bold">{c.name}</h3>

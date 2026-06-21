@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Sparkles, Trophy } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
+import { Reveal } from "@/components/Reveal";
 import { SUCCESS_STORIES } from "@/lib/abbi-extras";
 
 export const Route = createFileRoute("/success-stories")({
@@ -21,7 +22,7 @@ function SuccessPage() {
             <p className="mt-2 text-sm text-muted-foreground">Abilitio members sharing how assessments, roadmaps, and community changed their trajectory.</p>
           </header>
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <Reveal className="grid gap-5 md:grid-cols-2">
             {SUCCESS_STORIES.map((s) => (
               <article key={s.name}
                 className="group relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-6 backdrop-blur-xl transition-all hover:-translate-y-1 hover:border-primary/40"
@@ -43,7 +44,7 @@ function SuccessPage() {
                 </div>
               </article>
             ))}
-          </div>
+          </Reveal>
 
           <div className="mt-10 rounded-3xl border border-dashed border-border/60 bg-secondary/30 p-8 text-center">
             <p className="text-sm text-muted-foreground">Have a story to share? Story submissions open soon — earn an Aura badge when featured.</p>
