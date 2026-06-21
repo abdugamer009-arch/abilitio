@@ -42,7 +42,7 @@ export function Navbar() {
                   <Link
                     to={item.to}
                     className="whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary/70 hover:text-foreground lg:px-4 lg:text-[15px]"
-                    activeProps={{ className: "bg-secondary text-foreground shadow-[0_0_20px_-6px_var(--glow)]" }}
+                    activeProps={{ className: "bg-gradient-to-br from-primary/15 to-accent/10 text-foreground border border-primary/20 shadow-[0_0_20px_-6px_var(--glow)]" }}
                     activeOptions={{ exact: true }}
                   >
                     {item.label}

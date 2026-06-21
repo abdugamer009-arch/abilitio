@@ -488,10 +488,10 @@ function ResultsSection({
       <GlassCard className="p-7">
         <SectionTitle icon={TrendingUp}>Assessment History</SectionTitle>
         <ul className="mt-5 space-y-2">
-          {results.map((r) => (
-            <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-secondary/30 px-4 py-3 text-sm transition-all hover:border-primary/30 hover:bg-secondary/50">
+          {results.map((r, i) => (
+            <li key={r.id} className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3 text-sm transition-all hover:border-primary/30 hover:bg-secondary/50 ${i === 0 ? "border-primary/30 bg-gradient-to-r from-primary/8 to-accent/5" : "border-border/60 bg-secondary/30"}`}>
               <span className="inline-flex items-center gap-2 text-muted-foreground">
-                <Calendar className="h-3.5 w-3.5" />
+                {i === 0 ? <span className="relative flex h-2 w-2 shrink-0"><span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-50" /><span className="relative inline-flex h-2 w-2 rounded-full bg-gradient-to-br from-primary to-accent" /></span> : <Calendar className="h-3.5 w-3.5" />}
                 {new Date(r.created_at).toLocaleDateString()}
               </span>
               <span className="text-muted-foreground">IQ <span className="font-semibold text-foreground">{r.iq_score}</span></span>
@@ -939,13 +939,19 @@ function RoadmapSection({ latest, stats, tCareer }: { latest: Result | undefined
         <SectionTitle icon={Zap}>Productivity & Growth Suggestions</SectionTitle>
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
           {[
-            { t: "Deep Work Blocks", d: "90-minute distraction-free sessions, twice daily." },
-            { t: "Reading Diet", d: "1 nonfiction + 1 technical book per month." },
-            { t: "Reflection Ritual", d: "Weekly review every Sunday — what worked, what didn't." },
+            { t: "Deep Work Blocks", d: "90-minute distraction-free sessions, twice daily.", n: 1 },
+            { t: "Reading Diet", d: "1 nonfiction + 1 technical book per month.", n: 2 },
+            { t: "Reflection Ritual", d: "Weekly review every Sunday — what worked, what didn't.", n: 3 },
           ].map((s) => (
-            <div key={s.t} className="rounded-xl border border-border/60 bg-secondary/30 p-4 transition-all hover:border-primary/30 hover:-translate-y-0.5">
-              <h4 className="text-sm font-semibold">{s.t}</h4>
-              <p className="mt-1 text-xs text-muted-foreground">{s.d}</p>
+            <div key={s.t} className="relative overflow-hidden rounded-xl border border-border/60 bg-secondary/30 p-4 transition-all hover:border-primary/30 hover:-translate-y-0.5">
+              <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl bg-gradient-to-b from-primary to-accent opacity-60" />
+              <div className="flex items-start gap-3 pl-2">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-[10px] font-bold text-primary-foreground shadow-[0_2px_6px_-2px_var(--glow)]">{s.n}</span>
+                <div>
+                  <h4 className="text-sm font-semibold">{s.t}</h4>
+                  <p className="mt-1 text-xs text-muted-foreground">{s.d}</p>
+                </div>
+              </div>
             </div>
           ))}
         </div>
