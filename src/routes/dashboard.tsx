@@ -5,7 +5,7 @@ import {
   Brain, Calendar, LogOut, User as UserIcon, TrendingUp, Trophy, Heart,
   Sparkles, Target, Award, Zap, Plus, Pencil, Trash2, Check, X, Rocket,
   GraduationCap, MapPin, Lightbulb, Activity, BarChart3, Settings as SettingsIcon,
-  Compass, Star, Gauge, Languages, Moon, KeyRound, Bell, ChevronRight, Crown, Mail,
+  Compass, Star, Gauge, Languages, Moon, KeyRound, Bell, ChevronRight, Crown, Mail, Swords,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
@@ -461,6 +461,26 @@ function ResultsSection({
           </div>
         ) : <p className="mt-3 text-sm text-muted-foreground">No career data yet.</p>}
       </GlassCard>
+
+      {/* Career Battles CTA */}
+      <Link to="/career-battles" className="group block">
+        <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-accent/5 to-background/40 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-[0_16px_40px_-16px_oklch(0.55_0.22_295_/_0.4)]">
+          <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full opacity-30 blur-3xl"
+            style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)" }} />
+          <div className="relative flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)]">
+                <Swords className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold">Try Career Battles</div>
+                <div className="text-xs text-muted-foreground">Compare your top careers side-by-side with AI insights</div>
+              </div>
+            </div>
+            <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1" />
+          </div>
+        </div>
+      </Link>
 
       {/* History */}
       <GlassCard className="p-7">
