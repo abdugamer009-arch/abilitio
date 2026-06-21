@@ -237,7 +237,7 @@ function CareerResultsPage() {
             <div className="flex items-center gap-2"><Trophy className="h-4 w-4 text-primary" /><h3 className="text-sm font-semibold">Top 15 Career Matches</h3></div>
             <div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {r.career_matches.map((m) => (
-                <div key={m.key} className="rounded-2xl border border-border bg-secondary/30 p-4">
+                <div key={m.key} className="rounded-2xl border border-border bg-secondary/30 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:bg-secondary/50">
                   <div className="flex items-center justify-between">
                     <div className="text-sm font-semibold">{m.name}</div>
                     <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"><CountUp value={m.score} suffix="%" /></span>
@@ -324,7 +324,7 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
 
 function Card({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
-    <div className="glass rounded-3xl p-6">
+    <div className="glass rounded-3xl p-6 transition-all duration-300 hover:-translate-y-0.5 hover-glow">
       <div className="flex items-center gap-2 text-primary">{icon}<h3 className="text-xs font-semibold uppercase tracking-wide">{title}</h3></div>
       <div className="mt-3">{children}</div>
     </div>
