@@ -18,9 +18,16 @@ interface Node {
   alpha: number;
 }
 
-const NODE_COUNT = 110;
 const LINK_DIST = 130;
 const LINK_DIST_SQ = LINK_DIST * LINK_DIST;
+
+/** Fewer nodes on small screens keeps the link-drawing cheap on mobile. */
+function nodeCountFor(width: number): number {
+  if (width < 480) return 45;
+  if (width < 768) return 70;
+  if (width < 1280) return 95;
+  return 110;
+}
 
 export function ParticleConstellation() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -61,7 +68,7 @@ export function ParticleConstellation() {
     }
 
     function makeNodes() {
-      nodes = Array.from({ length: NODE_COUNT }, () => ({
+      nodes = Array.from({ length: nodeCountFor(w) }, () => ({
         x: Math.random() * w,
         y: Math.random() * h,
         vx: (Math.random() - 0.5) * 0.28,
