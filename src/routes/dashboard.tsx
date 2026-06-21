@@ -442,7 +442,7 @@ function ResultsSection({
             {latest.weaknesses?.length ? (
               <div className="mt-4 flex flex-wrap gap-2">
                 {latest.weaknesses.map((s) => (
-                  <span key={s} className="rounded-full border border-border bg-secondary/50 px-3 py-1.5 text-xs">
+                  <span key={s} className="rounded-full border border-accent/20 bg-gradient-to-br from-accent/10 to-primary/5 px-3 py-1.5 text-xs font-medium text-accent/80">
                     {tTrait(s)}
                   </span>
                 ))}

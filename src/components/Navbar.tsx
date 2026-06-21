@@ -63,13 +63,13 @@ export function Navbar() {
               <>
                 <Link
                   to="/dashboard"
-                  className="hidden lg:inline-flex items-center gap-1.5 rounded-full border border-border/70 px-3.5 py-1.5 text-[13px] font-medium transition-all hover:bg-secondary/70"
+                  className="hidden lg:inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-[13px] font-medium text-primary transition-all hover:bg-primary/15 hover:border-primary/50"
                 >
                   <LayoutDashboard className="h-3.5 w-3.5" /> {t.nav.dashboard}
                 </Link>
                 <Link
                   to="/dashboard"
-                  className="hidden md:inline-flex lg:hidden h-9 w-9 items-center justify-center rounded-full border border-border/70 transition-all hover:bg-secondary/70"
+                  className="hidden md:inline-flex lg:hidden h-9 w-9 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary transition-all hover:bg-primary/15"
                   aria-label={t.nav.dashboard}
                 >
                   <LayoutDashboard className="h-4 w-4" />
@@ -139,7 +139,7 @@ export function Navbar() {
                   <Link
                     to="/dashboard"
                     onClick={() => setOpen(false)}
-                    className="mt-1 flex items-center justify-center gap-1.5 rounded-xl border border-border/70 px-4 py-2.5 text-sm font-medium"
+                    className="mt-1 flex items-center justify-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary transition-all hover:bg-primary/15"
                   >
                     <LayoutDashboard className="h-4 w-4" /> {t.nav.dashboard}
                   </Link>

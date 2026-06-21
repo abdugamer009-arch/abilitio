@@ -43,7 +43,7 @@ function ForSchoolsPage() {
             <Link to="/school/register" className="cta-sheen relative inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-3 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] transition-all hover:-translate-y-0.5 overflow-hidden">
               Register your school <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link to="/school/join" className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/40 px-6 py-3 text-sm font-medium transition-all hover:bg-secondary">
+            <Link to="/school/join" className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-6 py-3 text-sm font-medium text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_6px_16px_-6px_oklch(0.55_0.22_295_/_0.3)]">
               Join as a student
             </Link>
           </div>
