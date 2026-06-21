@@ -264,7 +264,7 @@ export function AbbiChat() {
                   key={s}
                   onClick={() => handleSend(s)}
                   disabled={typing}
-                  className="rounded-full border border-border/60 bg-background/40 px-3 py-1.5 text-[11px] text-muted-foreground transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:text-foreground disabled:opacity-50"
+                  className="rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-[11px] text-muted-foreground transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/10 hover:text-primary hover:shadow-[0_4px_12px_-4px_oklch(0.55_0.22_295_/_0.3)] disabled:opacity-50"
                 >
                   {s}
                 </button>
@@ -350,7 +350,7 @@ function MessageBubble({ role, content }: { role: "user" | "abbi"; content: stri
         >
           {content}
         </div>
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-muted-foreground">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-secondary/80 to-secondary/40 border border-border/60 text-muted-foreground">
           <UserIcon className="h-4 w-4" />
         </div>
       </div>
