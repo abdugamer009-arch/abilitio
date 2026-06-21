@@ -13,7 +13,7 @@ export function LanguageSwitcher() {
             aria-pressed={active}
             className={`relative rounded-full px-2.5 py-1 text-[11px] font-semibold tracking-wide transition-all duration-300 ${
               active
-                ? "bg-primary text-primary-foreground shadow-[0_0_18px_-4px_var(--glow)]"
+                ? "bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_0_18px_-4px_var(--glow)]"
                 : "text-muted-foreground hover:text-foreground hover:bg-secondary/70"
             }`}
           >

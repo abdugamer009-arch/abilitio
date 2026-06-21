@@ -54,7 +54,7 @@ function LandingPage() {
             </Link>
             <Link
               to="/features"
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/60 px-9 py-4 text-base font-medium backdrop-blur transition-colors hover:bg-secondary lg:px-10 lg:py-5 lg:text-lg"
+              className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-9 py-4 text-base font-medium text-primary backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)] lg:px-10 lg:py-5 lg:text-lg"
             >
               {t.hero.learnMore}
             </Link>
