@@ -890,8 +890,8 @@ function RoadmapSection({ latest, stats, tCareer }: { latest: Result | undefined
                   </div>
                   <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/30 to-background/30 p-5 transition-all hover:border-primary/30 hover:-translate-y-0.5">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/10">
-                        <Icon className="h-4 w-4 text-primary" />
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">
+                        <Icon className="h-4 w-4" />
                       </div>
                       <div className="min-w-0">
                         <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{m.time}</div>
@@ -913,7 +913,7 @@ function RoadmapSection({ latest, stats, tCareer }: { latest: Result | undefined
           <div className="mt-5 space-y-3">
             {skills.map((s, i) => (
               <div key={s} className="flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3 transition-all hover:border-primary/30">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-accent/10 text-xs font-bold text-primary">{i + 1}</div>
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-xs font-bold text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">{i + 1}</div>
                 <span className="text-sm">{s}</span>
               </div>
             ))}
@@ -924,8 +924,8 @@ function RoadmapSection({ latest, stats, tCareer }: { latest: Result | undefined
           <SectionTitle icon={MapPin}>University Recommendations</SectionTitle>
           <div className="mt-5 space-y-3">
             {universities.map((u) => (
-              <div key={u} className="flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3 transition-all hover:border-primary/30">
-                <GraduationCap className="h-4 w-4 shrink-0 text-primary" />
+              <div key={u} className="flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3 transition-all hover:border-primary/30 hover:-translate-y-0.5">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]"><GraduationCap className="h-3.5 w-3.5" /></span>
                 <span className="text-sm">{u}</span>
               </div>
             ))}
@@ -1144,8 +1144,8 @@ function PrefRow({ icon: Icon, label, hint, children }: { icon: React.ElementTyp
   return (
     <div className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3">
       <div className="flex items-center gap-3 min-w-0">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-accent/10">
-          <Icon className="h-4 w-4 text-primary" />
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">
+          <Icon className="h-4 w-4" />
         </div>
         <div className="min-w-0">
           <div className="truncate text-sm font-medium">{label}</div>

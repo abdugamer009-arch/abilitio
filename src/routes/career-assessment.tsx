@@ -159,7 +159,7 @@ function CareerAssessmentPage() {
             <span>{step + 1} / {TOTAL}</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-secondary/60">
-            <div className="h-full bg-gradient-to-r from-primary to-accent transition-all" style={{ width: `${progress}%` }} />
+            <div className="h-full bg-gradient-to-r from-primary to-accent transition-all" style={{ width: `${progress}%`, boxShadow: "0 0 8px oklch(0.65 0.22 295 / 0.5)" }} />
           </div>
 
           <div className="glass mt-6 rounded-3xl p-8">
@@ -172,10 +172,12 @@ function CareerAssessmentPage() {
                     const v = i + 1;
                     const selected = value === v;
                     return (
-                      <button key={v} onClick={() => setValue(v)} className={`w-full rounded-xl border px-4 py-3 text-left transition ${selected ? "border-primary bg-primary/10" : "border-border hover:bg-secondary/40"}`}>
+                      <button key={v} onClick={() => setValue(v)} className={`w-full rounded-xl border px-4 py-3 text-left transition-all duration-200 ${selected ? "border-primary/50 bg-gradient-to-r from-primary/12 to-accent/8 shadow-[0_2px_12px_-4px_var(--glow)]" : "border-border hover:bg-secondary/40 hover:border-primary/20"}`}>
                         <div className="flex items-center justify-between">
                           <span className="text-sm">{label}</span>
-                          <span className={`h-4 w-4 rounded-full border ${selected ? "bg-primary border-primary" : "border-border"}`} />
+                          <span className={`flex h-4 w-4 items-center justify-center rounded-full border transition-all ${selected ? "border-primary bg-gradient-to-br from-primary to-accent" : "border-border"}`}>
+                            {selected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                          </span>
                         </div>
                       </button>
                     );
@@ -184,9 +186,9 @@ function CareerAssessmentPage() {
                   {current.kind === "c" && (current.q as CognitiveQ).options.map((opt, i) => {
                     const selected = value === i;
                     return (
-                      <button key={i} onClick={() => setValue(i)} className={`w-full rounded-xl border px-4 py-3 text-left transition ${selected ? "border-primary bg-primary/10" : "border-border hover:bg-secondary/40"}`}>
+                      <button key={i} onClick={() => setValue(i)} className={`w-full rounded-xl border px-4 py-3 text-left transition-all duration-200 ${selected ? "border-primary/50 bg-gradient-to-r from-primary/12 to-accent/8 shadow-[0_2px_12px_-4px_var(--glow)]" : "border-border hover:bg-secondary/40 hover:border-primary/20"}`}>
                         <div className="flex items-center gap-3">
-                          <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold ${selected ? "bg-primary border-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>
+                          <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold transition-all ${selected ? "bg-gradient-to-br from-primary to-accent border-primary text-primary-foreground shadow-[0_2px_6px_-2px_var(--glow)]" : "border-border text-muted-foreground"}`}>
                             {String.fromCharCode(65 + i)}
                           </span>
                           <span className="text-sm">{opt}</span>
@@ -204,9 +206,12 @@ function CareerAssessmentPage() {
                           <button
                             key={opt.key}
                             onClick={() => setValue(selected ? arr.filter((k) => k !== opt.key) : [...arr, opt.key])}
-                            className={`rounded-xl border px-4 py-3 text-left text-sm transition ${selected ? "border-primary bg-primary/10" : "border-border hover:bg-secondary/40"}`}
+                            className={`rounded-xl border px-4 py-3 text-left text-sm transition-all duration-200 ${selected ? "border-primary/50 bg-gradient-to-br from-primary/12 to-accent/8 shadow-[0_2px_12px_-4px_var(--glow)]" : "border-border hover:bg-secondary/40 hover:border-primary/20"}`}
                           >
-                            {opt.label}
+                            <div className="flex items-center justify-between gap-2">
+                              <span>{opt.label}</span>
+                              {selected && <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent"><span className="h-1 w-1 rounded-full bg-white" /></span>}
+                            </div>
                           </button>
                         );
                       })}
@@ -228,7 +233,7 @@ function CareerAssessmentPage() {
                 <button
                   onClick={() => setStep((s) => s + 1)}
                   disabled={!canNext}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2 text-sm text-primary-foreground hover:glow-purple disabled:opacity-50"
+                  className="cta-sheen relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-primary px-6 py-2 text-sm text-primary-foreground transition-all hover:glow-purple hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
                 >
                   Next <ArrowRight className="h-4 w-4" />
                 </button>
@@ -236,7 +241,7 @@ function CareerAssessmentPage() {
                 <button
                   onClick={finish}
                   disabled={!canNext || submitting}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2 text-sm text-primary-foreground hover:glow-purple disabled:opacity-50"
+                  className="cta-sheen relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-primary px-6 py-2 text-sm text-primary-foreground transition-all hover:glow-purple hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
                 >
                   {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                   See My Results
@@ -252,9 +257,12 @@ function CareerAssessmentPage() {
 
 function Section({ icon, title, caption }: { icon: React.ReactNode; title: string; caption: string }) {
   return (
-    <div className="rounded-2xl border border-border bg-secondary/30 p-4">
-      <div className="flex items-center gap-2 text-primary">{icon}<span className="text-xs font-semibold">{title}</span></div>
-      <p className="mt-1.5 text-xs text-muted-foreground">{caption}</p>
+    <div className="rounded-2xl border border-border/60 bg-secondary/30 p-4 transition-all hover:border-primary/30">
+      <div className="flex items-center gap-2.5">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">{icon}</span>
+        <span className="text-xs font-semibold">{title}</span>
+      </div>
+      <p className="mt-2 text-xs text-muted-foreground">{caption}</p>
     </div>
   );
 }
