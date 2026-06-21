@@ -189,8 +189,8 @@ export function QuickLinks() {
           <Link key={it.to} to={it.to}
             className="group flex items-center justify-between gap-3 rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/30 to-background/40 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/40">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/25 to-accent/15">
-                <it.icon className="h-4 w-4 text-primary" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_4px_14px_-4px_var(--glow)]">
+                <it.icon className="h-4 w-4" />
               </div>
               <div className="min-w-0">
                 <div className="text-sm font-medium">{it.label}</div>
@@ -208,16 +208,22 @@ export function QuickLinks() {
 export function UniversitiesTabSection() {
   return (
     <div className="space-y-6">
-      <div className="glass rounded-3xl p-8 text-center">
-        <GraduationCap className="mx-auto h-12 w-12 text-primary" />
-        <h3 className="mt-4 text-xl font-semibold">University Explorer</h3>
-        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-          Filter universities by SAT, IELTS, country, and major. ABBI ranks fit and scholarships.
-        </p>
-        <Link to="/universities"
-          className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple">
-          Open University Explorer <ChevronRight className="h-4 w-4" />
-        </Link>
+      <div className="glass relative overflow-hidden rounded-3xl p-8 text-center">
+        <div className="pointer-events-none absolute left-1/2 top-0 h-40 w-72 -translate-x-1/2 rounded-full opacity-20 blur-3xl"
+          style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.8), transparent 70%)" }} />
+        <div className="relative">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_30px_-10px_var(--glow)]">
+            <GraduationCap className="h-8 w-8" />
+          </div>
+          <h3 className="mt-4 text-xl font-semibold">University Explorer</h3>
+          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+            Filter universities by SAT, IELTS, country, and major. ABBI ranks fit and scholarships.
+          </p>
+          <Link to="/universities"
+            className="cta-sheen relative mt-6 inline-flex items-center gap-2 overflow-hidden rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple hover:-translate-y-0.5 transition-all">
+            Open University Explorer <ChevronRight className="h-4 w-4" />
+          </Link>
+        </div>
       </div>
       <QuickLinks />
     </div>
