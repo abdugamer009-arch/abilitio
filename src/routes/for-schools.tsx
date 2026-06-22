@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
-import { GraduationCap, BarChart3, Users, Sparkles, Shield, ArrowRight, Check } from "lucide-react";
+import { GraduationCap, BarChart3, Users, Sparkles, Shield, ArrowRight, Check, Mail } from "lucide-react";
+import { FloatingShapes } from "@/components/FloatingShapes";
 
 export const Route = createFileRoute("/for-schools")({
   head: () => ({
@@ -17,9 +18,9 @@ export const Route = createFileRoute("/for-schools")({
 });
 
 const PLANS = [
-  { name: "Starter", limit: "Up to 100 students", price: "Free", features: ["School dashboard", "Class analytics", "Talent distribution"] },
-  { name: "Professional", limit: "Up to 500 students", price: "Contact us", features: ["Everything in Starter", "Specialized class generator", "PDF reports", "Teacher accounts"], highlight: true },
-  { name: "Enterprise", limit: "Unlimited students", price: "Contact us", features: ["Everything in Professional", "Priority support", "Custom integrations", "Strategic AI insights"] },
+  { name: "Starter", limit: "Up to 100 students", price: "Free", cta: "Register free", ctaTo: "/school/register" as const, contact: false, features: ["School dashboard", "Class analytics", "Talent distribution"] },
+  { name: "Professional", limit: "Up to 500 students", price: "Contact us", cta: "Talk to us", ctaTo: "/contact" as const, contact: true, features: ["Everything in Starter", "Specialized class generator", "PDF reports", "Teacher accounts"], highlight: true },
+  { name: "Enterprise", limit: "Unlimited students", price: "Contact us", cta: "Talk to us", ctaTo: "/contact" as const, contact: true, features: ["Everything in Professional", "Priority support", "Custom integrations", "Strategic AI insights"] },
 ];
 
 function ForSchoolsPage() {
@@ -27,6 +28,7 @@ function ForSchoolsPage() {
     <PageShell>
       <section className="relative px-6 pt-20 pb-12">
         <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
+        <FloatingShapes />
         <div className="relative mx-auto max-w-5xl text-center animate-fade-up">
           <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
             <GraduationCap className="h-3.5 w-3.5" /> Built for Schools
@@ -97,6 +99,17 @@ function ForSchoolsPage() {
                     </li>
                   ))}
                 </ul>
+                <Link
+                  to={p.ctaTo}
+                  className={`mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-all hover:-translate-y-0.5 ${
+                    p.highlight
+                      ? "cta-sheen relative overflow-hidden bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)]"
+                      : "border border-primary/30 bg-primary/10 text-primary hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_6px_16px_-6px_oklch(0.55_0.22_295_/_0.3)]"
+                  }`}
+                >
+                  {p.contact ? <Mail className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+                  {p.cta}
+                </Link>
               </div>
             ))}
           </Reveal>
