@@ -4,6 +4,7 @@ import { Brain, LineChart, Compass, ShieldCheck, Sparkles, Users, Target, BookOp
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { FloatingShapes } from "@/components/FloatingShapes";
+import { GradientDivider } from "@/components/GradientDivider";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/features")({
@@ -57,31 +58,34 @@ function FeaturesPage() {
         </div>
       </section>
 
-      {groups.map((g) => (
-        <section key={g.title} className="px-6 py-12">
-          <div className="mx-auto max-w-6xl">
-            <Reveal>
-              <h2 className="mb-8 flex items-center gap-3 text-2xl font-semibold">
-                <span className="h-px w-8 shrink-0 rounded-full bg-gradient-to-r from-transparent via-primary to-accent opacity-70" />
-                {g.title}
-                <span className="h-px flex-1 rounded-full bg-gradient-to-r from-accent/40 to-transparent opacity-40" />
-              </h2>
-            </Reveal>
-            <Reveal delay={100}>
-              <div className="grid gap-5 md:grid-cols-3">
-                {g.items.map((f) => (
-                  <SpotlightCard key={f.title} className="glass rounded-2xl p-6 hover-glow transition-all duration-300 hover:-translate-y-1">
-                    <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_6px_24px_-8px_var(--glow)]">
-                      <f.icon className="h-5 w-5" />
-                    </div>
-                    <h3 className="font-semibold">{f.title}</h3>
-                    <p className="mt-1.5 text-sm text-muted-foreground">{f.desc}</p>
-                  </SpotlightCard>
-                ))}
-              </div>
-            </Reveal>
-          </div>
-        </section>
+      {groups.map((g, gi) => (
+        <div key={g.title}>
+          {gi > 0 && <div className="mx-auto max-w-6xl px-6"><GradientDivider /></div>}
+          <section className="px-6 py-12">
+            <div className="mx-auto max-w-6xl">
+              <Reveal>
+                <h2 className="mb-8 flex items-center gap-3 text-2xl font-semibold">
+                  <span className="h-px w-8 shrink-0 rounded-full bg-gradient-to-r from-transparent via-primary to-accent opacity-70" />
+                  {g.title}
+                  <span className="h-px flex-1 rounded-full bg-gradient-to-r from-accent/40 to-transparent opacity-40" />
+                </h2>
+              </Reveal>
+              <Reveal delay={100}>
+                <div className="grid gap-5 md:grid-cols-3">
+                  {g.items.map((f) => (
+                    <SpotlightCard key={f.title} className="glass rounded-2xl p-6 hover-glow transition-all duration-300 hover:-translate-y-1">
+                      <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_6px_24px_-8px_var(--glow)]">
+                        <f.icon className="h-5 w-5" />
+                      </div>
+                      <h3 className="font-semibold">{f.title}</h3>
+                      <p className="mt-1.5 text-sm text-muted-foreground">{f.desc}</p>
+                    </SpotlightCard>
+                  ))}
+                </div>
+              </Reveal>
+            </div>
+          </section>
+        </div>
       ))}
     </PageShell>
   );
