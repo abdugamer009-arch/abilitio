@@ -7,7 +7,7 @@ import { getMyCareerResult, type CareerResultDTO } from "@/lib/career.functions"
 import { UNIVERSITIES } from "@/lib/abbi-extras";
 import { Reveal } from "@/components/Reveal";
 import { CountUp } from "@/components/CountUp";
-import { Brain, Target, Sparkles, Trophy, GraduationCap, Printer, Share2, RefreshCw, TrendingUp, Lightbulb, ImageIcon, ChevronDown } from "lucide-react";
+import { Brain, Target, Sparkles, Trophy, GraduationCap, Printer, Share2, RefreshCw, TrendingUp, Lightbulb, ImageIcon, ChevronDown, Check } from "lucide-react";
 
 export const Route = createFileRoute("/career-results")({
   head: () => ({ meta: [{ title: "Your Career Profile — Abilitio" }] }),
@@ -21,6 +21,7 @@ function CareerResultsPage() {
   const [r, setR] = useState<CareerResultDTO | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -66,7 +67,8 @@ function CareerResultsPage() {
     const url = `${window.location.origin}/career-results`;
     if (navigator.share) { try { await navigator.share({ title: "My Abilitio Career Profile", url }); return; } catch { /* user cancelled share dialog */ } }
     await navigator.clipboard.writeText(url);
-    alert("Link copied");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   async function shareCard() {
@@ -184,7 +186,10 @@ function CareerResultsPage() {
               <p className="text-xs text-muted-foreground">Generated {new Date(r.created_at).toLocaleDateString()}</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <button onClick={share} className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_4px_12px_-4px_oklch(0.55_0.22_295_/_0.3)]"><Share2 className="h-4 w-4" />Share</button>
+              <button onClick={share} className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_4px_12px_-4px_oklch(0.55_0.22_295_/_0.3)]">
+                {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Share2 className="h-4 w-4" />}
+                {copied ? "Copied!" : "Share"}
+              </button>
               <button onClick={shareCard} className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_4px_12px_-4px_oklch(0.55_0.22_295_/_0.3)]"><ImageIcon className="h-4 w-4" />Share Card</button>
               <button onClick={() => window.print()} className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_4px_12px_-4px_oklch(0.55_0.22_295_/_0.3)]"><Printer className="h-4 w-4" />Download PDF</button>
               <Link to="/career-assessment" className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-4 py-2 text-sm text-primary-foreground shadow-[0_4px_16px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"><RefreshCw className="h-4 w-4" />Retake</Link>
@@ -209,10 +214,15 @@ function CareerResultsPage() {
             </Card>
             <Card icon={<Sparkles className="h-4 w-4" />} title="Top Interests">
               <ul className="space-y-1.5 text-sm">
-                {r.interests.slice(0, 6).map((i) => (
+                {r.interests.slice(0, 6).map((i, idx) => (
                   <li key={i.key} className="flex items-center justify-between">
                     <span className="capitalize">{i.key}</span>
-                    <div className="h-1.5 w-24 rounded-full bg-secondary/60"><div className="h-full rounded-full bg-gradient-to-r from-primary to-accent" style={{ width: `${Math.round(i.weight * 100)}%` }} /></div>
+                    <div className="h-1.5 w-24 rounded-full bg-secondary/60 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-[width] duration-700 ease-out"
+                        style={{ width: `${Math.round(i.weight * 100)}%`, transitionDelay: `${idx * 80}ms` }}
+                      />
+                    </div>
                   </li>
                 ))}
               </ul>

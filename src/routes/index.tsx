@@ -74,6 +74,15 @@ function LandingPage() {
               <Sparkles className="h-3.5 w-3.5 text-accent" /> 30-question AI assessment
             </span>
           </div>
+
+          {/* Scroll indicator */}
+          <div className="mt-16 flex flex-col items-center gap-1.5 opacity-40 animate-fade-in" style={{ animationDelay: "1.4s" }}>
+            <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Scroll</span>
+            <div className="flex flex-col items-center gap-0.5">
+              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground animate-bounce" style={{ animationDuration: "1.4s" }} />
+              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground animate-bounce opacity-50" style={{ animationDuration: "1.4s", animationDelay: "0.15s" }} />
+            </div>
+          </div>
         </div>
       </section>
 

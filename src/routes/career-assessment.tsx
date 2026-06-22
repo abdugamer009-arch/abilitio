@@ -46,6 +46,7 @@ function CareerAssessmentPage() {
   const [session, setSession] = useState<SessionQuestions | null>(null);
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Answers>(makeAnswers());
 
   const startSession = useCallback(() => {
@@ -101,8 +102,7 @@ function CareerAssessmentPage() {
       sessionStorage.setItem("career_last_result_id", result.id);
       navigate({ to: "/career-results" });
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Submission failed";
-      alert(msg);
+      setSubmitError(e instanceof Error ? e.message : "Submission failed. Please try again.");
       setSubmitting(false);
     }
   }
@@ -238,14 +238,21 @@ function CareerAssessmentPage() {
                   Next <ArrowRight className="h-4 w-4" />
                 </button>
               ) : (
-                <button
-                  onClick={finish}
-                  disabled={!canNext || submitting}
-                  className="cta-sheen relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
-                >
-                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                  See My Results
-                </button>
+                <div className="flex flex-col items-end gap-2">
+                  {submitError && (
+                    <div className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-2 text-xs text-destructive max-w-xs text-right">
+                      {submitError}
+                    </div>
+                  )}
+                  <button
+                    onClick={() => { setSubmitError(null); finish(); }}
+                    disabled={!canNext || submitting}
+                    className="cta-sheen relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
+                  >
+                    {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                    See My Results
+                  </button>
+                </div>
               )}
             </div>
           </div>
