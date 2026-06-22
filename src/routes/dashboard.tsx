@@ -357,7 +357,7 @@ function TabBar({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
             <button
               key={tt.key}
               onClick={() => setTab(tt.key)}
-              className={`group relative flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 py-2.5 text-[12px] font-medium transition-all sm:text-sm ${
+              className={`group relative flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 py-2.5 text-[12px] font-medium transition-all sm:flex-1 sm:text-sm ${
                 active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
               }`}
             >

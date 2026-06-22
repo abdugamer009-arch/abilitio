@@ -107,7 +107,7 @@ export function Navbar() {
 
         {/* Mobile menu */}
         {open && (
-          <div className="lg:hidden mt-2 glass rounded-2xl p-2 animate-fade-in">
+          <div className="md:hidden mt-2 glass rounded-2xl p-2 animate-fade-in">
             <ul className="flex flex-col">
               {navItems.map((item) => (
                 <li key={item.to}>

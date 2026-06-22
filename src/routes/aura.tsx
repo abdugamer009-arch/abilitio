@@ -45,7 +45,7 @@ function AuraPage() {
               <AuraCoin size={84} />
             </div>
             <p className="mt-6 text-xs uppercase tracking-[0.22em] text-muted-foreground">Aura Coins</p>
-            <h1 className="mt-3 text-5xl font-semibold tracking-tight md:text-6xl">
+            <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl md:text-6xl">
               {user ? (
                 <span className="gradient-text tabular-nums">{(wallet?.balance ?? 0).toLocaleString()}</span>
               ) : (

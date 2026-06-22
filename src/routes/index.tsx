@@ -28,7 +28,7 @@ function LandingPage() {
   return (
     <PageShell>
       {/* Hero */}
-      <section className="relative px-6 pt-32 pb-40 text-center lg:pt-40 lg:pb-48">
+      <section className="relative px-6 pt-24 pb-28 text-center sm:pt-32 sm:pb-36 lg:pt-40 lg:pb-48">
         <div aria-hidden className="bg-grid pointer-events-none absolute inset-0 z-0" />
         <ParticleConstellation />
         <div key={t.hero.titleA} className="relative z-10 mx-auto max-w-5xl animate-fade-up">
@@ -39,10 +39,10 @@ function LandingPage() {
             </span>
             {t.hero.badge}
           </div>
-          <h1 className="text-6xl font-bold tracking-tight md:text-7xl lg:text-[88px] lg:leading-[1.05]">
+          <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl md:text-7xl lg:text-[88px] lg:leading-[1.05]">
             {t.hero.titleA} <span className="gradient-text">{t.hero.titleB}</span>
           </h1>
-          <p className="mx-auto mt-8 max-w-3xl text-xl text-muted-foreground md:text-2xl lg:text-[22px] lg:leading-relaxed">
+          <p className="mx-auto mt-6 max-w-3xl text-lg text-muted-foreground sm:mt-8 sm:text-xl md:text-2xl lg:text-[22px] lg:leading-relaxed">
             {t.hero.subtitle}
           </p>
           <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
