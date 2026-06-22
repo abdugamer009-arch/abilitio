@@ -126,10 +126,8 @@ describe("matchCareers", () => {
   ];
 
   it("ranks tech career higher for INTJ with tech interests", () => {
-    const personality = scorePersonality(
-      [1, 5, 1, 1, 5, 1, 1, 5, 1, 1, 5, 1],
-      PERSONALITY_QS
-    ); // INFP-ish — NF heavy, let's use a real NT answer set instead
+    // INFP-ish — NF heavy, use a real NT answer set below instead
+    void scorePersonality([1, 5, 1, 1, 5, 1, 1, 5, 1, 1, 5, 1], PERSONALITY_QS);
     const answers = [5, 1, 5, 5, 1, 5, 5, 1, 5, 5, 1, 5]; // ESTJ-ish actually
     const p2 = scorePersonality(answers, PERSONALITY_QS);
     const cognitive = scoreCognitive([0,1,2,3,0,1,2,3,0], [0,1,2,3,0,1,2,3,0], p2.mbti);

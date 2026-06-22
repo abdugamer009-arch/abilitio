@@ -3,9 +3,9 @@ import { PageShell } from "@/components/PageShell";
 import { useEffect, useMemo, useState } from "react";
 import {
   Brain, Calendar, LogOut, User as UserIcon, TrendingUp, Trophy, Heart,
-  Sparkles, Target, Award, Zap, Plus, Pencil, Trash2, Check, X, Rocket,
-  GraduationCap, MapPin, Lightbulb, Activity, BarChart3, Settings as SettingsIcon,
-  Compass, Star, Gauge, Languages, Moon, KeyRound, Bell, ChevronRight, Crown, Mail, Swords,
+  Sparkles, Target, Award, Zap, Plus, Pencil, Trash2, Check, X,
+  GraduationCap, Activity, BarChart3, Settings as SettingsIcon,
+  Star, Gauge, Languages, Moon, KeyRound, Bell, ChevronRight, Crown, Mail, Swords,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
@@ -837,128 +837,8 @@ function AchievementsBlock({
 }
 
 /* ============================================================ */
-/* SECTION 3: ROADMAP                                            */
+/* SECTION 4: SETTINGS                                           */
 /* ============================================================ */
-function RoadmapSection({ latest, stats, tCareer }: { latest: Result | undefined; stats: Stats | null; tCareer: (n: string) => { name: string; reason: string } }) {
-  const targetCareer = latest?.careers?.[0] ? tCareer(latest.careers[0].name).name : "Your Future Path";
-
-  const skills = useMemo(() => {
-    const base = ["Critical Thinking", "Public Speaking", "Advanced Mathematics", "Data Analysis", "Creative Writing"];
-    if (latest?.weaknesses?.length) return [...latest.weaknesses.slice(0, 3), ...base].slice(0, 5);
-    return base;
-  }, [latest]);
-
-  const universities = ["MIT — Massachusetts Institute of Technology", "Stanford University", "ETH Zürich", "National University of Singapore", "University of Tokyo"];
-
-  const milestones = [
-    { time: "Next 30 days", title: "Foundation Sprint", desc: "Daily 45-min focused study sessions. Build a study rhythm.", icon: Rocket },
-    { time: "3 months", title: "Skill Acceleration", desc: `Reach intermediate level in ${skills[0] ?? "core skills"}.`, icon: Zap },
-    { time: "6 months", title: "First Major Project", desc: `Ship something real aligned with ${targetCareer}.`, icon: Target },
-    { time: "1 year", title: "Application Ready", desc: "University apps, portfolio, recommendation letters secured.", icon: GraduationCap },
-    { time: "3 years", title: "Launch Trajectory", desc: `Established path into ${targetCareer}.`, icon: Crown },
-  ];
-
-  return (
-    <div className="space-y-6">
-      <GlassCard className="relative overflow-hidden p-8">
-        <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
-          style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.4), transparent 70%)" }} />
-        <div className="relative">
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
-            <Sparkles className="h-3 w-3" /> AI-Generated Roadmap
-          </div>
-          <h2 className="mt-4 text-2xl font-bold tracking-tight sm:text-3xl">
-            Your path to <span className="gradient-text">{targetCareer}</span>
-          </h2>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            A personalized growth journey crafted from your cognitive profile, personality type, and goals.
-          </p>
-        </div>
-      </GlassCard>
-
-      {/* Timeline */}
-      <GlassCard className="p-7">
-        <SectionTitle icon={Compass}>Career Development Timeline</SectionTitle>
-        <div className="relative mt-8 pl-6 sm:pl-8">
-          <div className="absolute left-2 top-2 bottom-2 w-px bg-gradient-to-b from-primary via-accent to-transparent sm:left-3" />
-          <div className="space-y-6">
-            {milestones.map((m, i) => {
-              const Icon = m.icon;
-              return (
-                <div key={m.title} className="relative animate-fade-in" style={{ animationDelay: `${i * 80}ms` }}>
-                  <div className="absolute -left-[1.45rem] top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-gradient-to-br from-primary to-accent sm:-left-[1.95rem]"
-                    style={{ boxShadow: "0 0 12px oklch(0.65 0.22 295 / 0.7)" }}>
-                    <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />
-                  </div>
-                  <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/30 to-background/30 p-5 transition-all hover:border-primary/30 hover:-translate-y-0.5">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">
-                        <Icon className="h-4 w-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{m.time}</div>
-                        <h4 className="text-sm font-semibold">{m.title}</h4>
-                      </div>
-                    </div>
-                    <p className="mt-3 text-xs text-muted-foreground">{m.desc}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </GlassCard>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <GlassCard className="p-7">
-          <SectionTitle icon={Lightbulb}>Skills to Sharpen</SectionTitle>
-          <div className="mt-5 space-y-3">
-            {skills.map((s, i) => (
-              <div key={s} className="flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_6px_16px_-8px_oklch(0.55_0.22_295_/_0.3)]">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-xs font-bold text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">{i + 1}</div>
-                <span className="text-sm">{s}</span>
-              </div>
-            ))}
-          </div>
-        </GlassCard>
-
-        <GlassCard className="p-7">
-          <SectionTitle icon={MapPin}>University Recommendations</SectionTitle>
-          <div className="mt-5 space-y-3">
-            {universities.map((u) => (
-              <div key={u} className="flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3 transition-all hover:border-primary/30 hover:-translate-y-0.5">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]"><GraduationCap className="h-3.5 w-3.5" /></span>
-                <span className="text-sm">{u}</span>
-              </div>
-            ))}
-          </div>
-        </GlassCard>
-      </div>
-
-      <GlassCard className="p-7">
-        <SectionTitle icon={Zap}>Productivity & Growth Suggestions</SectionTitle>
-        <div className="mt-5 grid gap-3 sm:grid-cols-3">
-          {[
-            { t: "Deep Work Blocks", d: "90-minute distraction-free sessions, twice daily.", n: 1 },
-            { t: "Reading Diet", d: "1 nonfiction + 1 technical book per month.", n: 2 },
-            { t: "Reflection Ritual", d: "Weekly review every Sunday — what worked, what didn't.", n: 3 },
-          ].map((s) => (
-            <div key={s.t} className="relative overflow-hidden rounded-xl border border-border/60 bg-secondary/30 p-4 transition-all hover:border-primary/30 hover:-translate-y-0.5">
-              <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl bg-gradient-to-b from-primary to-accent opacity-60" />
-              <div className="flex items-start gap-3 pl-2">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-[10px] font-bold text-primary-foreground shadow-[0_2px_6px_-2px_var(--glow)]">{s.n}</span>
-                <div>
-                  <h4 className="text-sm font-semibold">{s.t}</h4>
-                  <p className="mt-1 text-xs text-muted-foreground">{s.d}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </GlassCard>
-    </div>
-  );
-}
 
 /* ============================================================ */
 /* SECTION 4: SETTINGS                                           */

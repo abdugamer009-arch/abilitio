@@ -15,7 +15,7 @@ type StatsLite = {
 } | null;
 
 /* ─────────────── Skills tab ─────────────── */
-export function SkillsSection({ stats, mbti }: { stats: StatsLite; mbti?: string | null }) {
+export function SkillsSection({ stats, mbti: _mbti }: { stats: StatsLite; mbti?: string | null }) {
   const fn = useServerFn(getMyGrowthState);
   const [skills, setSkills] = useState<SkillSnapshot[] | null>(null);
 

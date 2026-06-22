@@ -87,7 +87,7 @@ export const getCommunityMessages = createServerFn({ method: "GET" })
 export const fetchMessageAuthors = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { userIds: string[] }) => input)
-  .handler(async ({ data, context }): Promise<AuthorDTO[]> => {
+  .handler(async ({ data, context: _context }): Promise<AuthorDTO[]> => {
     return fetchAuthors(data.userIds);
   });
 
