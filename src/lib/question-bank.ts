@@ -5,7 +5,7 @@ import type { PersonalityQ, CognitiveQ, InterestQ } from "./career-assessment";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PERSONALITY BANK  (target: 200 questions)
-// Currently: 40 questions (10 per MBTI axis × 4 axes)
+// Currently: 280 questions (70 per MBTI axis × 4 axes)
 // ─────────────────────────────────────────────────────────────────────────────
 export const PERSONALITY_BANK: PersonalityQ[] = [
   // ── E/I ──
@@ -220,11 +220,99 @@ export const PERSONALITY_BANK: PersonalityQ[] = [
   { id: "p198", section: "personality", prompt: "You prefer a working environment with clear rules and predictable outcomes.", axis: "JP", direction: 1 },
   { id: "p199", section: "personality", prompt: "You feel most creative when you have complete freedom with no fixed plan.", axis: "JP", direction: -1 },
   { id: "p200", section: "personality", prompt: "You find it more stressful to have too many open options than too few.", axis: "JP", direction: 1 },
+
+  // ── EI additional (p201–p220) ──
+  { id: "p201", section: "personality", prompt: "You find group problem-solving sessions more productive than working alone.", axis: "EI", direction: 1 },
+  { id: "p202", section: "personality", prompt: "You think better when you can talk your ideas through with someone.", axis: "EI", direction: 1 },
+  { id: "p203", section: "personality", prompt: "You feel recharged and motivated after spending an evening with friends.", axis: "EI", direction: 1 },
+  { id: "p204", section: "personality", prompt: "You often take the initiative to contact people rather than waiting for them to reach out.", axis: "EI", direction: 1 },
+  { id: "p205", section: "personality", prompt: "Working from home for extended periods makes you feel isolated and unmotivated.", axis: "EI", direction: 1 },
+  { id: "p206", section: "personality", prompt: "You feel most confident and articulate when speaking in front of a group.", axis: "EI", direction: 1 },
+  { id: "p207", section: "personality", prompt: "You enjoy attending social events even if you don't know many people there.", axis: "EI", direction: 1 },
+  { id: "p208", section: "personality", prompt: "You feel comfortable jumping into group activities without knowing everyone involved.", axis: "EI", direction: 1 },
+  { id: "p209", section: "personality", prompt: "You feel bored and restless when you go several days without social interaction.", axis: "EI", direction: 1 },
+  { id: "p210", section: "personality", prompt: "You find it easy to keep a conversation going even with people you have just met.", axis: "EI", direction: 1 },
+  { id: "p211", section: "personality", prompt: "You find yourself easily distracted in open-plan or noisy environments.", axis: "EI", direction: -1 },
+  { id: "p212", section: "personality", prompt: "You prefer to develop ideas fully in your head before sharing them with others.", axis: "EI", direction: -1 },
+  { id: "p213", section: "personality", prompt: "You feel more at ease in a small, intimate gathering than at a large party.", axis: "EI", direction: -1 },
+  { id: "p214", section: "personality", prompt: "After a week of intensive social interactions, you need several days to fully recover.", axis: "EI", direction: -1 },
+  { id: "p215", section: "personality", prompt: "You are selective about how much you share with people you haven't known for long.", axis: "EI", direction: -1 },
+  { id: "p216", section: "personality", prompt: "You feel uncomfortable when people drop by unexpectedly without warning.", axis: "EI", direction: -1 },
+  { id: "p217", section: "personality", prompt: "Your best ideas tend to come when you are alone and completely undisturbed.", axis: "EI", direction: -1 },
+  { id: "p218", section: "personality", prompt: "You feel more comfortable contributing in writing or by email than in live discussions.", axis: "EI", direction: -1 },
+  { id: "p219", section: "personality", prompt: "You often need quiet time after work before you feel ready to socialize.", axis: "EI", direction: -1 },
+  { id: "p220", section: "personality", prompt: "You generally need more time to warm up to new people than most others seem to.", axis: "EI", direction: -1 },
+
+  // ── SN additional (p221–p240) ──
+  { id: "p221", section: "personality", prompt: "You prefer working with established methods that have been proven to work reliably.", axis: "SN", direction: 1 },
+  { id: "p222", section: "personality", prompt: "You trust data and evidence far more than gut feelings or untested intuition.", axis: "SN", direction: 1 },
+  { id: "p223", section: "personality", prompt: "You focus on the current situation rather than speculating about distant possibilities.", axis: "SN", direction: 1 },
+  { id: "p224", section: "personality", prompt: "You find it more satisfying to master a practical skill than to explore a new theory.", axis: "SN", direction: 1 },
+  { id: "p225", section: "personality", prompt: "You prefer precise instructions with clear measurements rather than vague approximations.", axis: "SN", direction: 1 },
+  { id: "p226", section: "personality", prompt: "You find hands-on demonstrations more useful than theoretical models.", axis: "SN", direction: 1 },
+  { id: "p227", section: "personality", prompt: "You tend to describe situations in literal, concrete terms rather than with metaphors.", axis: "SN", direction: 1 },
+  { id: "p228", section: "personality", prompt: "You value practical experience more than academic qualifications when assessing someone.", axis: "SN", direction: 1 },
+  { id: "p229", section: "personality", prompt: "You focus on what is actually happening rather than what could theoretically happen.", axis: "SN", direction: 1 },
+  { id: "p230", section: "personality", prompt: "You prefer learning by doing rather than by reading about a topic first.", axis: "SN", direction: 1 },
+  { id: "p231", section: "personality", prompt: "You love exploring hypothetical scenarios and 'what if' questions.", axis: "SN", direction: -1 },
+  { id: "p232", section: "personality", prompt: "You often notice hidden connections between things that seem completely unrelated.", axis: "SN", direction: -1 },
+  { id: "p233", section: "personality", prompt: "You find yourself daydreaming about future possibilities more than focusing on the present.", axis: "SN", direction: -1 },
+  { id: "p234", section: "personality", prompt: "You prefer projects that require creative problem-solving over routine, repetitive tasks.", axis: "SN", direction: -1 },
+  { id: "p235", section: "personality", prompt: "You enjoy reading books that explore abstract, philosophical, or speculative ideas.", axis: "SN", direction: -1 },
+  { id: "p236", section: "personality", prompt: "You feel most engaged when a task requires imagination and novel approaches.", axis: "SN", direction: -1 },
+  { id: "p237", section: "personality", prompt: "You trust your hunches and gut feelings when making important decisions.", axis: "SN", direction: -1 },
+  { id: "p238", section: "personality", prompt: "You find it more interesting to think about why something works than exactly how it works.", axis: "SN", direction: -1 },
+  { id: "p239", section: "personality", prompt: "You enjoy thinking about how current trends might shape the distant future.", axis: "SN", direction: -1 },
+  { id: "p240", section: "personality", prompt: "You often come up with ideas that others consider unconventional or ahead of their time.", axis: "SN", direction: -1 },
+
+  // ── TF additional (p241–p260) ──
+  { id: "p241", section: "personality", prompt: "When evaluating a decision, you focus on logical consequences rather than personal impact.", axis: "TF", direction: 1 },
+  { id: "p242", section: "personality", prompt: "You believe it is more important to be correct than to be liked.", axis: "TF", direction: 1 },
+  { id: "p243", section: "personality", prompt: "You prefer honest, direct feedback over encouraging but vague praise.", axis: "TF", direction: 1 },
+  { id: "p244", section: "personality", prompt: "You are comfortable making tough decisions even when they upset people around you.", axis: "TF", direction: 1 },
+  { id: "p245", section: "personality", prompt: "You consciously separate emotions from analysis when working through a complex problem.", axis: "TF", direction: 1 },
+  { id: "p246", section: "personality", prompt: "You find it frustrating when important decisions are driven by sentiment rather than evidence.", axis: "TF", direction: 1 },
+  { id: "p247", section: "personality", prompt: "You prefer to evaluate work against objective criteria rather than subjective impressions.", axis: "TF", direction: 1 },
+  { id: "p248", section: "personality", prompt: "When mediating a conflict, you focus on reaching a fair outcome rather than keeping everyone happy.", axis: "TF", direction: 1 },
+  { id: "p249", section: "personality", prompt: "You apply the same principles consistently to all people, regardless of your personal feelings.", axis: "TF", direction: 1 },
+  { id: "p250", section: "personality", prompt: "You find emotional appeals in arguments less persuasive than factual reasoning.", axis: "TF", direction: 1 },
+  { id: "p251", section: "personality", prompt: "You find it difficult to disagree with someone you care about, even when you know they are wrong.", axis: "TF", direction: -1 },
+  { id: "p252", section: "personality", prompt: "You tend to take criticism personally even when it is intended constructively.", axis: "TF", direction: -1 },
+  { id: "p253", section: "personality", prompt: "When a friend is upset, your first instinct is to offer comfort rather than immediate solutions.", axis: "TF", direction: -1 },
+  { id: "p254", section: "personality", prompt: "You naturally sense the emotional atmosphere of a room as soon as you enter it.", axis: "TF", direction: -1 },
+  { id: "p255", section: "personality", prompt: "You make most of your decisions based on how they feel rather than on logical analysis.", axis: "TF", direction: -1 },
+  { id: "p256", section: "personality", prompt: "Knowing that someone is hurt by your decision makes you want to reconsider it, even if it was the right call.", axis: "TF", direction: -1 },
+  { id: "p257", section: "personality", prompt: "You prioritise maintaining harmony in a group over pushing through the most logical outcome.", axis: "TF", direction: -1 },
+  { id: "p258", section: "personality", prompt: "You believe a decision that leaves no one hurt is always preferable to the most efficient one.", axis: "TF", direction: -1 },
+  { id: "p259", section: "personality", prompt: "You are deeply affected by stories of injustice and human suffering.", axis: "TF", direction: -1 },
+  { id: "p260", section: "personality", prompt: "You consider the feelings and values of those involved a core factor in any decision you make.", axis: "TF", direction: -1 },
+
+  // ── JP additional (p261–p280) ──
+  { id: "p261", section: "personality", prompt: "You feel most confident starting a task when you have a clear, step-by-step plan in place.", axis: "JP", direction: 1 },
+  { id: "p262", section: "personality", prompt: "You dislike last-minute changes to plans even when the change is an improvement.", axis: "JP", direction: 1 },
+  { id: "p263", section: "personality", prompt: "Once you decide on a course of action, you follow through rather than continuously re-evaluating.", axis: "JP", direction: 1 },
+  { id: "p264", section: "personality", prompt: "You find it easy to say no to new requests when you already have a full schedule.", axis: "JP", direction: 1 },
+  { id: "p265", section: "personality", prompt: "You find it rewarding to wrap up all tasks before moving on to new ones.", axis: "JP", direction: 1 },
+  { id: "p266", section: "personality", prompt: "You schedule personal time and rest the same deliberate way you schedule work commitments.", axis: "JP", direction: 1 },
+  { id: "p267", section: "personality", prompt: "When starting a new project, you map out a full plan before writing the first line.", axis: "JP", direction: 1 },
+  { id: "p268", section: "personality", prompt: "You feel most at ease when you know what to expect for the rest of the day.", axis: "JP", direction: 1 },
+  { id: "p269", section: "personality", prompt: "You often make lists and organise your belongings by category or system.", axis: "JP", direction: 1 },
+  { id: "p270", section: "personality", prompt: "You feel a genuine sense of satisfaction when you complete everything on your daily task list.", axis: "JP", direction: 1 },
+  { id: "p271", section: "personality", prompt: "You often change plans mid-course when something more interesting or promising comes along.", axis: "JP", direction: -1 },
+  { id: "p272", section: "personality", prompt: "You prefer to work in bursts of inspiration rather than on a fixed, predictable schedule.", axis: "JP", direction: -1 },
+  { id: "p273", section: "personality", prompt: "You feel restless when locked into a fixed plan that leaves no room for improvisation.", axis: "JP", direction: -1 },
+  { id: "p274", section: "personality", prompt: "You tend to gather more and more information before finally committing to a decision.", axis: "JP", direction: -1 },
+  { id: "p275", section: "personality", prompt: "You feel perfectly comfortable starting a project without knowing exactly how it will end.", axis: "JP", direction: -1 },
+  { id: "p276", section: "personality", prompt: "You prefer flexible, negotiable deadlines over hard, fixed ones.", axis: "JP", direction: -1 },
+  { id: "p277", section: "personality", prompt: "Your best creative ideas tend to emerge when you have no fixed agenda or structure.", axis: "JP", direction: -1 },
+  { id: "p278", section: "personality", prompt: "You keep your long-term goals loosely defined so you can adapt as new opportunities arise.", axis: "JP", direction: -1 },
+  { id: "p279", section: "personality", prompt: "You enjoy trying new approaches to familiar problems even when the old one works just fine.", axis: "JP", direction: -1 },
+  { id: "p280", section: "personality", prompt: "You feel most alive when you have several exciting but unfinished projects on the go at once.", axis: "JP", direction: -1 },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // IQ / COGNITIVE BANK  (target: 200 questions)
-// Currently: 50 questions (10 original cognitive + 40 from Carter's IQ test)
+// Currently: 260 questions (c1–c10, iq1–iq250)
 // ─────────────────────────────────────────────────────────────────────────────
 export const IQ_BANK: CognitiveQ[] = [
   // ── Original cognitive questions ──
@@ -442,6 +530,76 @@ export const IQ_BANK: CognitiveQ[] = [
   { id: "iq188", section: "cognitive", prompt: "If the hour hand of a clock moves 30° per hour, how many degrees does it move in 40 minutes?", options: ["15°","20°","25°","30°"], correct: 1 },
   { id: "iq189", section: "cognitive", prompt: "A product is discounted 30% then 20%. The total percentage discount is:", options: ["44%","46%","50%","56%"], correct: 0 },
   { id: "iq190", section: "cognitive", prompt: "What is the sum of interior angles of a pentagon?", options: ["360°","450°","540°","720°"], correct: 2 },
+
+  // ── Number sequences & patterns (iq191–iq200) ──
+  { id: "iq191", section: "cognitive", prompt: "What comes next: 1, 2, 6, 24, 120, ?", options: ["360","480","720","840"], correct: 2 },
+  { id: "iq192", section: "cognitive", prompt: "Find the next: 0, 1, 1, 2, 3, 5, 8, 13, 21, ?", options: ["29","34","36","40"], correct: 1 },
+  { id: "iq193", section: "cognitive", prompt: "What continues: 1, 3, 6, 10, 15, 21, 28, ?", options: ["34","36","37","40"], correct: 1 },
+  { id: "iq194", section: "cognitive", prompt: "Find the missing number: 4, 9, 16, 25, 36, 49, ?", options: ["56","60","64","72"], correct: 2 },
+  { id: "iq195", section: "cognitive", prompt: "What comes next: 2, 5, 10, 17, 26, 37, ?", options: ["48","50","52","54"], correct: 1 },
+  { id: "iq196", section: "cognitive", prompt: "Complete: 512, 256, 128, 64, 32, ?", options: ["12","16","20","24"], correct: 1 },
+  { id: "iq197", section: "cognitive", prompt: "What comes next: 1, 2, 4, 7, 11, 16, 22, ?", options: ["28","29","30","32"], correct: 1 },
+  { id: "iq198", section: "cognitive", prompt: "Find the next: 2, 6, 12, 20, 30, 42, ?", options: ["52","54","56","60"], correct: 2 },
+  { id: "iq199", section: "cognitive", prompt: "What replaces ?: 3, 7, 13, 21, 31, 43, ?", options: ["55","57","58","60"], correct: 1 },
+  { id: "iq200", section: "cognitive", prompt: "What comes next: 2, 3, 6, 11, 20, 37, ?", options: ["66","68","70","74"], correct: 1 },
+
+  // ── Verbal reasoning (iq201–iq210) ──
+  { id: "iq201", section: "cognitive", prompt: "Which word is the odd one out: Anxious, Worried, Concerned, Elated, Apprehensive?", options: ["Anxious","Worried","Elated","Apprehensive"], correct: 2 },
+  { id: "iq202", section: "cognitive", prompt: "Melody is to Song as Chapter is to:", options: ["Page","Book","Paragraph","Author"], correct: 1 },
+  { id: "iq203", section: "cognitive", prompt: "Which word means the same as FRUGAL?", options: ["Generous","Extravagant","Economical","Wasteful"], correct: 2 },
+  { id: "iq204", section: "cognitive", prompt: "Which word is OPPOSITE to EPHEMERAL?", options: ["Brief","Fleeting","Enduring","Temporary"], correct: 2 },
+  { id: "iq205", section: "cognitive", prompt: "Which word is the odd one out: Copper, Gold, Tin, Steel, Silver?", options: ["Copper","Gold","Steel","Silver"], correct: 2 },
+  { id: "iq206", section: "cognitive", prompt: "Which word means the same as LACONIC?", options: ["Verbose","Talkative","Concise","Eloquent"], correct: 2 },
+  { id: "iq207", section: "cognitive", prompt: "Sceptical is to Credulous as Generous is to:", options: ["Kind","Stingy","Charitable","Giving"], correct: 1 },
+  { id: "iq208", section: "cognitive", prompt: "Which word is the odd one out: Basil, Oregano, Thyme, Ginger, Rosemary?", options: ["Basil","Oregano","Ginger","Rosemary"], correct: 2 },
+  { id: "iq209", section: "cognitive", prompt: "Which word means the OPPOSITE of BELLIGERENT?", options: ["Aggressive","Hostile","Peaceful","Combative"], correct: 2 },
+  { id: "iq210", section: "cognitive", prompt: "Library is to Books as Vineyard is to:", options: ["Wine","Grapes","Bottles","Barrels"], correct: 1 },
+
+  // ── Logic & deduction (iq211–iq220) ──
+  { id: "iq211", section: "cognitive", prompt: "Alex is older than Ben. Charlie is younger than Alex. Ben is older than Charlie. Who is the oldest?", options: ["Alex","Ben","Charlie","Cannot determine"], correct: 0 },
+  { id: "iq212", section: "cognitive", prompt: "If no A are B and some C are B, which must be true?", options: ["Some C are A","No C is A","Some B are A","No A is C"], correct: 3 },
+  { id: "iq213", section: "cognitive", prompt: "All athletes train daily. Sam does not train daily. Therefore:", options: ["Sam is not an athlete","Sam might be an athlete","Sam trains occasionally","All non-athletes are like Sam"], correct: 0 },
+  { id: "iq214", section: "cognitive", prompt: "The median of 8, 12, 14, 40, 42 is:", options: ["12","13","14","15"], correct: 2 },
+  { id: "iq215", section: "cognitive", prompt: "If A implies B, and B implies C, and C is false, what can you conclude?", options: ["A is true","B is true","A is false","Nothing about A"], correct: 2 },
+  { id: "iq216", section: "cognitive", prompt: "Emma scored 45 out of 60. What percentage did she score?", options: ["70%","72%","75%","80%"], correct: 2 },
+  { id: "iq217", section: "cognitive", prompt: "A car uses 8 litres per 100 km. How many litres does it use to travel 350 km?", options: ["24","28","30","32"], correct: 1 },
+  { id: "iq218", section: "cognitive", prompt: "Six friends split a restaurant bill of £150 equally. How much does each person pay?", options: ["£22","£24","£25","£30"], correct: 2 },
+  { id: "iq219", section: "cognitive", prompt: "If 3 cats catch 3 mice in 3 minutes, how many cats are needed to catch 9 mice in 9 minutes?", options: ["1","2","3","9"], correct: 2 },
+  { id: "iq220", section: "cognitive", prompt: "A bag holds 12 items. After removing 25%, then removing 1/3 of what remains, how many items are left?", options: ["5","6","7","8"], correct: 1 },
+
+  // ── Spatial & geometric reasoning (iq221–iq230) ──
+  { id: "iq221", section: "cognitive", prompt: "A cube has side length 3 cm. What is its total surface area?", options: ["27 cm²","36 cm²","54 cm²","81 cm²"], correct: 2 },
+  { id: "iq222", section: "cognitive", prompt: "A piece of paper is folded in half 3 times. How many layers does it have?", options: ["6","8","9","12"], correct: 1 },
+  { id: "iq223", section: "cognitive", prompt: "A right triangle has legs of length 5 and 12. What is its hypotenuse?", options: ["11","13","14","15"], correct: 1 },
+  { id: "iq224", section: "cognitive", prompt: "How many edges does a cube have?", options: ["6","8","10","12"], correct: 3 },
+  { id: "iq225", section: "cognitive", prompt: "A circle's radius is doubled. By what factor does its area increase?", options: ["2","4","6","8"], correct: 1 },
+  { id: "iq226", section: "cognitive", prompt: "A cone and a cylinder share the same base and height. The cone's volume is what fraction of the cylinder's?", options: ["1/2","1/3","1/4","2/3"], correct: 1 },
+  { id: "iq227", section: "cognitive", prompt: "A rectangle has a diagonal of 10 and one side of 6. What is the area of the rectangle?", options: ["40","48","60","80"], correct: 1 },
+  { id: "iq228", section: "cognitive", prompt: "An angle measures 40°. What is its supplement?", options: ["50°","140°","150°","180°"], correct: 1 },
+  { id: "iq229", section: "cognitive", prompt: "What is the area of a triangle with base 10 and height 7?", options: ["35","40","50","70"], correct: 0 },
+  { id: "iq230", section: "cognitive", prompt: "A 3×3×3 cube made of unit cubes is painted on all outer faces. How many unit cubes have exactly 1 painted face?", options: ["6","12","18","24"], correct: 0 },
+
+  // ── Advanced & mixed hard problems (iq231–iq250) ──
+  { id: "iq231", section: "cognitive", prompt: "What comes next in the Look-and-Say sequence: 1, 11, 21, 1211, 111221, ?", options: ["312211","312111","211321","123111"], correct: 0 },
+  { id: "iq232", section: "cognitive", prompt: "Alice completes a task in 6 hours; Bob in 4 hours. Working together, how long do they take?", options: ["2 h","2 h 20 min","2 h 24 min","3 h"], correct: 2 },
+  { id: "iq233", section: "cognitive", prompt: "A 4-digit password uses digits 0–9 with no repeats. How many such passwords are possible?", options: ["5040","3024","10000","9000"], correct: 0 },
+  { id: "iq234", section: "cognitive", prompt: "How many ways can you make exactly 50p using only 10p and 20p coins?", options: ["2","3","4","5"], correct: 1 },
+  { id: "iq235", section: "cognitive", prompt: "What is the units digit of 7^50?", options: ["1","3","7","9"], correct: 3 },
+  { id: "iq236", section: "cognitive", prompt: "A bag has 3 red and 5 blue marbles. Two are drawn without replacement. What is the probability both are blue?", options: ["5/14","5/16","25/64","2/9"], correct: 0 },
+  { id: "iq237", section: "cognitive", prompt: "The sum of three consecutive odd numbers is 51. What is the largest?", options: ["15","17","19","21"], correct: 2 },
+  { id: "iq238", section: "cognitive", prompt: "If log₂(x) = 5, what is x?", options: ["10","16","32","64"], correct: 2 },
+  { id: "iq239", section: "cognitive", prompt: "How many ways can 4 people be arranged in a line?", options: ["12","16","24","32"], correct: 2 },
+  { id: "iq240", section: "cognitive", prompt: "Which set of angles can form a valid triangle?", options: ["60°, 70°, 80°","90°, 90°, 90°","45°, 45°, 90°","100°, 120°, 40°"], correct: 2 },
+  { id: "iq241", section: "cognitive", prompt: "A shopkeeper marks a price 25% above cost then gives a 20% discount. The net profit or loss is:", options: ["0% (break even)","5% profit","5% loss","2% loss"], correct: 0 },
+  { id: "iq242", section: "cognitive", prompt: "How many different 3-letter arrangements can be made from A, B, C, D (no letter repeated)?", options: ["12","24","36","48"], correct: 1 },
+  { id: "iq243", section: "cognitive", prompt: "A square pyramid has a square base with 4 triangular faces. How many edges does it have?", options: ["6","8","10","12"], correct: 1 },
+  { id: "iq244", section: "cognitive", prompt: "What is 20% of 20% of 500?", options: ["10","15","20","25"], correct: 2 },
+  { id: "iq245", section: "cognitive", prompt: "Pipes A and B fill a pool: A in 10 hours, B in 15 hours. Together, how long to fill it?", options: ["4 h","5 h","6 h","7 h"], correct: 2 },
+  { id: "iq246", section: "cognitive", prompt: "Three dice are rolled. What is the probability all three show the same number?", options: ["1/36","1/12","1/6","1/216"], correct: 0 },
+  { id: "iq247", section: "cognitive", prompt: "If sin(30°) = 0.5, what is sin(150°)?", options: ["−0.5","0","0.5","1"], correct: 2 },
+  { id: "iq248", section: "cognitive", prompt: "A cylinder has radius 3 cm and height 10 cm. What is its volume?", options: ["90π cm³","100π cm³","60π cm³","120π cm³"], correct: 0 },
+  { id: "iq249", section: "cognitive", prompt: "A 4×4×4 cube is made of unit cubes and painted on all outer faces. How many unit cubes have NO painted face?", options: ["4","8","16","24"], correct: 1 },
+  { id: "iq250", section: "cognitive", prompt: "If you invest £1000 at 10% compound interest per year, what is the value after 2 years?", options: ["£1100","£1200","£1210","£1220"], correct: 2 },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
