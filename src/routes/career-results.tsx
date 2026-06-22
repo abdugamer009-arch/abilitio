@@ -9,6 +9,7 @@ import { Reveal } from "@/components/Reveal";
 import { GlowBlob } from "@/components/GlowBlob";
 import { CountUp } from "@/components/CountUp";
 import { Brain, Target, Sparkles, Trophy, GraduationCap, Printer, Share2, RefreshCw, TrendingUp, Lightbulb, ImageIcon, ChevronDown, Check } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/career-results")({
   head: () => ({ meta: [{ title: "Your Career Profile — Abilitio" }] }),
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/career-results")({
 });
 
 function CareerResultsPage() {
+  const t = useT();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const fetchResult = useServerFn(getMyCareerResult);
@@ -57,8 +59,8 @@ function CareerResultsPage() {
     return (
       <PageShell>
         <div className="px-6 pt-32 text-center">
-          <p className="text-sm text-muted-foreground">No career assessment yet.</p>
-          <Link to="/career-assessment" className="mt-4 inline-flex rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm text-primary-foreground shadow-[0_4px_16px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all">Take the assessment</Link>
+          <p className="text-sm text-muted-foreground">{t.careerResults.noResult}</p>
+          <Link to="/career-assessment" className="mt-4 inline-flex rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm text-primary-foreground shadow-[0_4px_16px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all">{t.careerResults.takeAssessment}</Link>
         </div>
       </PageShell>
     );
@@ -181,39 +183,39 @@ function CareerResultsPage() {
           <header className="mb-8 flex flex-wrap items-end justify-between gap-4 print:hidden">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
-                <Sparkles className="h-3.5 w-3.5" /> Career Intelligence Result
+                <Sparkles className="h-3.5 w-3.5" /> {t.careerResults.eyebrow}
               </div>
-              <h1 className="mt-3 text-4xl font-bold gradient-text">Your Career Profile</h1>
+              <h1 className="mt-3 text-4xl font-bold gradient-text">{t.careerResults.title}</h1>
               <p className="text-xs text-muted-foreground">Generated {new Date(r.created_at).toLocaleDateString()}</p>
             </div>
             <div className="flex flex-wrap gap-2">
               <button onClick={share} className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_4px_12px_-4px_oklch(0.55_0.22_295_/_0.3)]">
                 {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Share2 className="h-4 w-4" />}
-                {copied ? "Copied!" : "Share"}
+                {copied ? t.careerResults.copied : t.careerResults.share}
               </button>
-              <button onClick={shareCard} className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_4px_12px_-4px_oklch(0.55_0.22_295_/_0.3)]"><ImageIcon className="h-4 w-4" />Share Card</button>
-              <button onClick={() => window.print()} className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_4px_12px_-4px_oklch(0.55_0.22_295_/_0.3)]"><Printer className="h-4 w-4" />Download PDF</button>
-              <Link to="/career-assessment" className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-4 py-2 text-sm text-primary-foreground shadow-[0_4px_16px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"><RefreshCw className="h-4 w-4" />Retake</Link>
+              <button onClick={shareCard} className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_4px_12px_-4px_oklch(0.55_0.22_295_/_0.3)]"><ImageIcon className="h-4 w-4" />{t.careerResults.shareCard}</button>
+              <button onClick={() => window.print()} className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_4px_12px_-4px_oklch(0.55_0.22_295_/_0.3)]"><Printer className="h-4 w-4" />{t.careerResults.downloadPdf}</button>
+              <Link to="/career-assessment" className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-4 py-2 text-sm text-primary-foreground shadow-[0_4px_16px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"><RefreshCw className="h-4 w-4" />{t.careerResults.retake}</Link>
             </div>
           </header>
 
           {/* Top: personality + cognitive + interests */}
           <div className="grid gap-4 md:grid-cols-3">
-            <Card icon={<Brain className="h-4 w-4" />} title="Personality Type">
+            <Card icon={<Brain className="h-4 w-4" />} title={t.careerResults.personalityType}>
               <div className="text-4xl font-bold gradient-text">{r.personality_type}</div>
               <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
-                <li><span className="text-foreground/80">Work:</span> {r.work_style}</li>
-                <li><span className="text-foreground/80">Leadership:</span> {r.leadership_style}</li>
-                <li><span className="text-foreground/80">Learning:</span> {r.learning_style}</li>
-                <li><span className="text-foreground/80">Team:</span> {r.team_style}</li>
+                <li><span className="text-foreground/80">{t.careerResults.work}:</span> {r.work_style}</li>
+                <li><span className="text-foreground/80">{t.careerResults.leadership}:</span> {r.leadership_style}</li>
+                <li><span className="text-foreground/80">{t.careerResults.learning}:</span> {r.learning_style}</li>
+                <li><span className="text-foreground/80">{t.careerResults.team}:</span> {r.team_style}</li>
               </ul>
             </Card>
-            <Card icon={<Target className="h-4 w-4" />} title="Cognitive Profile">
+            <Card icon={<Target className="h-4 w-4" />} title={t.careerResults.cognitiveProfile}>
               <div className="text-4xl font-bold gradient-text"><CountUp value={r.cognitive_score ?? 0} decimals={(r.cognitive_score ?? 0) % 1 === 0 ? 0 : 1} />/10</div>
               <div className="mt-2 text-sm font-medium">{r.cognitive_tier}</div>
-              <div className="text-xs text-muted-foreground">{r.cognitive_profile} Thinker</div>
+              <div className="text-xs text-muted-foreground">{r.cognitive_profile} {t.careerResults.thinker}</div>
             </Card>
-            <Card icon={<Sparkles className="h-4 w-4" />} title="Top Interests">
+            <Card icon={<Sparkles className="h-4 w-4" />} title={t.careerResults.topInterests}>
               <ul className="space-y-1.5 text-sm">
                 {r.interests.slice(0, 6).map((i, idx) => (
                   <li key={i.key} className="flex items-center justify-between">
@@ -232,13 +234,13 @@ function CareerResultsPage() {
 
           {/* Strengths / improvements / skills */}
           <div className="mt-4 grid gap-4 md:grid-cols-3">
-            <Card icon={<TrendingUp className="h-4 w-4" />} title="Top Strengths">
+            <Card icon={<TrendingUp className="h-4 w-4" />} title={t.careerResults.topStrengths}>
               <ul className="space-y-1.5 text-sm">{r.strengths.map((s) => <li key={s} className="flex items-start gap-2"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gradient-to-br from-primary to-accent" />{s}</li>)}</ul>
             </Card>
-            <Card icon={<Lightbulb className="h-4 w-4" />} title="Areas to Improve">
+            <Card icon={<Lightbulb className="h-4 w-4" />} title={t.careerResults.areasToImprove}>
               <ul className="space-y-1.5 text-sm">{r.improvements.map((s) => <li key={s} className="flex items-start gap-2"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gradient-to-br from-accent/60 to-primary/60" />{s}</li>)}</ul>
             </Card>
-            <Card icon={<Sparkles className="h-4 w-4" />} title="Skills to Develop">
+            <Card icon={<Sparkles className="h-4 w-4" />} title={t.careerResults.skillsToDevelop}>
               <ul className="space-y-1.5 text-sm">{r.recommended_skills.map((s) => <li key={s} className="flex items-start gap-2"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gradient-to-br from-primary to-accent" />{s}</li>)}</ul>
             </Card>
           </div>
@@ -247,7 +249,7 @@ function CareerResultsPage() {
           <Reveal className="glass mt-6 block rounded-3xl p-6">
             <div className="flex items-center gap-2.5">
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]"><Trophy className="h-3.5 w-3.5" /></span>
-              <h3 className="text-sm font-semibold">Top 15 Career Matches</h3>
+              <h3 className="text-sm font-semibold">{t.careerResults.topCareers}</h3>
             </div>
             <div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {r.career_matches.map((m) => (
@@ -267,7 +269,7 @@ function CareerResultsPage() {
           <Reveal className="glass mt-6 block rounded-3xl p-6">
             <div className="flex items-center gap-2.5">
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]"><GraduationCap className="h-3.5 w-3.5" /></span>
-              <h3 className="text-sm font-semibold">Top 10 University Majors</h3>
+              <h3 className="text-sm font-semibold">{t.careerResults.topMajors}</h3>
             </div>
             <div className="mt-4 grid gap-3">
               {r.university_matches.map((m) => {
@@ -294,7 +296,7 @@ function CareerResultsPage() {
                     </summary>
                     {matchingUnis.length > 0 && (
                       <div className="space-y-2 px-4 pb-4">
-                        <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground pt-1">Universities offering this major</div>
+                        <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground pt-1">{t.careerResults.universitiesOffering}</div>
                         {matchingUnis.map((u) => (
                           <div key={u.name} className="rounded-xl border border-border/60 bg-background/40 p-3 text-xs space-y-1">
                             <div className="flex items-center justify-between gap-2">
@@ -307,11 +309,11 @@ function CareerResultsPage() {
                             </div>
                             <div className="text-muted-foreground">{u.city}, {u.country}</div>
                             <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-muted-foreground">
-                              <span>Acceptance: <span className="text-foreground font-medium">{u.acceptance}%</span></span>
-                              <span>Min SAT: <span className="text-foreground font-medium">{u.minSat}</span></span>
-                              <span>Min IELTS: <span className="text-foreground font-medium">{u.minIelts}</span></span>
+                              <span>{t.careerResults.acceptance}: <span className="text-foreground font-medium">{u.acceptance}%</span></span>
+                              <span>{t.careerResults.minSat}: <span className="text-foreground font-medium">{u.minSat}</span></span>
+                              <span>{t.careerResults.minIelts}: <span className="text-foreground font-medium">{u.minIelts}</span></span>
                             </div>
-                            <div className="text-muted-foreground">Scholarship: <span className="text-foreground">{u.scholarship}</span></div>
+                            <div className="text-muted-foreground">{t.careerResults.scholarship}: <span className="text-foreground">{u.scholarship}</span></div>
                           </div>
                         ))}
                       </div>

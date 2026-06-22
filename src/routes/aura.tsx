@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Flame, Sparkles, TrendingUp, ArrowRight, Check } from "lucide-react";
 import { getMyUnlocks } from "@/lib/aura-store.functions";
 import { AURA_FEATURES } from "@/lib/aura-catalog";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/aura")({
   head: () => ({
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/aura")({
 });
 
 function AuraPage() {
+  const t = useT();
   const { user } = useAuth();
   const { wallet, isLoading } = useAura();
   const getUnlocksFn = useServerFn(getMyUnlocks);
@@ -30,6 +32,18 @@ function AuraPage() {
   });
   const ownedKeys = new Set((unlocksQ.data ?? []).map((u) => u.feature_key));
   const ownedFeatures = AURA_FEATURES.filter((f) => ownedKeys.has(f.key));
+
+  const EARN_WAYS = [
+    { label: t.aura.earn1Label, hint: t.aura.earn1Hint, amount: 20 },
+    { label: t.aura.earn2Label, hint: t.aura.earn2Hint, amount: 5 },
+    { label: t.aura.earn3Label, hint: t.aura.earn3Hint, amount: 25 },
+    { label: t.aura.earn4Label, hint: t.aura.earn4Hint, amount: 5 },
+    { label: t.aura.earn5Label, hint: t.aura.earn5Hint, amount: 10 },
+    { label: t.aura.earn6Label, hint: t.aura.earn6Hint, amount: 20 },
+  ];
+
+  const streakDays = wallet?.streak_days ?? 0;
+  const streakLabel = `${streakDays} ${streakDays === 1 ? t.aura.day : t.aura.days}`;
 
   return (
     <PageShell>
@@ -44,16 +58,16 @@ function AuraPage() {
               />
               <AuraCoin size={84} />
             </div>
-            <p className="mt-6 text-xs uppercase tracking-[0.22em] text-muted-foreground">Aura Coins</p>
+            <p className="mt-6 text-xs uppercase tracking-[0.22em] text-muted-foreground">{t.aura.coinsLabel}</p>
             <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl md:text-6xl">
               {user ? (
                 <span className="gradient-text tabular-nums">{(wallet?.balance ?? 0).toLocaleString()}</span>
               ) : (
-                <span className="gradient-text">Sign in</span>
+                <span className="gradient-text">{t.aura.signIn}</span>
               )}
             </h1>
             <p className="mt-3 max-w-md text-sm text-muted-foreground">
-              Earn Aura Coins as you grow. Spend them to unlock advanced personalized insights inside Abilitio.
+              {t.aura.subtitle}
             </p>
           </div>
 
@@ -62,17 +76,17 @@ function AuraPage() {
             <div className="mt-12 grid gap-4 md:grid-cols-3">
               <StatCard
                 icon={<Sparkles className="h-4 w-4" />}
-                label="Lifetime earned"
+                label={t.aura.lifetimeEarned}
                 value={(wallet?.lifetime_earned ?? 0).toLocaleString()}
               />
               <StatCard
                 icon={<Flame className="h-4 w-4" />}
-                label="Login streak"
-                value={`${wallet?.streak_days ?? 0} day${(wallet?.streak_days ?? 0) === 1 ? "" : "s"}`}
+                label={t.aura.loginStreak}
+                value={streakLabel}
               />
               <StatCard
                 icon={<TrendingUp className="h-4 w-4" />}
-                label="Total spent"
+                label={t.aura.totalSpent}
                 value={(wallet?.lifetime_spent ?? 0).toLocaleString()}
               />
             </div>
@@ -82,7 +96,7 @@ function AuraPage() {
           <div className="mt-16">
             <h2 className="mb-1 flex items-center gap-3 text-xs uppercase tracking-[0.22em] text-muted-foreground">
               <span className="h-px w-6 rounded-full bg-gradient-to-r from-transparent via-primary to-accent opacity-70" />
-              Ways to earn
+              {t.aura.waysToEarn}
               <span className="h-px flex-1 rounded-full bg-gradient-to-r from-accent/30 to-transparent opacity-40" />
             </h2>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -105,7 +119,7 @@ function AuraPage() {
             <div className="mt-16">
               <h2 className="mb-1 flex items-center gap-3 text-xs uppercase tracking-[0.22em] text-muted-foreground">
                 <span className="h-px w-6 rounded-full bg-gradient-to-r from-transparent via-primary to-accent opacity-70" />
-                Your unlocks
+                {t.aura.yourUnlocks}
                 <span className="h-px flex-1 rounded-full bg-gradient-to-r from-accent/30 to-transparent opacity-40" />
               </h2>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -116,7 +130,7 @@ function AuraPage() {
                       <div className="text-xs text-muted-foreground">{f.tagline}</div>
                     </div>
                     <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary/20 to-accent/10 border border-primary/30 px-2.5 py-1 text-[10px] uppercase tracking-wider text-primary">
-                      <Check className="h-3 w-3" /> Owned
+                      <Check className="h-3 w-3" /> {t.aura.owned}
                     </span>
                   </div>
                 ))}
@@ -131,16 +145,16 @@ function AuraPage() {
               style={{ background: "radial-gradient(60% 50% at 50% 0%, oklch(0.65 0.18 295 / 0.22), transparent 70%)" }}
             />
             <div className="relative mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_24px_-8px_var(--glow)]"><Sparkles className="h-6 w-6" /></div>
-            <h3 className="relative mt-4 text-2xl font-semibold tracking-tight">The Aura Store</h3>
+            <h3 className="relative mt-4 text-2xl font-semibold tracking-tight">{t.aura.storeTitle}</h3>
             <p className="relative mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-              Unlock premium reports, advanced cognitive breakdowns, and your personal AI mentor — or top up with coin packages.
+              {t.aura.storeDesc}
             </p>
             {user ? (
               <Link
                 to="/aura/store"
                 className="cta-sheen relative mt-6 inline-flex items-center gap-1.5 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"
               >
-                Enter the store <ArrowRight className="h-4 w-4" />
+                {t.aura.enterStore} <ArrowRight className="h-4 w-4" />
               </Link>
             ) : (
               <Link
@@ -148,7 +162,7 @@ function AuraPage() {
                 search={{ mode: "login" }}
                 className="cta-sheen relative mt-6 inline-flex items-center gap-1.5 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"
               >
-                Sign in to start earning <ArrowRight className="h-4 w-4" />
+                {t.aura.signInToEarn} <ArrowRight className="h-4 w-4" />
               </Link>
             )}
           </div>
@@ -160,28 +174,19 @@ function AuraPage() {
                 to="/aura/growth"
                 className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
               >
-                View your Growth path <ArrowRight className="h-4 w-4" />
+                {t.aura.growthPath} <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           )}
 
           {isLoading && user && (
-            <p className="mt-8 text-center text-xs text-muted-foreground">Loading your wallet…</p>
+            <p className="mt-8 text-center text-xs text-muted-foreground">{t.aura.loadingWallet}</p>
           )}
         </div>
       </section>
     </PageShell>
   );
 }
-
-const EARN_WAYS = [
-  { label: "Complete an assessment", hint: "Full IQ + personality + interests", amount: 20 },
-  { label: "Daily login", hint: "Open Abilitio each day", amount: 5 },
-  { label: "7-day streak bonus", hint: "Keep your streak alive", amount: 25 },
-  { label: "Retake an assessment", hint: "Track how you've grown", amount: 5 },
-  { label: "Share your results", hint: "Send your profile to a friend", amount: 10 },
-  { label: "Finish a roadmap step", hint: "Inside your growth plan", amount: 20 },
-];
 
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (

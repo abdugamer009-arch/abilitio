@@ -8,6 +8,7 @@ import { submitCareerAssessment } from "@/lib/career.functions";
 import { pickSessionQuestions, type SessionQuestions } from "@/lib/question-bank";
 import type { PersonalityQ, CognitiveQ, InterestQ } from "@/lib/career-assessment";
 import { ArrowLeft, ArrowRight, Brain, Sparkles, Loader2, Target, Shuffle } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/career-assessment")({
   head: () => ({
@@ -19,7 +20,6 @@ export const Route = createFileRoute("/career-assessment")({
   component: CareerAssessmentPage,
 });
 
-const LIKERT = ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"];
 const P_COUNT = 12;
 const IQ_COUNT = 9;
 const INT_COUNT = 9;
@@ -40,9 +40,18 @@ function makeAnswers(): Answers {
 }
 
 function CareerAssessmentPage() {
+  const t = useT();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const submit = useServerFn(submitCareerAssessment);
+
+  const LIKERT = [
+    t.careerAssessment.likert1,
+    t.careerAssessment.likert2,
+    t.careerAssessment.likert3,
+    t.careerAssessment.likert4,
+    t.careerAssessment.likert5,
+  ];
 
   const [session, setSession] = useState<SessionQuestions | null>(null);
   const [step, setStep] = useState(0);
@@ -103,12 +112,12 @@ function CareerAssessmentPage() {
       sessionStorage.setItem("career_last_result_id", result.id);
       navigate({ to: "/career-results" });
     } catch (e: unknown) {
-      setSubmitError(e instanceof Error ? e.message : "Submission failed. Please try again.");
+      setSubmitError(e instanceof Error ? e.message : t.careerAssessment.submissionFailed);
       setSubmitting(false);
     }
   }
 
-  if (loading) return <PageShell><div className="px-6 pt-32 text-center text-sm text-muted-foreground">Loading…</div></PageShell>;
+  if (loading) return <PageShell><div className="px-6 pt-32 text-center text-sm text-muted-foreground">{t.careerAssessment.loading}</div></PageShell>;
 
   // Intro screen
   if (!session) {
@@ -122,25 +131,25 @@ function CareerAssessmentPage() {
                 <Brain className="h-10 w-10 text-primary-foreground" />
                 <span className="absolute -inset-1 -z-10 rounded-2xl opacity-50 blur-md" style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }} />
               </div>
-              <h1 className="mt-6 text-4xl font-bold gradient-text">Career Intelligence Assessment</h1>
+              <h1 className="mt-6 text-4xl font-bold gradient-text">{t.careerAssessment.title}</h1>
               <p className="mt-3 text-muted-foreground">
-                30 questions · 3 sections · personalized career, cognitive & university profile.
+                {t.careerAssessment.subtitle}
               </p>
 
               <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
-                <Shuffle className="h-3 w-3" /> Questions refresh every session
+                <Shuffle className="h-3 w-3" /> {t.careerAssessment.questionsRefresh}
               </div>
 
               <div className="mt-8 grid gap-4 md:grid-cols-3 text-left">
-                <Section icon={<Brain className="h-4 w-4" />} title="Personality" caption="12 Q · MBTI-style traits, work, leadership & team style." />
-                <Section icon={<Target className="h-4 w-4" />} title="Cognitive / IQ" caption="9 Q · logic, pattern recognition & analytical reasoning." />
-                <Section icon={<Sparkles className="h-4 w-4" />} title="Interests" caption="9 Q · fields, impact areas & career motivations." />
+                <Section icon={<Brain className="h-4 w-4" />} title={t.careerAssessment.sectionPersonality} caption={t.careerAssessment.captionPersonality} />
+                <Section icon={<Target className="h-4 w-4" />} title={t.careerAssessment.sectionCognitive} caption={t.careerAssessment.captionCognitive} />
+                <Section icon={<Sparkles className="h-4 w-4" />} title={t.careerAssessment.sectionInterests} caption={t.careerAssessment.captionInterests} />
               </div>
 
               <button onClick={startSession} className="cta-sheen relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 text-sm font-medium text-primary-foreground shadow-[0_8px_28px_-8px_var(--glow)] hover:-translate-y-0.5 transition-all">
-                Start Assessment <ArrowRight className="h-4 w-4" />
+                {t.careerAssessment.startBtn} <ArrowRight className="h-4 w-4" />
               </button>
-              <p className="mt-3 text-xs text-muted-foreground">Reward: +20 Aura Coins on completion ✨</p>
+              <p className="mt-3 text-xs text-muted-foreground">{t.careerAssessment.auraReward}</p>
             </div>
           </div>
         </section>
@@ -149,7 +158,11 @@ function CareerAssessmentPage() {
   }
 
   const progress = (step / TOTAL) * 100;
-  const sectionLabel = step < P_COUNT ? "Personality" : step < P_COUNT + IQ_COUNT ? "Cognitive / IQ" : "Interests";
+  const sectionLabel = step < P_COUNT
+    ? t.careerAssessment.sectionPersonality
+    : step < P_COUNT + IQ_COUNT
+    ? t.careerAssessment.sectionCognitive
+    : t.careerAssessment.sectionInterests;
 
   return (
     <PageShell>
@@ -228,7 +241,7 @@ function CareerAssessmentPage() {
                 disabled={step === 0}
                 className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-5 py-2 text-sm text-primary/80 disabled:opacity-40 hover:border-primary/50 hover:bg-primary/10 transition-all"
               >
-                <ArrowLeft className="h-4 w-4" /> Back
+                <ArrowLeft className="h-4 w-4" /> {t.careerAssessment.back}
               </button>
               {step < TOTAL - 1 ? (
                 <button
@@ -236,7 +249,7 @@ function CareerAssessmentPage() {
                   disabled={!canNext}
                   className="cta-sheen relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
                 >
-                  Next <ArrowRight className="h-4 w-4" />
+                  {t.careerAssessment.next} <ArrowRight className="h-4 w-4" />
                 </button>
               ) : (
                 <div className="flex flex-col items-end gap-2">
@@ -251,7 +264,7 @@ function CareerAssessmentPage() {
                     className="cta-sheen relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
                   >
                     {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                    See My Results
+                    {t.careerAssessment.seeResults}
                   </button>
                 </div>
               )}
