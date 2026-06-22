@@ -235,7 +235,7 @@ export function ParticleConstellation() {
       ref={canvasRef}
       aria-hidden
       className="absolute inset-0 h-full w-full"
-      style={{ zIndex: 0, pointerEvents: "none" }}
+      style={{ zIndex: 0, pointerEvents: "none", willChange: "transform" }}
     />
   );
 }
