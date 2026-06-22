@@ -102,10 +102,10 @@ function LandingPage() {
       <Reveal className="mx-auto max-w-4xl px-6 py-8">
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {[
-            { value: 30, suffix: "+", label: "Questions per session" },
-            { value: 80, suffix: "+", label: "Career paths mapped" },
-            { value: 5, suffix: " min", label: "Average completion" },
-            { value: 95, suffix: "%", label: "Satisfaction rate" },
+            { value: 30, suffix: "", label: "Questions per session" },
+            { value: 16, suffix: "", label: "Personality types mapped" },
+            { value: 3, suffix: "", label: "Dimensions: mind, traits, interests" },
+            { value: 5, suffix: " min", label: "Average completion time" },
           ].map((s) => (
             <div key={s.label} className="glass rounded-2xl p-5 text-center transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]">
               <div className="text-4xl font-bold gradient-text tabular-nums">
@@ -274,6 +274,9 @@ function LandingPage() {
             </figure>
           ))}
         </div>
+        <p className="mt-8 text-center text-xs text-muted-foreground/70">
+          Illustrative examples — real member stories coming soon.
+        </p>
       </Section>
 
       {/* FAQ */}
