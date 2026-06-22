@@ -5,6 +5,7 @@ import { SpotlightCard } from "@/components/SpotlightCard";
 import { GraduationCap, BarChart3, Users, Sparkles, Shield, ArrowRight, Check, Mail } from "lucide-react";
 import { FloatingShapes } from "@/components/FloatingShapes";
 import { GlowBlob } from "@/components/GlowBlob";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/for-schools")({
   head: () => ({
@@ -18,13 +19,21 @@ export const Route = createFileRoute("/for-schools")({
   component: ForSchoolsPage,
 });
 
-const PLANS = [
-  { name: "Starter", limit: "Up to 100 students", price: "Free", cta: "Register free", ctaTo: "/school/register" as const, contact: false, features: ["School dashboard", "Class analytics", "Talent distribution"] },
-  { name: "Professional", limit: "Up to 500 students", price: "Contact us", cta: "Talk to us", ctaTo: "/contact" as const, contact: true, features: ["Everything in Starter", "Specialized class generator", "PDF reports", "Teacher accounts"], highlight: true },
-  { name: "Enterprise", limit: "Unlimited students", price: "Contact us", cta: "Talk to us", ctaTo: "/contact" as const, contact: true, features: ["Everything in Professional", "Priority support", "Custom integrations", "Strategic AI insights"] },
-];
-
 function ForSchoolsPage() {
+  const t = useT();
+
+  const PLANS = [
+    { name: t.forSchools.plan1Name, limit: t.forSchools.plan1Limit, price: t.forSchools.plan1Price, cta: t.forSchools.plan1Cta, ctaTo: "/school/register" as const, contact: false, features: [t.forSchools.plan1F1, t.forSchools.plan1F2, t.forSchools.plan1F3] },
+    { name: t.forSchools.plan2Name, limit: t.forSchools.plan2Limit, price: t.forSchools.plan2Price, cta: t.forSchools.plan2Cta, ctaTo: "/contact" as const, contact: true, features: [t.forSchools.plan2F1, t.forSchools.plan2F2, t.forSchools.plan2F3, t.forSchools.plan2F4], highlight: true },
+    { name: t.forSchools.plan3Name, limit: t.forSchools.plan3Limit, price: t.forSchools.plan3Price, cta: t.forSchools.plan3Cta, ctaTo: "/contact" as const, contact: true, features: [t.forSchools.plan3F1, t.forSchools.plan3F2, t.forSchools.plan3F3, t.forSchools.plan3F4] },
+  ];
+
+  const FEATURES = [
+    { icon: BarChart3, title: t.forSchools.feature1Title, body: t.forSchools.feature1Body },
+    { icon: Users, title: t.forSchools.feature2Title, body: t.forSchools.feature2Body },
+    { icon: Sparkles, title: t.forSchools.feature3Title, body: t.forSchools.feature3Body },
+  ];
+
   return (
     <PageShell>
       <section className="relative px-6 pt-20 pb-12">
@@ -32,22 +41,21 @@ function ForSchoolsPage() {
         <FloatingShapes />
         <div className="relative mx-auto max-w-5xl text-center animate-fade-up">
           <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
-            <GraduationCap className="h-3.5 w-3.5" /> Built for Schools
+            <GraduationCap className="h-3.5 w-3.5" /> {t.forSchools.badge}
           </div>
           <h1 className="mt-6 text-4xl font-bold tracking-tight md:text-6xl">
-            <span className="gradient-text">Discover student talent.</span><br />
-            Build specialized classes.
+            <span className="gradient-text">{t.forSchools.titleA}</span><br />
+            {t.forSchools.titleB}
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
-            Abilitio for Schools gives principals and academic directors a complete picture of every student's
-            cognitive profile, interests, and career fit — then helps design data-driven specialized classes.
+            {t.forSchools.subtitle}
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link to="/school/register" className="cta-sheen relative inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-3 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] transition-all hover:-translate-y-0.5 overflow-hidden">
-              Register your school <ArrowRight className="h-4 w-4" />
+              {t.forSchools.registerBtn} <ArrowRight className="h-4 w-4" />
             </Link>
             <Link to="/school/join" className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-6 py-3 text-sm font-medium text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_6px_16px_-6px_oklch(0.55_0.22_295_/_0.3)]">
-              Join as a student
+              {t.forSchools.joinBtn}
             </Link>
           </div>
         </div>
@@ -55,11 +63,7 @@ function ForSchoolsPage() {
 
       <section className="px-6 pb-12">
         <Reveal className="mx-auto grid max-w-5xl gap-4 md:grid-cols-3">
-          {[
-            { icon: BarChart3, title: "Premium Analytics", body: "Talent distribution, career fit, IQ insights — visualized for every class." },
-            { icon: Users, title: "Class Intelligence", body: "Compare classes, find leaders, surface hidden strengths automatically." },
-            { icon: Sparkles, title: "AI Class Builder", body: "Generate specialized engineering, business, medical, and creative classes from assessment data." },
-          ].map((f) => (
+          {FEATURES.map((f) => (
             <SpotlightCard key={f.title} className="glass rounded-2xl p-6">
               <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_6px_24px_-8px_var(--glow)]">
                 <f.icon className="h-5 w-5" />
@@ -74,16 +78,16 @@ function ForSchoolsPage() {
       <section className="px-6 pb-24">
         <div className="mx-auto max-w-5xl">
           <Reveal className="mb-8 text-center">
-            <h2 className="text-2xl font-bold md:text-3xl">School subscription plans</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Choose the tier that fits your institution.</p>
+            <h2 className="text-2xl font-bold md:text-3xl">{t.forSchools.plansTitle}</h2>
+            <p className="mt-2 text-sm text-muted-foreground">{t.forSchools.plansSubtitle}</p>
           </Reveal>
           <Reveal delay={100} className="grid gap-5 md:grid-cols-3">
             {PLANS.map((p) => (
-              <div key={p.name} className={`relative overflow-hidden glass rounded-3xl p-7 transition-all duration-300 hover:-translate-y-1 ${p.highlight ? "ring-1 ring-primary/40 shadow-[0_20px_60px_-30px_var(--glow)]" : "hover-glow"}`}>
-                {p.highlight && (
+              <div key={p.name} className={`relative overflow-hidden glass rounded-3xl p-7 transition-all duration-300 hover:-translate-y-1 ${"highlight" in p && p.highlight ? "ring-1 ring-primary/40 shadow-[0_20px_60px_-30px_var(--glow)]" : "hover-glow"}`}>
+                {"highlight" in p && p.highlight && (
                   <>
                     <GlowBlob className="-right-10 -top-10 h-40 w-40 opacity-40 blur-3xl" />
-                    <div className="relative mb-3 inline-flex rounded-full bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 text-[11px] font-semibold text-primary-foreground shadow-[0_2px_10px_-4px_var(--glow)]">Most popular</div>
+                    <div className="relative mb-3 inline-flex rounded-full bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 text-[11px] font-semibold text-primary-foreground shadow-[0_2px_10px_-4px_var(--glow)]">{t.forSchools.mostPopular}</div>
                   </>
                 )}
                 <div className="text-sm text-muted-foreground">{p.name}</div>
@@ -102,7 +106,7 @@ function ForSchoolsPage() {
                 <Link
                   to={p.ctaTo}
                   className={`mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-all hover:-translate-y-0.5 ${
-                    p.highlight
+                    "highlight" in p && p.highlight
                       ? "cta-sheen relative overflow-hidden bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)]"
                       : "border border-primary/30 bg-primary/10 text-primary hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_6px_16px_-6px_oklch(0.55_0.22_295_/_0.3)]"
                   }`}
@@ -115,12 +119,12 @@ function ForSchoolsPage() {
           </Reveal>
           <div className="mt-8 text-center">
             <p className="text-sm text-muted-foreground">
-              Questions about Professional or Enterprise pricing?{" "}
-              <Link to="/contact" className="font-medium text-accent hover:underline">Get in touch →</Link>
+              {t.forSchools.pricingQuestion}{" "}
+              <Link to="/contact" className="font-medium text-accent hover:underline">{t.forSchools.getInTouch}</Link>
             </p>
           </div>
           <div className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]"><Shield className="h-3 w-3" /></span> Student data is private and visible only to your school's principal.
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]"><Shield className="h-3 w-3" /></span> {t.forSchools.privacyNote}
           </div>
         </div>
       </section>

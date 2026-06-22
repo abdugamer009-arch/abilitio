@@ -11,6 +11,7 @@ import {
   IQ_TIME_LIMIT_SECONDS,
   type IQCategory,
 } from "@/lib/iq-test";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/iq-test")({
   head: () => ({
@@ -29,6 +30,7 @@ function fmt(sec: number) {
 }
 
 function IQTestPage() {
+  const t = useT();
   const [phase, setPhase] = useState<"intro" | "test" | "results">("intro");
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(Array(40).fill(null));
@@ -39,13 +41,13 @@ function IQTestPage() {
   useEffect(() => {
     if (phase !== "test") return;
     timerRef.current = setInterval(() => {
-      setTimeLeft((t) => {
-        if (t <= 1) {
+      setTimeLeft((tv) => {
+        if (tv <= 1) {
           clearInterval(timerRef.current!);
           setPhase("results");
           return 0;
         }
-        return t - 1;
+        return tv - 1;
       });
       setElapsed((e) => e + 1);
     }, 1000);
@@ -78,6 +80,15 @@ function IQTestPage() {
     return { cat, correct, total: qs.length };
   });
 
+  const bandRows: [string, string][] = [
+    ["36–40", t.iqTest.bandExceptional],
+    ["31–35", t.iqTest.bandExcellent],
+    ["25–30", t.iqTest.bandVeryGood],
+    ["19–24", t.iqTest.bandGood],
+    ["15–18", t.iqTest.bandAverage],
+    ["Below 15", t.iqTest.bandBelowAverage],
+  ];
+
   if (phase === "intro") {
     return (
       <PageShell>
@@ -89,12 +100,12 @@ function IQTestPage() {
                 <Brain className="h-10 w-10 text-primary-foreground" />
                 <span className="absolute -inset-1 -z-10 rounded-2xl opacity-50 blur-md" style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }} />
               </div>
-              <h1 className="mt-6 text-4xl font-bold gradient-text">IQ Test</h1>
+              <h1 className="mt-6 text-4xl font-bold gradient-text">{t.iqTest.title}</h1>
               <p className="mt-3 text-muted-foreground text-sm">
-                40 questions · 90 minutes · Verbal, Numerical, Spatial & Logical reasoning
+                {t.iqTest.subtitle}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Source: Philip Carter, <em>The Complete Book of Intelligence Tests</em> (Wiley, 2005)
+                {t.iqTest.sourceNote}
               </p>
 
               <div className="mt-8 grid gap-4 md:grid-cols-4 text-left">
@@ -109,23 +120,23 @@ function IQTestPage() {
                       {CATEGORY_LABELS[cat]}
                     </span>
                     <p className="relative text-xs text-muted-foreground">
-                      {IQ_QUESTIONS.filter((q) => q.category === cat).length} questions
+                      {IQ_QUESTIONS.filter((q) => q.category === cat).length} {t.iqTest.questions}
                     </p>
                   </div>
                 ))}
               </div>
 
               <div className="mt-6 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-left text-xs text-muted-foreground">
-                <strong className="text-foreground">Instructions:</strong> One question at a time. You can go back to review previous answers. The test ends when time runs out or you submit. Some spatial questions describe visual puzzles — reason from the description.
+                <strong className="text-foreground">{t.iqTest.instructions}:</strong> {t.iqTest.instructionsBody}
               </div>
 
               <button
                 onClick={start}
                 className="cta-sheen relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 text-sm font-medium text-primary-foreground shadow-[0_8px_28px_-8px_var(--glow)] hover:-translate-y-0.5 transition-all"
               >
-                Start Test <ArrowRight className="h-4 w-4" />
+                {t.iqTest.startBtn} <ArrowRight className="h-4 w-4" />
               </button>
-              <p className="mt-3 text-xs text-muted-foreground">90-minute time limit</p>
+              <p className="mt-3 text-xs text-muted-foreground">{t.iqTest.timeLimit}</p>
             </div>
           </div>
         </section>
@@ -157,7 +168,7 @@ function IQTestPage() {
               </div>
               <div className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground">
                 <Clock className="h-4 w-4" />
-                Time taken: {fmt(elapsed)}
+                {t.iqTest.timeTaken}: {fmt(elapsed)}
               </div>
 
               {/* Band table */}
@@ -166,19 +177,12 @@ function IQTestPage() {
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="border-b border-border bg-secondary/40">
-                        <th className="px-4 py-2 text-left font-semibold">Score</th>
-                        <th className="px-4 py-2 text-left font-semibold">Rating</th>
+                        <th className="px-4 py-2 text-left font-semibold">{t.iqTest.scoreLabel}</th>
+                        <th className="px-4 py-2 text-left font-semibold">{t.iqTest.ratingLabel}</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {[
-                        ["36–40", "Exceptional"],
-                        ["31–35", "Excellent"],
-                        ["25–30", "Very Good"],
-                        ["19–24", "Good"],
-                        ["15–18", "Average"],
-                        ["Below 15", "Below Average"],
-                      ].map(([s, r]) => (
+                      {bandRows.map(([s, r]) => (
                         <tr key={s} className={`border-b border-border/50 ${r === band.label ? "bg-primary/10 font-semibold" : ""}`}>
                           <td className="px-4 py-2">{s}</td>
                           <td className="px-4 py-2">{r}</td>
@@ -194,7 +198,7 @@ function IQTestPage() {
             <div className="glass rounded-3xl p-8">
               <div className="flex items-center gap-2 mb-6">
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]"><BarChart3 className="h-4 w-4" /></span>
-                <h2 className="text-lg font-semibold">Performance by Category</h2>
+                <h2 className="text-lg font-semibold">{t.iqTest.performanceByCategory}</h2>
               </div>
               <div className="space-y-4">
                 {byCat.map(({ cat, correct, total }) => {
@@ -229,7 +233,7 @@ function IQTestPage() {
             <div className="glass rounded-3xl p-8">
               <div className="flex items-center gap-2.5 mb-4">
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]"><BarChart3 className="h-4 w-4" /></span>
-                <h2 className="text-lg font-semibold">Question Review</h2>
+                <h2 className="text-lg font-semibold">{t.iqTest.questionReview}</h2>
               </div>
               <div className="space-y-3">
                 {IQ_QUESTIONS.map((q, i) => {
@@ -269,7 +273,7 @@ function IQTestPage() {
                 onClick={start}
                 className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 text-sm font-medium text-primary-foreground shadow-[0_8px_28px_-8px_var(--glow)] hover:-translate-y-0.5 transition-all"
               >
-                Retake Test <ArrowRight className="h-4 w-4" />
+                {t.iqTest.retake} <ArrowRight className="h-4 w-4" />
               </button>
             </div>
           </div>
@@ -291,7 +295,7 @@ function IQTestPage() {
             >
               {CATEGORY_LABELS[q.category]}
             </span>
-            <span>Question {step + 1} / 40</span>
+            <span>{t.iqTest.question} {step + 1} / 40</span>
             <span
               className={`flex items-center gap-1.5 font-mono font-semibold ${timeLeft < 300 ? "text-red-400" : "text-foreground"}`}
             >
@@ -352,7 +356,7 @@ function IQTestPage() {
                 disabled={step === 0}
                 className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-5 py-2 text-sm text-primary/80 disabled:opacity-40 hover:border-primary/50 hover:bg-primary/10 transition-all"
               >
-                <ArrowLeft className="h-4 w-4" /> Back
+                <ArrowLeft className="h-4 w-4" /> {t.iqTest.back}
               </button>
 
               {/* Dot nav for quick jump */}
@@ -361,7 +365,7 @@ function IQTestPage() {
                   <button
                     key={i}
                     onClick={() => setStep(i)}
-                    title={`Question ${i + 1}`}
+                    title={`${t.iqTest.question} ${i + 1}`}
                     className={`h-2 w-2 rounded-full transition-all ${
                       i === step
                         ? "bg-gradient-to-br from-primary to-accent scale-125 shadow-[0_0_6px_-1px_var(--glow)]"
@@ -378,14 +382,14 @@ function IQTestPage() {
                   onClick={() => setStep((s) => s + 1)}
                   className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm text-primary-foreground shadow-[0_4px_16px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"
                 >
-                  Next <ArrowRight className="h-4 w-4" />
+                  {t.iqTest.next} <ArrowRight className="h-4 w-4" />
                 </button>
               ) : (
                 <button
                   onClick={finish}
                   className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm text-primary-foreground shadow-[0_4px_16px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"
                 >
-                  <Trophy className="h-4 w-4" /> Submit
+                  <Trophy className="h-4 w-4" /> {t.iqTest.submit}
                 </button>
               )}
             </div>
@@ -393,7 +397,7 @@ function IQTestPage() {
             {/* Unanswered warning on last question */}
             {step === 39 && answers.filter((a) => a === null).length > 0 && (
               <p className="mt-3 text-center text-xs text-amber-400">
-                ⚠ {answers.filter((a) => a === null).length} question(s) unanswered. You can still submit.
+                ⚠ {answers.filter((a) => a === null).length} {t.iqTest.unansweredWarning}
               </p>
             )}
           </div>

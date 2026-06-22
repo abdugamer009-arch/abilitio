@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { PageShell } from "@/components/PageShell";
 import { AbbiChat } from "@/components/AbbiChat";
 import { useAuth } from "@/lib/auth-context";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/abbi")({
   head: () => ({
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/abbi")({
 });
 
 function AbbiPage() {
+  const t = useT();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -31,7 +33,7 @@ function AbbiPage() {
   if (loading || !user) {
     return (
       <PageShell>
-        <div className="px-6 pt-32 text-center text-sm text-muted-foreground">Loading ABBI…</div>
+        <div className="px-6 pt-32 text-center text-sm text-muted-foreground">{t.abbi.loading}</div>
       </PageShell>
     );
   }

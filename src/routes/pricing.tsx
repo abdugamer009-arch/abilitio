@@ -6,6 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { createCheckoutSession } from "@/lib/stripe.functions";
 import { Reveal } from "@/components/Reveal";
 import { GlowBlob } from "@/components/GlowBlob";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -17,42 +18,43 @@ export const Route = createFileRoute("/pricing")({
   component: PricingPage,
 });
 
-const plans = [
-  {
-    name: "Explorer",
-    planId: null as null,
-    price: "Free",
-    desc: "Begin your discovery journey.",
-    features: ["1 talent assessment", "Basic dashboard", "Top 3 career matches"],
-    cta: "Get started",
-    highlight: false,
-  },
-  {
-    name: "Student",
-    planId: "student" as const,
-    price: "$12",
-    period: "/month",
-    desc: "For ambitious students.",
-    features: ["Unlimited assessments", "Full analytics suite", "All career paths", "Personal growth plan", "PDF reports"],
-    cta: "Start free trial",
-    highlight: true,
-  },
-  {
-    name: "Family",
-    planId: "family" as const,
-    price: "$24",
-    period: "/month",
-    desc: "Up to 4 family members.",
-    features: ["Everything in Student", "Parent dashboard", "Comparative insights", "Priority support"],
-    cta: "Choose Family",
-    highlight: false,
-  },
-];
-
 function PricingPage() {
+  const t = useT();
   const checkoutFn = useServerFn(createCheckoutSession);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
+  const plans = [
+    {
+      name: t.pricing.plan1Name,
+      planId: null as null,
+      price: t.pricing.plan1Price,
+      desc: t.pricing.plan1Desc,
+      features: [t.pricing.plan1F1, t.pricing.plan1F2, t.pricing.plan1F3],
+      cta: t.pricing.plan1Cta,
+      highlight: false,
+    },
+    {
+      name: t.pricing.plan2Name,
+      planId: "student" as const,
+      price: t.pricing.plan2Price,
+      period: t.pricing.plan2Period,
+      desc: t.pricing.plan2Desc,
+      features: [t.pricing.plan2F1, t.pricing.plan2F2, t.pricing.plan2F3, t.pricing.plan2F4, t.pricing.plan2F5],
+      cta: t.pricing.plan2Cta,
+      highlight: true,
+    },
+    {
+      name: t.pricing.plan3Name,
+      planId: "family" as const,
+      price: t.pricing.plan3Price,
+      period: t.pricing.plan3Period,
+      desc: t.pricing.plan3Desc,
+      features: [t.pricing.plan3F1, t.pricing.plan3F2, t.pricing.plan3F3, t.pricing.plan3F4],
+      cta: t.pricing.plan3Cta,
+      highlight: false,
+    },
+  ];
 
   async function handlePlanClick(planId: "student" | "family") {
     setLoadingPlan(planId);
@@ -62,10 +64,10 @@ function PricingPage() {
       if (result.url) {
         window.location.href = result.url;
       } else {
-        setCheckoutError("Payment is not configured yet — contact us to upgrade.");
+        setCheckoutError(t.pricing.errorNotConfigured);
       }
     } catch {
-      setCheckoutError("Something went wrong. Please try again.");
+      setCheckoutError(t.pricing.errorGeneric);
     } finally {
       setLoadingPlan(null);
     }
@@ -76,9 +78,9 @@ function PricingPage() {
       <section className="relative px-6 pt-20 pb-12 text-center">
         <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
         <div className="relative animate-fade-up">
-          <div className="text-xs uppercase tracking-widest text-accent">Pricing</div>
-          <h1 className="mt-3 text-4xl font-bold md:text-6xl">Simple, <span className="gradient-text">honest pricing</span></h1>
-          <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">No hidden fees. Cancel anytime. Schools get custom plans.</p>
+          <div className="text-xs uppercase tracking-widest text-accent">{t.pricing.eyebrow}</div>
+          <h1 className="mt-3 text-4xl font-bold md:text-6xl">{t.pricing.title} <span className="gradient-text">{t.pricing.titleHighlight}</span></h1>
+          <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">{t.pricing.subtitle}</p>
         </div>
       </section>
 
@@ -96,14 +98,14 @@ function PricingPage() {
               )}
               {p.highlight && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary to-accent px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground">
-                  Most popular
+                  {t.pricing.mostPopular}
                 </div>
               )}
               <h3 className="text-lg font-semibold">{p.name}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{p.desc}</p>
               <div className="mt-6 flex items-baseline gap-1">
                 <span className="text-4xl font-bold gradient-text">{p.price}</span>
-                {p.period && <span className="text-sm text-muted-foreground">{p.period}</span>}
+                {"period" in p && p.period && <span className="text-sm text-muted-foreground">{p.period}</span>}
               </div>
               <ul className="mt-6 space-y-3 text-sm">
                 {p.features.map((f) => (
@@ -148,7 +150,7 @@ function PricingPage() {
         )}
 
         <div className="mx-auto mt-10 max-w-2xl text-center text-sm text-muted-foreground">
-          Looking for a school or district plan? <Link to="/contact" className="text-accent hover:underline">Get in touch</Link>.
+          {t.pricing.schoolQuestion} <Link to="/contact" className="text-accent hover:underline">{t.pricing.getInTouch}</Link>.
         </div>
       </section>
     </PageShell>
