@@ -7,6 +7,7 @@ import rehypeSanitize from "rehype-sanitize";
 import { Sparkles, Send, Bot, User as UserIcon, Coins, MessageCircle, X, Zap } from "lucide-react";
 import { useAura } from "@/components/aura/AuraProvider";
 import { AuraCoin } from "@/components/aura/AuraCoin";
+import { GlowBlob } from "@/components/GlowBlob";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -212,10 +213,7 @@ export function AbbiChat() {
         className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-primary/15 via-secondary/30 to-background/40 p-6 backdrop-blur-xl"
         style={{ boxShadow: "0 20px 60px -20px oklch(0.55 0.22 295 / 0.4)" }}
       >
-        <div
-          className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full opacity-60 blur-3xl"
-          style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }}
-        />
+        <GlowBlob className="-right-16 -top-16 h-64 w-64 opacity-60 blur-3xl" alpha={0.5} />
         <div className="relative flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div
@@ -405,10 +403,7 @@ function OutOfCoinsModal({ onClose }: { onClose: () => void }) {
         >
           <X className="h-4 w-4" />
         </button>
-        <div
-          className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full opacity-60 blur-3xl"
-          style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }}
-        />
+        <GlowBlob className="-right-16 -top-16 h-64 w-64 opacity-60 blur-3xl" alpha={0.5} />
         <div className="relative">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg">
             <Coins className="h-7 w-7" />

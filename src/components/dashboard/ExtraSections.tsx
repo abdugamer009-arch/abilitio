@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { CountUp } from "@/components/CountUp";
+import { GlowBlob } from "@/components/GlowBlob";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
@@ -51,8 +52,7 @@ export function SkillsSection({ stats, mbti: _mbti }: { stats: StatsLite; mbti?:
           {(skills ?? Array.from({ length: 7 })).map((s: SkillSnapshot | undefined, i) =>
             s ? (
               <div key={s.key} className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/30 to-background/40 p-5 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]">
-                <div className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-40"
-                  style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.8), transparent 70%)" }} />
+                <GlowBlob className="-right-6 -top-6 h-16 w-16 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-40" alpha={0.8} />
                 <div className="relative flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-xl">{s.emoji}</span>
@@ -211,8 +211,7 @@ export function UniversitiesTabSection() {
   return (
     <div className="space-y-6">
       <div className="glass relative overflow-hidden rounded-3xl p-8 text-center">
-        <div className="pointer-events-none absolute left-1/2 top-0 h-40 w-72 -translate-x-1/2 rounded-full opacity-20 blur-3xl"
-          style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.8), transparent 70%)" }} />
+        <GlowBlob className="left-1/2 top-0 h-40 w-72 -translate-x-1/2 opacity-20 blur-3xl" alpha={0.8} />
         <div className="relative">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_30px_-10px_var(--glow)]">
             <GraduationCap className="h-8 w-8" />

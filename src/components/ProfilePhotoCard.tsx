@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type DragEvent } from "react"
 import { Camera, Loader2, Trash2, UploadCloud, User as UserIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { GlowBlob } from "@/components/GlowBlob";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
@@ -132,10 +133,7 @@ export function ProfilePhotoCard({
       className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-secondary/30 via-background/40 to-background/30 p-7 backdrop-blur-xl"
       style={{ boxShadow: "0 10px 40px -20px oklch(0.55 0.22 295 / 0.25)" }}
     >
-      <div
-        className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full opacity-50 blur-3xl"
-        style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.4), transparent 70%)" }}
-      />
+      <GlowBlob className="-right-16 -top-16 h-48 w-48 opacity-50 blur-3xl" alpha={0.4} />
 
       <h2 className="flex items-center gap-2 text-base font-semibold">
         <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">

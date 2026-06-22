@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Sparkles, Briefcase, Star, Calendar } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
+import { GlowBlob } from "@/components/GlowBlob";
 import { MENTORS } from "@/lib/abbi-extras";
 
 export const Route = createFileRoute("/mentors")({
@@ -28,8 +29,7 @@ function MentorsPage() {
               <article key={m.name}
                 className="group relative flex flex-col overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-6 backdrop-blur-xl transition-all hover:-translate-y-1 hover:border-primary/40"
                 style={{ boxShadow: "0 10px 30px -15px oklch(0.55 0.22 295 / 0.4)" }}>
-                <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-30 blur-3xl"
-                  style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)" }} />
+                <GlowBlob className="-right-10 -top-10 h-32 w-32 opacity-30 blur-3xl" />
                 <div className="relative flex items-center gap-4">
                   <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/10 ring-1 ring-primary/30 text-2xl shadow-[0_6px_20px_-8px_var(--glow)]">
                     <span className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: "radial-gradient(circle at 50% 50%, oklch(0.65 0.24 295 / 0.15), transparent 70%)" }} />

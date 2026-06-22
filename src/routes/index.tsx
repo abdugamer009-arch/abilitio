@@ -4,6 +4,7 @@ import { PageShell } from "@/components/PageShell";
 import { ParticleConstellation } from "@/components/ParticleConstellation";
 import { GradientDivider } from "@/components/GradientDivider";
 import { TrustMarquee } from "@/components/TrustMarquee";
+import { GlowBlob } from "@/components/GlowBlob";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { CountUp } from "@/components/CountUp";
@@ -207,8 +208,7 @@ function LandingPage() {
             { a: { name: "Doctor", salary: "$200k → $500k+", demand: 88, emoji: "🩺" }, b: { name: "Psychologist", salary: "$60k → $180k", demand: 72, emoji: "🧠" } },
           ].map((battle, i) => (
             <div key={i} className="group relative overflow-hidden glass rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-20px_oklch(0.55_0.22_295_/_0.4)]">
-              <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-20 blur-3xl transition-opacity duration-300 group-hover:opacity-40"
-                style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)" }} />
+              <GlowBlob className="-right-10 -top-10 h-32 w-32 opacity-20 blur-3xl transition-opacity duration-300 group-hover:opacity-40" />
               <div className="relative flex items-center justify-between gap-4">
                 <div className="flex-1 text-center">
                   <div className="text-3xl">{battle.a.emoji}</div>
@@ -253,8 +253,7 @@ function LandingPage() {
         <div className="grid gap-5 md:grid-cols-3">
           {t.testimonials.items.map((tt) => (
             <figure key={tt.name} className="relative overflow-hidden glass rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-20px_oklch(0.55_0.22_295_/_0.35)]">
-              <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-15 blur-2xl"
-                style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.7), transparent 70%)" }} />
+              <GlowBlob className="-right-8 -top-8 h-28 w-28 opacity-15 blur-2xl" alpha={0.7} />
               <div className="flex gap-0.5 text-accent">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star key={i} className="h-3.5 w-3.5 fill-current" />

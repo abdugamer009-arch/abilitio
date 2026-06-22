@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { GraduationCap, MapPin, Award, Sparkles, Search, Filter } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
+import { GlowBlob } from "@/components/GlowBlob";
 import { FloatingShapes } from "@/components/FloatingShapes";
 import { UNIVERSITIES, COUNTRIES, MAJORS, type University } from "@/lib/abbi-extras";
 
@@ -103,8 +104,7 @@ function UniCard({ u, fit, major }: { u: University; fit: number; major: string 
   return (
     <div className="group relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-6 backdrop-blur-xl transition-all hover:-translate-y-1 hover:border-primary/40"
       style={{ boxShadow: "0 10px 30px -15px oklch(0.55 0.22 295 / 0.4)" }}>
-      <div className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full opacity-30 blur-3xl"
-        style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)" }} />
+      <GlowBlob className="-right-12 -top-12 h-36 w-36 opacity-30 blur-3xl" />
       <div className="relative flex items-start justify-between gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_6px_20px_-8px_var(--glow)] transition-transform duration-300 group-hover:scale-105">
           <GraduationCap className="h-5 w-5" />

@@ -19,6 +19,7 @@ import { ProfilePhotoCard, resolveAvatarUrl } from "@/components/ProfilePhotoCar
 import { AbbiChat } from "@/components/AbbiChat";
 import { SkillsSection, WeeklyReportSection, UniversitiesTabSection } from "@/components/dashboard/ExtraSections";
 import { CountUp } from "@/components/CountUp";
+import { GlowBlob } from "@/components/GlowBlob";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { claimNewUserBonus } from "@/lib/abbi.functions";
@@ -270,8 +271,7 @@ function ProfileHeader({
     <div className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-gradient-to-br from-secondary/40 via-background/60 to-background/40 p-6 backdrop-blur-xl sm:p-8"
       style={{ boxShadow: "0 20px 60px -20px oklch(0.55 0.22 295 / 0.35)" }}>
       {/* gradient orbs */}
-      <div className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 rounded-full opacity-50 blur-3xl"
-        style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }} />
+      <GlowBlob className="-right-20 -top-20 h-80 w-80 opacity-50 blur-3xl" alpha={0.5} />
       <div className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
         style={{ background: "radial-gradient(circle, oklch(0.70 0.18 320 / 0.4), transparent 70%)" }} />
 
@@ -467,8 +467,7 @@ function ResultsSection({
       {/* Career Battles CTA */}
       <Link to="/career-battles" className="group block">
         <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-accent/5 to-background/40 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-[0_16px_40px_-16px_oklch(0.55_0.22_295_/_0.4)]">
-          <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full opacity-30 blur-3xl"
-            style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)" }} />
+          <GlowBlob className="-right-8 -top-8 h-32 w-32 opacity-30 blur-3xl" />
           <div className="relative flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)]">
@@ -515,8 +514,7 @@ function CareerCard({ career, rank, featured, tCareer }: { career: Career; rank:
     }`}
       style={featured ? { boxShadow: "0 16px 40px -16px oklch(0.55 0.22 295 / 0.5)" } : undefined}>
       {featured && (
-        <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-60 blur-2xl"
-          style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }} />
+        <GlowBlob className="-right-10 -top-10 h-32 w-32 opacity-60 blur-2xl" alpha={0.5} />
       )}
       <div className="relative flex items-center justify-between">
         <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
@@ -891,8 +889,7 @@ function SettingsSection({
           className="group relative block overflow-hidden rounded-3xl border border-primary/40 bg-gradient-to-br from-primary/20 via-accent/10 to-background/40 p-6 backdrop-blur-xl transition-all hover:-translate-y-0.5"
           style={{ boxShadow: "0 20px 60px -20px var(--glow)" }}
         >
-          <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-50 blur-3xl"
-            style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }} />
+          <GlowBlob className="-right-10 -top-10 h-40 w-40 opacity-50 blur-3xl" alpha={0.5} />
           <div className="relative flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg">

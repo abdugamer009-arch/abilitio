@@ -4,6 +4,7 @@ import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { GraduationCap, BarChart3, Users, Sparkles, Shield, ArrowRight, Check, Mail } from "lucide-react";
 import { FloatingShapes } from "@/components/FloatingShapes";
+import { GlowBlob } from "@/components/GlowBlob";
 
 export const Route = createFileRoute("/for-schools")({
   head: () => ({
@@ -81,8 +82,7 @@ function ForSchoolsPage() {
               <div key={p.name} className={`relative overflow-hidden glass rounded-3xl p-7 transition-all duration-300 hover:-translate-y-1 ${p.highlight ? "ring-1 ring-primary/40 shadow-[0_20px_60px_-30px_var(--glow)]" : "hover-glow"}`}>
                 {p.highlight && (
                   <>
-                    <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-40 blur-3xl"
-                      style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)" }} />
+                    <GlowBlob className="-right-10 -top-10 h-40 w-40 opacity-40 blur-3xl" />
                     <div className="relative mb-3 inline-flex rounded-full bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 text-[11px] font-semibold text-primary-foreground shadow-[0_2px_10px_-4px_var(--glow)]">Most popular</div>
                   </>
                 )}

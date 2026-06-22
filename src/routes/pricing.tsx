@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { createCheckoutSession } from "@/lib/stripe.functions";
 import { Reveal } from "@/components/Reveal";
+import { GlowBlob } from "@/components/GlowBlob";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -91,8 +92,7 @@ function PricingPage() {
               }`}
             >
               {p.highlight && (
-                <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-40 blur-3xl"
-                  style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)" }} />
+                <GlowBlob className="-right-10 -top-10 h-40 w-40 opacity-40 blur-3xl" />
               )}
               {p.highlight && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary to-accent px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground">

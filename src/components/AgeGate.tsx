@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
+import { GlowBlob } from "@/components/GlowBlob";
 
 export type AgeGroup = "child" | "teen" | "adult";
 
@@ -54,11 +55,7 @@ export function AgeGate({
                   : "border-border/60 bg-secondary/30 hover:border-primary/40"
               }`}
             >
-              <div
-                aria-hidden
-                className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-50 blur-3xl"
-                style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }}
-              />
+              <GlowBlob className="-right-10 -top-10 h-32 w-32 opacity-50 blur-3xl" alpha={0.5} />
               <div className="relative">
                 <div className="text-4xl">{o.emoji}</div>
                 <div className="mt-3 text-lg font-semibold">{o.label}</div>
