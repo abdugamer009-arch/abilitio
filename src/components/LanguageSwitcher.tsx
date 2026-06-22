@@ -3,7 +3,7 @@ import { LANGS, useI18n } from "@/lib/i18n";
 export function LanguageSwitcher() {
   const { lang, setLang } = useI18n();
   return (
-    <div className="hidden sm:inline-flex items-center gap-0.5 rounded-full border border-border/60 bg-secondary/40 p-1 backdrop-blur">
+    <div className="inline-flex items-center gap-0.5 rounded-full border border-border/60 bg-secondary/40 p-1 backdrop-blur">
       {LANGS.map((l) => {
         const active = lang === l.code;
         return (

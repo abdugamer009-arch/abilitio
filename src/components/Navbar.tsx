@@ -14,14 +14,14 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   const navItems = [
-    { to: "/", label: t.nav.home, kind: "text" as const },
-    { to: "/assessment", label: t.nav.assessment, kind: "text" as const },
-    { to: "/roadmap", label: "Roadmap", kind: "text" as const },
-    { to: "/community", label: "Community", kind: "text" as const },
-    { to: "/aura-market", label: "Market", kind: "text" as const },
-    { to: "/for-schools", label: "Schools", kind: "text" as const },
-    { to: "/about", label: t.nav.about, kind: "text" as const },
-  ] as const;
+    { to: "/", label: t.nav.home },
+    { to: "/assessment", label: t.nav.assessment },
+    { to: "/roadmap", label: t.nav.roadmap },
+    { to: "/community", label: t.nav.community },
+    { to: "/aura-market", label: t.nav.market },
+    { to: "/for-schools", label: t.nav.forSchools },
+    { to: "/about", label: t.nav.about },
+  ];
 
 
   return (
@@ -88,7 +88,7 @@ export function Navbar() {
                 search={{ mode: "login" }}
                 className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary to-accent px-4 py-1.5 text-[13px] font-medium text-primary-foreground shadow-[0_4px_14px_-6px_var(--glow)] transition-all hover:-translate-y-0.5"
               >
-                Sign in
+                {t.nav.signIn}
               </Link>
             )}
 
@@ -108,6 +108,10 @@ export function Navbar() {
         {/* Mobile menu */}
         {open && (
           <div className="md:hidden mt-2 glass rounded-2xl p-2 animate-fade-in">
+            <div className="px-2 pt-1 pb-2 flex items-center justify-between">
+              <span className="text-xs text-muted-foreground font-medium">Language</span>
+              <LanguageSwitcher />
+            </div>
             <ul className="flex flex-col">
               {navItems.map((item) => (
                 <li key={item.to}>
@@ -130,7 +134,7 @@ export function Navbar() {
                     onClick={() => setOpen(false)}
                     className="mt-1 flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-primary to-accent px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_4px_14px_-6px_var(--glow)]"
                   >
-                    Sign in
+                    {t.nav.signIn}
                   </Link>
                 </li>
               )}
