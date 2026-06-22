@@ -154,7 +154,7 @@ function AboutPage() {
               </div>
               <h3 className="mt-6 text-2xl font-semibold">{t.contact.successTitle}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{t.contact.successBody}</p>
-              <button type="button" onClick={() => setStatus("idle")} className="mt-6 rounded-full border border-border bg-secondary/50 px-5 py-2 text-xs text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground">
+              <button type="button" onClick={() => setStatus("idle")} className="mt-6 rounded-full border border-primary/20 bg-primary/5 px-5 py-2 text-xs text-muted-foreground transition-all hover:border-primary/40 hover:bg-primary/10 hover:text-primary">
                 {t.contact.sendAnother}
               </button>
             </div>
