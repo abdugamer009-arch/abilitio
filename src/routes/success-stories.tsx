@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Sparkles, Trophy } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
+import { FloatingShapes } from "@/components/FloatingShapes";
 import { SUCCESS_STORIES } from "@/lib/abbi-extras";
 
 export const Route = createFileRoute("/success-stories")({
@@ -14,6 +15,7 @@ function SuccessPage() {
     <PageShell>
       <section className="relative px-4 pt-16 pb-24 sm:px-6">
         <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
+        <FloatingShapes />
         <div className="relative mx-auto max-w-5xl">
           <header className="mb-10 text-center animate-fade-up">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">

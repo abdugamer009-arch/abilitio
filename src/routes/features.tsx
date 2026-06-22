@@ -3,6 +3,7 @@ import { PageShell } from "@/components/PageShell";
 import { Brain, LineChart, Compass, ShieldCheck, Sparkles, Users, Target, BookOpen, Zap } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
+import { FloatingShapes } from "@/components/FloatingShapes";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/features")({
@@ -48,6 +49,7 @@ function FeaturesPage() {
     <PageShell>
       <section className="relative px-6 pt-20 pb-12 text-center">
         <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
+        <FloatingShapes />
         <div className="relative animate-fade-up">
           <div className="text-xs uppercase tracking-widest text-accent">{t.featuresPage.eyebrow}</div>
           <h1 className="mt-3 text-4xl font-bold md:text-6xl">{t.featuresPage.titleA} <span className="gradient-text">{t.featuresPage.titleB}</span></h1>

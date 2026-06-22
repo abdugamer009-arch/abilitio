@@ -3,6 +3,7 @@ import { ArrowRight, Brain, Compass, LineChart, Sparkles, Target, Users, Zap, Sh
 import { PageShell } from "@/components/PageShell";
 import { ParticleConstellation } from "@/components/ParticleConstellation";
 import { GradientDivider } from "@/components/GradientDivider";
+import { TrustMarquee } from "@/components/TrustMarquee";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { CountUp } from "@/components/CountUp";
@@ -85,6 +86,13 @@ function LandingPage() {
           </div>
         </div>
       </section>
+
+      <div className="mx-auto max-w-6xl px-6">
+        <GradientDivider />
+      </div>
+
+      {/* Trust marquee */}
+      <TrustMarquee />
 
       <div className="mx-auto max-w-6xl px-6">
         <GradientDivider />
