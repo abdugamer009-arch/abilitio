@@ -245,6 +245,9 @@ body {
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    /* Safety net: clip any stray off-canvas decoration so phones never get a
+       phantom horizontal scroll. `clip` (not `hidden`) preserves position:sticky. */
+    overflow-x: clip;
     font-family: var(--font-sans);
     font-feature-settings: 'cv11', 'ss01', 'ss03';
     -webkit-font-smoothing: antialiased;

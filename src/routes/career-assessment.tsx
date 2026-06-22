@@ -163,7 +163,7 @@ function CareerAssessmentPage() {
             <div className="h-full bg-gradient-to-r from-primary to-accent transition-all" style={{ width: `${progress}%`, boxShadow: "0 0 8px oklch(0.65 0.22 295 / 0.5)" }} />
           </div>
 
-          <div className="glass mt-6 rounded-3xl p-8">
+          <div className="glass mt-6 rounded-3xl p-6 sm:p-8">
             {current && (
               <>
                 <h2 className="text-xl font-semibold leading-relaxed whitespace-pre-line">{current.q.prompt}</h2>
