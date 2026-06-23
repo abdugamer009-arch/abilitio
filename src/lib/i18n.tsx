@@ -267,6 +267,10 @@ const translations = {
       bandGood: "Good",
       bandAverage: "Average",
       bandBelowAverage: "Below Average",
+      categoryVerbal: "Verbal",
+      categoryNumerical: "Numerical",
+      categorySpatial: "Spatial",
+      categoryLogical: "Logical",
     },
     abbi: {
       loading: "Loading ABBI…",
@@ -639,6 +643,10 @@ const translations = {
       bandGood: "Хороший",
       bandAverage: "Средний",
       bandBelowAverage: "Ниже среднего",
+      categoryVerbal: "Вербальный",
+      categoryNumerical: "Числовой",
+      categorySpatial: "Пространственный",
+      categoryLogical: "Логический",
     },
     abbi: {
       loading: "Загрузка ABBI…",
@@ -1011,6 +1019,10 @@ const translations = {
       bandGood: "Yaxshi",
       bandAverage: "O'rtacha",
       bandBelowAverage: "O'rtadan past",
+      categoryVerbal: "Verbal",
+      categoryNumerical: "Raqamli",
+      categorySpatial: "Fazoviy",
+      categoryLogical: "Mantiqiy",
     },
     abbi: {
       loading: "ABBI yuklanmoqda…",

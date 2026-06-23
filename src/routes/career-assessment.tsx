@@ -8,7 +8,21 @@ import { submitCareerAssessment } from "@/lib/career.functions";
 import { pickSessionQuestions, type SessionQuestions } from "@/lib/question-bank";
 import type { PersonalityQ, CognitiveQ, InterestQ } from "@/lib/career-assessment";
 import { ArrowLeft, ArrowRight, Brain, Sparkles, Loader2, Target, Shuffle } from "lucide-react";
-import { useT } from "@/lib/i18n";
+import { useT, useI18n } from "@/lib/i18n";
+import { QUESTION_TRANSLATIONS } from "@/lib/question-translations";
+
+function tPrompt(id: string, original: string, lang: string): string {
+  if (lang === "en") return original;
+  return QUESTION_TRANSLATIONS[id]?.[lang as "ru" | "uz"]?.prompt ?? original;
+}
+function tCogOpts(id: string, options: string[], lang: string): string[] {
+  if (lang === "en") return options;
+  return QUESTION_TRANSLATIONS[id]?.[lang as "ru" | "uz"]?.options ?? options;
+}
+function tIntLabel(id: string, idx: number, label: string, lang: string): string {
+  if (lang === "en") return label;
+  return QUESTION_TRANSLATIONS[id]?.[lang as "ru" | "uz"]?.options?.[idx] ?? label;
+}
 
 export const Route = createFileRoute("/career-assessment")({
   head: () => ({
@@ -41,6 +55,7 @@ function makeAnswers(): Answers {
 
 function CareerAssessmentPage() {
   const t = useT();
+  const { lang } = useI18n();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const submit = useServerFn(submitCareerAssessment);
@@ -179,7 +194,7 @@ function CareerAssessmentPage() {
           <div className="glass mt-6 rounded-3xl p-6 sm:p-8">
             {current && (
               <>
-                <h2 className="text-xl font-semibold leading-relaxed whitespace-pre-line">{current.q.prompt}</h2>
+                <h2 className="text-xl font-semibold leading-relaxed whitespace-pre-line">{tPrompt(current.q.id, current.q.prompt, lang)}</h2>
 
                 <div className="mt-6 space-y-2">
                   {current.kind === "p" && LIKERT.map((label, i) => {
@@ -197,7 +212,7 @@ function CareerAssessmentPage() {
                     );
                   })}
 
-                  {current.kind === "c" && (current.q as CognitiveQ).options.map((opt, i) => {
+                  {current.kind === "c" && tCogOpts(current.q.id, (current.q as CognitiveQ).options, lang).map((opt, i) => {
                     const selected = value === i;
                     return (
                       <button key={i} onClick={() => setValue(i)} className={`w-full rounded-xl border px-4 py-3 text-left transition-all duration-200 ${selected ? "border-primary/50 bg-gradient-to-r from-primary/12 to-accent/8 shadow-[0_2px_12px_-4px_var(--glow)]" : "border-border hover:bg-secondary/40 hover:border-primary/20"}`}>
@@ -213,7 +228,7 @@ function CareerAssessmentPage() {
 
                   {current.kind === "i" && (
                     <div className="grid grid-cols-2 gap-2">
-                      {(current.q as InterestQ).options.map((opt) => {
+                      {(current.q as InterestQ).options.map((opt, optIdx) => {
                         const arr = (value as string[]) ?? [];
                         const selected = arr.includes(opt.key);
                         return (
@@ -223,7 +238,7 @@ function CareerAssessmentPage() {
                             className={`rounded-xl border px-4 py-3 text-left text-sm transition-all duration-200 ${selected ? "border-primary/50 bg-gradient-to-br from-primary/12 to-accent/8 shadow-[0_2px_12px_-4px_var(--glow)]" : "border-border hover:bg-secondary/40 hover:border-primary/20"}`}
                           >
                             <div className="flex items-center justify-between gap-2">
-                              <span>{opt.label}</span>
+                              <span>{tIntLabel(current.q.id, optIdx, opt.label, lang)}</span>
                               {selected && <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent"><span className="h-1 w-1 rounded-full bg-white" /></span>}
                             </div>
                           </button>

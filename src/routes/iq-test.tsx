@@ -11,7 +11,21 @@ import {
   IQ_TIME_LIMIT_SECONDS,
   type IQCategory,
 } from "@/lib/iq-test";
-import { useT } from "@/lib/i18n";
+import { useT, useI18n } from "@/lib/i18n";
+import { IQ_TEST_TRANSLATIONS } from "@/lib/question-translations";
+
+function tIQPrompt(id: number, original: string, lang: string): string {
+  if (lang === "en") return original;
+  return IQ_TEST_TRANSLATIONS[id]?.[lang as "ru" | "uz"]?.prompt ?? original;
+}
+function tIQNote(id: number, original: string | undefined, lang: string): string | undefined {
+  if (lang === "en" || !original) return original;
+  return IQ_TEST_TRANSLATIONS[id]?.[lang as "ru" | "uz"]?.note ?? original;
+}
+function tIQOpts(id: number, options: string[], lang: string): string[] {
+  if (lang === "en") return options;
+  return IQ_TEST_TRANSLATIONS[id]?.[lang as "ru" | "uz"]?.options ?? options;
+}
 
 export const Route = createFileRoute("/iq-test")({
   head: () => ({
@@ -31,6 +45,9 @@ function fmt(sec: number) {
 
 function IQTestPage() {
   const t = useT();
+  const { lang } = useI18n();
+  const catLabel = (cat: IQCategory) =>
+    ({ verbal: t.iqTest.categoryVerbal, numerical: t.iqTest.categoryNumerical, spatial: t.iqTest.categorySpatial, logical: t.iqTest.categoryLogical } as Record<IQCategory, string>)[cat] ?? CATEGORY_LABELS[cat];
   const [phase, setPhase] = useState<"intro" | "test" | "results">("intro");
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(Array(40).fill(null));
@@ -256,11 +273,11 @@ function IQTestPage() {
                         className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold text-white"
                         style={{ background: CATEGORY_COLORS[q.category] }}
                       >
-                        {CATEGORY_LABELS[q.category]}
+                        {catLabel(q.category)}
                       </span>
-                      <span className="flex-1 line-clamp-2">{q.prompt.split("\n")[0]}</span>
+                      <span className="flex-1 line-clamp-2">{tIQPrompt(q.id, q.prompt, lang).split("\n")[0]}</span>
                       <span className="shrink-0 text-xs font-medium">
-                        {skipped ? "—" : isCorrect ? "✓" : `✗ → ${q.options[q.correct]}`}
+                        {skipped ? "—" : isCorrect ? "✓" : `✗ → ${tIQOpts(q.id, q.options, lang)[q.correct]}`}
                       </span>
                     </div>
                   );
@@ -293,7 +310,7 @@ function IQTestPage() {
               className="inline-block rounded-full px-3 py-1 text-[11px] font-semibold text-white"
               style={{ background: CATEGORY_COLORS[q.category] }}
             >
-              {CATEGORY_LABELS[q.category]}
+              {catLabel(q.category)}
             </span>
             <span>{t.iqTest.question} {step + 1} / 40</span>
             <span
@@ -314,13 +331,13 @@ function IQTestPage() {
 
           {/* Question card */}
           <div className="glass mt-6 rounded-3xl p-8">
-            <h2 className="text-lg font-semibold leading-relaxed whitespace-pre-line">{q.prompt}</h2>
+            <h2 className="text-lg font-semibold leading-relaxed whitespace-pre-line">{tIQPrompt(q.id, q.prompt, lang)}</h2>
             {q.note && (
-              <p className="mt-2 text-xs text-muted-foreground italic">{q.note}</p>
+              <p className="mt-2 text-xs text-muted-foreground italic">{tIQNote(q.id, q.note, lang)}</p>
             )}
 
             <div className="mt-6 space-y-2">
-              {q.options.map((opt, i) => {
+              {tIQOpts(q.id, q.options, lang).map((opt, i) => {
                 const isSelected = selected === i;
                 return (
                   <button
