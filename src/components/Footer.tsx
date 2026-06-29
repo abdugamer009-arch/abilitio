@@ -28,6 +28,13 @@ export function Footer() {
       ],
     },
     {
+      title: t.footer.legal,
+      links: [
+        { to: "/privacy", label: t.footer.privacy },
+        { to: "/terms", label: t.footer.terms },
+      ],
+    },
+    {
       title: "Resources",
       links: [
         { to: "/features", label: t.footer.features },
@@ -44,7 +51,7 @@ export function Footer() {
       <div className="gradient-divider-glow" aria-hidden />
 
       <div className="mx-auto max-w-[1500px] px-6 py-16 lg:px-10 lg:py-20">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-6">
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link to="/" className="group inline-flex items-center gap-3">

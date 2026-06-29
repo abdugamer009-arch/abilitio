@@ -10,12 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UniversitiesRouteImport } from './routes/universities'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SuccessStoriesRouteImport } from './routes/success-stories'
 import { Route as StripeSuccessRouteImport } from './routes/stripe-success'
 import { Route as StripeCancelRouteImport } from './routes/stripe-cancel'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as ResultsRouteImport } from './routes/results'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as MentorsRouteImport } from './routes/mentors'
 import { Route as IqTestRouteImport } from './routes/iq-test'
@@ -49,6 +51,11 @@ const UniversitiesRoute = UniversitiesRouteImport.update({
   path: '/universities',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuccessStoriesRoute = SuccessStoriesRouteImport.update({
   id: '/success-stories',
   path: '/success-stories',
@@ -77,6 +84,11 @@ const RoadmapRoute = RoadmapRouteImport.update({
 const ResultsRoute = ResultsRouteImport.update({
   id: '/results',
   path: '/results',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -235,12 +247,14 @@ export interface FileRoutesByFullPath {
   '/iq-test': typeof IqTestRoute
   '/mentors': typeof MentorsRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/results': typeof ResultsRoute
   '/roadmap': typeof RoadmapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stripe-cancel': typeof StripeCancelRoute
   '/stripe-success': typeof StripeSuccessRoute
   '/success-stories': typeof SuccessStoriesRoute
+  '/terms': typeof TermsRoute
   '/universities': typeof UniversitiesRoute
   '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
@@ -271,12 +285,14 @@ export interface FileRoutesByTo {
   '/iq-test': typeof IqTestRoute
   '/mentors': typeof MentorsRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/results': typeof ResultsRoute
   '/roadmap': typeof RoadmapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stripe-cancel': typeof StripeCancelRoute
   '/stripe-success': typeof StripeSuccessRoute
   '/success-stories': typeof SuccessStoriesRoute
+  '/terms': typeof TermsRoute
   '/universities': typeof UniversitiesRoute
   '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
@@ -308,12 +324,14 @@ export interface FileRoutesById {
   '/iq-test': typeof IqTestRoute
   '/mentors': typeof MentorsRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/results': typeof ResultsRoute
   '/roadmap': typeof RoadmapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stripe-cancel': typeof StripeCancelRoute
   '/stripe-success': typeof StripeSuccessRoute
   '/success-stories': typeof SuccessStoriesRoute
+  '/terms': typeof TermsRoute
   '/universities': typeof UniversitiesRoute
   '/aura/growth': typeof AuraGrowthRoute
   '/aura/store': typeof AuraStoreRoute
@@ -346,12 +364,14 @@ export interface FileRouteTypes {
     | '/iq-test'
     | '/mentors'
     | '/pricing'
+    | '/privacy'
     | '/results'
     | '/roadmap'
     | '/sitemap.xml'
     | '/stripe-cancel'
     | '/stripe-success'
     | '/success-stories'
+    | '/terms'
     | '/universities'
     | '/aura/growth'
     | '/aura/store'
@@ -382,12 +402,14 @@ export interface FileRouteTypes {
     | '/iq-test'
     | '/mentors'
     | '/pricing'
+    | '/privacy'
     | '/results'
     | '/roadmap'
     | '/sitemap.xml'
     | '/stripe-cancel'
     | '/stripe-success'
     | '/success-stories'
+    | '/terms'
     | '/universities'
     | '/aura/growth'
     | '/aura/store'
@@ -418,12 +440,14 @@ export interface FileRouteTypes {
     | '/iq-test'
     | '/mentors'
     | '/pricing'
+    | '/privacy'
     | '/results'
     | '/roadmap'
     | '/sitemap.xml'
     | '/stripe-cancel'
     | '/stripe-success'
     | '/success-stories'
+    | '/terms'
     | '/universities'
     | '/aura/growth'
     | '/aura/store'
@@ -455,12 +479,14 @@ export interface RootRouteChildren {
   IqTestRoute: typeof IqTestRoute
   MentorsRoute: typeof MentorsRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
   ResultsRoute: typeof ResultsRoute
   RoadmapRoute: typeof RoadmapRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StripeCancelRoute: typeof StripeCancelRoute
   StripeSuccessRoute: typeof StripeSuccessRoute
   SuccessStoriesRoute: typeof SuccessStoriesRoute
+  TermsRoute: typeof TermsRoute
   UniversitiesRoute: typeof UniversitiesRoute
   SchoolAnalyticsRoute: typeof SchoolAnalyticsRoute
   SchoolClassBuilderRoute: typeof SchoolClassBuilderRoute
@@ -477,6 +503,13 @@ declare module '@tanstack/react-router' {
       path: '/universities'
       fullPath: '/universities'
       preLoaderRoute: typeof UniversitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/success-stories': {
@@ -519,6 +552,13 @@ declare module '@tanstack/react-router' {
       path: '/results'
       fullPath: '/results'
       preLoaderRoute: typeof ResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -745,12 +785,14 @@ const rootRouteChildren: RootRouteChildren = {
   IqTestRoute: IqTestRoute,
   MentorsRoute: MentorsRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
   ResultsRoute: ResultsRoute,
   RoadmapRoute: RoadmapRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StripeCancelRoute: StripeCancelRoute,
   StripeSuccessRoute: StripeSuccessRoute,
   SuccessStoriesRoute: SuccessStoriesRoute,
+  TermsRoute: TermsRoute,
   UniversitiesRoute: UniversitiesRoute,
   SchoolAnalyticsRoute: SchoolAnalyticsRoute,
   SchoolClassBuilderRoute: SchoolClassBuilderRoute,

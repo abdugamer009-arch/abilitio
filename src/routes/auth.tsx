@@ -131,7 +131,10 @@ function AuthPage() {
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
             {t.auth.terms}{" "}
-            <Link to="/" className="underline hover:text-foreground">{t.auth.termsLink}</Link>.
+            <Link to="/terms" className="underline hover:text-foreground">{t.auth.termsLink}</Link>.
+          </p>
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            <Link to="/privacy" className="underline hover:text-foreground">{t.auth.privacyLink}</Link>
           </p>
         </div>
       </section>
