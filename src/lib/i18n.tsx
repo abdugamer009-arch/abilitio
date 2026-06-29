@@ -13,7 +13,7 @@ type Dict = typeof translations.en;
 
 const translations = {
   en: {
-    nav: { home: "Home", about: "About Us", features: "Features", assessment: "Assessments", contact: "Contacts", signIn: "Sign in", dashboard: "Dashboard", roadmap: "Roadmap", community: "Community", market: "Market", forSchools: "Schools" },
+    nav: { home: "Home", about: "About Us", features: "Features", assessment: "Assessments", contact: "Contacts", signIn: "Sign in", dashboard: "Dashboard", roadmap: "Roadmap", community: "Community", universities: "Universities", forSchools: "Schools" },
     hero: {
       badge: "Now powered by next-gen talent AI",
       titleA: "Discover Your", titleB: "True Potential",
@@ -389,7 +389,7 @@ const translations = {
   },
 
   ru: {
-    nav: { home: "Главная", about: "О нас", features: "Возможности", assessment: "Тестирование", contact: "Контакты", signIn: "Войти", dashboard: "Кабинет", roadmap: "Дорожная карта", community: "Сообщество", market: "Маркет", forSchools: "Школам" },
+    nav: { home: "Главная", about: "О нас", features: "Возможности", assessment: "Тестирование", contact: "Контакты", signIn: "Войти", dashboard: "Кабинет", roadmap: "Дорожная карта", community: "Сообщество", universities: "Университеты", forSchools: "Школам" },
     hero: {
       badge: "Работает на ИИ нового поколения",
       titleA: "Раскройте свой", titleB: "истинный потенциал",
@@ -765,7 +765,7 @@ const translations = {
   },
 
   uz: {
-    nav: { home: "Bosh sahifa", about: "Biz haqimizda", features: "Imkoniyatlar", assessment: "Testlar", contact: "Aloqa", signIn: "Kirish", dashboard: "Kabinet", roadmap: "Yo'l xaritasi", community: "Hamjamiyat", market: "Bozor", forSchools: "Maktablar" },
+    nav: { home: "Bosh sahifa", about: "Biz haqimizda", features: "Imkoniyatlar", assessment: "Testlar", contact: "Aloqa", signIn: "Kirish", dashboard: "Kabinet", roadmap: "Yo'l xaritasi", community: "Hamjamiyat", universities: "Universitetlar", forSchools: "Maktablar" },
     hero: {
       badge: "Yangi avlod iste'dod sun'iy intellekti bilan",
       titleA: "O'zingizning", titleB: "haqiqiy salohiyatingizni oching",

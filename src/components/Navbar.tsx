@@ -18,7 +18,7 @@ export function Navbar() {
     { to: "/assessment", label: t.nav.assessment },
     { to: "/roadmap", label: t.nav.roadmap },
     { to: "/community", label: t.nav.community },
-    { to: "/aura-market", label: t.nav.market },
+    { to: "/universities", label: t.nav.universities },
     { to: "/for-schools", label: t.nav.forSchools },
     { to: "/about", label: t.nav.about },
   ];

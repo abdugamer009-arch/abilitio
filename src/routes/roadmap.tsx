@@ -102,7 +102,7 @@ function RoadmapPage() {
       queryClient.invalidateQueries({ queryKey: QK_UNLOCKS });
       pushLocalReward({ amount: -p.price, label: `Unlocked ${p.name}`, bonus: true });
     } else if (res.reason === "insufficient_balance") {
-      pushLocalReward({ amount: 0, label: "Not enough Aura — visit the Market" });
+      pushLocalReward({ amount: 0, label: "Not enough Aura — explore Universities" });
     }
   }
 
@@ -167,14 +167,14 @@ function RoadmapPage() {
               </p>
             </div>
             <Link
-              to="/aura-market"
+              to="/universities"
               className="inline-flex items-center gap-2 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 to-accent/10 px-4 py-3 backdrop-blur-md transition-all hover:-translate-y-0.5"
               style={{ boxShadow: "0 10px 30px -10px oklch(0.55 0.22 295 / 0.4)" }}
             >
               <AuraCoin size={28} />
               <div className="text-left">
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Your Aura</div>
-                <div className="text-lg font-bold tabular-nums gradient-text">{balance.toLocaleString()}</div>
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Universities</div>
+                <div className="text-lg font-bold tabular-nums gradient-text">Explore</div>
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </Link>
@@ -234,8 +234,8 @@ function RoadmapPage() {
                       <AuraCoin size={16} /> Unlock for {active.price} Aura
                     </button>
                     {balance < active.price && (
-                      <Link to="/aura-market" className="mt-3 block text-center text-[11px] text-primary hover:underline">
-                        Need {active.price - balance} more → Get Aura
+                      <Link to="/universities" className="mt-3 block text-center text-[11px] text-primary hover:underline">
+                        Explore Universities →
                       </Link>
                     )}
                   </div>

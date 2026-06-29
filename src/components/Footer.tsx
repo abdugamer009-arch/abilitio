@@ -33,7 +33,7 @@ export function Footer() {
         { to: "/features", label: t.footer.features },
         { to: "/mentors", label: "Mentors" },
         { to: "/community", label: "Community" },
-        { to: "/aura-market", label: "Aura Market" },
+        { to: "/universities", label: "Universities" },
       ],
     },
   ];
