@@ -6,6 +6,10 @@ export const ABBI_BONUS_KEY = "new_user_bonus";
 // Company / contact details — single source of truth used across legal,
 // contact, and footer surfaces.
 export const SITE_NAME = "Abilitio";
+// Canonical production origin (no trailing slash). Used for absolute URLs in
+// social meta tags, the sitemap, and structured data.
+export const SITE_URL = "https://abilitio.app";
+export const OG_IMAGE_URL = `${SITE_URL}/og-image.png`;
 export const CONTACT_EMAIL = "ibodullayevabdurahmon95@gmail.com";
 export const CONTACT_PHONE = "+998 88 048 18 81";
 export const COMPANY_LOCATION = "Uzbekistan";

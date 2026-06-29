@@ -17,6 +17,7 @@ import { AuraProvider } from "@/components/aura/AuraProvider";
 import { AuraRewardToaster } from "@/components/aura/AuraRewardToaster";
 import { FloatingAuthButton } from "@/components/FloatingAuthButton";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
+import { SITE_URL, OG_IMAGE_URL } from "@/lib/constants";
 
 function CenteredGlow({ children }: { children: React.ReactNode }) {
   return (
@@ -111,8 +112,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Abilitio — Discover Your True Potential" },
       { name: "twitter:description", content: "AI-powered talent discovery for students and parents. Uncover natural strengths and explore future career paths." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/6b51ab73-ab17-4d2a-b4d8-641f949d00ae/id-preview-c86b1b09--5efbc617-9951-4523-9a26-ef1b314c17e5.lovable.app-1780053609364.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/6b51ab73-ab17-4d2a-b4d8-641f949d00ae/id-preview-c86b1b09--5efbc617-9951-4523-9a26-ef1b314c17e5.lovable.app-1780053609364.png" },
+      { property: "og:image", content: OG_IMAGE_URL },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:url", content: SITE_URL },
+      { name: "twitter:image", content: OG_IMAGE_URL },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
