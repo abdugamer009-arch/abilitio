@@ -43,6 +43,12 @@ function fmt(sec: number) {
   return `${m}:${s}`;
 }
 
+// Persist an in-progress IQ attempt so a reload or crash never loses 90 minutes
+// of work. We store the absolute deadline (not a ticking counter) so the clock
+// keeps running in real time — closing the tab can't buy extra time.
+const IQ_PROGRESS_KEY = "abilitio.iq_test.progress.v1";
+type IqSavedProgress = { step: number; answers: (number | null)[]; deadline: number };
+
 function IQTestPage() {
   const t = useT();
   const { lang } = useI18n();
@@ -53,22 +59,65 @@ function IQTestPage() {
   const [answers, setAnswers] = useState<(number | null)[]>(Array(40).fill(null));
   const [timeLeft, setTimeLeft] = useState(IQ_TIME_LIMIT_SECONDS);
   const [elapsed, setElapsed] = useState(0);
+  const [deadline, setDeadline] = useState<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Deadline-driven clock. Re-syncs to wall-clock time on each tick, so it stays
+  // accurate after a reload (where it resumes from the persisted deadline).
   useEffect(() => {
-    if (phase !== "test") return;
-    timerRef.current = setInterval(() => {
-      setTimeLeft((tv) => {
-        if (tv <= 1) {
-          clearInterval(timerRef.current!);
-          setPhase("results");
-          return 0;
-        }
-        return tv - 1;
-      });
-      setElapsed((e) => e + 1);
-    }, 1000);
+    if (phase !== "test" || deadline == null) return;
+    const tick = () => {
+      const left = Math.max(0, Math.round((deadline - Date.now()) / 1000));
+      setTimeLeft(left);
+      setElapsed(IQ_TIME_LIMIT_SECONDS - left);
+      if (left <= 0) {
+        clearInterval(timerRef.current!);
+        setPhase("results");
+      }
+    };
+    tick(); // sync immediately on enter / restore
+    timerRef.current = setInterval(tick, 1000);
     return () => clearInterval(timerRef.current!);
+  }, [phase, deadline]);
+
+  // Restore an interrupted attempt on mount (client-only).
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(IQ_PROGRESS_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw) as IqSavedProgress;
+      if (!Array.isArray(saved.answers) || saved.answers.length !== 40) return;
+      setAnswers(saved.answers);
+      setStep(Math.min(Math.max(saved.step ?? 0, 0), 39));
+      setDeadline(saved.deadline);
+      if (saved.deadline - Date.now() > 0) {
+        setPhase("test");
+      } else {
+        // Time expired while the tab was closed — score what they had.
+        setTimeLeft(0);
+        setElapsed(IQ_TIME_LIMIT_SECONDS);
+        setPhase("results");
+      }
+    } catch {
+      // Corrupt or outdated payload — ignore and start fresh.
+    }
+  }, []);
+
+  // Persist on answer / step change (deadline is stable, so no per-second writes).
+  useEffect(() => {
+    if (phase !== "test" || deadline == null) return;
+    try {
+      localStorage.setItem(IQ_PROGRESS_KEY, JSON.stringify({ step, answers, deadline } satisfies IqSavedProgress));
+    } catch {
+      // Storage full or unavailable — non-fatal.
+    }
+  }, [phase, deadline, step, answers]);
+
+  // Clear persisted progress once the attempt is over (finish, timeout, or restore-to-results).
+  useEffect(() => {
+    if (phase === "results") {
+      try { localStorage.removeItem(IQ_PROGRESS_KEY); } catch { /* non-fatal */ }
+    }
   }, [phase]);
 
   function start() {
@@ -77,6 +126,7 @@ function IQTestPage() {
     setAnswers(Array(40).fill(null));
     setTimeLeft(IQ_TIME_LIMIT_SECONDS);
     setElapsed(0);
+    setDeadline(Date.now() + IQ_TIME_LIMIT_SECONDS * 1000);
   }
 
   function finish() {
