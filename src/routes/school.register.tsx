@@ -7,7 +7,7 @@ import { registerSchool, type SchoolDTO } from "@/lib/schools.functions";
 import { Copy, Check, GraduationCap, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/school/register")({
-  head: () => ({ meta: [{ title: "Register your school — Abilitio" }] }),
+  head: () => ({ meta: [{ title: "Register your school — Abilitio" }, { name: "robots", content: "noindex, follow" }] }),
   component: SchoolRegisterPage,
 });
 

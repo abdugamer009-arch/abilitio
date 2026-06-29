@@ -17,7 +17,7 @@ import {
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/school/dashboard")({
-  head: () => ({ meta: [{ title: "Principal Dashboard — Abilitio" }] }),
+  head: () => ({ meta: [{ title: "Principal Dashboard — Abilitio" }, { name: "robots", content: "noindex, follow" }] }),
   component: PrincipalDashboard,
 });
 

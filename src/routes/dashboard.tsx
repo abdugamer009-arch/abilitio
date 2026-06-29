@@ -25,7 +25,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { claimNewUserBonus } from "@/lib/abbi.functions";
 
 export const Route = createFileRoute("/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — Abilitio" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — Abilitio" }, { name: "robots", content: "noindex, follow" }] }),
   component: DashboardPage,
 });
 

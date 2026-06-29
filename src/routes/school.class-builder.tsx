@@ -7,7 +7,7 @@ import { buildSpecializedClass } from "@/lib/career.functions";
 import { Wand2, Loader2, Check } from "lucide-react";
 
 export const Route = createFileRoute("/school/class-builder")({
-  head: () => ({ meta: [{ title: "AI Class Builder — Abilitio" }] }),
+  head: () => ({ meta: [{ title: "AI Class Builder — Abilitio" }, { name: "robots", content: "noindex, follow" }] }),
   component: ClassBuilderPage,
 });
 

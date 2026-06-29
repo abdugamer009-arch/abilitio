@@ -14,7 +14,7 @@ import {
 } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({ meta: [{ title: "Admin Dashboard — Abilitio" }] }),
+  head: () => ({ meta: [{ title: "Admin Dashboard — Abilitio" }, { name: "robots", content: "noindex, follow" }] }),
   component: AdminDashboardPage,
 });
 

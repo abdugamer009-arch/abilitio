@@ -8,7 +8,10 @@ import { FloatingShapes } from "@/components/FloatingShapes";
 import { UNIVERSITIES, COUNTRIES, MAJORS, type University } from "@/lib/abbi-extras";
 
 export const Route = createFileRoute("/universities")({
-  head: () => ({ meta: [{ title: "University Explorer — Abilitio" }] }),
+  head: () => ({ meta: [
+    { title: "University Explorer — Abilitio" },
+    { name: "description", content: "Find universities that match your scores and goals. Filter by SAT, IELTS, country, and major to see your fit and scholarships." },
+  ] }),
   component: UniversitiesPage,
 });
 

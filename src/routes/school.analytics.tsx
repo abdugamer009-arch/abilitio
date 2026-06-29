@@ -17,7 +17,7 @@ function fill(template: string, vars: Record<string, string | number>): string {
 }
 
 export const Route = createFileRoute("/school/analytics")({
-  head: () => ({ meta: [{ title: "School Analytics — Abilitio" }] }),
+  head: () => ({ meta: [{ title: "School Analytics — Abilitio" }, { name: "robots", content: "noindex, follow" }] }),
   component: SchoolAnalytics,
 });
 

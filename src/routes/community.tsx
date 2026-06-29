@@ -15,7 +15,10 @@ import { AdminBadge } from "@/components/AdminBadge";
 import { Send, Pin, Trash2, Users, Sparkles, Lock, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/community")({
-  head: () => ({ meta: [{ title: "Community — Abilitio" }] }),
+  head: () => ({ meta: [
+    { title: "Community — Abilitio" },
+    { name: "description", content: "Connect with students and mentors, share progress, and get inspired on your talent-discovery journey." },
+  ] }),
   component: CommunityPage,
 });
 

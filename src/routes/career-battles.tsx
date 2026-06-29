@@ -7,7 +7,10 @@ import { FloatingShapes } from "@/components/FloatingShapes";
 import { CAREER_SPECS, CAREER_BATTLES, type CareerSpec } from "@/lib/abbi-extras";
 
 export const Route = createFileRoute("/career-battles")({
-  head: () => ({ meta: [{ title: "Career Battles — Abilitio" }] }),
+  head: () => ({ meta: [
+    { title: "Career Battles — Abilitio" },
+    { name: "description", content: "Compare careers head-to-head and discover which paths fit your strengths in a fun, interactive challenge." },
+  ] }),
   component: CareerBattlesPage,
 });
 

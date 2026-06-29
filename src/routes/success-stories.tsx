@@ -7,7 +7,10 @@ import { GlowBlob } from "@/components/GlowBlob";
 import { SUCCESS_STORIES } from "@/lib/abbi-extras";
 
 export const Route = createFileRoute("/success-stories")({
-  head: () => ({ meta: [{ title: "Success Stories — Abilitio" }] }),
+  head: () => ({ meta: [
+    { title: "Success Stories — Abilitio" },
+    { name: "description", content: "Real stories from students who discovered their strengths and found their direction with Abilitio." },
+  ] }),
   component: SuccessPage,
 });
 

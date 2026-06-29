@@ -3,7 +3,7 @@ import { PageShell } from "@/components/PageShell";
 import { Check, Sparkles, ArrowRight, BarChart2 } from "lucide-react";
 
 export const Route = createFileRoute("/stripe-success")({
-  head: () => ({ meta: [{ title: "Welcome to Abilitio Premium!" }] }),
+  head: () => ({ meta: [{ title: "Welcome to Abilitio Premium!" }, { name: "robots", content: "noindex, follow" }] }),
   component: StripeSuccessPage,
 });
 

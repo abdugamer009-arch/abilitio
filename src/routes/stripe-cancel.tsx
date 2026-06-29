@@ -3,7 +3,7 @@ import { PageShell } from "@/components/PageShell";
 import { X, ArrowLeft, RotateCcw } from "lucide-react";
 
 export const Route = createFileRoute("/stripe-cancel")({
-  head: () => ({ meta: [{ title: "Checkout Cancelled — Abilitio" }] }),
+  head: () => ({ meta: [{ title: "Checkout Cancelled — Abilitio" }, { name: "robots", content: "noindex, follow" }] }),
   component: StripeCancelPage,
 });
 

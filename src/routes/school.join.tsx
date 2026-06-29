@@ -7,7 +7,7 @@ import { joinSchool } from "@/lib/schools.functions";
 import { Loader2, Users } from "lucide-react";
 
 export const Route = createFileRoute("/school/join")({
-  head: () => ({ meta: [{ title: "Join your school — Abilitio" }] }),
+  head: () => ({ meta: [{ title: "Join your school — Abilitio" }, { name: "robots", content: "noindex, follow" }] }),
   component: SchoolJoinPage,
 });
 

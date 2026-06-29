@@ -12,7 +12,7 @@ import { Brain, Target, Sparkles, Trophy, GraduationCap, Printer, Share2, Refres
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/career-results")({
-  head: () => ({ meta: [{ title: "Your Career Profile — Abilitio" }] }),
+  head: () => ({ meta: [{ title: "Your Career Profile — Abilitio" }, { name: "robots", content: "noindex, follow" }] }),
   component: CareerResultsPage,
 });
 

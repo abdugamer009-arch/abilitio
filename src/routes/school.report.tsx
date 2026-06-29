@@ -6,7 +6,7 @@ import { getPrincipalDashboard, type PrincipalDashboardDTO } from "@/lib/schools
 import { Printer } from "lucide-react";
 
 export const Route = createFileRoute("/school/report")({
-  head: () => ({ meta: [{ title: "School Report — Abilitio" }] }),
+  head: () => ({ meta: [{ title: "School Report — Abilitio" }, { name: "robots", content: "noindex, follow" }] }),
   component: SchoolReportPage,
 });
 

@@ -6,7 +6,10 @@ import { GlowBlob } from "@/components/GlowBlob";
 import { MENTORS } from "@/lib/abbi-extras";
 
 export const Route = createFileRoute("/mentors")({
-  head: () => ({ meta: [{ title: "Mentors — Abilitio" }] }),
+  head: () => ({ meta: [
+    { title: "Mentors — Abilitio" },
+    { name: "description", content: "Learn from experienced mentors who guide students through career choices, university paths, and skill-building." },
+  ] }),
   component: MentorsPage,
 });
 

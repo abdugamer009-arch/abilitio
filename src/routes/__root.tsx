@@ -17,7 +17,19 @@ import { AuraProvider } from "@/components/aura/AuraProvider";
 import { AuraRewardToaster } from "@/components/aura/AuraRewardToaster";
 import { FloatingAuthButton } from "@/components/FloatingAuthButton";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
-import { SITE_URL, OG_IMAGE_URL } from "@/lib/constants";
+import { SITE_URL, OG_IMAGE_URL, SITE_NAME, CONTACT_EMAIL } from "@/lib/constants";
+
+const ORG_JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  name: SITE_NAME,
+  url: SITE_URL,
+  logo: `${SITE_URL}/favicon.svg`,
+  image: OG_IMAGE_URL,
+  email: CONTACT_EMAIL,
+  description:
+    "AI-powered talent discovery for students, parents, and schools. Uncover natural strengths and explore future career paths.",
+};
 
 function CenteredGlow({ children }: { children: React.ReactNode }) {
   return (
@@ -138,6 +150,10 @@ function RootShell({ children }: { children: React.ReactNode }) {
     <html lang="en" className="dark">
       <head>
         <HeadContent />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSONLD) }}
+        />
       </head>
       <body>
         {children}
