@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { GlowBlob } from "@/components/GlowBlob";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth-context";
 import { submitCareerAssessment } from "@/lib/career.functions";
@@ -38,6 +38,12 @@ const P_COUNT = 12;
 const IQ_COUNT = 9;
 const INT_COUNT = 9;
 const TOTAL = P_COUNT + IQ_COUNT + INT_COUNT; // 30
+
+// Persist in-progress assessments so a reload / crash never loses a user's work.
+// The session questions are randomly picked per attempt, so we store them alongside
+// the answers — otherwise restored answers would map to the wrong questions.
+const PROGRESS_KEY = "abilitio.career_assessment.progress.v1";
+type SavedProgress = { session: SessionQuestions; step: number; answers: Answers };
 
 type Answers = {
   personality: (number | null)[];  // 12 likert 1..5
@@ -79,6 +85,36 @@ function CareerAssessmentPage() {
     setStep(0);
     setAnswers(makeAnswers());
   }, []);
+
+  // Restore an interrupted attempt on mount (client-only — localStorage is undefined during SSR).
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(PROGRESS_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw) as SavedProgress;
+      if (
+        saved?.session?.personality?.length === P_COUNT &&
+        saved?.session?.iq?.length === IQ_COUNT &&
+        saved?.session?.interest?.length === INT_COUNT
+      ) {
+        setSession(saved.session);
+        setStep(typeof saved.step === "number" ? Math.min(Math.max(saved.step, 0), TOTAL - 1) : 0);
+        if (saved.answers) setAnswers(saved.answers);
+      }
+    } catch {
+      // Corrupt or outdated payload — ignore and start fresh.
+    }
+  }, []);
+
+  // Persist after every answer / step change while an attempt is in progress.
+  useEffect(() => {
+    if (!session) return;
+    try {
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify({ session, step, answers } satisfies SavedProgress));
+    } catch {
+      // Storage full or unavailable — non-fatal.
+    }
+  }, [session, step, answers]);
 
   const current = useMemo(() => {
     if (!session) return null;
@@ -125,6 +161,7 @@ function CareerAssessmentPage() {
         },
       });
       sessionStorage.setItem("career_last_result_id", result.id);
+      try { localStorage.removeItem(PROGRESS_KEY); } catch { /* non-fatal */ }
       navigate({ to: "/career-results" });
     } catch (e: unknown) {
       setSubmitError(e instanceof Error ? e.message : t.careerAssessment.submissionFailed);
