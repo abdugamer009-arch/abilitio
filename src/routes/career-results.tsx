@@ -106,7 +106,7 @@ function CareerResultsPage() {
     // Cognitive tier
     ctx.font = "28px system-ui, sans-serif";
     ctx.fillStyle = "rgba(200,200,220,1)";
-    ctx.fillText(`${r.cognitive_tier} · ${r.cognitive_profile} Thinker · IQ Score ${r.cognitive_score}/10`, 80, 250);
+    ctx.fillText(`${r.cognitive_tier} · ${r.cognitive_profile} Thinker · Cognitive Score ${r.cognitive_score}/10`, 80, 250);
 
     // Divider
     ctx.fillStyle = "rgba(80,60,140,0.6)";

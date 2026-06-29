@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { GlowBlob } from "@/components/GlowBlob";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -202,6 +202,9 @@ function CareerAssessmentPage() {
                 {t.careerAssessment.startBtn} <ArrowRight className="h-4 w-4" />
               </button>
               <p className="mt-3 text-xs text-muted-foreground">{t.careerAssessment.auraReward}</p>
+              <Link to="/methodology" className="mt-2 inline-block text-xs text-primary/80 hover:text-primary hover:underline">
+                {t.careerAssessment.howItWorks}
+              </Link>
             </div>
           </div>
         </section>

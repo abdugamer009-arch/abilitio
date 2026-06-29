@@ -40,7 +40,7 @@ export function Footer() {
         { to: "/features", label: t.footer.features },
         { to: "/mentors", label: "Mentors" },
         { to: "/community", label: "Community" },
-        { to: "/blog", label: "Blog" },
+        { to: "/methodology", label: "How It Works" },
       ],
     },
   ];

@@ -4,16 +4,22 @@ import { ShieldCheck } from "lucide-react";
 import { LEGAL_LAST_UPDATED } from "@/lib/constants";
 
 /**
- * Shared chrome for long-form legal documents (Privacy, Terms).
- * Keeps typography and spacing consistent across every legal surface.
+ * Shared chrome for long-form documents (Privacy, Terms, Methodology).
+ * Keeps typography and spacing consistent across every document surface.
  */
 export function LegalPage({
   title,
   intro,
+  eyebrow = "Legal",
+  icon: Icon = ShieldCheck,
+  showUpdated = true,
   children,
 }: {
   title: string;
   intro: string;
+  eyebrow?: string;
+  icon?: React.ElementType;
+  showUpdated?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -24,11 +30,11 @@ export function LegalPage({
         <div className="relative mx-auto max-w-3xl">
           <header className="animate-fade-up text-center">
             <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
-              <ShieldCheck className="h-3.5 w-3.5" /> Legal
+              <Icon className="h-3.5 w-3.5" /> {eyebrow}
             </div>
             <h1 className="mt-5 text-3xl font-bold tracking-tight gradient-text sm:text-4xl">{title}</h1>
             <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground">{intro}</p>
-            <p className="mt-3 text-xs text-muted-foreground">Last updated: {LEGAL_LAST_UPDATED}</p>
+            {showUpdated && <p className="mt-3 text-xs text-muted-foreground">Last updated: {LEGAL_LAST_UPDATED}</p>}
           </header>
 
           <div className="glass mt-10 rounded-3xl p-7 sm:p-10">

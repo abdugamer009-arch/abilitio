@@ -19,6 +19,7 @@ import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as ResultsRouteImport } from './routes/results'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as MentorsRouteImport } from './routes/mentors'
 import { Route as IqTestRouteImport } from './routes/iq-test'
 import { Route as ForSchoolsRouteImport } from './routes/for-schools'
@@ -94,6 +95,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MethodologyRoute = MethodologyRouteImport.update({
+  id: '/methodology',
+  path: '/methodology',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MentorsRoute = MentorsRouteImport.update({
@@ -246,6 +252,7 @@ export interface FileRoutesByFullPath {
   '/for-schools': typeof ForSchoolsRoute
   '/iq-test': typeof IqTestRoute
   '/mentors': typeof MentorsRoute
+  '/methodology': typeof MethodologyRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/results': typeof ResultsRoute
@@ -284,6 +291,7 @@ export interface FileRoutesByTo {
   '/for-schools': typeof ForSchoolsRoute
   '/iq-test': typeof IqTestRoute
   '/mentors': typeof MentorsRoute
+  '/methodology': typeof MethodologyRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/results': typeof ResultsRoute
@@ -323,6 +331,7 @@ export interface FileRoutesById {
   '/for-schools': typeof ForSchoolsRoute
   '/iq-test': typeof IqTestRoute
   '/mentors': typeof MentorsRoute
+  '/methodology': typeof MethodologyRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/results': typeof ResultsRoute
@@ -363,6 +372,7 @@ export interface FileRouteTypes {
     | '/for-schools'
     | '/iq-test'
     | '/mentors'
+    | '/methodology'
     | '/pricing'
     | '/privacy'
     | '/results'
@@ -401,6 +411,7 @@ export interface FileRouteTypes {
     | '/for-schools'
     | '/iq-test'
     | '/mentors'
+    | '/methodology'
     | '/pricing'
     | '/privacy'
     | '/results'
@@ -439,6 +450,7 @@ export interface FileRouteTypes {
     | '/for-schools'
     | '/iq-test'
     | '/mentors'
+    | '/methodology'
     | '/pricing'
     | '/privacy'
     | '/results'
@@ -478,6 +490,7 @@ export interface RootRouteChildren {
   ForSchoolsRoute: typeof ForSchoolsRoute
   IqTestRoute: typeof IqTestRoute
   MentorsRoute: typeof MentorsRoute
+  MethodologyRoute: typeof MethodologyRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ResultsRoute: typeof ResultsRoute
@@ -566,6 +579,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/methodology': {
+      id: '/methodology'
+      path: '/methodology'
+      fullPath: '/methodology'
+      preLoaderRoute: typeof MethodologyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mentors': {
@@ -784,6 +804,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForSchoolsRoute: ForSchoolsRoute,
   IqTestRoute: IqTestRoute,
   MentorsRoute: MentorsRoute,
+  MethodologyRoute: MethodologyRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ResultsRoute: ResultsRoute,
