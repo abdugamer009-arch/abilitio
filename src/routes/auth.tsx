@@ -6,6 +6,7 @@ import { Loader2, Sparkles, Eye, EyeOff, MailCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { useT } from "@/lib/i18n";
+import { track, AnalyticsEvent } from "@/lib/analytics";
 
 const searchSchema = z.object({
   mode: z.enum(["login", "signup"]).optional().default("login"),
@@ -71,6 +72,7 @@ function AuthPage() {
           options: { emailRedirectTo: window.location.origin, data: { name: name.trim(), surname: surname.trim() } },
         });
         if (error) throw error;
+        track(AnalyticsEvent.SignedUp);
         // When email confirmation is required, Supabase returns a user without a
         // session. Show an explicit "check your inbox" state instead of silence.
         if (!data.session) {

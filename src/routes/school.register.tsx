@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useServerFn } from "@tanstack/react-start";
 import { registerSchool, type SchoolDTO } from "@/lib/schools.functions";
 import { Copy, Check, GraduationCap, Loader2 } from "lucide-react";
+import { track, AnalyticsEvent } from "@/lib/analytics";
 
 export const Route = createFileRoute("/school/register")({
   head: () => ({ meta: [{ title: "Register your school — Abilitio" }, { name: "robots", content: "noindex, follow" }] }),
@@ -39,6 +40,7 @@ function SchoolRegisterPage() {
         city: form.city, country: form.country,
       } });
       setSchool(res.school);
+      track(AnalyticsEvent.SchoolRegistered);
     } catch (e: any) {
       setErr(e?.message ?? "Failed to register school.");
     } finally { setSubmitting(false); }

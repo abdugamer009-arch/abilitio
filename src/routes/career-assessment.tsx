@@ -10,6 +10,7 @@ import type { PersonalityQ, CognitiveQ, InterestQ } from "@/lib/career-assessmen
 import { ArrowLeft, ArrowRight, Brain, Sparkles, Loader2, Target, Shuffle } from "lucide-react";
 import { useT, useI18n } from "@/lib/i18n";
 import { QUESTION_TRANSLATIONS } from "@/lib/question-translations";
+import { track, AnalyticsEvent } from "@/lib/analytics";
 
 function tPrompt(id: string, original: string, lang: string): string {
   if (lang === "en") return original;
@@ -84,6 +85,7 @@ function CareerAssessmentPage() {
     setSession(pickSessionQuestions());
     setStep(0);
     setAnswers(makeAnswers());
+    track(AnalyticsEvent.AssessmentStarted);
   }, []);
 
   // Restore an interrupted attempt on mount (client-only — localStorage is undefined during SSR).
@@ -162,6 +164,7 @@ function CareerAssessmentPage() {
       });
       sessionStorage.setItem("career_last_result_id", result.id);
       try { localStorage.removeItem(PROGRESS_KEY); } catch { /* non-fatal */ }
+      track(AnalyticsEvent.AssessmentCompleted);
       navigate({ to: "/career-results" });
     } catch (e: unknown) {
       setSubmitError(e instanceof Error ? e.message : t.careerAssessment.submissionFailed);

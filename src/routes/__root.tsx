@@ -8,6 +8,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 
+import { useEffect } from "react";
 import { Sparkles, Home, RefreshCw } from "lucide-react";
 
 import appCss from "../styles.css?url";
@@ -18,6 +19,7 @@ import { AuraRewardToaster } from "@/components/aura/AuraRewardToaster";
 import { FloatingAuthButton } from "@/components/FloatingAuthButton";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { SITE_URL, OG_IMAGE_URL, SITE_NAME, CONTACT_EMAIL } from "@/lib/constants";
+import { initAnalytics } from "@/lib/analytics";
 
 const ORG_JSONLD = {
   "@context": "https://schema.org",
@@ -165,6 +167,8 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => { initAnalytics(); }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

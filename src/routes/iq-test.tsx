@@ -13,6 +13,7 @@ import {
 } from "@/lib/iq-test";
 import { useT, useI18n } from "@/lib/i18n";
 import { IQ_TEST_TRANSLATIONS } from "@/lib/question-translations";
+import { track, AnalyticsEvent } from "@/lib/analytics";
 
 function tIQPrompt(id: number, original: string, lang: string): string {
   if (lang === "en") return original;
@@ -73,6 +74,7 @@ function IQTestPage() {
       if (left <= 0) {
         clearInterval(timerRef.current!);
         setPhase("results");
+        track(AnalyticsEvent.IqCompleted, { reason: "timeout" });
       }
     };
     tick(); // sync immediately on enter / restore
@@ -127,11 +129,13 @@ function IQTestPage() {
     setTimeLeft(IQ_TIME_LIMIT_SECONDS);
     setElapsed(0);
     setDeadline(Date.now() + IQ_TIME_LIMIT_SECONDS * 1000);
+    track(AnalyticsEvent.IqStarted);
   }
 
   function finish() {
     clearInterval(timerRef.current!);
     setPhase("results");
+    track(AnalyticsEvent.IqCompleted, { reason: "submitted" });
   }
 
   const q = IQ_QUESTIONS[step];
