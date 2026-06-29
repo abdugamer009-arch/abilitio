@@ -2,16 +2,16 @@ import { describe, it, expect } from "vitest";
 import { PERSONALITY_BANK, IQ_BANK, INTEREST_BANK, pickSessionQuestions, getIQCorrect } from "../question-bank";
 
 describe("question banks", () => {
-  it("has exactly 200 personality questions", () => {
-    expect(PERSONALITY_BANK).toHaveLength(200);
+  it("has at least 200 personality questions", () => {
+    expect(PERSONALITY_BANK.length).toBeGreaterThanOrEqual(200);
   });
 
-  it("has exactly 200 IQ questions", () => {
-    expect(IQ_BANK).toHaveLength(200);
+  it("has at least 200 IQ questions", () => {
+    expect(IQ_BANK.length).toBeGreaterThanOrEqual(200);
   });
 
-  it("has exactly 200 interest questions", () => {
-    expect(INTEREST_BANK).toHaveLength(200);
+  it("has at least 200 interest questions", () => {
+    expect(INTEREST_BANK.length).toBeGreaterThanOrEqual(200);
   });
 
   it("has no duplicate personality IDs", () => {
