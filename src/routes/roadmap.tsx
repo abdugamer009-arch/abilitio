@@ -10,7 +10,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Lock, Sparkles, CheckCircle2, Clock, Zap, Star, Trophy,
-  ChevronRight, Compass, Map as MapIcon, Cloud,
+  ChevronRight, Compass, Map as MapIcon, Cloud, GraduationCap,
 } from "lucide-react";
 import { awardAura, type WalletDTO } from "@/lib/aura.functions";
 import { buildRoadmap, pickTrack, TRACK_LABEL, type RoadmapPhase, type RoadmapTrack } from "@/lib/roadmap-world";
@@ -171,10 +171,10 @@ function RoadmapPage() {
               className="inline-flex items-center gap-2 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 to-accent/10 px-4 py-3 backdrop-blur-md transition-all hover:-translate-y-0.5"
               style={{ boxShadow: "0 10px 30px -10px oklch(0.55 0.22 295 / 0.4)" }}
             >
-              <AuraCoin size={28} />
+              <GraduationCap className="h-7 w-7 text-primary" />
               <div className="text-left">
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Universities</div>
-                <div className="text-lg font-bold tabular-nums gradient-text">Explore</div>
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Find a University</div>
+                <div className="text-lg font-bold gradient-text">Explore</div>
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </Link>
