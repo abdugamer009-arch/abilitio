@@ -386,32 +386,39 @@ function IQTestPage() {
               <p className="mt-2 text-xs text-muted-foreground italic">{tIQNote(q.id, q.note, lang)}</p>
             )}
 
-            <div className="mt-6 space-y-2">
+            <div role="radiogroup" aria-label={`${t.iqTest.question} ${step + 1}`} className="mt-6 space-y-2">
               {tIQOpts(q.id, q.options, lang).map((opt, i) => {
                 const isSelected = selected === i;
                 return (
-                  <button
-                    key={i}
-                    onClick={() =>
-                      setAnswers((prev) => {
-                        const next = [...prev];
-                        next[step] = i;
-                        return next;
-                      })
-                    }
-                    className={`w-full rounded-xl border px-4 py-3 text-left transition ${
-                      isSelected
-                        ? "border-primary bg-primary/10"
-                        : "border-border hover:bg-secondary/40"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold ${isSelected ? "bg-primary border-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>
-                        {String.fromCharCode(65 + i)}
-                      </span>
-                      <span className="text-sm">{opt}</span>
+                  <label key={i} className="block cursor-pointer">
+                    <input
+                      type="radio"
+                      name={`iq-${q.id}`}
+                      checked={isSelected}
+                      onChange={() =>
+                        setAnswers((prev) => {
+                          const next = [...prev];
+                          next[step] = i;
+                          return next;
+                        })
+                      }
+                      className="sr-only peer"
+                    />
+                    <div
+                      className={`w-full rounded-xl border px-4 py-3 text-left transition peer-focus-visible:ring-2 peer-focus-visible:ring-primary/70 ${
+                        isSelected
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:bg-secondary/40"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold ${isSelected ? "bg-primary border-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>
+                          {String.fromCharCode(65 + i)}
+                        </span>
+                        <span className="text-sm">{opt}</span>
+                      </div>
                     </div>
-                  </button>
+                  </label>
                 );
               })}
             </div>

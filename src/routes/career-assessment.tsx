@@ -236,52 +236,65 @@ function CareerAssessmentPage() {
               <>
                 <h2 className="text-xl font-semibold leading-relaxed whitespace-pre-line">{tPrompt(current.q.id, current.q.prompt, lang)}</h2>
 
-                <div className="mt-6 space-y-2">
-                  {current.kind === "p" && LIKERT.map((label, i) => {
-                    const v = i + 1;
-                    const selected = value === v;
-                    return (
-                      <button key={v} onClick={() => setValue(v)} className={`w-full rounded-xl border px-4 py-3 text-left transition-all duration-200 ${selected ? "border-primary/50 bg-gradient-to-r from-primary/12 to-accent/8 shadow-[0_2px_12px_-4px_var(--glow)]" : "border-border hover:bg-secondary/40 hover:border-primary/20"}`}>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm">{label}</span>
-                          <span className={`flex h-4 w-4 items-center justify-center rounded-full border transition-all ${selected ? "border-primary bg-gradient-to-br from-primary to-accent" : "border-border"}`}>
-                            {selected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })}
+                <div className="mt-6">
+                  {current.kind === "p" && (
+                    <div role="radiogroup" aria-label={sectionLabel} className="space-y-2">
+                      {LIKERT.map((label, i) => {
+                        const v = i + 1;
+                        const selected = value === v;
+                        return (
+                          <label key={v} className="block cursor-pointer">
+                            <input type="radio" name={`p-${current.q.id}`} checked={selected} onChange={() => setValue(v)} className="sr-only peer" />
+                            <div className={`w-full rounded-xl border px-4 py-3 text-left transition-all duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-primary/70 ${selected ? "border-primary/50 bg-gradient-to-r from-primary/12 to-accent/8 shadow-[0_2px_12px_-4px_var(--glow)]" : "border-border hover:bg-secondary/40 hover:border-primary/20"}`}>
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm">{label}</span>
+                                <span className={`flex h-4 w-4 items-center justify-center rounded-full border transition-all ${selected ? "border-primary bg-gradient-to-br from-primary to-accent" : "border-border"}`}>
+                                  {selected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                                </span>
+                              </div>
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
 
-                  {current.kind === "c" && tCogOpts(current.q.id, (current.q as CognitiveQ).options, lang).map((opt, i) => {
-                    const selected = value === i;
-                    return (
-                      <button key={i} onClick={() => setValue(i)} className={`w-full rounded-xl border px-4 py-3 text-left transition-all duration-200 ${selected ? "border-primary/50 bg-gradient-to-r from-primary/12 to-accent/8 shadow-[0_2px_12px_-4px_var(--glow)]" : "border-border hover:bg-secondary/40 hover:border-primary/20"}`}>
-                        <div className="flex items-center gap-3">
-                          <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold transition-all ${selected ? "bg-gradient-to-br from-primary to-accent border-primary text-primary-foreground shadow-[0_2px_6px_-2px_var(--glow)]" : "border-border text-muted-foreground"}`}>
-                            {String.fromCharCode(65 + i)}
-                          </span>
-                          <span className="text-sm">{opt}</span>
-                        </div>
-                      </button>
-                    );
-                  })}
+                  {current.kind === "c" && (
+                    <div role="radiogroup" aria-label={sectionLabel} className="space-y-2">
+                      {tCogOpts(current.q.id, (current.q as CognitiveQ).options, lang).map((opt, i) => {
+                        const selected = value === i;
+                        return (
+                          <label key={i} className="block cursor-pointer">
+                            <input type="radio" name={`c-${current.q.id}`} checked={selected} onChange={() => setValue(i)} className="sr-only peer" />
+                            <div className={`w-full rounded-xl border px-4 py-3 text-left transition-all duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-primary/70 ${selected ? "border-primary/50 bg-gradient-to-r from-primary/12 to-accent/8 shadow-[0_2px_12px_-4px_var(--glow)]" : "border-border hover:bg-secondary/40 hover:border-primary/20"}`}>
+                              <div className="flex items-center gap-3">
+                                <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold transition-all ${selected ? "bg-gradient-to-br from-primary to-accent border-primary text-primary-foreground shadow-[0_2px_6px_-2px_var(--glow)]" : "border-border text-muted-foreground"}`}>
+                                  {String.fromCharCode(65 + i)}
+                                </span>
+                                <span className="text-sm">{opt}</span>
+                              </div>
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
 
                   {current.kind === "i" && (
-                    <div className="grid grid-cols-2 gap-2">
+                    <div role="group" aria-label={sectionLabel} className="grid grid-cols-2 gap-2">
                       {(current.q as InterestQ).options.map((opt, optIdx) => {
                         const arr = (value as string[]) ?? [];
                         const selected = arr.includes(opt.key);
                         return (
-                          <button
-                            key={opt.key}
-                            onClick={() => setValue(selected ? arr.filter((k) => k !== opt.key) : [...arr, opt.key])}
-                            className={`rounded-xl border px-4 py-3 text-left text-sm transition-all duration-200 ${selected ? "border-primary/50 bg-gradient-to-br from-primary/12 to-accent/8 shadow-[0_2px_12px_-4px_var(--glow)]" : "border-border hover:bg-secondary/40 hover:border-primary/20"}`}
-                          >
-                            <div className="flex items-center justify-between gap-2">
-                              <span>{tIntLabel(current.q.id, optIdx, opt.label, lang)}</span>
-                              {selected && <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent"><span className="h-1 w-1 rounded-full bg-white" /></span>}
+                          <label key={opt.key} className="cursor-pointer">
+                            <input type="checkbox" checked={selected} onChange={() => setValue(selected ? arr.filter((k) => k !== opt.key) : [...arr, opt.key])} className="sr-only peer" />
+                            <div className={`rounded-xl border px-4 py-3 text-left text-sm transition-all duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-primary/70 ${selected ? "border-primary/50 bg-gradient-to-br from-primary/12 to-accent/8 shadow-[0_2px_12px_-4px_var(--glow)]" : "border-border hover:bg-secondary/40 hover:border-primary/20"}`}>
+                              <div className="flex items-center justify-between gap-2">
+                                <span>{tIntLabel(current.q.id, optIdx, opt.label, lang)}</span>
+                                {selected && <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent"><span className="h-1 w-1 rounded-full bg-white" /></span>}
+                              </div>
                             </div>
-                          </button>
+                          </label>
                         );
                       })}
                     </div>
