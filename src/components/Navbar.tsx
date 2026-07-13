@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useLocation } from "@tanstack/react-router";
 import { Sparkles, LogOut, LayoutDashboard, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
@@ -10,12 +10,14 @@ import { useT } from "@/lib/i18n";
 export function Navbar() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const t = useT();
   const [open, setOpen] = useState(false);
+  const isLandingPage = location.pathname === "/";
 
   const navItems = [
     { to: "/", label: t.nav.home },
-    { to: "/assessment", label: t.nav.assessment },
+    ...(isLandingPage ? [] : [{ to: "/assessment", label: t.nav.assessment }]),
     { to: "/roadmap", label: t.nav.roadmap },
     { to: "/community", label: t.nav.community },
     { to: "/universities", label: t.nav.universities },
