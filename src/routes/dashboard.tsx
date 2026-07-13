@@ -11,8 +11,6 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { MBTI_DESCRIPTIONS } from "@/lib/mbti-descriptions";
 import { useI18n } from "@/lib/i18n";
-import { useAura } from "@/components/aura/AuraProvider";
-import { AuraCoin } from "@/components/aura/AuraCoin";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfilePhotoCard, resolveAvatarUrl } from "@/components/ProfilePhotoCard";
@@ -20,9 +18,6 @@ import { AbbiChat } from "@/components/AbbiChat";
 import { SkillsSection, WeeklyReportSection, UniversitiesTabSection } from "@/components/dashboard/ExtraSections";
 import { CountUp } from "@/components/CountUp";
 import { GlowBlob } from "@/components/GlowBlob";
-import { useServerFn } from "@tanstack/react-start";
-import { useQueryClient } from "@tanstack/react-query";
-import { claimNewUserBonus } from "@/lib/abbi.functions";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Abilitio" }, { name: "robots", content: "noindex, follow" }] }),
@@ -66,9 +61,6 @@ function DashboardPage() {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { t, tCareer, tTrait, tIqLevel } = useI18n();
-  const { wallet, pushLocalReward } = useAura();
-  const claimBonusFn = useServerFn(claimNewUserBonus);
-  const queryClient = useQueryClient();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [results, setResults] = useState<Result[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -114,25 +106,6 @@ function DashboardPage() {
     })();
   }, [user, loading, navigate]);
 
-  // One-time new-user +20 Aura bonus (idempotent server-side).
-  useEffect(() => {
-    if (!user || loading) return;
-    const key = `abbi_bonus_claimed_${user.id}`;
-    if (typeof window === "undefined" || sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, "1");
-    (async () => {
-      try {
-        const res = await claimBonusFn();
-        if (res.awarded) {
-          queryClient.setQueryData(["aura", "wallet"], res.wallet);
-          pushLocalReward({ amount: res.amount, label: "Welcome to Abilitio!", bonus: true });
-        }
-      } catch (e) {
-        console.error("claimNewUserBonus failed", e);
-      }
-    })();
-  }, [user, loading, claimBonusFn, pushLocalReward, queryClient]);
-
   const latest = results[0];
   const fullName = `${profile?.name ?? ""} ${profile?.surname ?? ""}`.trim() || user?.email?.split("@")[0] || "Explorer";
   const initials = useMemo(() => {
@@ -149,10 +122,10 @@ function DashboardPage() {
     return "Growth Explorer";
   }, [stats, latest]);
 
-  // level = lifetime_earned / 100
-  const lifetime = wallet?.lifetime_earned ?? 0;
-  const level = Math.max(1, Math.floor(lifetime / 100) + 1);
-  const levelProgress = Math.min(100, ((lifetime % 100) / 100) * 100);
+  // level derives from activity: assessments + achievements
+  const activityXp = results.length * 50 + achievements.length * 25;
+  const level = Math.max(1, Math.floor(activityXp / 100) + 1);
+  const levelProgress = Math.min(100, ((activityXp % 100) / 100) * 100);
 
   if (loading || busy) {
     return (
@@ -195,7 +168,6 @@ function DashboardPage() {
             email={user?.email ?? ""}
             initials={initials}
             avatarUrl={stats?.avatar_url ?? null}
-            balance={wallet?.balance ?? 0}
             level={level}
             levelProgress={levelProgress}
             tagline={tagline}
@@ -253,10 +225,10 @@ function DashboardPage() {
 /* PROFILE HEADER                                                */
 /* ============================================================ */
 function ProfileHeader({
-  fullName, email, initials, avatarUrl, balance, level, levelProgress, tagline,
+  fullName, email, initials, avatarUrl, level, levelProgress, tagline,
 }: {
   fullName: string; email: string; initials: string; avatarUrl: string | null;
-  balance: number; level: number; levelProgress: number; tagline: string;
+  level: number; levelProgress: number; tagline: string;
 }) {
   const [resolvedAvatar, setResolvedAvatar] = useState<string | null>(null);
   useEffect(() => {
@@ -318,17 +290,6 @@ function ProfileHeader({
           </div>
         </div>
 
-        {/* Aura balance */}
-        <Link to="/aura" className="group relative shrink-0 overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 to-accent/10 px-5 py-4 transition-all hover:-translate-y-0.5 hover:border-primary/50"
-          style={{ boxShadow: "0 10px 30px -10px oklch(0.55 0.22 295 / 0.4)" }}>
-          <div className="flex items-center gap-3">
-            <AuraCoin size={36} />
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Aura Balance</div>
-              <div className="text-2xl font-bold tabular-nums gradient-text">{balance.toLocaleString()}</div>
-            </div>
-          </div>
-        </Link>
       </div>
     </div>
   );
@@ -898,7 +859,7 @@ function SettingsSection({
               <div>
                 <div className="text-xs uppercase tracking-wider text-accent">Founder access</div>
                 <div className="text-lg font-bold gradient-text">Open Admin Dashboard</div>
-                <div className="text-xs text-muted-foreground">Analytics, users, Aura management</div>
+                <div className="text-xs text-muted-foreground">Analytics and user management</div>
               </div>
             </div>
             <ChevronRight className="h-5 w-5 text-primary transition-transform group-hover:translate-x-1" />

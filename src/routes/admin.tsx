@@ -5,11 +5,11 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
   PieChart, Pie, Cell, Legend, LineChart, Line,
 } from "recharts";
-import { Shield, Users, Brain, Coins, Sparkles, TrendingUp, Crown, Ban, Plus, Minus, Check } from "lucide-react";
+import { Shield, Users, Brain, Sparkles, TrendingUp, Crown, Ban, Check } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { useAuth } from "@/lib/auth-context";
 import {
-  checkIsAdmin, getAdminAnalytics, getAdminUsers, adminAdjustAura, adminSetBan,
+  checkIsAdmin, getAdminAnalytics, getAdminUsers, adminSetBan,
   type AdminAnalytics, type AdminUserRow,
 } from "@/lib/admin.functions";
 
@@ -26,7 +26,6 @@ function AdminDashboardPage() {
   const checkFn = useServerFn(checkIsAdmin);
   const analyticsFn = useServerFn(getAdminAnalytics);
   const usersFn = useServerFn(getAdminUsers);
-  const adjustFn = useServerFn(adminAdjustAura);
   const banFn = useServerFn(adminSetBan);
 
   const [ready, setReady] = useState(false);
@@ -58,11 +57,6 @@ function AdminDashboardPage() {
     setUsers(u);
   }
 
-  async function handleAura(target: string, amount: number) {
-    setBusy(target);
-    try { await adjustFn({ data: { target, amount, reason: amount > 0 ? "admin_grant" : "admin_revoke" } }); await refreshUsers(); }
-    finally { setBusy(null); }
-  }
   async function handleBan(target: string, banned: boolean) {
     setBusy(target);
     try { await banFn({ data: { target, banned } }); await refreshUsers(); }
@@ -120,14 +114,6 @@ function AdminDashboardPage() {
                 <StatCard icon={Users} label="Daily Active Users" value={analytics.dau} />
                 <StatCard icon={Users} label="Weekly Active Users" value={analytics.wau} />
                 <StatCard icon={Users} label="Monthly Active Users" value={analytics.mau} />
-                <StatCard icon={Crown} label="Paying Users" value={analytics.payingUsers} />
-              </div>
-
-              <h2 className="mt-8 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Revenue (Aura)</h2>
-              <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <StatCard icon={Coins} label="Revenue Today" value={analytics.revenueToday} />
-                <StatCard icon={Coins} label="Revenue This Month" value={analytics.revenueMonth} />
-                <StatCard icon={Coins} label="Revenue This Year" value={analytics.revenueYear} />
                 <StatCard icon={TrendingUp} label="Most Popular Career" valueText={analytics.popularCareers[0]?.name ?? "—"} />
               </div>
 
@@ -135,11 +121,8 @@ function AdminDashboardPage() {
               <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard icon={Users} label="Total Users" value={analytics.totalUsers} />
                 <StatCard icon={Brain} label="Completed Assessments" value={analytics.completedAssessments} />
-                <StatCard icon={Coins} label="Aura In Circulation" value={analytics.totalAuraInCirculation} />
-                <StatCard icon={Sparkles} label="ABBI Questions Asked" value={analytics.totalAbbiQuestions} />
                 <StatCard icon={TrendingUp} label="New This Week" value={analytics.newUsersThisWeek} />
                 <StatCard icon={TrendingUp} label="New This Month" value={analytics.newUsersThisMonth} />
-                <StatCard icon={Coins} label="Aura Purchased" value={analytics.totalAuraPurchased} />
                 <StatCard icon={Sparkles} label="Most Active Community" valueText={analytics.mostActiveCommunity?.name ?? "—"} hint={analytics.mostActiveCommunity ? `${analytics.mostActiveCommunity.messageCount} msgs` : undefined} />
               </div>
 
@@ -180,27 +163,6 @@ function AdminDashboardPage() {
                   </ResponsiveContainer>
                 </GlassChart>
 
-                <GlassChart title="Aura economy">
-                  <ResponsiveContainer width="100%" height={260}>
-                    <BarChart data={[
-                      { label: "In circulation", value: analytics.totalAuraInCirculation },
-                      { label: "Purchased", value: analytics.totalAuraPurchased },
-                      { label: "ABBI questions", value: analytics.totalAbbiQuestions },
-                    ]}>
-                      <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" opacity={0.3} />
-                      <XAxis dataKey="label" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} />
-                      <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} />
-                      <Tooltip contentStyle={{ background: "var(--background)", border: "1px solid var(--border)", borderRadius: 12 }} />
-                      <Bar dataKey="value" fill="url(#auraGrad)" radius={[8, 8, 0, 0]} />
-                      <defs>
-                        <linearGradient id="auraGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="oklch(0.75 0.18 320)" />
-                          <stop offset="100%" stopColor="oklch(0.55 0.22 280)" />
-                        </linearGradient>
-                      </defs>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </GlassChart>
               </div>
 
               <div className="mt-8">
@@ -221,7 +183,6 @@ function AdminDashboardPage() {
                         <th className="px-4 py-3 text-left">Email</th>
                         <th className="px-4 py-3 text-left">Joined</th>
                         <th className="px-4 py-3 text-left">Age</th>
-                        <th className="px-4 py-3 text-left">Aura</th>
                         <th className="px-4 py-3 text-left">Assessment</th>
                         <th className="px-4 py-3 text-right">Actions</th>
                       </tr>
@@ -236,14 +197,11 @@ function AdminDashboardPage() {
                           <td className="px-4 py-3 text-muted-foreground">{u.email}</td>
                           <td className="px-4 py-3 text-muted-foreground">{new Date(u.created_at).toLocaleDateString()}</td>
                           <td className="px-4 py-3 text-muted-foreground">{u.age_group ?? "—"}</td>
-                          <td className="px-4 py-3 font-semibold tabular-nums">{u.aura_balance.toLocaleString()}</td>
                           <td className="px-4 py-3">
                             {u.has_assessment ? <span className="inline-flex items-center gap-1 text-accent"><Check className="h-3 w-3" /> done</span> : <span className="text-muted-foreground">—</span>}
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex justify-end gap-1">
-                              <IconBtn title="+100 Aura" onClick={() => handleAura(u.id, 100)} disabled={busy === u.id}><Plus className="h-3.5 w-3.5" /></IconBtn>
-                              <IconBtn title="-100 Aura" onClick={() => handleAura(u.id, -100)} disabled={busy === u.id}><Minus className="h-3.5 w-3.5" /></IconBtn>
                               <IconBtn title={u.is_banned ? "Unban" : "Ban"} onClick={() => handleBan(u.id, !u.is_banned)} disabled={busy === u.id} danger={!u.is_banned}>
                                 <Ban className="h-3.5 w-3.5" />
                               </IconBtn>
@@ -252,7 +210,7 @@ function AdminDashboardPage() {
                         </tr>
                       ))}
                       {filtered.length === 0 && (
-                        <tr><td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">No users found.</td></tr>
+                        <tr><td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">No users found.</td></tr>
                       )}
                     </tbody>
                   </table>

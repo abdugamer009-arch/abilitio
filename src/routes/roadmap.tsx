@@ -3,38 +3,28 @@ import { useEffect, useMemo, useState } from "react";
 import { PageShell } from "@/components/PageShell";
 import { GlowBlob } from "@/components/GlowBlob";
 import { useAuth } from "@/lib/auth-context";
-import { useAura } from "@/components/aura/AuraProvider";
-import { AuraCoin } from "@/components/aura/AuraCoin";
 import { supabase } from "@/integrations/supabase/client";
-import { useServerFn } from "@tanstack/react-start";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Lock, Sparkles, CheckCircle2, Clock, Zap, Star, Trophy,
-  ChevronRight, Compass, Map as MapIcon, Cloud, GraduationCap,
+  Sparkles, CheckCircle2, Clock, Zap, Star, Trophy,
+  ChevronRight, Compass, Map as MapIcon, GraduationCap,
 } from "lucide-react";
-import { awardAura, type WalletDTO } from "@/lib/aura.functions";
 import { buildRoadmap, pickTrack, TRACK_LABEL, type RoadmapPhase, type RoadmapTrack } from "@/lib/roadmap-world";
 
 export const Route = createFileRoute("/roadmap")({
   head: () => ({
     meta: [
-      { title: "Roadmap World — Your Premium Career Journey | Abilitio" },
-      { name: "description", content: "Travel through 5 islands of personalized growth. Unlock phases with Aura Coins, complete tasks, and follow ABBI from Foundations to Mastery." },
+      { title: "Roadmap World — Your Career Journey | Abilitio" },
+      { name: "description", content: "Travel through 5 islands of personalized growth. Complete tasks, earn XP, and follow ABBI from Foundations to Mastery." },
       { property: "og:title", content: "Roadmap World — Abilitio" },
-      { property: "og:description", content: "Premium AI-personalized career journey across 5 islands." },
+      { property: "og:description", content: "AI-personalized career journey across 5 islands." },
     ],
   }),
   component: RoadmapPage,
 });
 
-const QK_UNLOCKS = ["aura", "unlocks"] as const;
-
 function RoadmapPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const { wallet, unlock, pushLocalReward } = useAura();
-  const awardFn = useServerFn(awardAura);
-  const queryClient = useQueryClient();
 
   const [topCareer, setTopCareer] = useState<string | null>(null);
   const [activePhase, setActivePhase] = useState<RoadmapPhase["index"]>(1);
@@ -61,19 +51,6 @@ function RoadmapPage() {
     })();
   }, [user]);
 
-  // Load unlocked phases
-  const unlocksQ = useQuery({
-    queryKey: QK_UNLOCKS,
-    enabled: !!user,
-    queryFn: async () => {
-      if (!user) return [] as string[];
-      const { data } = await supabase
-        .from("aura_unlocks").select("feature_key").eq("user_id", user.id);
-      return ((data ?? []) as { feature_key: string }[]).map((r) => r.feature_key);
-    },
-  });
-  const unlockedKeys = new Set(unlocksQ.data ?? []);
-
   // Per-user task completion (localStorage v1)
   useEffect(() => {
     if (!user || typeof window === "undefined") return;
@@ -92,31 +69,9 @@ function RoadmapPage() {
   const track: RoadmapTrack = useMemo(() => pickTrack(topCareer ?? undefined), [topCareer]);
   const phases = useMemo(() => buildRoadmap(track), [track]);
 
-  async function handleUnlock(p: RoadmapPhase) {
-    if (!wallet || wallet.balance < p.price) {
-      pushLocalReward({ amount: 0, label: `Need ${p.price} Aura to unlock ${p.name}` });
-      return;
-    }
-    const res = await unlock(p.key, p.price);
-    if (res.ok) {
-      queryClient.invalidateQueries({ queryKey: QK_UNLOCKS });
-      pushLocalReward({ amount: -p.price, label: `Unlocked ${p.name}`, bonus: true });
-    } else if (res.reason === "insufficient_balance") {
-      pushLocalReward({ amount: 0, label: "Not enough Aura — explore Universities" });
-    }
-  }
-
-  async function handleComplete(p: RoadmapPhase, taskId: string) {
+  function handleComplete(p: RoadmapPhase, taskId: string) {
     if (tasksDone[taskId]) return;
     persistTasks({ ...tasksDone, [taskId]: true });
-
-    // Award roadmap step coins (server-validated reason key)
-    try {
-      const res = await awardFn({ data: { reasonKey: "roadmap_step" } });
-      queryClient.setQueryData(["aura", "wallet"], res.wallet as WalletDTO);
-    } catch (e) {
-      console.error("awardAura failed", e);
-    }
 
     // Phase completion celebration
     const allDone = p.tasks.every((t) => (t.id === taskId ? true : tasksDone[t.id]));
@@ -132,8 +87,6 @@ function RoadmapPage() {
   }
 
   const active = phases.find((p) => p.index === activePhase)!;
-  const activeUnlocked = unlockedKeys.has(active.key);
-  const balance = wallet?.balance ?? 0;
 
   return (
     <PageShell>
@@ -163,7 +116,7 @@ function RoadmapPage() {
               </h1>
               <p className="mt-2 max-w-xl text-sm text-muted-foreground">
                 Travel from <strong>Foundations</strong> to <strong>Mastery</strong> across five islands.
-                Follow ABBI, complete tasks, earn XP and Aura, and unlock your future.
+                Follow ABBI, complete tasks, earn XP, and unlock your future.
               </p>
             </div>
             <Link
@@ -184,7 +137,6 @@ function RoadmapPage() {
           <div className="mt-8">
             <WorldMap
               phases={phases}
-              unlockedKeys={unlockedKeys}
               activePhase={activePhase}
               setActivePhase={setActivePhase}
               tasksDone={tasksDone}
@@ -210,56 +162,25 @@ function RoadmapPage() {
                   <Pill icon={<Zap className="h-3 w-3" />}>
                     {active.tasks.reduce((s, t) => s + t.xp, 0)} XP
                   </Pill>
-                  <Pill icon={<AuraCoin size={12} />}>
-                    {active.tasks.reduce((s, t) => s + t.coins, 0)} Aura
-                  </Pill>
                   <Pill icon={<Clock className="h-3 w-3" />}>{active.tasks.length} tasks</Pill>
                 </div>
 
-                {!activeUnlocked ? (
-                  <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/5 p-5">
-                    <div className="flex items-center gap-2 text-primary">
-                      <Lock className="h-4 w-4" />
-                      <span className="text-sm font-medium">Locked Island</span>
-                    </div>
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      Unlock this phase to reveal personalized tasks and let ABBI guide you forward.
-                    </p>
-                    <button
-                      onClick={() => handleUnlock(active)}
-                      disabled={balance < active.price}
-                      className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-br from-primary to-accent px-5 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
-                      style={{ boxShadow: "0 10px 28px -10px oklch(0.55 0.22 295 / 0.6)" }}
-                    >
-                      <AuraCoin size={16} /> Unlock for {active.price} Aura
-                    </button>
-                    {balance < active.price && (
-                      <Link to="/universities" className="mt-3 block text-center text-[11px] text-primary hover:underline">
-                        Explore Universities →
-                      </Link>
-                    )}
+                <div className="mt-6 rounded-2xl border border-accent/30 bg-accent/5 p-5">
+                  <div className="flex items-center gap-2 text-accent">
+                    <CheckCircle2 className="h-4 w-4" />
+                    <span className="text-sm font-medium">Your Island</span>
                   </div>
-                ) : (
-                  <div className="mt-6 rounded-2xl border border-accent/30 bg-accent/5 p-5">
-                    <div className="flex items-center gap-2 text-accent">
-                      <CheckCircle2 className="h-4 w-4" />
-                      <span className="text-sm font-medium">Island Unlocked</span>
-                    </div>
-                    <PhaseProgress phase={active} tasksDone={tasksDone} />
-                  </div>
-                )}
+                  <PhaseProgress phase={active} tasksDone={tasksDone} />
+                </div>
               </div>
             </div>
 
             {/* Task list */}
             <div className="relative">
-              {!activeUnlocked && <LockedFog />}
-              <div
-                className={`relative space-y-3 transition-all ${!activeUnlocked ? "blur-sm" : ""}`}
-              >
+              <div className="relative space-y-3 transition-all">
                 {active.tasks.map((task, idx) => {
                   const done = !!tasksDone[task.id];
-                  const isCurrent = activeUnlocked && !done &&
+                  const isCurrent = !done &&
                     active.tasks.slice(0, idx).every((t) => tasksDone[t.id]);
                   return (
                     <TaskNode
@@ -267,7 +188,7 @@ function RoadmapPage() {
                       task={task}
                       done={done}
                       isCurrent={isCurrent}
-                      onComplete={() => activeUnlocked && handleComplete(active, task.id)}
+                      onComplete={() => handleComplete(active, task.id)}
                     />
                   );
                 })}
@@ -290,10 +211,9 @@ function RoadmapPage() {
 
 /* =================== WORLD MAP =================== */
 function WorldMap({
-  phases, unlockedKeys, activePhase, setActivePhase, tasksDone,
+  phases, activePhase, setActivePhase, tasksDone,
 }: {
   phases: RoadmapPhase[];
-  unlockedKeys: Set<string>;
   activePhase: number;
   setActivePhase: (i: RoadmapPhase["index"]) => void;
   tasksDone: Record<string, boolean>;
@@ -307,7 +227,7 @@ function WorldMap({
     5: { x: 900, y: 240 },
   };
 
-  // Find ABBI position: at current active phase (or first incomplete in unlocked)
+  // Find ABBI position: at current active phase
   const abbiPhase = activePhase;
   const abbiPos = positions[abbiPhase];
 
@@ -350,10 +270,6 @@ function WorldMap({
             <stop offset="0%" stopColor="oklch(0.55 0.18 295)" />
             <stop offset="100%" stopColor="oklch(0.28 0.10 290)" />
           </radialGradient>
-          <radialGradient id="islandLocked" cx="50%" cy="40%">
-            <stop offset="0%" stopColor="oklch(0.35 0.05 290)" />
-            <stop offset="100%" stopColor="oklch(0.20 0.04 285)" />
-          </radialGradient>
           <filter id="glow">
             <feGaussianBlur stdDeviation="6" result="b" />
             <feMerge>
@@ -376,8 +292,7 @@ function WorldMap({
         {/* Islands */}
         {phases.map((p) => {
           const pos = positions[p.index];
-          const unlocked = unlockedKeys.has(p.key);
-          const completed = unlocked && p.tasks.every((t) => tasksDone[t.id]);
+          const completed = p.tasks.every((t) => tasksDone[t.id]);
           const active = activePhase === p.index;
           return (
             <g
@@ -401,20 +316,14 @@ function WorldMap({
               />
               <path
                 d="M -38 0 Q -30 -22, 0 -25 Q 32 -22, 38 0 Z"
-                fill={unlocked ? "url(#islandFill)" : "url(#islandLocked)"}
+                fill="url(#islandFill)"
                 stroke={active ? "oklch(0.75 0.20 295)" : "oklch(0.45 0.10 295 / 0.5)"}
                 strokeWidth={active ? 2 : 1}
               />
               {/* Peak */}
-              <path d="M -8 -22 Q 0 -38, 8 -22 Z" fill={unlocked ? "oklch(0.70 0.16 295)" : "oklch(0.35 0.05 290)"} />
+              <path d="M -8 -22 Q 0 -38, 8 -22 Z" fill="oklch(0.70 0.16 295)" />
 
-              {/* Lock icon for locked, check for completed */}
-              {!unlocked && (
-                <g transform="translate(0,-8)">
-                  <circle r="9" fill="oklch(0.18 0.03 285 / 0.85)" stroke="oklch(0.55 0.10 295)" strokeWidth="1" />
-                  <path d="M -2.5 -1 L -2.5 -3 A 2.5 2.5 0 0 1 2.5 -3 L 2.5 -1 M -3.5 -1 L 3.5 -1 L 3.5 4 L -3.5 4 Z" fill="oklch(0.75 0.10 295)" stroke="none" />
-                </g>
-              )}
+              {/* Check for completed */}
               {completed && (
                 <g transform="translate(0,-8)">
                   <circle r="10" fill="oklch(0.55 0.18 150)" />
@@ -441,14 +350,6 @@ function WorldMap({
               >
                 Phase {p.index}
               </text>
-
-              {/* Fog overlay for locked future islands */}
-              {!unlocked && (
-                <g opacity="0.45" className="pointer-events-none">
-                  <ellipse cx="-8" cy="-6" rx="28" ry="14" fill="oklch(0.85 0.02 295 / 0.5)" />
-                  <ellipse cx="14" cy="-2" rx="22" ry="10" fill="oklch(0.85 0.02 295 / 0.4)" />
-                </g>
-              )}
             </g>
           );
         })}
@@ -476,7 +377,7 @@ function WorldMap({
 function TaskNode({
   task, done, isCurrent, onComplete,
 }: {
-  task: { id: string; title: string; description: string; xp: number; coins: number; estimate: string };
+  task: { id: string; title: string; description: string; xp: number; estimate: string };
   done: boolean;
   isCurrent: boolean;
   onComplete: () => void;
@@ -526,7 +427,6 @@ function TaskNode({
           <p className="mt-1 text-xs text-muted-foreground">{task.description}</p>
           <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
             <span className="inline-flex items-center gap-1"><Zap className="h-3 w-3 text-primary" /> {task.xp} XP</span>
-            <span className="inline-flex items-center gap-1"><AuraCoin size={12} /> {task.coins} Aura</span>
             <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" /> {task.estimate}</span>
           </div>
         </div>
@@ -558,17 +458,6 @@ function PhaseProgress({ phase, tasksDone }: { phase: RoadmapPhase; tasksDone: R
           className="h-full rounded-full bg-gradient-to-r from-primary via-accent to-primary transition-all duration-700"
           style={{ width: `${pct}%`, boxShadow: "0 0 12px oklch(0.65 0.22 295 / 0.6)" }}
         />
-      </div>
-    </div>
-  );
-}
-
-function LockedFog() {
-  return (
-    <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl">
-      <div className="rounded-full border border-primary/30 bg-background/60 px-5 py-2 text-xs font-medium backdrop-blur-md">
-        <Cloud className="mr-2 inline h-3.5 w-3.5 text-primary" />
-        Hidden in mist — unlock this island to reveal your tasks
       </div>
     </div>
   );

@@ -60,7 +60,7 @@ function SuccessPage() {
                   <Sparkles className="h-6 w-6" />
                 </div>
                 <h3 className="mt-4 text-lg font-semibold">Have a story to share?</h3>
-                <p className="mt-2 text-sm text-muted-foreground">Story submissions open soon — earn an Aura badge when featured.</p>
+                <p className="mt-2 text-sm text-muted-foreground">Story submissions open soon — get featured on this page.</p>
               </div>
             </div>
           </Reveal>

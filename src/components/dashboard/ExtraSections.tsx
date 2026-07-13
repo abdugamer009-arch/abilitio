@@ -7,7 +7,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
 import { Sparkles, TrendingUp, GraduationCap, Users, Swords, Trophy, BookOpen, ChevronRight } from "lucide-react";
-import { getMyGrowthState } from "@/lib/aura-growth.functions";
+import { getMyGrowthState } from "@/lib/growth.functions";
 import { deriveSkillSnapshots, deriveWeeklyReport, type SkillSnapshot } from "@/lib/abbi-extras";
 
 type StatsLite = {
@@ -27,10 +27,7 @@ export function SkillsSection({ stats, mbti: _mbti }: { stats: StatsLite; mbti?:
         const g = await fn();
         if (cancel) return;
         setSkills(deriveSkillSnapshots({
-          lifetimeEarned: g.lifetimeEarned,
           assessmentsCompleted: g.assessmentsCompleted,
-          unlocksCount: g.unlocksCount,
-          streakDays: g.streakDays,
           stats,
         }));
       } catch (err) { console.warn("[ExtraSections]", err); }
@@ -44,7 +41,7 @@ export function SkillsSection({ stats, mbti: _mbti }: { stats: StatsLite; mbti?:
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-xl font-semibold">Skill Levels</h3>
-            <p className="mt-1 text-xs text-muted-foreground">XP grows as you assess, unlock, and stay consistent.</p>
+            <p className="mt-1 text-xs text-muted-foreground">XP grows as you assess and stay consistent.</p>
           </div>
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]"><Sparkles className="h-4 w-4" /></span>
         </div>
@@ -95,10 +92,7 @@ export function WeeklyReportSection({ mbti }: { mbti?: string | null }) {
         const g = await fn();
         if (cancel) return;
         setReport(deriveWeeklyReport({
-          lifetimeEarned: g.lifetimeEarned,
-          streakDays: g.streakDays,
           assessmentsCompleted: g.assessmentsCompleted,
-          unlocksCount: g.unlocksCount,
           mbti,
         }));
       } catch (err) { console.warn("[ExtraSections]", err); }
@@ -126,7 +120,7 @@ export function WeeklyReportSection({ mbti }: { mbti?: string | null }) {
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
           <Metric icon={Trophy} label="Tasks Completed" value={String(report.tasksCompleted)} />
           <Metric icon={TrendingUp} label="Roadmap Progress" value={`${report.roadmapProgress}%`} />
-          <Metric icon={Sparkles} label="Aura Earned" value={report.auraEarned.toLocaleString()} />
+          <Metric icon={Sparkles} label="Assessments Taken" value={report.assessmentsCompleted.toLocaleString()} />
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">

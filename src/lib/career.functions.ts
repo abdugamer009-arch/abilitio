@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import {
   scorePersonality, scoreCognitive, scoreInterests, matchCareers, matchMajors,
   deriveStrengths, deriveImprovements, RECOMMENDED_SKILLS_BY_PROFILE,
@@ -90,27 +89,6 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       .select("*")
       .single();
     if (error) throw new Error(error.message);
-
-    // Award Aura once per calendar day (prevent farming)
-    try {
-      const today = new Date().toISOString().slice(0, 10);
-      const achievementKey = `career_assessment_completed_${today}`;
-      const { data: existing } = await supabaseAdmin
-        .from("aura_achievements")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("achievement_key", achievementKey)
-        .maybeSingle();
-      if (!existing) {
-        await supabase.rpc("aura_apply_delta", {
-          _user: userId, _amount: 20, _kind: "earn",
-          _reason: "career_assessment_completed", _meta: { resultId: row.id },
-        });
-        await supabaseAdmin
-          .from("aura_achievements")
-          .insert({ user_id: userId, achievement_key: achievementKey });
-      }
-    } catch (err) { console.warn("[career] aura award failed", err); }
 
     return {
       id: row.id,

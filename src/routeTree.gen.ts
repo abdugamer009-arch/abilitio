@@ -31,8 +31,6 @@ import { Route as CareerResultsRouteImport } from './routes/career-results'
 import { Route as CareerBattlesRouteImport } from './routes/career-battles'
 import { Route as CareerAssessmentRouteImport } from './routes/career-assessment'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuraMarketRouteImport } from './routes/aura-market'
-import { Route as AuraRouteImport } from './routes/aura'
 import { Route as AssessmentRouteImport } from './routes/assessment'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
@@ -44,8 +42,6 @@ import { Route as SchoolJoinRouteImport } from './routes/school.join'
 import { Route as SchoolDashboardRouteImport } from './routes/school.dashboard'
 import { Route as SchoolClassBuilderRouteImport } from './routes/school.class-builder'
 import { Route as SchoolAnalyticsRouteImport } from './routes/school.analytics'
-import { Route as AuraStoreRouteImport } from './routes/aura.store'
-import { Route as AuraGrowthRouteImport } from './routes/aura.growth'
 
 const UniversitiesRoute = UniversitiesRouteImport.update({
   id: '/universities',
@@ -157,16 +153,6 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuraMarketRoute = AuraMarketRouteImport.update({
-  id: '/aura-market',
-  path: '/aura-market',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuraRoute = AuraRouteImport.update({
-  id: '/aura',
-  path: '/aura',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AssessmentRoute = AssessmentRouteImport.update({
   id: '/assessment',
   path: '/assessment',
@@ -222,16 +208,6 @@ const SchoolAnalyticsRoute = SchoolAnalyticsRouteImport.update({
   path: '/school/analytics',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuraStoreRoute = AuraStoreRouteImport.update({
-  id: '/store',
-  path: '/store',
-  getParentRoute: () => AuraRoute,
-} as any)
-const AuraGrowthRoute = AuraGrowthRouteImport.update({
-  id: '/growth',
-  path: '/growth',
-  getParentRoute: () => AuraRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -239,8 +215,6 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/assessment': typeof AssessmentRoute
-  '/aura': typeof AuraRouteWithChildren
-  '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
   '/career-assessment': typeof CareerAssessmentRoute
   '/career-battles': typeof CareerBattlesRoute
@@ -263,8 +237,6 @@ export interface FileRoutesByFullPath {
   '/success-stories': typeof SuccessStoriesRoute
   '/terms': typeof TermsRoute
   '/universities': typeof UniversitiesRoute
-  '/aura/growth': typeof AuraGrowthRoute
-  '/aura/store': typeof AuraStoreRoute
   '/school/analytics': typeof SchoolAnalyticsRoute
   '/school/class-builder': typeof SchoolClassBuilderRoute
   '/school/dashboard': typeof SchoolDashboardRoute
@@ -278,8 +250,6 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/assessment': typeof AssessmentRoute
-  '/aura': typeof AuraRouteWithChildren
-  '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
   '/career-assessment': typeof CareerAssessmentRoute
   '/career-battles': typeof CareerBattlesRoute
@@ -302,8 +272,6 @@ export interface FileRoutesByTo {
   '/success-stories': typeof SuccessStoriesRoute
   '/terms': typeof TermsRoute
   '/universities': typeof UniversitiesRoute
-  '/aura/growth': typeof AuraGrowthRoute
-  '/aura/store': typeof AuraStoreRoute
   '/school/analytics': typeof SchoolAnalyticsRoute
   '/school/class-builder': typeof SchoolClassBuilderRoute
   '/school/dashboard': typeof SchoolDashboardRoute
@@ -318,8 +286,6 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/assessment': typeof AssessmentRoute
-  '/aura': typeof AuraRouteWithChildren
-  '/aura-market': typeof AuraMarketRoute
   '/auth': typeof AuthRoute
   '/career-assessment': typeof CareerAssessmentRoute
   '/career-battles': typeof CareerBattlesRoute
@@ -342,8 +308,6 @@ export interface FileRoutesById {
   '/success-stories': typeof SuccessStoriesRoute
   '/terms': typeof TermsRoute
   '/universities': typeof UniversitiesRoute
-  '/aura/growth': typeof AuraGrowthRoute
-  '/aura/store': typeof AuraStoreRoute
   '/school/analytics': typeof SchoolAnalyticsRoute
   '/school/class-builder': typeof SchoolClassBuilderRoute
   '/school/dashboard': typeof SchoolDashboardRoute
@@ -359,8 +323,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/assessment'
-    | '/aura'
-    | '/aura-market'
     | '/auth'
     | '/career-assessment'
     | '/career-battles'
@@ -383,8 +345,6 @@ export interface FileRouteTypes {
     | '/success-stories'
     | '/terms'
     | '/universities'
-    | '/aura/growth'
-    | '/aura/store'
     | '/school/analytics'
     | '/school/class-builder'
     | '/school/dashboard'
@@ -398,8 +358,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/assessment'
-    | '/aura'
-    | '/aura-market'
     | '/auth'
     | '/career-assessment'
     | '/career-battles'
@@ -422,8 +380,6 @@ export interface FileRouteTypes {
     | '/success-stories'
     | '/terms'
     | '/universities'
-    | '/aura/growth'
-    | '/aura/store'
     | '/school/analytics'
     | '/school/class-builder'
     | '/school/dashboard'
@@ -437,8 +393,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/assessment'
-    | '/aura'
-    | '/aura-market'
     | '/auth'
     | '/career-assessment'
     | '/career-battles'
@@ -461,8 +415,6 @@ export interface FileRouteTypes {
     | '/success-stories'
     | '/terms'
     | '/universities'
-    | '/aura/growth'
-    | '/aura/store'
     | '/school/analytics'
     | '/school/class-builder'
     | '/school/dashboard'
@@ -477,8 +429,6 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
   AssessmentRoute: typeof AssessmentRoute
-  AuraRoute: typeof AuraRouteWithChildren
-  AuraMarketRoute: typeof AuraMarketRoute
   AuthRoute: typeof AuthRoute
   CareerAssessmentRoute: typeof CareerAssessmentRoute
   CareerBattlesRoute: typeof CareerBattlesRoute
@@ -665,20 +615,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/aura-market': {
-      id: '/aura-market'
-      path: '/aura-market'
-      fullPath: '/aura-market'
-      preLoaderRoute: typeof AuraMarketRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/aura': {
-      id: '/aura'
-      path: '/aura'
-      fullPath: '/aura'
-      preLoaderRoute: typeof AuraRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/assessment': {
       id: '/assessment'
       path: '/assessment'
@@ -756,34 +692,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SchoolAnalyticsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/aura/store': {
-      id: '/aura/store'
-      path: '/store'
-      fullPath: '/aura/store'
-      preLoaderRoute: typeof AuraStoreRouteImport
-      parentRoute: typeof AuraRoute
-    }
-    '/aura/growth': {
-      id: '/aura/growth'
-      path: '/growth'
-      fullPath: '/aura/growth'
-      preLoaderRoute: typeof AuraGrowthRouteImport
-      parentRoute: typeof AuraRoute
-    }
   }
 }
-
-interface AuraRouteChildren {
-  AuraGrowthRoute: typeof AuraGrowthRoute
-  AuraStoreRoute: typeof AuraStoreRoute
-}
-
-const AuraRouteChildren: AuraRouteChildren = {
-  AuraGrowthRoute: AuraGrowthRoute,
-  AuraStoreRoute: AuraStoreRoute,
-}
-
-const AuraRouteWithChildren = AuraRoute._addFileChildren(AuraRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -791,8 +701,6 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
   AssessmentRoute: AssessmentRoute,
-  AuraRoute: AuraRouteWithChildren,
-  AuraMarketRoute: AuraMarketRoute,
   AuthRoute: AuthRoute,
   CareerAssessmentRoute: CareerAssessmentRoute,
   CareerBattlesRoute: CareerBattlesRoute,

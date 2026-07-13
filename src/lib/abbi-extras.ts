@@ -129,29 +129,23 @@ const SKILL_META: { key: SkillKey; label: string; emoji: string; perLevel: numbe
 ];
 
 export function deriveSkillSnapshots(input: {
-  lifetimeEarned: number;
   assessmentsCompleted: number;
-  unlocksCount: number;
-  streakDays: number;
   stats?: Partial<{
     leadership_level: number; communication_score: number; creativity_score: number;
     emotional_intelligence: number; productivity_level: number;
   }> | null;
 }): SkillSnapshot[] {
-  const base = Math.floor(input.lifetimeEarned * 0.6);
-  const aBoost = input.assessmentsCompleted * 40;
-  const uBoost = input.unlocksCount * 25;
-  const sBoost = input.streakDays * 8;
+  const aBoost = input.assessmentsCompleted * 60;
   const s = input.stats ?? {};
 
   const xpFor: Record<SkillKey, number> = {
-    leadership:    base + aBoost + (s.leadership_level ?? 0) * 4,
-    communication: base + aBoost + (s.communication_score ?? 0) * 4,
-    logic:         base + aBoost * 1.3 + uBoost,
-    creativity:    base + (s.creativity_score ?? 0) * 4 + uBoost,
-    discipline:    base + sBoost + (s.productivity_level ?? 0) * 4,
-    emotional:     base + (s.emotional_intelligence ?? 0) * 4,
-    technical:     base + uBoost * 1.5 + aBoost,
+    leadership:    aBoost + (s.leadership_level ?? 0) * 4,
+    communication: aBoost + (s.communication_score ?? 0) * 4,
+    logic:         aBoost * 1.3,
+    creativity:    aBoost + (s.creativity_score ?? 0) * 4,
+    discipline:    aBoost + (s.productivity_level ?? 0) * 4,
+    emotional:     aBoost + (s.emotional_intelligence ?? 0) * 4,
+    technical:     aBoost * 1.5,
   };
 
   return SKILL_META.map((m) => {
@@ -169,19 +163,16 @@ export type WeeklyReport = {
   improvements: { label: string; delta: number }[]; // pct deltas
   tasksCompleted: number;
   roadmapProgress: number;
-  auraEarned: number;
+  assessmentsCompleted: number;
   suggestions: string[];
 };
 
 export function deriveWeeklyReport(input: {
-  lifetimeEarned: number;
-  streakDays: number;
   assessmentsCompleted: number;
-  unlocksCount: number;
   mbti?: string | null;
 }): WeeklyReport {
-  // Deterministic pseudo-random based on lifetime so it changes as user grows.
-  const seed = input.lifetimeEarned + input.streakDays * 7 + input.assessmentsCompleted * 11;
+  // Deterministic pseudo-random based on activity so it changes as user grows.
+  const seed = input.assessmentsCompleted * 11 + 5;
   const pick = (i: number, min: number, max: number) =>
     min + ((seed * (i + 3)) % (max - min + 1));
 
@@ -194,9 +185,8 @@ export function deriveWeeklyReport(input: {
   ];
 
   const suggestions: string[] = [];
-  if (input.streakDays < 3) suggestions.push("Log in 3 days in a row to lock in a streak bonus.");
   if (input.assessmentsCompleted === 0) suggestions.push("Take your first assessment to unlock personalized skill XP.");
-  if (input.unlocksCount === 0) suggestions.push("Spend some Aura on a premium feature to accelerate growth.");
+  else suggestions.push("Retake the assessment this month to track how your profile evolves.");
   suggestions.push("Drop a thought in your Community — peer feedback boosts EQ.");
   if (input.mbti?.includes("I")) suggestions.push("Try one outbound social action this week (DM, comment, intro).");
   else suggestions.push("Schedule one deep focus block (90 min, no notifications).");
@@ -207,9 +197,9 @@ export function deriveWeeklyReport(input: {
   return {
     week,
     improvements,
-    tasksCompleted: Math.max(0, input.assessmentsCompleted + input.unlocksCount + Math.floor(input.streakDays / 2)),
-    roadmapProgress: Math.min(100, input.unlocksCount * 15 + input.assessmentsCompleted * 10),
-    auraEarned: Math.max(0, Math.floor(input.lifetimeEarned / 7)),
+    tasksCompleted: Math.max(0, input.assessmentsCompleted),
+    roadmapProgress: Math.min(100, input.assessmentsCompleted * 20),
+    assessmentsCompleted: input.assessmentsCompleted,
     suggestions: suggestions.slice(0, 4),
   };
 }

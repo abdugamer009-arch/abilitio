@@ -14,8 +14,6 @@ import { Sparkles, Home, RefreshCw } from "lucide-react";
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth-context";
 import { LanguageProvider } from "@/lib/i18n";
-import { AuraProvider } from "@/components/aura/AuraProvider";
-import { AuraRewardToaster } from "@/components/aura/AuraRewardToaster";
 import { FloatingAuthButton } from "@/components/FloatingAuthButton";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { SITE_URL, OG_IMAGE_URL, SITE_NAME, CONTACT_EMAIL } from "@/lib/constants";
@@ -174,14 +172,10 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <AuthProvider>
-          <AuraProvider>
-            {/* Required: nested routes render here. */}
-            <Outlet />
-            <FloatingAuthButton />
-            <AuraRewardToaster />
-            <SonnerToaster />
-
-          </AuraProvider>
+          {/* Required: nested routes render here. */}
+          <Outlet />
+          <FloatingAuthButton />
+          <SonnerToaster />
         </AuthProvider>
       </LanguageProvider>
     </QueryClientProvider>

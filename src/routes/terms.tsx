@@ -6,7 +6,7 @@ export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
       { title: "Terms of Service — Abilitio" },
-      { name: "description", content: "The terms that govern your use of Abilitio, including eligibility, assessments, virtual currency, and payments." },
+      { name: "description", content: "The terms that govern your use of Abilitio, including eligibility, assessments, and payments." },
     ],
   }),
   component: TermsPage,
@@ -53,15 +53,7 @@ function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection heading="5. Aura virtual currency">
-        <p>
-          "Aura" is a virtual reward used inside {SITE_NAME} to unlock features and recognize progress. Aura has no
-          monetary value, cannot be exchanged for cash, and is not transferable outside the platform. We may adjust how
-          Aura is earned or spent as the product evolves.
-        </p>
-      </LegalSection>
-
-      <LegalSection heading="6. Payments and subscriptions">
+      <LegalSection heading="5. Payments and subscriptions">
         <p>
           Paid plans, including school plans, are billed through our payment processor, Stripe. Prices and inclusions
           are shown at the point of purchase. Unless required by law, fees already paid are non-refundable. You can
@@ -69,7 +61,7 @@ function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection heading="7. Acceptable use">
+      <LegalSection heading="6. Acceptable use">
         <p>You agree not to:</p>
         <LegalList
           items={[
@@ -81,7 +73,7 @@ function TermsPage() {
         />
       </LegalSection>
 
-      <LegalSection heading="8. Intellectual property">
+      <LegalSection heading="7. Intellectual property">
         <p>
           The {SITE_NAME} platform, including its design, content, and assessment materials, is owned by {SITE_NAME} and
           protected by applicable law. Your own data and results remain yours; you grant us the limited rights needed to
@@ -89,7 +81,7 @@ function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection heading="9. Disclaimers and limitation of liability">
+      <LegalSection heading="8. Disclaimers and limitation of liability">
         <p>
           The service is provided "as is" without warranties of any kind. To the maximum extent permitted by law,
           {" "}{SITE_NAME} is not liable for indirect, incidental, or consequential damages, or for decisions made solely
@@ -97,20 +89,20 @@ function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection heading="10. Termination">
+      <LegalSection heading="9. Termination">
         <p>
           You may stop using {SITE_NAME} and request account deletion at any time. We may suspend or terminate accounts
           that violate these terms or harm other users or the service.
         </p>
       </LegalSection>
 
-      <LegalSection heading="11. Governing law">
+      <LegalSection heading="10. Governing law">
         <p>
           These terms are governed by the laws of {COMPANY_LOCATION}, without regard to conflict-of-law principles.
         </p>
       </LegalSection>
 
-      <LegalSection heading="12. Contact">
+      <LegalSection heading="11. Contact">
         <p>
           Questions about these terms? Email us at{" "}
           <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary hover:underline">{CONTACT_EMAIL}</a>.

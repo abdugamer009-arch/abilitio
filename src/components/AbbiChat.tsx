@@ -1,12 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { useQueryClient } from "@tanstack/react-query";
 import ReactMarkdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
-import { Sparkles, Send, Bot, User as UserIcon, Coins, MessageCircle, X, Zap } from "lucide-react";
-import { useAura } from "@/components/aura/AuraProvider";
-import { AuraCoin } from "@/components/aura/AuraCoin";
+import { Sparkles, Send, Bot, User as UserIcon } from "lucide-react";
 import { GlowBlob } from "@/components/GlowBlob";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,21 +10,13 @@ import {
   ABBI_SUGGESTIONS,
   abbiGreeting,
 } from "@/lib/abbi-knowledge";
-import { spendAbbiMessage, generateAbbiMessage } from "@/lib/abbi.functions";
-import { ABBI_FREE_PER_DAY, ABBI_MESSAGE_COST } from "@/lib/constants";
+import { generateAbbiMessage } from "@/lib/abbi.functions";
 
 type ChatMsg = { id: string; role: "user" | "abbi"; content: string };
 
-function todayKey(userId: string) {
-  return `abbi_free_${userId}_${new Date().toISOString().slice(0, 10)}`;
-}
-
 export function AbbiChat() {
   const { user } = useAuth();
-  const { wallet } = useAura();
-  const spendFn = useServerFn(spendAbbiMessage);
   const replyFn = useServerFn(generateAbbiMessage);
-  const queryClient = useQueryClient();
 
   const [ctx, setCtx] = useState<Record<string, unknown>>({});
   const [messages, setMessages] = useState<ChatMsg[]>([
@@ -36,8 +24,6 @@ export function AbbiChat() {
   ]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
-  const [freeLeft, setFreeLeft] = useState(ABBI_FREE_PER_DAY);
-  const [outOfCoinsOpen, setOutOfCoinsOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   function historyKey(userId: string) {
@@ -108,39 +94,16 @@ export function AbbiChat() {
     })();
   }, [user]);
 
-  // Daily free-question counter (per user, per day, localStorage)
-  useEffect(() => {
-    if (!user || typeof window === "undefined") return;
-    const raw = localStorage.getItem(todayKey(user.id));
-    const used = raw ? parseInt(raw, 10) || 0 : 0;
-    setFreeLeft(Math.max(0, ABBI_FREE_PER_DAY - used));
-  }, [user]);
-
-  function consumeFree() {
-    if (!user || typeof window === "undefined") return;
-    const key = todayKey(user.id);
-    const used = parseInt(localStorage.getItem(key) || "0", 10) || 0;
-    localStorage.setItem(key, String(used + 1));
-    setFreeLeft(Math.max(0, ABBI_FREE_PER_DAY - (used + 1)));
-  }
-
   // Auto-scroll to bottom on new message
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, typing]);
 
-  const balance = wallet?.balance ?? 0;
-  const needsCoins = freeLeft <= 0;
-  const canSend = !typing && input.trim().length > 0 && (!needsCoins || balance >= ABBI_MESSAGE_COST);
+  const canSend = !typing && input.trim().length > 0;
 
   async function handleSend(text?: string) {
     const content = (text ?? input).trim();
     if (!content || typing) return;
-
-    if (needsCoins && balance < ABBI_MESSAGE_COST) {
-      setOutOfCoinsOpen(true);
-      return;
-    }
 
     // Optimistic user message
     const userMsg: ChatMsg = { id: crypto.randomUUID(), role: "user", content };
@@ -149,13 +112,6 @@ export function AbbiChat() {
     setTyping(true);
 
     try {
-      if (needsCoins) {
-        const res = await spendFn();
-        queryClient.setQueryData(["aura", "wallet"], res.wallet);
-      } else {
-        consumeFree();
-      }
-
       // Fetch reply from server (Claude API or template fallback)
       const { reply } = await replyFn({ data: { message: content, ctx } });
       // Thinking pause so the response feels natural, not instant
@@ -164,47 +120,14 @@ export function AbbiChat() {
       setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "abbi", content: reply }]);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong.";
-      if (msg.includes("insufficient_balance")) {
-        setOutOfCoinsOpen(true);
-        // roll back optimistic user message
-        setMessages((prev) => prev.filter((m) => m.id !== userMsg.id));
-        setInput(content);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          { id: crypto.randomUUID(), role: "abbi", content: `⚠️ ${msg}` },
-        ]);
-      }
+      setMessages((prev) => [
+        ...prev,
+        { id: crypto.randomUUID(), role: "abbi", content: `⚠️ ${msg}` },
+      ]);
     } finally {
       setTyping(false);
     }
   }
-
-
-  const statusBar = useMemo(
-    () => (
-      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
-          <AuraCoin size={14} /> {balance.toLocaleString()} Aura
-        </span>
-        <span
-          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-medium ${
-            freeLeft > 0
-              ? "border-accent/30 bg-accent/10 text-accent"
-              : "border-border bg-secondary/50 text-muted-foreground"
-          }`}
-        >
-          <MessageCircle className="h-3 w-3" /> Free today: {freeLeft}/{ABBI_FREE_PER_DAY}
-        </span>
-        {needsCoins && (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-secondary/40 px-3 py-1 text-[11px] text-muted-foreground">
-            <Coins className="h-3 w-3" /> {ABBI_MESSAGE_COST} Aura per question
-          </span>
-        )}
-      </div>
-    ),
-    [balance, freeLeft, needsCoins]
-  );
 
   return (
     <div className="space-y-4">
@@ -227,11 +150,10 @@ export function AbbiChat() {
                 ABBI <span className="gradient-text">AI</span>
               </h2>
               <p className="text-xs text-muted-foreground">
-                Your premium AI career mentor — careers, universities, SAT/IELTS & growth.
+                Your free AI career mentor — careers, universities, SAT/IELTS & growth.
               </p>
             </div>
           </div>
-          {statusBar}
         </div>
       </div>
 
@@ -291,11 +213,7 @@ export function AbbiChat() {
                   }
                 }}
                 rows={1}
-                placeholder={
-                  needsCoins
-                    ? `Ask ABBI anything — costs ${ABBI_MESSAGE_COST} Aura per question`
-                    : "Ask ABBI anything about careers, universities, SAT/IELTS…"
-                }
+                placeholder="Ask ABBI anything about careers, universities, SAT/IELTS…"
                 className="flex-1 resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
                 style={{ maxHeight: 120 }}
               />
@@ -310,30 +228,11 @@ export function AbbiChat() {
               <Send className="h-4 w-4" />
             </button>
           </form>
-          {needsCoins && (
-            <div className="mt-2 flex items-center justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-[11px] text-muted-foreground">
-              <span className="inline-flex items-center gap-1.5">
-                <Zap className="h-3 w-3 text-primary" />
-                Each ABBI question now costs {ABBI_MESSAGE_COST} Aura Coins.
-              </span>
-              <Link
-                to="/aura"
-                className="font-medium text-primary hover:underline"
-              >
-                Get more →
-              </Link>
-            </div>
-          )}
           <div className="mt-2 flex justify-end">
             <button onClick={clearHistory} className="text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors">Clear history</button>
           </div>
         </div>
       </div>
-
-      {/* Out of coins modal */}
-      {outOfCoinsOpen && (
-        <OutOfCoinsModal onClose={() => setOutOfCoinsOpen(false)} />
-      )}
     </div>
   );
 }
@@ -383,53 +282,6 @@ function TypingBubble() {
           <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gradient-to-br from-primary to-accent" style={{ animationDelay: "150ms" }} />
           <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gradient-to-br from-primary to-accent" style={{ animationDelay: "300ms" }} />
         </span>
-      </div>
-    </div>
-  );
-}
-
-
-function OutOfCoinsModal({ onClose }: { onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-      <div
-        className="relative w-full max-w-md overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-secondary/80 via-background to-background/80 p-7 backdrop-blur-xl"
-        style={{ boxShadow: "0 30px 80px -20px oklch(0.55 0.22 295 / 0.6)" }}
-      >
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-secondary/60 text-muted-foreground hover:text-foreground"
-          aria-label="Close"
-        >
-          <X className="h-4 w-4" />
-        </button>
-        <GlowBlob className="-right-16 -top-16 h-64 w-64 opacity-60 blur-3xl" alpha={0.5} />
-        <div className="relative">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg">
-            <Coins className="h-7 w-7" />
-          </div>
-          <h3 className="mt-4 text-xl font-bold tracking-tight">Out of Aura Coins</h3>
-          <p className="mt-2 text-sm text-muted-foreground">
-            You need {ABBI_MESSAGE_COST} Aura Coins to ask ABBI another question. Top up to keep your
-            momentum going.
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-end gap-2">
-            <button
-              onClick={onClose}
-              className="rounded-full border border-border/60 bg-secondary/40 px-4 py-2 text-xs transition-colors hover:bg-secondary/70"
-            >
-              Close
-            </button>
-            <Link
-              to="/aura"
-              onClick={onClose}
-              className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-primary to-accent px-5 py-2 text-xs font-medium text-primary-foreground hover:-translate-y-0.5 transition-all"
-              style={{ boxShadow: "0 10px 24px -10px oklch(0.55 0.22 295 / 0.6)" }}
-            >
-              <AuraCoin size={14} /> Go to Aura Market
-            </Link>
-          </div>
-        </div>
       </div>
     </div>
   );

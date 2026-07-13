@@ -204,7 +204,6 @@ function CareerAssessmentPage() {
               <button onClick={startSession} className="cta-sheen relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 text-sm font-medium text-primary-foreground shadow-[0_8px_28px_-8px_var(--glow)] hover:-translate-y-0.5 transition-all">
                 {t.careerAssessment.startBtn} <ArrowRight className="h-4 w-4" />
               </button>
-              <p className="mt-3 text-xs text-muted-foreground">{t.careerAssessment.auraReward}</p>
               <Link to="/methodology" className="mt-2 inline-block text-xs text-primary/80 hover:text-primary hover:underline">
                 {t.careerAssessment.howItWorks}
               </Link>
