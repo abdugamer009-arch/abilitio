@@ -246,3 +246,54 @@ export const RECOMMENDED_SKILLS_BY_PROFILE: Record<string, string[]> = {
   Research: ["Academic writing", "Lab methodology", "Literature review", "Research design"],
   Innovative: ["Design thinking", "Prototyping", "Creative writing", "Public speaking"],
 };
+
+// ---------- Community routing ----------
+// A user's #1 career match decides which community they auto-join. Categories
+// map most of the 166 careers to a matching community; a few specific careers
+// override the category where a more precise community exists (e.g. a Data
+// Scientist joins Data Science rather than the generic Technology community).
+// Slugs must exist in the `communities` table; unmapped fields fall back to
+// the "general" community.
+const CAREER_COMMUNITY_OVERRIDES: Record<string, string> = {
+  data_scientist: "data-science",
+  data_engineer: "data-analytics",
+  statistician: "data-analytics",
+  cybersecurity: "cybersecurity",
+  product_manager: "product-management",
+  pr_specialist: "public-relations",
+  graphic_designer: "creative",
+  illustrator: "creative",
+  animator: "creative",
+};
+
+const CATEGORY_COMMUNITY: Record<string, string> = {
+  Technology: "software-engineering",
+  Engineering: "engineering",
+  Architecture: "design",
+  Healthcare: "medicine",
+  Science: "science",
+  Psychology: "psychology",
+  "Social Sciences": "psychology",
+  Business: "business-analysis",
+  Finance: "finance",
+  Entrepreneurship: "entrepreneurship",
+  Marketing: "marketing",
+  Media: "journalism",
+  Arts: "creative",
+  Design: "design",
+  Education: "education",
+  Law: "law",
+  Government: "law",
+};
+
+/** Community slug for a user's top career match. Falls back to "general". */
+export function communitySlugForCareer(
+  match: { key?: string | null; category?: string | null } | null | undefined,
+): string {
+  if (!match) return "general";
+  return (
+    (match.key ? CAREER_COMMUNITY_OVERRIDES[match.key] : undefined) ??
+    (match.category ? CATEGORY_COMMUNITY[match.category] : undefined) ??
+    "general"
+  );
+}

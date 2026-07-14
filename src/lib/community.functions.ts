@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Database } from "@/integrations/supabase/types";
+import { communitySlugForCareer } from "./career-engine";
 
 export type CommunityDTO = {
   id: string;
@@ -50,20 +51,38 @@ export const getMyCommunities = createServerFn({ method: "GET" })
       .select("community_id")
       .eq("user_id", userId);
     const ids = (memberships ?? []).map((m: any) => m.community_id);
-    if (!ids.length) return { communities: [], isAdmin: false };
-    const { data } = await supabase.from("communities").select("*").in("id", ids);
-    return { communities: (data ?? []) as CommunityDTO[], isAdmin: false };
+    if (ids.length) {
+      const { data } = await supabase.from("communities").select("*").in("id", ids);
+      return { communities: (data ?? []) as CommunityDTO[], isAdmin: false };
+    }
+    // No membership yet — self-heal for users who assessed before auto-join
+    // was wired: assign from their latest result's top career match.
+    const healed = await ensureCommunityFromLatestResult(supabase, userId);
+    return { communities: healed ? [healed] : [], isAdmin: false };
   });
 
-export const assignMyCommunity = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: { careerKey: string }) => input)
-  .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { data: cid, error } = await supabase.rpc("assign_user_to_community", { _career_key: data.careerKey });
-    if (error) throw new Error(error.message);
-    return { communityId: cid as unknown as string };
+/** Assign a member row from the user's most recent career result, if any, and
+ *  return the resulting community. No-op (returns null) when they have no result. */
+async function ensureCommunityFromLatestResult(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+): Promise<CommunityDTO | null> {
+  const { data: latest } = await supabase
+    .from("career_assessment_results")
+    .select("career_matches")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const top = (latest?.career_matches as { key?: string; category?: string }[] | null)?.[0];
+  if (!top) return null;
+  const { data: cid } = await supabase.rpc("assign_user_to_community_by_slug", {
+    _slug: communitySlugForCareer(top),
   });
+  if (!cid) return null;
+  const { data } = await supabase.from("communities").select("*").eq("id", cid as string).maybeSingle();
+  return (data as CommunityDTO) ?? null;
+}
 
 export const getCommunityMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

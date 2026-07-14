@@ -1085,6 +1085,10 @@ export type Database = {
         Args: { _career_key: string }
         Returns: string
       }
+      assign_user_to_community_by_slug: {
+        Args: { _slug: string }
+        Returns: string
+      }
       aura_apply_delta: {
         Args: {
           _amount: number

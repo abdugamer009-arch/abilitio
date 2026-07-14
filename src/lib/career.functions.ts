@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   scorePersonality, scoreCognitive, scoreInterests, matchCareers, matchMajors,
-  attachMajorsToCareers, deriveStrengths, deriveImprovements, RECOMMENDED_SKILLS_BY_PROFILE,
+  attachMajorsToCareers, communitySlugForCareer, deriveStrengths, deriveImprovements, RECOMMENDED_SKILLS_BY_PROFILE,
   type Career, type Major,
 } from "./career-engine";
 import { PERSONALITY_BANK, getIQCorrect } from "./question-bank";
@@ -94,6 +94,15 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       .select("*")
       .single();
     if (error) throw new Error(error.message);
+
+    // Auto-join the community matching the #1 career. Best-effort: a failure
+    // here must never fail the assessment itself.
+    try {
+      const slug = communitySlugForCareer(careerMatches[0]);
+      await supabase.rpc("assign_user_to_community_by_slug", { _slug: slug });
+    } catch (e) {
+      console.warn("[career] community auto-join failed", e);
+    }
 
     return {
       id: row.id,
