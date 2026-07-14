@@ -40,13 +40,13 @@ function RoadmapPage() {
     if (!user) return;
     (async () => {
       const { data } = await supabase
-        .from("assessment_results")
-        .select("careers")
+        .from("career_assessment_results")
+        .select("career_matches")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
-      const careers = (data?.careers ?? []) as { name: string }[];
+      const careers = (data?.career_matches ?? []) as { name: string }[];
       setTopCareer(careers[0]?.name ?? null);
     })();
   }, [user]);

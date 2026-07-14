@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth-context";
 import { getMyCareerResult, type CareerResultDTO } from "@/lib/career.functions";
-import { UNIVERSITIES, checkEligibility, type Eligibility } from "@/lib/abbi-extras";
+import { universitiesForMajor, checkEligibility, type Eligibility } from "@/lib/abbi-extras";
 import { supabase } from "@/integrations/supabase/client";
 import { Reveal } from "@/components/Reveal";
 import { GlowBlob } from "@/components/GlowBlob";
@@ -290,12 +290,7 @@ function CareerResultsPage() {
             </div>
             <div className="mt-4 grid gap-3">
               {r.university_matches.map((m) => {
-                const matchingUnis = UNIVERSITIES.filter((u) =>
-                  u.majors.some((maj) =>
-                    maj.toLowerCase() === m.name.toLowerCase() ||
-                    m.name.toLowerCase().includes(maj.toLowerCase().split(" ")[0])
-                  )
-                ).sort((a, b) => a.minSat - b.minSat).slice(0, 5);
+                const matchingUnis = universitiesForMajor(m.name, scores.sat, scores.ielts, 5);
 
                 return (
                   <details key={m.key} className="group/uni rounded-2xl border border-border bg-secondary/30 [&_summary::-webkit-details-marker]:hidden">

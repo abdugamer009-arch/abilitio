@@ -170,7 +170,7 @@ async function loadStudentsForSchool(school: SchoolDTO): Promise<{
   if (!studentIds.length) return { classes: (classes ?? []) as ClassDTO[], students: [] };
   const [{ data: profiles }, { data: results }] = await Promise.all([
     supabaseAdmin.from("profiles").select("id, name, surname").in("id", studentIds),
-    supabaseAdmin.from("assessment_results").select("user_id, careers, mbti_type, iq_score, top_strengths, created_at").in("user_id", studentIds),
+    supabaseAdmin.from("career_assessment_results").select("user_id, career_matches, personality_type, cognitive_score, strengths, created_at").in("user_id", studentIds),
   ]);
   const profMap = new Map<string, any>((profiles ?? []).map((p: any) => [p.id, p]));
   const latestResult = new Map<string, any>();
@@ -181,7 +181,7 @@ async function loadStudentsForSchool(school: SchoolDTO): Promise<{
   const students: StudentRow[] = (members ?? []).map((m: any) => {
     const p = profMap.get(m.user_id);
     const r = latestResult.get(m.user_id);
-    const topCareer = r?.careers?.[0]?.name ?? null;
+    const topCareer = r?.career_matches?.[0]?.name ?? null;
     const klass = m.class_id ? classMap.get(m.class_id) : null;
     return {
       user_id: m.user_id,
@@ -191,9 +191,9 @@ async function loadStudentsForSchool(school: SchoolDTO): Promise<{
       class_name: klass?.name ?? null,
       top_career: topCareer,
       bucket: topCareer ? bucketOf(topCareer) : null,
-      mbti: r?.mbti_type ?? null,
-      iq: r?.iq_score ?? null,
-      strengths: Array.isArray(r?.top_strengths) ? r.top_strengths : [],
+      mbti: r?.personality_type ?? null,
+      iq: r?.cognitive_score != null ? Math.round(70 + r.cognitive_score * 8) : null,
+      strengths: Array.isArray(r?.strengths) ? r.strengths : [],
     };
   });
   return { classes: (classes ?? []) as ClassDTO[], students };

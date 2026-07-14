@@ -117,15 +117,80 @@ export const UNIVERSITIES: University[] = [
 /** How a student's SAT / IELTS compare to a university's minimums. */
 export type Eligibility = "eligible" | "close" | "below" | "unknown";
 
+// Shared "close enough" margins so every surface agrees on eligibility.
+export const SAT_CLOSE_MARGIN = 100;
+export const IELTS_CLOSE_MARGIN = 0.5;
+
 export function checkEligibility(u: University, sat: number | null, ielts: number | null): Eligibility {
   if (sat == null && ielts == null) return "unknown";
-  const satOk = sat == null || sat >= u.minSat;
-  const ieltsOk = ielts == null || ielts >= u.minIelts;
-  if (satOk && ieltsOk) return "eligible";
-  const satClose = sat == null || sat >= u.minSat - 100;
-  const ieltsClose = ielts == null || ielts >= u.minIelts - 0.5;
-  if (satClose && ieltsClose) return "close";
-  return "below";
+  // Any known score that misses even the "close" margin → below.
+  if (sat != null && sat < u.minSat - SAT_CLOSE_MARGIN) return "below";
+  if (ielts != null && ielts < u.minIelts - IELTS_CLOSE_MARGIN) return "below";
+  // "Eligible" is only claimed when BOTH requirements are known and cleared;
+  // a single missing score leaves the fit unverified ("close" at best).
+  const bothKnown = sat != null && ielts != null;
+  const satMeets = sat != null && sat >= u.minSat;
+  const ieltsMeets = ielts != null && ielts >= u.minIelts;
+  if (bothKnown && satMeets && ieltsMeets) return "eligible";
+  return "close";
+}
+
+// University free-text major tags don't always equal a major's canonical
+// name. Map the mismatched / broader tags onto a major's short name so every
+// major finds its universities, while a broad tag never bleeds into a more
+// specific major (e.g. "Medicine" must not surface under "Veterinary Medicine").
+const MAJOR_TAG_ALIASES: Record<string, string> = {
+  "business": "business administration",
+  "management": "business administration",
+  "hospitality management": "hospitality",
+  "fashion design": "fashion",
+  "human resources": "human resource management",
+  "communication": "media production",
+  "life sciences": "biology",
+  "natural sciences": "biology",
+  "forestry": "agronomy",
+  "international affairs": "international relations",
+};
+
+function canonicalMajorTag(tag: string): string {
+  const t = tag.trim().toLowerCase();
+  return MAJOR_TAG_ALIASES[t] ?? t;
+}
+
+// A major name's canonical "short" form: drop any "& …" / "/ …" suffix.
+function majorShortName(name: string): string {
+  return name.split(/ [&/] /)[0].trim().toLowerCase();
+}
+
+/**
+ * Universities offering `majorName`, ranked for this student. Uses exact
+ * canonical matching (no fuzzy substring), then orders by how relevant each
+ * school is to the student's scores: schools they qualify for first (most
+ * selective among those), then within-reach, then below — so a strong
+ * student sees top schools, not only the easiest ones.
+ */
+export function universitiesForMajor(
+  majorName: string,
+  sat: number | null,
+  ielts: number | null,
+  limit = 5,
+): University[] {
+  const target = majorShortName(majorName);
+  const tierRank: Record<Eligibility, number> = { eligible: 0, close: 1, unknown: 1, below: 2 };
+  return UNIVERSITIES
+    .filter((u) => u.majors.some((m) => canonicalMajorTag(m) === target))
+    .map((u) => ({ u, elig: checkEligibility(u, sat, ielts) }))
+    .sort((a, b) => {
+      const t = tierRank[a.elig] - tierRank[b.elig];
+      if (t !== 0) return t;
+      // Within a tier: qualifying/unknown → most selective (notable) first;
+      // close/below → nearest-to-reachable (lowest bar) first.
+      return a.elig === "below" || a.elig === "close"
+        ? a.u.minSat - b.u.minSat
+        : a.u.acceptance - b.u.acceptance;
+    })
+    .slice(0, limit)
+    .map((x) => x.u);
 }
 
 export const COUNTRIES = Array.from(new Set(UNIVERSITIES.map((u) => u.country))).sort();

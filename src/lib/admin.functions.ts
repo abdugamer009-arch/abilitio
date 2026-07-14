@@ -44,7 +44,7 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
 
     const [profiles, results, adminRoles, communities, messages] = await Promise.all([
       supabase.from("profiles").select("id, created_at, updated_at"),
-      supabase.from("assessment_results").select("id, user_id, mbti_type, careers, created_at"),
+      supabase.from("career_assessment_results").select("id, user_id, personality_type, career_matches, created_at"),
       supabase.from("user_roles").select("user_id").eq("role", "admin"),
       supabase.from("communities").select("id, name"),
       supabase.from("community_messages").select("community_id, user_id, created_at"),
@@ -52,7 +52,7 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
 
     const adminIds = new Set<string>((adminRoles.data ?? []).map((r) => (r as { user_id: string }).user_id));
     const allProfiles = (profiles.data ?? []).filter((p) => !adminIds.has((p as { id: string }).id)) as { id: string; created_at: string; updated_at: string }[];
-    const allResults = (results.data ?? []).filter((r) => !adminIds.has((r as { user_id: string }).user_id)) as { user_id: string; mbti_type: string | null; careers: unknown; created_at: string }[];
+    const allResults = (results.data ?? []).filter((r) => !adminIds.has((r as { user_id: string }).user_id)) as { user_id: string; personality_type: string | null; career_matches: unknown; created_at: string }[];
     const allMessages = (messages.data ?? []).filter((m) => !adminIds.has((m as { user_id: string }).user_id)) as { community_id: string; user_id: string; created_at: string }[];
 
     const newUsersThisWeek = allProfiles.filter((p) => p.created_at >= weekAgo).length;
@@ -81,8 +81,8 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
     const mbtiCount = new Map<string, number>();
     const careerCount = new Map<string, number>();
     for (const r of allResults) {
-      if (r.mbti_type) mbtiCount.set(r.mbti_type, (mbtiCount.get(r.mbti_type) || 0) + 1);
-      const careers = (r.careers as { name?: string }[]) || [];
+      if (r.personality_type) mbtiCount.set(r.personality_type, (mbtiCount.get(r.personality_type) || 0) + 1);
+      const careers = (r.career_matches as { name?: string }[]) || [];
       const top = careers[0];
       if (top?.name) careerCount.set(top.name, (careerCount.get(top.name) || 0) + 1);
     }
@@ -134,7 +134,7 @@ export const getAdminUsers = createServerFn({ method: "GET" })
 
     const [profiles, results, authRes] = await Promise.all([
       supabase.from("profiles").select("id, name, surname, age_group, is_banned, created_at"),
-      supabase.from("assessment_results").select("user_id"),
+      supabase.from("career_assessment_results").select("user_id"),
       supabaseAdmin.auth.admin.listUsers({ perPage: ADMIN_USER_PAGE_SIZE }),
     ]);
 

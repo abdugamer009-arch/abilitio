@@ -11,7 +11,7 @@ export const getMyGrowthState = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<GrowthState> => {
     const { supabase, userId } = context;
     const assessRes = await supabase
-      .from("assessment_results")
+      .from("career_assessment_results")
       .select("id", { count: "exact", head: true })
       .eq("user_id", userId);
     return {

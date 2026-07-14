@@ -44,16 +44,16 @@ function UniversitiesPage() {
   const filtered = useMemo(() => {
     const satN = sat === "" ? null : Number(sat);
     const ieltsN = ielts === "" ? null : Number(ielts);
+    // Fit derives from the same eligibility check the badge uses, so the
+    // number and the chip on a card can never contradict each other.
+    const fitRank = { eligible: 100, close: 60, below: 20, unknown: 50 } as const;
     return UNIVERSITIES.filter((u) => {
       if (country && u.country !== country) return false;
       if (major && !u.majors.includes(major)) return false;
       return true;
     }).map((u) => {
-      const satOK = satN == null || satN >= u.minSat - 100;
-      const ieltsOK = ieltsN == null || ieltsN >= u.minIelts - 1;
-      const fit = (satOK ? 50 : 0) + (ieltsOK ? 50 : 0);
       const elig = checkEligibility(u, satN, ieltsN);
-      return { u, fit, elig };
+      return { u, fit: fitRank[elig], elig };
     }).sort((a, b) => b.fit - a.fit || a.u.minSat - b.u.minSat);
   }, [sat, ielts, country, major]);
 
@@ -159,7 +159,7 @@ function UniCard({ u, fit, major, elig }: { u: University; fit: number; major: s
         <Stat label="Min SAT" value={u.minSat.toString()} />
         <Stat label="Min IELTS" value={u.minIelts.toString()} />
         <Stat label="Acceptance" value={`${u.acceptance}%`} />
-        <Stat label="Fit" value={`${fit}%`} highlight />
+        <Stat label="Fit" value={elig === "unknown" ? "—" : `${fit}%`} highlight />
       </div>
 
       <div className="relative mt-4">
