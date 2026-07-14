@@ -259,6 +259,13 @@ function CareerResultsPage() {
                     <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary shadow-[0_0_8px_-2px_oklch(0.65_0.22_295_/_0.3)]"><CountUp value={m.score} suffix="%" /></span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">{m.category}</p>
+                  {m.major && (
+                    <p className="mt-2 flex items-center gap-1.5 text-xs">
+                      <GraduationCap className="h-3.5 w-3.5 shrink-0 text-accent" />
+                      <span className="text-muted-foreground">{t.careerResults.studyMajor}:</span>
+                      <span className="font-medium text-foreground">{m.major}</span>
+                    </p>
+                  )}
                   <div className="mt-2 h-1.5 rounded-full bg-secondary/60"><div className="h-full rounded-full bg-gradient-to-r from-primary to-accent" style={{ width: `${m.score}%`, boxShadow: "0 0 8px oklch(0.65 0.22 295 / 0.4)" }} /></div>
                 </div>
               ))}

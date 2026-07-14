@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   scorePersonality, scoreCognitive, scoreInterests, matchCareers, matchMajors,
-  deriveStrengths, deriveImprovements, RECOMMENDED_SKILLS_BY_PROFILE,
+  attachMajorsToCareers, deriveStrengths, deriveImprovements, RECOMMENDED_SKILLS_BY_PROFILE,
   type Career, type Major,
 } from "./career-engine";
 import { PERSONALITY_BANK, getIQCorrect } from "./question-bank";
@@ -19,7 +19,7 @@ export type CareerResultDTO = {
   cognitive_tier: string | null;
   cognitive_profile: string | null;
   interests: { key: string; weight: number }[];
-  career_matches: { key: string; name: string; category: string; score: number }[];
+  career_matches: { key: string; name: string; category: string; score: number; major?: string | null }[];
   university_matches: { key: string; name: string; category: string; score: number }[];
   strengths: string[];
   improvements: string[];
@@ -61,8 +61,13 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
     const careerList = (careers ?? []) as unknown as Career[];
     const majorList = (majors ?? []) as unknown as Major[];
 
-    const careerMatches = matchCareers(careerList, personality, cognitive, interests).slice(0, 15);
-    const universityMatches = matchMajors(majorList, personality, cognitive, interests).slice(0, 10);
+    const allMajorScores = matchMajors(majorList, personality, cognitive, interests);
+    const careerMatches = attachMajorsToCareers(
+      matchCareers(careerList, personality, cognitive, interests).slice(0, 15),
+      majorList,
+      allMajorScores,
+    );
+    const universityMatches = allMajorScores.slice(0, 10);
     const strengths = deriveStrengths(personality, cognitive);
     const improvements = deriveImprovements(personality, cognitive);
     const recommendedSkills = RECOMMENDED_SKILLS_BY_PROFILE[cognitive.profile] ?? [];

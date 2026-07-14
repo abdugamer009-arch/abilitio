@@ -163,6 +163,29 @@ export function matchCareers(
     .sort((a, b) => b.score - a.score);
 }
 
+/**
+ * For each career match, pick the best major to study: among majors whose
+ * related_career_keys include the career, choose the one the user scores
+ * highest on (so the recommendation is personalized, not just a static link).
+ */
+export function attachMajorsToCareers(
+  careerMatches: Match[],
+  majors: Major[],
+  majorScores: Match[],
+): (Match & { major: string | null })[] {
+  const scoreByKey = new Map(majorScores.map((m) => [m.key, m.score]));
+  return careerMatches.map((c) => {
+    let best: Major | null = null;
+    let bestScore = -1;
+    for (const m of majors) {
+      if (!m.related_career_keys?.includes(c.key)) continue;
+      const s = scoreByKey.get(m.key) ?? 0;
+      if (s > bestScore) { best = m; bestScore = s; }
+    }
+    return { ...c, major: best?.name ?? null };
+  });
+}
+
 export function matchMajors(
   majors: Major[],
   personality: PersonalityScore,
