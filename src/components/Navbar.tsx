@@ -52,7 +52,11 @@ export function Navbar() {
 
           {/* Right cluster */}
           <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
-            <LanguageSwitcher />
+            {/* Inline switcher only where there's room; on mobile it lives in
+                the hamburger menu, so it no longer crowds the brand/toggles. */}
+            <div className="hidden md:block">
+              <LanguageSwitcher />
+            </div>
             <span className="hidden md:block h-5 w-px bg-border/70" aria-hidden />
             <ThemeToggle />
 
