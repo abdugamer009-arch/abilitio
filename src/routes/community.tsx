@@ -8,7 +8,7 @@ import {
   deleteCommunityMessage, togglePinMessage, getCommunityDailyQuestion,
   setCommunityDailyQuestion, fetchMessageAuthors,
   type CommunityDTO, type CommunityMessageDTO, type AuthorDTO,
-} from "@/lib/community.functions";
+} from "@/lib/community/community.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveAvatarUrl } from "@/components/ProfilePhotoCard";
 import { AdminBadge } from "@/components/AdminBadge";

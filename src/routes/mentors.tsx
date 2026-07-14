@@ -3,7 +3,7 @@ import { Sparkles, Briefcase, Star, Calendar } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { GlowBlob } from "@/components/GlowBlob";
-import { MENTORS } from "@/lib/abbi-extras";
+import { MENTORS } from "@/lib/abbi/abbi-extras";
 
 export const Route = createFileRoute("/mentors")({
   head: () => ({ meta: [

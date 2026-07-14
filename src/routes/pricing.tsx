@@ -3,7 +3,7 @@ import { PageShell } from "@/components/PageShell";
 import { Check, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { createCheckoutSession } from "@/lib/stripe.functions";
+import { createCheckoutSession } from "@/lib/payments/stripe.functions";
 import { Reveal } from "@/components/Reveal";
 import { GlowBlob } from "@/components/GlowBlob";
 import { useT } from "@/lib/i18n";

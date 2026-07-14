@@ -9,8 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   ABBI_SUGGESTIONS,
   abbiGreeting,
-} from "@/lib/abbi-knowledge";
-import { generateAbbiMessage } from "@/lib/abbi.functions";
+} from "@/lib/abbi/abbi-knowledge";
+import { generateAbbiMessage } from "@/lib/abbi/abbi.functions";
 
 type ChatMsg = { id: string; role: "user" | "abbi"; content: string };
 

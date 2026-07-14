@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useServerFn } from "@tanstack/react-start";
-import { getPrincipalDashboard, type PrincipalDashboardDTO } from "@/lib/schools.functions";
+import { getPrincipalDashboard, type PrincipalDashboardDTO } from "@/lib/schools/schools.functions";
 import { Printer } from "lucide-react";
 
 export const Route = createFileRoute("/school/report")({

@@ -3,7 +3,7 @@ import { PageShell } from "@/components/PageShell";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useServerFn } from "@tanstack/react-start";
-import { joinSchool } from "@/lib/schools.functions";
+import { joinSchool } from "@/lib/schools/schools.functions";
 import { Loader2, Users } from "lucide-react";
 
 export const Route = createFileRoute("/school/join")({

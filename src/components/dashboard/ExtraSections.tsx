@@ -7,8 +7,8 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
 import { Sparkles, TrendingUp, GraduationCap, Users, Swords, Trophy, BookOpen, ChevronRight } from "lucide-react";
-import { getMyGrowthState } from "@/lib/growth.functions";
-import { deriveSkillSnapshots, deriveWeeklyReport, type SkillSnapshot } from "@/lib/abbi-extras";
+import { getMyGrowthState } from "@/lib/assessment/growth.functions";
+import { deriveSkillSnapshots, deriveWeeklyReport, type SkillSnapshot } from "@/lib/abbi/abbi-extras";
 
 type StatsLite = {
   leadership_level?: number; communication_score?: number; creativity_score?: number;

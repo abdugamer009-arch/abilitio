@@ -11,7 +11,7 @@ import { useAuth } from "@/lib/auth-context";
 import {
   checkIsAdmin, getAdminAnalytics, getAdminUsers, adminSetBan,
   type AdminAnalytics, type AdminUserRow,
-} from "@/lib/admin.functions";
+} from "@/lib/admin/admin.functions";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin Dashboard — Abilitio" }, { name: "robots", content: "noindex, follow" }] }),

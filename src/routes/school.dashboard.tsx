@@ -6,7 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   getPrincipalDashboard, generateSpecializedClasses, listSpecializedClasses,
   type PrincipalDashboardDTO, type SpecializedClassDTO,
-} from "@/lib/schools.functions";
+} from "@/lib/schools/schools.functions";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,

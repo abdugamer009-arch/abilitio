@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { generateAbbiReply, type AbbiContext } from "./abbi-knowledge";
-import { ABBI_DAILY_AI_LIMIT } from "./constants";
+import { ABBI_DAILY_AI_LIMIT } from "../constants";
 
 /** True if the user is still under today's AI-reply cap. Fails open on error
  *  (a monitoring/DB hiccup should degrade to "allowed", not block the chat). */

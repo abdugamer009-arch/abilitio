@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { scorePersonality, scoreCognitive, scoreInterests, matchCareers } from "../career-engine";
-import type { PersonalityQ } from "../career-assessment";
-import type { Career } from "../career-engine";
+import { scorePersonality, scoreCognitive, scoreInterests, matchCareers } from "../assessment/career-engine";
+import type { PersonalityQ } from "../assessment/career-assessment";
+import type { Career } from "../assessment/career-engine";
 
 const PERSONALITY_QS: PersonalityQ[] = [
   { id: "p1",  section: "personality", prompt: "", axis: "EI", direction:  1 },

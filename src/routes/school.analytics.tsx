@@ -3,7 +3,7 @@ import { PageShell } from "@/components/PageShell";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth-context";
-import { getSchoolCareerOverview, type SchoolCareerOverviewDTO } from "@/lib/career.functions";
+import { getSchoolCareerOverview, type SchoolCareerOverviewDTO } from "@/lib/assessment/career.functions";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,

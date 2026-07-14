@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { PERSONALITY_BANK, IQ_BANK, INTEREST_BANK, pickSessionQuestions, getIQCorrect } from "../question-bank";
+import { PERSONALITY_BANK, IQ_BANK, INTEREST_BANK, pickSessionQuestions, getIQCorrect } from "../assessment/question-bank";
 
 describe("question banks", () => {
   it("has at least 200 personality questions", () => {

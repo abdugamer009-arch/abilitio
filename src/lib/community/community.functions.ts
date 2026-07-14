@@ -4,7 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Database } from "@/integrations/supabase/types";
-import { communitySlugForCareer } from "./career-engine";
+import { communitySlugForCareer } from "../assessment/career-engine";
 
 export type CommunityDTO = {
   id: string;

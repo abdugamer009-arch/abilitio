@@ -4,12 +4,12 @@ import { GlowBlob } from "@/components/GlowBlob";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth-context";
-import { submitCareerAssessment } from "@/lib/career.functions";
-import { pickSessionQuestions, type SessionQuestions } from "@/lib/question-bank";
-import type { PersonalityQ, CognitiveQ, InterestQ } from "@/lib/career-assessment";
+import { submitCareerAssessment } from "@/lib/assessment/career.functions";
+import { pickSessionQuestions, type SessionQuestions } from "@/lib/assessment/question-bank";
+import type { PersonalityQ, CognitiveQ, InterestQ } from "@/lib/assessment/career-assessment";
 import { ArrowLeft, ArrowRight, Brain, Sparkles, Loader2, Target, Shuffle } from "lucide-react";
 import { useT, useI18n } from "@/lib/i18n";
-import { QUESTION_TRANSLATIONS } from "@/lib/question-translations";
+import { QUESTION_TRANSLATIONS } from "@/lib/assessment/question-translations";
 import { track, AnalyticsEvent } from "@/lib/analytics";
 
 function tPrompt(id: string, original: string, lang: string): string {

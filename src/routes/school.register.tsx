@@ -3,7 +3,7 @@ import { PageShell } from "@/components/PageShell";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useServerFn } from "@tanstack/react-start";
-import { registerSchool, type SchoolDTO } from "@/lib/schools.functions";
+import { registerSchool, type SchoolDTO } from "@/lib/schools/schools.functions";
 import { Copy, Check, GraduationCap, Loader2 } from "lucide-react";
 import { track, AnalyticsEvent } from "@/lib/analytics";
 

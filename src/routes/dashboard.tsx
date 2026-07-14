@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
-import { MBTI_DESCRIPTIONS } from "@/lib/mbti-descriptions";
+import { MBTI_DESCRIPTIONS } from "@/lib/assessment/mbti-descriptions";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";

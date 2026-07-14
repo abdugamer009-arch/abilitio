@@ -4,7 +4,7 @@ import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { FloatingShapes } from "@/components/FloatingShapes";
 import { GlowBlob } from "@/components/GlowBlob";
-import { SUCCESS_STORIES } from "@/lib/abbi-extras";
+import { SUCCESS_STORIES } from "@/lib/abbi/abbi-extras";
 
 export const Route = createFileRoute("/success-stories")({
   head: () => ({ meta: [

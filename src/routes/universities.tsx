@@ -5,7 +5,7 @@ import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { GlowBlob } from "@/components/GlowBlob";
 import { FloatingShapes } from "@/components/FloatingShapes";
-import { UNIVERSITIES, COUNTRIES, MAJORS, checkEligibility, type University, type Eligibility } from "@/lib/abbi-extras";
+import { UNIVERSITIES, COUNTRIES, MAJORS, checkEligibility, type University, type Eligibility } from "@/lib/abbi/abbi-extras";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 

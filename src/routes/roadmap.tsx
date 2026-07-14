@@ -8,7 +8,7 @@ import {
   Sparkles, CheckCircle2, Clock, Zap, Star, Trophy,
   ChevronRight, Compass, Map as MapIcon, GraduationCap,
 } from "lucide-react";
-import { buildRoadmap, pickTrack, TRACK_LABEL, type RoadmapPhase, type RoadmapTrack } from "@/lib/roadmap-world";
+import { buildRoadmap, pickTrack, TRACK_LABEL, type RoadmapPhase, type RoadmapTrack } from "@/lib/roadmap/roadmap-world";
 
 export const Route = createFileRoute("/roadmap")({
   head: () => ({

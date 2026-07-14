@@ -3,7 +3,7 @@ import { PageShell } from "@/components/PageShell";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth-context";
-import { buildSpecializedClass } from "@/lib/career.functions";
+import { buildSpecializedClass } from "@/lib/assessment/career.functions";
 import { Wand2, Loader2, Check } from "lucide-react";
 
 export const Route = createFileRoute("/school/class-builder")({

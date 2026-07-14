@@ -4,7 +4,7 @@ import { Sparkles, Swords, DollarSign, GraduationCap, TrendingUp, User as UserIc
 import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { FloatingShapes } from "@/components/FloatingShapes";
-import { CAREER_SPECS, CAREER_BATTLES, type CareerSpec } from "@/lib/abbi-extras";
+import { CAREER_SPECS, CAREER_BATTLES, type CareerSpec } from "@/lib/abbi/abbi-extras";
 
 export const Route = createFileRoute("/career-battles")({
   head: () => ({ meta: [
