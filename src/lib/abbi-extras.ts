@@ -33,8 +33,100 @@ export const UNIVERSITIES: University[] = [
   { name: "Bocconi University", country: "Italy", city: "Milan", minSat: 1300, minIelts: 6.5, majors: ["Business","Economics","Finance","Management"], competitiveness: "Match", scholarship: "Bocconi Merit Award", acceptance: 50 },
   { name: "Westminster International University in Tashkent", country: "Uzbekistan", city: "Tashkent", minSat: 1100, minIelts: 5.5, majors: ["Business","Economics","Law","Computer Science"], competitiveness: "Safety", scholarship: "Rector's Scholarship", acceptance: 80 },
   { name: "Inha University in Tashkent", country: "Uzbekistan", city: "Tashkent", minSat: 1050, minIelts: 5.5, majors: ["Computer Science","Logistics","Business"], competitiveness: "Safety", scholarship: "Academic Excellence", acceptance: 85 },
-  { name: "Webster University Tashkent", country: "Uzbekistan", city: "Tashkent", minSat: 1050, minIelts: 5.5, majors: ["Business","Media","Psychology"], competitiveness: "Safety", scholarship: "Webster Global", acceptance: 85 },
+  { name: "Webster University Tashkent", country: "Uzbekistan", city: "Tashkent", minSat: 1050, minIelts: 5.5, majors: ["Business","Media Production","Psychology"], competitiveness: "Safety", scholarship: "Webster Global", acceptance: 85 },
+
+  // ---- United States ----
+  { name: "UC Berkeley", country: "USA", city: "Berkeley", minSat: 1440, minIelts: 7.0, majors: ["Computer Science","Data Science","Business","Statistics","Political Science"], competitiveness: "Reach", scholarship: "Regents' Scholarship", acceptance: 11 },
+  { name: "Georgia Tech", country: "USA", city: "Atlanta", minSat: 1400, minIelts: 6.5, majors: ["Computer Science","Artificial Intelligence","Mechanical Engineering","Electrical Engineering","Applied Engineering"], competitiveness: "Reach", scholarship: "Stamps President's Scholars", acceptance: 16 },
+  { name: "Purdue University", country: "USA", city: "West Lafayette", minSat: 1300, minIelts: 6.5, majors: ["Aviation","Mechanical Engineering","Agronomy","Computer Science"], competitiveness: "Match", scholarship: "Trustees Scholarship", acceptance: 50 },
+  { name: "New York University", country: "USA", city: "New York", minSat: 1400, minIelts: 7.0, majors: ["Business","Film","Performing Arts","Economics"], competitiveness: "Reach", scholarship: "AnBryce Scholarship", acceptance: 12 },
+  { name: "University of Michigan", country: "USA", city: "Ann Arbor", minSat: 1400, minIelts: 7.0, majors: ["Business","Medicine","Mechanical Engineering","Public Administration"], competitiveness: "Reach", scholarship: "Merit-based aid", acceptance: 18 },
+  { name: "Penn State University", country: "USA", city: "State College", minSat: 1250, minIelts: 6.5, majors: ["Hospitality Management","Agronomy","Criminology","Engineering"], competitiveness: "Match", scholarship: "Provost Award", acceptance: 55 },
+  { name: "Arizona State University", country: "USA", city: "Tempe", minSat: 1150, minIelts: 6.0, majors: ["Business","Journalism","Criminology","Nursing"], competitiveness: "Safety", scholarship: "New American University", acceptance: 88 },
+  { name: "Embry-Riddle Aeronautical University", country: "USA", city: "Daytona Beach", minSat: 1200, minIelts: 6.0, majors: ["Aviation","Applied Engineering","Logistics"], competitiveness: "Match", scholarship: "Eagle Scholarship", acceptance: 61 },
+  { name: "Culinary Institute of America", country: "USA", city: "Hyde Park", minSat: 1000, minIelts: 6.0, majors: ["Culinary Arts","Hospitality Management","Business"], competitiveness: "Match", scholarship: "CIA Grants", acceptance: 95 },
+  { name: "The Juilliard School", country: "USA", city: "New York", minSat: 1100, minIelts: 7.0, majors: ["Music","Performing Arts"], competitiveness: "Reach", scholarship: "Kovner Fellowship", acceptance: 7 },
+  { name: "Johns Hopkins University", country: "USA", city: "Baltimore", minSat: 1500, minIelts: 7.0, majors: ["Medicine","Nursing","Biomedical Engineering","Biology"], competitiveness: "Reach", scholarship: "Need-based full aid", acceptance: 7 },
+  { name: "Babson College", country: "USA", city: "Wellesley", minSat: 1300, minIelts: 6.5, majors: ["Entrepreneurship","Business","Finance"], competitiveness: "Match", scholarship: "Weissman Scholarship", acceptance: 22 },
+
+  // ---- United Kingdom ----
+  { name: "London School of Economics", country: "UK", city: "London", minSat: 1450, minIelts: 7.0, majors: ["Economics","Political Science","Sociology","Finance","Statistics"], competitiveness: "Reach", scholarship: "LSE Undergraduate Support", acceptance: 9 },
+  { name: "University College London", country: "UK", city: "London", minSat: 1400, minIelts: 7.0, majors: ["Law","Architecture","Medicine","Psychology","Linguistics"], competitiveness: "Reach", scholarship: "UCL Global Scholarship", acceptance: 30 },
+  { name: "University of Edinburgh", country: "UK", city: "Edinburgh", minSat: 1350, minIelts: 6.5, majors: ["Veterinary Medicine","Linguistics","History","Medicine"], competitiveness: "Match", scholarship: "Edinburgh Global", acceptance: 40 },
+  { name: "King's College London", country: "UK", city: "London", minSat: 1350, minIelts: 7.0, majors: ["Law","Nursing","Dentistry","International Relations"], competitiveness: "Match", scholarship: "King's International", acceptance: 35 },
+  { name: "University of Manchester", country: "UK", city: "Manchester", minSat: 1300, minIelts: 6.5, majors: ["Engineering","Business","Data Science","Chemistry"], competitiveness: "Match", scholarship: "Global Futures Scholarship", acceptance: 56 },
+  { name: "University of the Arts London", country: "UK", city: "London", minSat: 1100, minIelts: 6.5, majors: ["Fashion Design","Design","Media Production","Performing Arts"], competitiveness: "Match", scholarship: "UAL International", acceptance: 42 },
+  { name: "Royal Agricultural University", country: "UK", city: "Cirencester", minSat: 1050, minIelts: 6.0, majors: ["Agronomy","Business","Environmental Science"], competitiveness: "Safety", scholarship: "RAU Bursaries", acceptance: 75 },
+
+  // ---- Canada ----
+  { name: "McGill University", country: "Canada", city: "Montreal", minSat: 1350, minIelts: 6.5, majors: ["Medicine","Law","Music","Psychology"], competitiveness: "Match", scholarship: "Major Entrance Scholarship", acceptance: 46 },
+  { name: "University of Waterloo", country: "Canada", city: "Waterloo", minSat: 1350, minIelts: 6.5, majors: ["Computer Science","Software Engineering","Mathematics","Statistics"], competitiveness: "Match", scholarship: "President's Scholarship", acceptance: 53 },
+  { name: "University of Guelph", country: "Canada", city: "Guelph", minSat: 1150, minIelts: 6.5, majors: ["Veterinary Medicine","Agronomy","Hospitality Management"], competitiveness: "Safety", scholarship: "International Entrance", acceptance: 66 },
+
+  // ---- Europe ----
+  { name: "TU Delft", country: "Netherlands", city: "Delft", minSat: 1350, minIelts: 6.5, majors: ["Civil Engineering","Architecture","Aviation","Applied Engineering"], competitiveness: "Match", scholarship: "Justus & Louise van Effen", acceptance: 65 },
+  { name: "Wageningen University", country: "Netherlands", city: "Wageningen", minSat: 1200, minIelts: 6.5, majors: ["Agronomy","Environmental Science","Biology"], competitiveness: "Match", scholarship: "Anne van den Ban Fund", acceptance: 70 },
+  { name: "KU Leuven", country: "Belgium", city: "Leuven", minSat: 1250, minIelts: 6.5, majors: ["Medicine","Law","Statistics","Biomedical Engineering"], competitiveness: "Match", scholarship: "Science@Leuven", acceptance: 72 },
+  { name: "Karolinska Institute", country: "Sweden", city: "Stockholm", minSat: 1350, minIelts: 6.5, majors: ["Medicine","Nursing","Allied Health","Biology"], competitiveness: "Reach", scholarship: "KI Scholarships", acceptance: 25 },
+  { name: "Technical University of Denmark", country: "Denmark", city: "Copenhagen", minSat: 1300, minIelts: 6.5, majors: ["Electrical Engineering","Environmental Science","Applied Engineering"], competitiveness: "Match", scholarship: "DTU Scholarships", acceptance: 60 },
+  { name: "Politecnico di Milano", country: "Italy", city: "Milan", minSat: 1250, minIelts: 6.0, majors: ["Architecture","Design","Civil Engineering","Fashion Design"], competitiveness: "Match", scholarship: "Merit-based fee waiver", acceptance: 58 },
+  { name: "University of Vienna", country: "Austria", city: "Vienna", minSat: 1200, minIelts: 6.5, majors: ["Psychology","History","Linguistics","Political Science"], competitiveness: "Match", scholarship: "Ernst Mach Grant", acceptance: 70 },
+  { name: "Charles University", country: "Czech Republic", city: "Prague", minSat: 1150, minIelts: 6.0, majors: ["Medicine","History","Sociology","Pharmacy"], competitiveness: "Safety", scholarship: "Government Scholarship", acceptance: 72 },
+  { name: "Warsaw University of Technology", country: "Poland", city: "Warsaw", minSat: 1100, minIelts: 6.0, majors: ["Applied Engineering","Computer Science","Logistics"], competitiveness: "Safety", scholarship: "Ignacy Łukasiewicz", acceptance: 78 },
+  { name: "EHL Hospitality Business School", country: "Switzerland", city: "Lausanne", minSat: 1200, minIelts: 6.5, majors: ["Hospitality Management","Business","Entrepreneurship"], competitiveness: "Match", scholarship: "EHL Excellence", acceptance: 33 },
+  { name: "Les Roches", country: "Switzerland", city: "Crans-Montana", minSat: 1050, minIelts: 5.5, majors: ["Hospitality Management","Culinary Arts","Business"], competitiveness: "Safety", scholarship: "Les Roches Merit", acceptance: 80 },
+  { name: "RWTH Aachen University", country: "Germany", city: "Aachen", minSat: 1250, minIelts: 6.5, majors: ["Mechanical Engineering","Electrical Engineering","Applied Engineering"], competitiveness: "Match", scholarship: "Deutschlandstipendium", acceptance: 55 },
+  { name: "Humboldt University of Berlin", country: "Germany", city: "Berlin", minSat: 1200, minIelts: 6.5, majors: ["History","Linguistics","Law","Sociology"], competitiveness: "Match", scholarship: "DAAD Programs", acceptance: 60 },
+
+  // ---- Asia ----
+  { name: "Tsinghua University", country: "China", city: "Beijing", minSat: 1480, minIelts: 7.0, majors: ["Engineering","Computer Science","Architecture","Public Administration"], competitiveness: "Reach", scholarship: "Chinese Government Scholarship", acceptance: 8 },
+  { name: "Peking University", country: "China", city: "Beijing", minSat: 1470, minIelts: 7.0, majors: ["Economics","Law","Chemistry","International Relations"], competitiveness: "Reach", scholarship: "CSC Scholarship", acceptance: 9 },
+  { name: "University of Hong Kong", country: "Hong Kong", city: "Hong Kong", minSat: 1400, minIelts: 6.5, majors: ["Medicine","Dentistry","Business","Law"], competitiveness: "Reach", scholarship: "HKU Foundation", acceptance: 18 },
+  { name: "Nanyang Technological University", country: "Singapore", city: "Singapore", minSat: 1380, minIelts: 6.5, majors: ["Engineering","Artificial Intelligence","Media Production","Sports Science","Business"], competitiveness: "Reach", scholarship: "NTU Scholarship", acceptance: 25 },
+  { name: "Seoul National University", country: "South Korea", city: "Seoul", minSat: 1400, minIelts: 6.5, majors: ["Medicine","Engineering","Music","Agronomy"], competitiveness: "Reach", scholarship: "SNU Global Scholarship", acceptance: 15 },
+  { name: "Keio University", country: "Japan", city: "Tokyo", minSat: 1300, minIelts: 6.5, majors: ["Economics","Law","Medicine","Media Production"], competitiveness: "Match", scholarship: "Keio iPEARL", acceptance: 35 },
+  { name: "Hong Kong Polytechnic University", country: "Hong Kong", city: "Hong Kong", minSat: 1250, minIelts: 6.0, majors: ["Hospitality Management","Design","Nursing","Allied Health","Logistics"], competitiveness: "Match", scholarship: "PolyU Entry Scholarship", acceptance: 49 },
+  { name: "Universiti Malaya", country: "Malaysia", city: "Kuala Lumpur", minSat: 1200, minIelts: 6.0, majors: ["Medicine","Engineering","Linguistics","Business"], competitiveness: "Safety", scholarship: "UM Excellence", acceptance: 70 },
+
+  // ---- Turkiye & Central Asia ----
+  { name: "Koç University", country: "Turkiye", city: "Istanbul", minSat: 1300, minIelts: 6.5, majors: ["Business","Medicine","Law","Psychology"], competitiveness: "Match", scholarship: "Merit tuition waivers", acceptance: 40 },
+  { name: "Middle East Technical University", country: "Turkiye", city: "Ankara", minSat: 1250, minIelts: 6.5, majors: ["Engineering","Architecture","Physics","Statistics"], competitiveness: "Match", scholarship: "METU Scholarships", acceptance: 55 },
+  { name: "Nazarbayev University", country: "Kazakhstan", city: "Astana", minSat: 1250, minIelts: 6.5, majors: ["Engineering","Medicine","Public Administration","Computer Science"], competitiveness: "Match", scholarship: "Full state funding", acceptance: 45 },
+  { name: "Al-Farabi Kazakh National University", country: "Kazakhstan", city: "Almaty", minSat: 1050, minIelts: 5.5, majors: ["Law","Journalism","Biology","International Relations"], competitiveness: "Safety", scholarship: "State Grants", acceptance: 82 },
+
+  // ---- Uzbekistan ----
+  { name: "Tashkent University of Information Technologies", country: "Uzbekistan", city: "Tashkent", minSat: 1000, minIelts: 5.5, majors: ["Computer Science","Software Engineering","Artificial Intelligence","Data Science","Applied Engineering"], competitiveness: "Safety", scholarship: "State Grants", acceptance: 85 },
+  { name: "New Uzbekistan University", country: "Uzbekistan", city: "Tashkent", minSat: 1150, minIelts: 6.0, majors: ["Engineering","Computer Science","Economics"], competitiveness: "Safety", scholarship: "Presidential Scholarship", acceptance: 70 },
+  { name: "Tashkent Medical Academy", country: "Uzbekistan", city: "Tashkent", minSat: 1050, minIelts: 5.5, majors: ["Medicine","Nursing","Pharmacy","Dentistry"], competitiveness: "Safety", scholarship: "State Grants", acceptance: 80 },
+  { name: "Tashkent State University of Economics", country: "Uzbekistan", city: "Tashkent", minSat: 1000, minIelts: 5.5, majors: ["Economics","Finance","Logistics","Marketing","Human Resources"], competitiveness: "Safety", scholarship: "State Grants", acceptance: 88 },
+  { name: "Tashkent State Agrarian University", country: "Uzbekistan", city: "Tashkent", minSat: 950, minIelts: 5.0, majors: ["Agronomy","Veterinary Medicine","Environmental Science"], competitiveness: "Safety", scholarship: "State Grants", acceptance: 90 },
+  { name: "Uzbek State University of World Languages", country: "Uzbekistan", city: "Tashkent", minSat: 1000, minIelts: 5.5, majors: ["Linguistics","Education","Journalism","International Relations"], competitiveness: "Safety", scholarship: "State Grants", acceptance: 85 },
+  { name: "Tashkent State Technical University", country: "Uzbekistan", city: "Tashkent", minSat: 1000, minIelts: 5.5, majors: ["Mechanical Engineering","Electrical Engineering","Earth Sciences","Applied Engineering"], competitiveness: "Safety", scholarship: "State Grants", acceptance: 87 },
+  { name: "Turin Polytechnic University in Tashkent", country: "Uzbekistan", city: "Tashkent", minSat: 1050, minIelts: 5.5, majors: ["Mechanical Engineering","Civil Engineering","Applied Engineering"], competitiveness: "Safety", scholarship: "Merit discounts", acceptance: 82 },
+  { name: "Central Asian University", country: "Uzbekistan", city: "Tashkent", minSat: 1050, minIelts: 5.5, majors: ["Medicine","Business","Computer Science","Dentistry"], competitiveness: "Safety", scholarship: "Founders' Scholarship", acceptance: 85 },
+  { name: "TEAM University", country: "Uzbekistan", city: "Tashkent", minSat: 1000, minIelts: 5.5, majors: ["Business","Entrepreneurship","Marketing"], competitiveness: "Safety", scholarship: "Academic Merit", acceptance: 90 },
+
+  // ---- Australia, NZ & others ----
+  { name: "University of Sydney", country: "Australia", city: "Sydney", minSat: 1300, minIelts: 6.5, majors: ["Medicine","Law","Veterinary Medicine","Performing Arts"], competitiveness: "Match", scholarship: "Sydney International", acceptance: 45 },
+  { name: "Monash University", country: "Australia", city: "Melbourne", minSat: 1250, minIelts: 6.5, majors: ["Pharmacy","Business","Engineering","Education","Human Resources"], competitiveness: "Match", scholarship: "Monash International Merit", acceptance: 60 },
+  { name: "University of Otago", country: "New Zealand", city: "Dunedin", minSat: 1150, minIelts: 6.0, majors: ["Dentistry","Medicine","Sports Science","Allied Health","Psychology"], competitiveness: "Safety", scholarship: "Vice-Chancellor's Scholarship", acceptance: 75 },
+  { name: "University of Cape Town", country: "South Africa", city: "Cape Town", minSat: 1200, minIelts: 6.5, majors: ["Medicine","Environmental Science","Film","Sociology"], competitiveness: "Match", scholarship: "UCT Council Scholarship", acceptance: 50 },
+  { name: "Lomonosov Moscow State University", country: "Russia", city: "Moscow", minSat: 1300, minIelts: 6.0, majors: ["Mathematics","Physics","Law","Journalism"], competitiveness: "Match", scholarship: "Government Quota", acceptance: 35 },
 ];
+
+/** How a student's SAT / IELTS compare to a university's minimums. */
+export type Eligibility = "eligible" | "close" | "below" | "unknown";
+
+export function checkEligibility(u: University, sat: number | null, ielts: number | null): Eligibility {
+  if (sat == null && ielts == null) return "unknown";
+  const satOk = sat == null || sat >= u.minSat;
+  const ieltsOk = ielts == null || ielts >= u.minIelts;
+  if (satOk && ieltsOk) return "eligible";
+  const satClose = sat == null || sat >= u.minSat - 100;
+  const ieltsClose = ielts == null || ielts >= u.minIelts - 0.5;
+  if (satClose && ieltsClose) return "close";
+  return "below";
+}
 
 export const COUNTRIES = Array.from(new Set(UNIVERSITIES.map((u) => u.country))).sort();
 export const MAJORS = Array.from(new Set(UNIVERSITIES.flatMap((u) => u.majors))).sort();

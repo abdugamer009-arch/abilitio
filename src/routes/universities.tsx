@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { GraduationCap, MapPin, Award, Sparkles, Search, Filter } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { GlowBlob } from "@/components/GlowBlob";
 import { FloatingShapes } from "@/components/FloatingShapes";
-import { UNIVERSITIES, COUNTRIES, MAJORS, type University } from "@/lib/abbi-extras";
+import { UNIVERSITIES, COUNTRIES, MAJORS, checkEligibility, type University, type Eligibility } from "@/lib/abbi-extras";
+import { useAuth } from "@/lib/auth-context";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/universities")({
   head: () => ({ meta: [
@@ -16,21 +18,42 @@ export const Route = createFileRoute("/universities")({
 });
 
 function UniversitiesPage() {
+  const { user } = useAuth();
   const [sat, setSat] = useState<number | "">("");
   const [ielts, setIelts] = useState<number | "">("");
   const [country, setCountry] = useState<string>("");
   const [major, setMajor] = useState<string>("");
+  const [prefilled, setPrefilled] = useState(false);
+
+  // Prefill from the SAT / IELTS scores saved in the dashboard (once).
+  useEffect(() => {
+    if (!user || prefilled) return;
+    supabase
+      .from("user_stats")
+      .select("sat_score, ielts_band")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setPrefilled(true);
+        if (!data) return;
+        setSat((prev) => (prev === "" && data.sat_score != null ? data.sat_score : prev));
+        setIelts((prev) => (prev === "" && data.ielts_band != null ? data.ielts_band : prev));
+      });
+  }, [user, prefilled]);
 
   const filtered = useMemo(() => {
+    const satN = sat === "" ? null : Number(sat);
+    const ieltsN = ielts === "" ? null : Number(ielts);
     return UNIVERSITIES.filter((u) => {
       if (country && u.country !== country) return false;
       if (major && !u.majors.includes(major)) return false;
       return true;
     }).map((u) => {
-      const satOK = sat === "" || Number(sat) >= u.minSat - 100;
-      const ieltsOK = ielts === "" || Number(ielts) >= u.minIelts - 1;
+      const satOK = satN == null || satN >= u.minSat - 100;
+      const ieltsOK = ieltsN == null || ieltsN >= u.minIelts - 1;
       const fit = (satOK ? 50 : 0) + (ieltsOK ? 50 : 0);
-      return { u, fit };
+      const elig = checkEligibility(u, satN, ieltsN);
+      return { u, fit, elig };
     }).sort((a, b) => b.fit - a.fit || a.u.minSat - b.u.minSat);
   }, [sat, ielts, country, major]);
 
@@ -78,7 +101,7 @@ function UniversitiesPage() {
 
           {/* Results */}
           <Reveal className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.map(({ u, fit }) => <UniCard key={u.name} u={u} fit={fit} major={major} />)}
+            {filtered.map(({ u, fit, elig }) => <UniCard key={u.name} u={u} fit={fit} major={major} elig={elig} />)}
           </Reveal>
           {filtered.length === 0 && (
             <p className="mt-12 text-center text-sm text-muted-foreground">No matches yet. Try widening your filters.</p>
@@ -100,7 +123,7 @@ function FilterField({ label, icon: Icon, children }: { label: string; icon: Rea
   );
 }
 
-function UniCard({ u, fit, major }: { u: University; fit: number; major: string }) {
+function UniCard({ u, fit, major, elig }: { u: University; fit: number; major: string; elig: Eligibility }) {
   const compColor = u.competitiveness === "Reach" ? "from-pink-500/30 to-primary/30 text-primary"
     : u.competitiveness === "Match" ? "from-primary/30 to-accent/30 text-primary"
     : "from-emerald-500/20 to-primary/20 text-emerald-300";
@@ -112,8 +135,19 @@ function UniCard({ u, fit, major }: { u: University; fit: number; major: string 
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_6px_20px_-8px_var(--glow)] transition-transform duration-300 group-hover:scale-105">
           <GraduationCap className="h-5 w-5" />
         </div>
-        <span className={`rounded-full bg-gradient-to-br ${compColor} px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider`}>
-          {u.competitiveness}
+        <span className="flex items-center gap-1.5">
+          {elig !== "unknown" && (
+            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+              elig === "eligible" ? "border-green-500/40 bg-green-500/15 text-green-400" :
+              elig === "close" ? "border-yellow-500/40 bg-yellow-500/15 text-yellow-400" :
+              "border-red-500/40 bg-red-500/15 text-red-400"
+            }`}>
+              {elig === "eligible" ? "✓ Eligible" : elig === "close" ? "Close" : "Below min"}
+            </span>
+          )}
+          <span className={`rounded-full bg-gradient-to-br ${compColor} px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider`}>
+            {u.competitiveness}
+          </span>
         </span>
       </div>
       <h3 className="relative mt-4 text-lg font-semibold leading-tight">{u.name}</h3>

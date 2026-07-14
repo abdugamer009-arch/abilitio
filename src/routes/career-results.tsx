@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth-context";
 import { getMyCareerResult, type CareerResultDTO } from "@/lib/career.functions";
-import { UNIVERSITIES } from "@/lib/abbi-extras";
+import { UNIVERSITIES, checkEligibility, type Eligibility } from "@/lib/abbi-extras";
+import { supabase } from "@/integrations/supabase/client";
 import { Reveal } from "@/components/Reveal";
 import { GlowBlob } from "@/components/GlowBlob";
 import { CountUp } from "@/components/CountUp";
@@ -25,6 +26,7 @@ function CareerResultsPage() {
   const [err, setErr] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [scores, setScores] = useState<{ sat: number | null; ielts: number | null }>({ sat: null, ielts: null });
 
   useEffect(() => {
     if (loading) return;
@@ -33,6 +35,14 @@ function CareerResultsPage() {
       .then(setR)
       .catch((e) => setErr(String(e?.message ?? "")))
       .finally(() => setLoaded(true));
+    supabase
+      .from("user_stats")
+      .select("sat_score, ielts_band")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setScores({ sat: data.sat_score ?? null, ielts: data.ielts_band ?? null });
+      });
   }, [user, loading, navigate, fetchResult]);
 
   if (!user) return null;
@@ -285,7 +295,7 @@ function CareerResultsPage() {
                     maj.toLowerCase() === m.name.toLowerCase() ||
                     m.name.toLowerCase().includes(maj.toLowerCase().split(" ")[0])
                   )
-                ).slice(0, 3);
+                ).sort((a, b) => a.minSat - b.minSat).slice(0, 5);
 
                 return (
                   <details key={m.key} className="group/uni rounded-2xl border border-border bg-secondary/30 [&_summary::-webkit-details-marker]:hidden">
@@ -304,25 +314,39 @@ function CareerResultsPage() {
                     {matchingUnis.length > 0 && (
                       <div className="space-y-2 px-4 pb-4">
                         <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground pt-1">{t.careerResults.universitiesOffering}</div>
-                        {matchingUnis.map((u) => (
+                        {(scores.sat == null && scores.ielts == null) && (
+                          <Link to="/dashboard" className="block rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-[11px] text-primary hover:bg-primary/10 transition-colors">
+                            {t.careerResults.addScoresHint} →
+                          </Link>
+                        )}
+                        {matchingUnis.map((u) => {
+                          const elig = checkEligibility(u, scores.sat, scores.ielts);
+                          return (
                           <div key={u.name} className="rounded-xl border border-border/60 bg-background/40 p-3 text-xs space-y-1">
                             <div className="flex items-center justify-between gap-2">
                               <span className="font-semibold text-foreground">{u.name}</span>
-                              <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                                u.competitiveness === "Reach" ? "bg-red-500/10 text-red-400" :
-                                u.competitiveness === "Match" ? "bg-yellow-500/10 text-yellow-400" :
-                                "bg-green-500/10 text-green-400"
-                              }`}>{u.competitiveness}</span>
+                              <span className="flex shrink-0 items-center gap-1.5">
+                                {elig !== "unknown" && <EligibilityBadge elig={elig} />}
+                                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                                  u.competitiveness === "Reach" ? "bg-red-500/10 text-red-400" :
+                                  u.competitiveness === "Match" ? "bg-yellow-500/10 text-yellow-400" :
+                                  "bg-green-500/10 text-green-400"
+                                }`}>{u.competitiveness}</span>
+                              </span>
                             </div>
                             <div className="text-muted-foreground">{u.city}, {u.country}</div>
                             <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-muted-foreground">
                               <span>{t.careerResults.acceptance}: <span className="text-foreground font-medium">{u.acceptance}%</span></span>
-                              <span>{t.careerResults.minSat}: <span className="text-foreground font-medium">{u.minSat}</span></span>
-                              <span>{t.careerResults.minIelts}: <span className="text-foreground font-medium">{u.minIelts}</span></span>
+                              <span>{t.careerResults.minSat}: <span className={`font-medium ${scores.sat != null ? (scores.sat >= u.minSat ? "text-green-400" : "text-red-400") : "text-foreground"}`}>{u.minSat}</span></span>
+                              <span>{t.careerResults.minIelts}: <span className={`font-medium ${scores.ielts != null ? (scores.ielts >= u.minIelts ? "text-green-400" : "text-red-400") : "text-foreground"}`}>{u.minIelts}</span></span>
                             </div>
                             <div className="text-muted-foreground">{t.careerResults.scholarship}: <span className="text-foreground">{u.scholarship}</span></div>
                           </div>
-                        ))}
+                          );
+                        })}
+                        <Link to="/universities" className="block text-center text-[11px] text-primary hover:underline pt-1">
+                          {t.careerResults.exploreAllUnis} →
+                        </Link>
                       </div>
                     )}
                   </details>
@@ -361,4 +385,14 @@ function Card({ icon, title, children }: { icon: React.ReactNode; title: string;
       <div className="relative mt-3">{children}</div>
     </div>
   );
+}
+
+function EligibilityBadge({ elig }: { elig: Eligibility }) {
+  const t = useT();
+  const cfg = elig === "eligible"
+    ? { label: t.careerResults.youQualify, cls: "bg-green-500/15 text-green-400 border-green-500/30" }
+    : elig === "close"
+    ? { label: t.careerResults.withinReach, cls: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30" }
+    : { label: t.careerResults.belowMin, cls: "bg-red-500/15 text-red-400 border-red-500/30" };
+  return <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${cfg.cls}`}>{cfg.label}</span>;
 }
