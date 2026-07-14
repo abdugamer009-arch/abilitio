@@ -54,7 +54,7 @@ export function FloatingAuthButton() {
     "U";
 
   const baseClass = cn(
-    "group fixed bottom-6 right-6 z-[60] inline-flex h-14 w-14 items-center justify-center rounded-full",
+    "group fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-[calc(1.5rem+env(safe-area-inset-right))] z-[60] inline-flex h-14 w-14 items-center justify-center rounded-full",
     "border border-white/15 bg-gradient-to-br from-primary/40 to-accent/30 backdrop-blur-xl",
     "shadow-[0_10px_40px_-12px_var(--glow)] transition-all duration-300 ease-out",
     "hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_16px_50px_-10px_var(--glow)]",

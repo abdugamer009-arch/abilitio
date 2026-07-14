@@ -23,7 +23,7 @@ export function Navbar() {
 
 
   return (
-    <header className="sticky top-0 z-50 w-full">
+    <header className="sticky top-0 z-50 w-full pt-[env(safe-area-inset-top)]">
       <div className="mx-auto mt-4 max-w-[1500px] px-4 lg:px-6">
         <nav className="glass flex min-h-16 items-center gap-4 rounded-full px-4 sm:px-5 md:px-6 lg:min-h-[68px]">
           <div className="flex min-w-0 flex-1 items-center gap-6 md:gap-12">
