@@ -1,7 +1,7 @@
 // Career matching engine — runs server-side inside the submit fn.
 // Formula: 40% personality fit + 35% cognitive fit + 25% interest fit.
 
-import type { PersonalityQ } from "./career-assessment";
+import { INTEREST_KEYS, RIASEC_DIMS, type PersonalityQ, type RiasecDim } from "./career-assessment";
 
 export type Career = {
   key: string;
@@ -115,14 +115,82 @@ export function scoreCognitive(answers: number[], correctIndexes: number[], mbti
 }
 
 // ---------- Interests ----------
-export function scoreInterests(picks: string[][]): { interests: { key: string; weight: number }[] } {
-  const counts: Record<string, number> = {};
-  for (const arr of picks) for (const k of arr) counts[k] = (counts[k] ?? 0) + 1;
-  const max = Math.max(1, ...Object.values(counts));
-  const interests = Object.entries(counts)
-    .map(([key, c]) => ({ key, weight: c / max }))
+// The projective interest test yields, per answered question, a RIASEC
+// orientation vector (from the chosen symbol/shape/animal). We aggregate those
+// into one profile and project it onto concrete field interests.
+export type RiasecProfile = Record<RiasecDim, number>;
+
+// Each field interest expressed as a blend of the six RIASEC orientations
+// (O*NET/Holland-style). These weights are the bridge between "you were drawn
+// to a squiggle" and "design / arts rank high for you". Keys must stay within
+// INTEREST_KEYS so downstream career/major matching keeps working.
+export const DOMAIN_RIASEC: Record<string, Partial<Record<RiasecDim, number>>> = {
+  technology:       { I: 3, R: 2, C: 1 },
+  engineering:      { R: 3, I: 2, C: 1 },
+  science:          { I: 3, R: 1 },
+  healthcare:       { S: 3, I: 2, R: 1 },
+  business:         { E: 3, C: 2 },
+  finance:          { C: 3, E: 2, I: 1 },
+  entrepreneurship: { E: 3, A: 1, R: 1 },
+  marketing:        { E: 3, A: 2, S: 1 },
+  design:           { A: 3, R: 1 },
+  arts:             { A: 3, S: 1 },
+  journalism:       { A: 2, S: 2, E: 1, I: 1 },
+  law:              { E: 2, I: 2, C: 1, S: 1 },
+  politics:         { E: 3, S: 2 },
+  education:        { S: 3, A: 1 },
+  psychology:       { S: 3, I: 2, A: 1 },
+  sports:           { R: 3, E: 1, S: 1 },
+  architecture:     { A: 2, R: 2, I: 1 },
+  environment:      { R: 2, I: 2, S: 1 },
+};
+
+const ZERO_PROFILE = (): RiasecProfile => ({ R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 });
+
+/** Unit-normalize a (possibly sparse) RIASEC vector so magnitudes don't skew similarity. */
+function unit(v: Partial<Record<RiasecDim, number>>): RiasecProfile {
+  const p = ZERO_PROFILE();
+  let mag = 0;
+  for (const d of RIASEC_DIMS) { p[d] = v[d] ?? 0; mag += p[d] * p[d]; }
+  mag = Math.sqrt(mag);
+  if (mag > 0) for (const d of RIASEC_DIMS) p[d] /= mag;
+  return p;
+}
+
+/**
+ * Aggregate the RIASEC vectors from the user's chosen symbols and project the
+ * result onto the 18 field interests via cosine similarity. Weights are scaled
+ * so the strongest field is 1.0 — matching the previous engine's contract, so
+ * matchCareers/matchMajors and the results UI are unaffected.
+ */
+export function scoreInterests(
+  picks: Partial<Record<RiasecDim, number>>[],
+): { interests: { key: string; weight: number }[]; riasec: RiasecProfile } {
+  const sum = ZERO_PROFILE();
+  for (const v of picks) for (const d of RIASEC_DIMS) sum[d] += v[d] ?? 0;
+
+  const userUnit = unit(sum);
+  const hasSignal = RIASEC_DIMS.some((d) => sum[d] > 0);
+
+  const raw = INTEREST_KEYS.map((key) => {
+    const dv = unit(DOMAIN_RIASEC[key] ?? {});
+    let dot = 0;
+    for (const d of RIASEC_DIMS) dot += userUnit[d] * dv[d];
+    return { key, score: Math.max(0, dot) };
+  });
+
+  const max = Math.max(...raw.map((r) => r.score));
+  const interests = raw
+    .map((r) => ({ key: r.key, weight: hasSignal && max > 0 ? r.score / max : 0 }))
     .sort((a, b) => b.weight - a.weight);
-  return { interests };
+
+  // Normalized 0..1 profile (relative to its own strongest dimension), handy
+  // for surfacing a RIASEC archetype label alongside the field interests.
+  const maxDim = Math.max(...RIASEC_DIMS.map((d) => sum[d]));
+  const riasec = ZERO_PROFILE();
+  if (maxDim > 0) for (const d of RIASEC_DIMS) riasec[d] = sum[d] / maxDim;
+
+  return { interests, riasec };
 }
 
 // ---------- Matching ----------

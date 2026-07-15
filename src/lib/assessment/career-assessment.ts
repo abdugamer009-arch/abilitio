@@ -16,12 +16,43 @@ export type CognitiveQ = {
   correct: number; // index
 };
 
+// ── Interest test (projective) ──
+// The interest test never asks users to name a career. Instead it shows
+// abstract, symbolic choices — shapes, animals, lines, colours, scenes — and
+// each answer maps to a hidden RIASEC (Holland) orientation vector. The engine
+// aggregates those vectors and projects them onto concrete field interests,
+// so the recommendation is *inferred*, not simply echoed back.
+export type RiasecDim = "R" | "I" | "A" | "S" | "E" | "C";
+export const RIASEC_DIMS: RiasecDim[] = ["R", "I", "A", "S", "E", "C"];
+
+// How an option is drawn. `shape`/`line`/`pattern` are rendered as inline SVG,
+// `swatch` as a two-stop gradient, `emoji` as a glyph — all self-contained.
+export type InterestVisual =
+  | { kind: "shape"; shape: string }
+  | { kind: "line"; line: string }
+  | { kind: "pattern"; pattern: string }
+  | { kind: "swatch"; colors: [string, string] }
+  | { kind: "emoji"; emoji: string };
+
+export type InterestOption = {
+  id: string;                                 // globally-unique, e.g. "s1_square"
+  label: string;                              // short caption
+  visual: InterestVisual;
+  riasec: Partial<Record<RiasecDim, number>>; // hidden orientation weights
+};
+
+export type InterestTheme =
+  | "shape" | "animal" | "line" | "color" | "landscape"
+  | "pattern" | "element" | "object" | "sound" | "games"
+  | "material" | "motion";
+
 export type InterestQ = {
   id: string;
   section: "interest";
   prompt: string;
-  options: { label: string; key: string }[];
-  multi: true;
+  theme: InterestTheme;
+  select: "one";            // projective: pick the single option that draws you
+  options: InterestOption[];
 };
 
 export type Q = PersonalityQ | CognitiveQ | InterestQ;
@@ -70,52 +101,9 @@ export const COGNITIVE: CognitiveQ[] = [
   { id: "c10", section: "cognitive", prompt: "What comes next: 81, 27, 9, 3, ?", options: ["0","1","1.5","2"], correct: 1 },
 ];
 
-export const INTERESTS: InterestQ[] = [
-  {
-    id: "i1", section: "interest", prompt: "Which fields excite you the most? (select all that apply)", multi: true,
-    options: [
-      { label: "Technology", key: "technology" },
-      { label: "Engineering", key: "engineering" },
-      { label: "Science", key: "science" },
-      { label: "Healthcare", key: "healthcare" },
-      { label: "Business", key: "business" },
-      { label: "Finance", key: "finance" },
-    ],
-  },
-  {
-    id: "i2", section: "interest", prompt: "Which creative directions appeal to you?", multi: true,
-    options: [
-      { label: "Design", key: "design" },
-      { label: "Arts", key: "arts" },
-      { label: "Journalism", key: "journalism" },
-      { label: "Marketing", key: "marketing" },
-      { label: "Architecture", key: "architecture" },
-      { label: "Entrepreneurship", key: "entrepreneurship" },
-    ],
-  },
-  {
-    id: "i3", section: "interest", prompt: "Which social-impact areas matter to you?", multi: true,
-    options: [
-      { label: "Education", key: "education" },
-      { label: "Psychology", key: "psychology" },
-      { label: "Law", key: "law" },
-      { label: "Politics", key: "politics" },
-      { label: "Environment", key: "environment" },
-      { label: "Healthcare", key: "healthcare" },
-    ],
-  },
-  {
-    id: "i4", section: "interest", prompt: "Which lifestyle / performance areas attract you?", multi: true,
-    options: [
-      { label: "Sports", key: "sports" },
-      { label: "Entrepreneurship", key: "entrepreneurship" },
-      { label: "Arts", key: "arts" },
-      { label: "Technology", key: "technology" },
-      { label: "Business", key: "business" },
-      { label: "Design", key: "design" },
-    ],
-  },
-];
-
-export const ALL_QUESTIONS: Q[] = [...PERSONALITY, ...COGNITIVE, ...INTERESTS];
-export const TOTAL = ALL_QUESTIONS.length; // 30
+// The live projective interest questions live in the server-authoritative
+// question bank (see question-bank.ts → INTEREST_BANK). ALL_QUESTIONS is a
+// legacy convenience export used only for the fixed-length sample; the session
+// picker draws the real questions from the bank.
+export const ALL_QUESTIONS: Q[] = [...PERSONALITY, ...COGNITIVE];
+export const TOTAL = 30;

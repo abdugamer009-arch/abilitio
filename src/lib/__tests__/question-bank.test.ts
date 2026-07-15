@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { PERSONALITY_BANK, IQ_BANK, INTEREST_BANK, pickSessionQuestions, getIQCorrect } from "../assessment/question-bank";
+import { PERSONALITY_BANK, IQ_BANK, INTEREST_BANK, pickSessionQuestions, getIQCorrect, getInterestRiasec } from "../assessment/question-bank";
+import { RIASEC_DIMS } from "../assessment/career-assessment";
 
 describe("question banks", () => {
   it("has at least 200 personality questions", () => {
@@ -10,8 +11,36 @@ describe("question banks", () => {
     expect(IQ_BANK.length).toBeGreaterThanOrEqual(200);
   });
 
-  it("has at least 200 interest questions", () => {
-    expect(INTEREST_BANK.length).toBeGreaterThanOrEqual(200);
+  it("has at least 12 projective interest questions", () => {
+    expect(INTEREST_BANK.length).toBeGreaterThanOrEqual(12);
+  });
+
+  it("every interest question is single-select with 5+ visual options", () => {
+    INTEREST_BANK.forEach((q) => {
+      expect(q.select).toBe("one");
+      expect(q.options.length).toBeGreaterThanOrEqual(5);
+      q.options.forEach((o) => {
+        expect(o.id).toBeTruthy();
+        expect(o.visual).toBeTruthy();
+        // every RIASEC weight must be a positive number on a valid dimension
+        for (const [dim, w] of Object.entries(o.riasec)) {
+          expect(RIASEC_DIMS).toContain(dim);
+          expect(w).toBeGreaterThan(0);
+        }
+      });
+    });
+  });
+
+  it("has globally-unique interest option ids that resolve to RIASEC vectors", () => {
+    const optionIds = INTEREST_BANK.flatMap((q) => q.options.map((o) => o.id));
+    expect(new Set(optionIds).size).toBe(optionIds.length);
+    for (const id of optionIds) expect(getInterestRiasec(id)).not.toBeNull();
+    expect(getInterestRiasec("does_not_exist")).toBeNull();
+  });
+
+  it("interest question ids never collide with personality/IQ ids", () => {
+    const others = new Set([...PERSONALITY_BANK.map((q) => q.id), ...IQ_BANK.map((q) => q.id)]);
+    INTEREST_BANK.forEach((q) => expect(others.has(q.id)).toBe(false));
   });
 
   it("has no duplicate personality IDs", () => {

@@ -78,20 +78,47 @@ describe("scoreCognitive", () => {
   });
 });
 
-describe("scoreInterests", () => {
-  it("weights repeated keys higher", () => {
-    const picks = [["technology", "science"], ["technology"], ["engineering"]];
-    const { interests } = scoreInterests(picks);
-    const tech = interests.find((i) => i.key === "technology");
-    const eng  = interests.find((i) => i.key === "engineering");
-    expect(tech!.weight).toBeGreaterThan(eng!.weight);
+describe("scoreInterests (RIASEC projection)", () => {
+  it("ranks artistic fields top for strongly Artistic picks", () => {
+    const { interests } = scoreInterests([{ A: 3 }, { A: 3 }, { A: 2, S: 1 }]);
+    const topKeys = interests.slice(0, 3).map((i) => i.key);
+    expect(topKeys).toContain("arts");
+    // arts must clearly beat a non-artistic field like finance
+    const arts = interests.find((i) => i.key === "arts")!;
+    const finance = interests.find((i) => i.key === "finance")!;
+    expect(arts.weight).toBeGreaterThan(finance.weight);
   });
 
-  it("returns weight 1.0 for most frequent key", () => {
-    const picks = [["technology"], ["technology"], ["science"]];
-    const { interests } = scoreInterests(picks);
-    const top = interests[0];
-    expect(top.weight).toBe(1);
+  it("ranks enterprising fields top for strongly Enterprising picks", () => {
+    const { interests } = scoreInterests([{ E: 3 }, { E: 3 }, { E: 2, C: 1 }]);
+    const topKeys = interests.slice(0, 4).map((i) => i.key);
+    // business / entrepreneurship / politics are the E-heavy fields
+    expect(topKeys.some((k) => ["business", "entrepreneurship", "politics"].includes(k))).toBe(true);
+    const business = interests.find((i) => i.key === "business")!;
+    const arts = interests.find((i) => i.key === "arts")!;
+    expect(business.weight).toBeGreaterThan(arts.weight);
+  });
+
+  it("normalizes the strongest field to weight 1 and stays within [0,1]", () => {
+    const { interests } = scoreInterests([{ I: 3 }, { I: 2, R: 1 }]);
+    expect(interests[0].weight).toBeCloseTo(1);
+    for (const i of interests) {
+      expect(i.weight).toBeGreaterThanOrEqual(0);
+      expect(i.weight).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("returns all-zero weights when there is no signal", () => {
+    const { interests, riasec } = scoreInterests([]);
+    expect(interests.every((i) => i.weight === 0)).toBe(true);
+    expect(Object.values(riasec).every((v) => v === 0)).toBe(true);
+  });
+
+  it("exposes a normalized RIASEC profile", () => {
+    const { riasec } = scoreInterests([{ I: 3 }, { A: 1 }]);
+    expect(riasec.I).toBeCloseTo(1); // strongest dimension
+    expect(riasec.A).toBeCloseTo(1 / 3);
+    expect(riasec.E).toBe(0);
   });
 });
 

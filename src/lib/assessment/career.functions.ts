@@ -6,7 +6,8 @@ import {
   attachMajorsToCareers, communitySlugForCareer, deriveStrengths, deriveImprovements, RECOMMENDED_SKILLS_BY_PROFILE,
   type Career, type Major,
 } from "./career-engine";
-import { PERSONALITY_BANK, getIQCorrect } from "./question-bank";
+import { PERSONALITY_BANK, getIQCorrect, getInterestRiasec } from "./question-bank";
+import type { RiasecDim } from "./career-assessment";
 
 export type CareerResultDTO = {
   id: string;
@@ -52,7 +53,15 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
 
     const personality = scorePersonality(data.personalityAnswers, personalityQs);
     const cognitive = scoreCognitive(data.iqAnswers, iqCorrect, personality.mbti);
-    const { interests } = scoreInterests(data.interestAnswers);
+
+    // Interests: the client submits the ids of the symbols it chose. We resolve
+    // each id to its hidden RIASEC vector server-side (authoritative), then the
+    // engine aggregates and infers concrete field interests.
+    const interestPicks: Partial<Record<RiasecDim, number>>[] = data.interestAnswers
+      .flat()
+      .map((optionId) => getInterestRiasec(optionId))
+      .filter((v): v is Partial<Record<RiasecDim, number>> => v !== null);
+    const { interests } = scoreInterests(interestPicks);
 
     const [{ data: careers }, { data: majors }] = await Promise.all([
       supabase.from("careers").select("*"),
