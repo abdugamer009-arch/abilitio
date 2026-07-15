@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 import { submitCareerAssessment } from "@/lib/assessment/career.functions";
 import { pickSessionQuestions, type SessionQuestions } from "@/lib/assessment/question-bank";
 import type { PersonalityQ, CognitiveQ, InterestQ, InterestVisual } from "@/lib/assessment/career-assessment";
+import { INTEREST_ICONS } from "@/lib/assessment/interest-icons";
 import { ArrowLeft, ArrowRight, Brain, Sparkles, Loader2, Target, Shuffle } from "lucide-react";
 import { useT, useI18n } from "@/lib/i18n";
 import { QUESTION_TRANSLATIONS } from "@/lib/assessment/question-translations";
@@ -346,13 +347,11 @@ function CareerAssessmentPage() {
   );
 }
 
-// Renders a projective interest option's visual: emoji glyph, colour swatch, or
-// inline SVG (shape / line / pattern). SVG strokes use currentColor so they
-// inherit the card's selected/hover colour and adapt to light & dark themes.
+// Renders a projective interest option's visual: a colour swatch, or one of the
+// hand-drawn SVG icons in the shared icon set (interest-icons.tsx). SVG strokes
+// use currentColor so they inherit the card's selected/hover colour and adapt to
+// light & dark themes. There are no emoji or external images anywhere.
 function InterestArt({ visual }: { visual: InterestVisual }) {
-  if (visual.kind === "emoji") {
-    return <span className="text-[2.5rem] leading-none" aria-hidden>{visual.emoji}</span>;
-  }
   if (visual.kind === "swatch") {
     const [a, b] = visual.colors;
     return (
@@ -363,62 +362,21 @@ function InterestArt({ visual }: { visual: InterestVisual }) {
       />
     );
   }
-  const svgProps = {
-    className: "h-14 w-14",
-    viewBox: "0 0 64 64",
-    fill: "none",
-    stroke: "currentColor",
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-  };
-  if (visual.kind === "shape") {
-    return <svg {...svgProps} strokeWidth={3.5} aria-hidden>{SHAPE_PATHS[visual.shape] ?? SHAPE_PATHS.circle}</svg>;
-  }
-  if (visual.kind === "line") {
-    return <svg {...svgProps} strokeWidth={3.5} aria-hidden>{LINE_PATHS[visual.line] ?? LINE_PATHS.straight}</svg>;
-  }
-  return <svg {...svgProps} strokeWidth={2.5} aria-hidden>{PATTERN_PATHS[visual.pattern] ?? PATTERN_PATHS.dots}</svg>;
+  return (
+    <svg
+      className="h-14 w-14"
+      viewBox="0 0 64 64"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      {INTEREST_ICONS[visual.icon] ?? INTEREST_ICONS.circle}
+    </svg>
+  );
 }
-
-const SHAPE_PATHS: Record<string, React.ReactNode> = {
-  square: <rect x="14" y="14" width="36" height="36" rx="4" />,
-  rectangle: <rect x="8" y="20" width="48" height="24" rx="3" />,
-  triangle: <path d="M32 12 L52 50 L12 50 Z" />,
-  circle: <circle cx="32" cy="32" r="20" />,
-  diamond: <path d="M32 10 L54 32 L32 54 L10 32 Z" />,
-  squiggle: <path d="M10 44 C 18 20 26 20 32 34 C 38 48 46 48 54 22" />,
-  hexagon: <path d="M32 10 L52 21 L52 43 L32 54 L12 43 L12 21 Z" />,
-  star: <path d="M32 10 L37.3 24.7 L52.9 25.2 L40.6 34.8 L44.9 49.8 L32 41 L19.1 49.8 L23.4 34.8 L11.1 25.2 L26.7 24.7 Z" />,
-};
-
-const LINE_PATHS: Record<string, React.ReactNode> = {
-  straight: <path d="M10 32 H54" />,
-  diagonal: <path d="M12 52 L52 14 M52 14 L41 15.5 M52 14 L50.5 25" />,
-  wave: <path d="M8 32 Q 20 14 32 32 T 56 32" />,
-  zigzag: <path d="M8 42 L20 20 L32 42 L44 20 L56 42" />,
-  spiral: <path d="M34 32 C 34 27 26 27 26 33 C 26 42 40 42 42 32 C 44 18 26 14 20 26 C 13 40 30 52 44 46" />,
-  grid: <path d="M24 12 V52 M40 12 V52 M12 24 H52 M12 40 H52" />,
-};
-
-const PATTERN_PATHS: Record<string, React.ReactNode> = {
-  dots: (
-    <g fill="currentColor" stroke="none">
-      {[20, 32, 44].flatMap((y) => [20, 32, 44].map((x) => <circle key={`${x}-${y}`} cx={x} cy={y} r="3.4" />))}
-    </g>
-  ),
-  geometric: <path d="M32 12 L52 32 L32 52 L12 32 Z M32 22 L42 32 L32 42 L22 32 Z" />,
-  organic: <path d="M22 22 C 10 30 14 48 30 46 C 46 44 54 30 42 20 C 34 13 28 17 22 22 Z" />,
-  circuit: (
-    <g>
-      <path d="M12 20 H30 V40 H50 M30 20 V12 M50 40 V52" />
-      <g fill="currentColor" stroke="none">
-        <circle cx="12" cy="20" r="3" /><circle cx="30" cy="40" r="3" /><circle cx="50" cy="40" r="3" />
-      </g>
-    </g>
-  ),
-  marble: <path d="M8 24 Q 22 15 33 26 T 56 23 M8 41 Q 22 32 33 43 T 56 40" />,
-  doodle: <path d="M12 40 C 20 18 24 50 32 30 C 38 15 42 48 52 26" />,
-};
 
 function Section({ icon, title, caption }: { icon: React.ReactNode; title: string; caption: string }) {
   return (

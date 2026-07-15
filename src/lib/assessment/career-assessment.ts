@@ -25,14 +25,12 @@ export type CognitiveQ = {
 export type RiasecDim = "R" | "I" | "A" | "S" | "E" | "C";
 export const RIASEC_DIMS: RiasecDim[] = ["R", "I", "A", "S", "E", "C"];
 
-// How an option is drawn. `shape`/`line`/`pattern` are rendered as inline SVG,
-// `swatch` as a two-stop gradient, `emoji` as a glyph — all self-contained.
+// How an option is drawn. `icon` names a hand-drawn inline SVG in the shared
+// icon set (see interest-icons.tsx); `swatch` is a two-stop colour gradient.
+// Both are fully self-contained — there are no emoji or external images.
 export type InterestVisual =
-  | { kind: "shape"; shape: string }
-  | { kind: "line"; line: string }
-  | { kind: "pattern"; pattern: string }
-  | { kind: "swatch"; colors: [string, string] }
-  | { kind: "emoji"; emoji: string };
+  | { kind: "icon"; icon: string }
+  | { kind: "swatch"; colors: [string, string] };
 
 export type InterestOption = {
   id: string;                                 // globally-unique, e.g. "s1_square"

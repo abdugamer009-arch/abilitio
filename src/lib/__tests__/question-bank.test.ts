@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { PERSONALITY_BANK, IQ_BANK, INTEREST_BANK, pickSessionQuestions, getIQCorrect, getInterestRiasec } from "../assessment/question-bank";
 import { RIASEC_DIMS } from "../assessment/career-assessment";
+import { INTEREST_ICONS } from "../assessment/interest-icons";
 
 describe("question banks", () => {
   it("has at least 200 personality questions", () => {
@@ -29,6 +30,18 @@ describe("question banks", () => {
         }
       });
     });
+  });
+
+  it("every interest option is a custom-rendered visual (icon or swatch, never emoji)", () => {
+    for (const q of INTEREST_BANK) {
+      for (const o of q.options) {
+        expect(["icon", "swatch"]).toContain(o.visual.kind);
+        if (o.visual.kind === "icon") {
+          // the referenced icon must exist in the hand-drawn icon set
+          expect(INTEREST_ICONS[o.visual.icon]).toBeTruthy();
+        }
+      }
+    }
   });
 
   it("has globally-unique interest option ids that resolve to RIASEC vectors", () => {
