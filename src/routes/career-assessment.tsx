@@ -4,27 +4,12 @@ import { GlowBlob } from "@/components/GlowBlob";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth-context";
-import { submitCareerAssessment } from "@/lib/assessment/career.functions";
-import { pickSessionQuestions, type SessionQuestions } from "@/lib/assessment/question-bank";
-import type { PersonalityQ, CognitiveQ, InterestQ, InterestVisual } from "@/lib/assessment/career-assessment";
+import { submitCareerAssessment, startCareerSession, type ClientSession } from "@/lib/assessment/career.functions";
+import type { InterestVisual } from "@/lib/assessment/career-assessment";
 import { INTEREST_ICONS } from "@/lib/assessment/interest-icons";
-import { ArrowLeft, ArrowRight, Brain, Sparkles, Loader2, Target, Shuffle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Brain, Sparkles, Loader2, Target, Shuffle, Check, Keyboard } from "lucide-react";
 import { useT, useI18n } from "@/lib/i18n";
-import { QUESTION_TRANSLATIONS } from "@/lib/assessment/question-translations";
 import { track, AnalyticsEvent } from "@/lib/analytics";
-
-function tPrompt(id: string, original: string, lang: string): string {
-  if (lang === "en") return original;
-  return QUESTION_TRANSLATIONS[id]?.[lang as "ru" | "uz"]?.prompt ?? original;
-}
-function tCogOpts(id: string, options: string[], lang: string): string[] {
-  if (lang === "en") return options;
-  return QUESTION_TRANSLATIONS[id]?.[lang as "ru" | "uz"]?.options ?? options;
-}
-function tIntLabel(id: string, idx: number, label: string, lang: string): string {
-  if (lang === "en") return label;
-  return QUESTION_TRANSLATIONS[id]?.[lang as "ru" | "uz"]?.options?.[idx] ?? label;
-}
 
 export const Route = createFileRoute("/career-assessment")({
   head: () => ({
@@ -41,16 +26,15 @@ const IQ_COUNT = 9;
 const INT_COUNT = 9;
 const TOTAL = P_COUNT + IQ_COUNT + INT_COUNT; // 30
 
-// Persist in-progress assessments so a reload / crash never loses a user's work.
-// The session questions are randomly picked per attempt, so we store them alongside
-// the answers — otherwise restored answers would map to the wrong questions.
-const PROGRESS_KEY = "abilitio.career_assessment.progress.v1";
-type SavedProgress = { session: SessionQuestions; step: number; answers: Answers };
+// v2: sessions are now server-delivered with per-language text; older cached
+// (v1) sessions have an incompatible shape, so the key bump discards them.
+const PROGRESS_KEY = "abilitio.career_assessment.progress.v2";
+type SavedProgress = { session: ClientSession; step: number; answers: Answers };
 
 type Answers = {
-  personality: (number | null)[];  // 12 likert 1..5
-  iq: (number | null)[];           // 9 option indices
-  interest: string[][];            // 9 multi-select arrays
+  personality: (number | null)[]; // 12 likert 1..5
+  iq: (number | null)[]; // 9 option indices
+  interest: string[][]; // 9 single-select arrays
 };
 
 function makeAnswers(): Answers {
@@ -61,12 +45,16 @@ function makeAnswers(): Answers {
   };
 }
 
+type Lang = "en" | "ru" | "uz";
+
 function CareerAssessmentPage() {
   const t = useT();
   const { lang } = useI18n();
+  const l = lang as Lang;
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const submit = useServerFn(submitCareerAssessment);
+  const start = useServerFn(startCareerSession);
 
   const LIKERT = [
     t.careerAssessment.likert1,
@@ -76,18 +64,29 @@ function CareerAssessmentPage() {
     t.careerAssessment.likert5,
   ];
 
-  const [session, setSession] = useState<SessionQuestions | null>(null);
+  const [session, setSession] = useState<ClientSession | null>(null);
   const [step, setStep] = useState(0);
+  const [starting, setStarting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Answers>(makeAnswers());
 
-  const startSession = useCallback(() => {
-    setSession(pickSessionQuestions());
-    setStep(0);
-    setAnswers(makeAnswers());
-    track(AnalyticsEvent.AssessmentStarted);
-  }, []);
+  // Fetch a fresh, server-picked session (questions + translations, no answers).
+  const startSession = useCallback(async () => {
+    setStarting(true);
+    setSubmitError(null);
+    try {
+      const s = await start();
+      setSession(s);
+      setStep(0);
+      setAnswers(makeAnswers());
+      track(AnalyticsEvent.AssessmentStarted);
+    } catch (e: unknown) {
+      setSubmitError(e instanceof Error ? e.message : t.careerAssessment.submissionFailed);
+    } finally {
+      setStarting(false);
+    }
+  }, [start, t]);
 
   // Restore an interrupted attempt on mount (client-only — localStorage is undefined during SSR).
   useEffect(() => {
@@ -95,12 +94,14 @@ function CareerAssessmentPage() {
       const raw = localStorage.getItem(PROGRESS_KEY);
       if (!raw) return;
       const saved = JSON.parse(raw) as SavedProgress;
-      if (
-        saved?.session?.personality?.length === P_COUNT &&
-        saved?.session?.iq?.length === IQ_COUNT &&
-        saved?.session?.interest?.length === INT_COUNT
-      ) {
-        setSession(saved.session);
+      const s = saved?.session;
+      const ok =
+        s?.personality?.length === P_COUNT &&
+        s?.iq?.length === IQ_COUNT &&
+        s?.interest?.length === INT_COUNT &&
+        typeof s.personality[0]?.prompt?.en === "string";
+      if (ok) {
+        setSession(s);
         setStep(typeof saved.step === "number" ? Math.min(Math.max(saved.step, 0), TOTAL - 1) : 0);
         if (saved.answers) setAnswers(saved.answers);
       }
@@ -121,9 +122,9 @@ function CareerAssessmentPage() {
 
   const current = useMemo(() => {
     if (!session) return null;
-    if (step < P_COUNT) return { kind: "p" as const, q: session.personality[step] as PersonalityQ, idx: step };
-    if (step < P_COUNT + IQ_COUNT) return { kind: "c" as const, q: session.iq[step - P_COUNT] as CognitiveQ, idx: step - P_COUNT };
-    return { kind: "i" as const, q: session.interest[step - P_COUNT - IQ_COUNT] as InterestQ, idx: step - P_COUNT - IQ_COUNT };
+    if (step < P_COUNT) return { kind: "p" as const, q: session.personality[step], idx: step };
+    if (step < P_COUNT + IQ_COUNT) return { kind: "c" as const, q: session.iq[step - P_COUNT], idx: step - P_COUNT };
+    return { kind: "i" as const, q: session.interest[step - P_COUNT - IQ_COUNT], idx: step - P_COUNT - IQ_COUNT };
   }, [session, step]);
 
   const value = useMemo(() => {
@@ -148,22 +149,25 @@ function CareerAssessmentPage() {
     ? (value as string[])?.length > 0
     : value !== null && value !== undefined;
 
-  // Interest questions are single-select gut picks — auto-advance to the next
-  // one so the section feels like a snappy quiz, not a form. Never on the final
-  // step (the user taps "See Results" there). Guarded so a manual Back/Next
-  // during the short delay can't cause a surprise double-jump.
+  function goNext() { setStep((s) => Math.min(TOTAL - 1, s + 1)); }
+  function goBack() { setStep((s) => Math.max(0, s - 1)); }
+
+  // Interest questions are single-select gut picks — auto-advance so the section
+  // feels like a snappy quiz. Never on the final step; guarded against a manual
+  // Back/Next during the delay causing a surprise double-jump.
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (advanceTimer.current) clearTimeout(advanceTimer.current); }, []);
-  function selectInterest(optId: string) {
+  const selectInterest = useCallback((optId: string) => {
     setValue([optId]);
     if (advanceTimer.current) clearTimeout(advanceTimer.current);
     if (step < TOTAL - 1) {
       const from = step;
       advanceTimer.current = setTimeout(() => setStep((s) => (s === from && s < TOTAL - 1 ? s + 1 : s)), 260);
     }
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, current]);
 
-  async function finish() {
+  const finish = useCallback(async () => {
     if (!user) { navigate({ to: "/auth", search: { mode: "login", next: "/career-assessment" } }); return; }
     if (!session) return;
     setSubmitting(true);
@@ -173,7 +177,7 @@ function CareerAssessmentPage() {
           personalityQIds: session.personality.map((q) => q.id),
           personalityAnswers: answers.personality.map((v) => v ?? 3),
           iqQIds: session.iq.map((q) => q.id),
-          iqAnswers: answers.iq.map((v) => v ?? -1),  // -1 = unanswered (skipped)
+          iqAnswers: answers.iq.map((v) => v ?? -1),
           interestQIds: session.interest.map((q) => q.id),
           interestAnswers: answers.interest,
         },
@@ -186,11 +190,31 @@ function CareerAssessmentPage() {
       setSubmitError(e instanceof Error ? e.message : t.careerAssessment.submissionFailed);
       setSubmitting(false);
     }
-  }
+  }, [user, session, answers, submit, navigate, t]);
+
+  // Keyboard shortcuts: number keys pick an option, ←/→ or Enter navigate.
+  useEffect(() => {
+    if (!session || !current) return;
+    function onKey(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      const q = current!;
+      const n = Number(e.key);
+      if (q.kind === "p" && n >= 1 && n <= 5) { e.preventDefault(); setValue(n); return; }
+      if (q.kind === "c" && n >= 1 && n <= q.q.options.en.length) { e.preventDefault(); setValue(n - 1); return; }
+      if (q.kind === "i" && n >= 1 && n <= q.q.options.length) { e.preventDefault(); selectInterest(q.q.options[n - 1].id); return; }
+      if (e.key === "Enter" || e.key === "ArrowRight") {
+        if (canNext) { e.preventDefault(); if (step < TOTAL - 1) goNext(); else finish(); }
+      } else if (e.key === "ArrowLeft") { e.preventDefault(); goBack(); }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session, current, canNext, step, value, finish, selectInterest]);
 
   if (loading) return <PageShell><div className="px-6 pt-32 text-center text-sm text-muted-foreground">{t.careerAssessment.loading}</div></PageShell>;
 
-  // Intro screen
+  // ── Intro screen ──
   if (!session) {
     return (
       <PageShell>
@@ -203,9 +227,7 @@ function CareerAssessmentPage() {
                 <span className="absolute -inset-1 -z-10 rounded-2xl opacity-50 blur-md" style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }} />
               </div>
               <h1 className="mt-6 text-4xl font-bold gradient-text">{t.careerAssessment.title}</h1>
-              <p className="mt-3 text-muted-foreground">
-                {t.careerAssessment.subtitle}
-              </p>
+              <p className="mt-3 text-muted-foreground">{t.careerAssessment.subtitle}</p>
 
               <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
                 <Shuffle className="h-3 w-3" /> {t.careerAssessment.questionsRefresh}
@@ -217,8 +239,17 @@ function CareerAssessmentPage() {
                 <Section icon={<Sparkles className="h-4 w-4" />} title={t.careerAssessment.sectionInterests} caption={t.careerAssessment.captionInterests} />
               </div>
 
-              <button onClick={startSession} className="cta-sheen relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 text-sm font-medium text-primary-foreground shadow-[0_8px_28px_-8px_var(--glow)] hover:-translate-y-0.5 transition-all">
-                {t.careerAssessment.startBtn} <ArrowRight className="h-4 w-4" />
+              {submitError && (
+                <div className="mt-6 rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-2 text-xs text-destructive">{submitError}</div>
+              )}
+
+              <button
+                onClick={startSession}
+                disabled={starting}
+                className="cta-sheen relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 text-sm font-medium text-primary-foreground shadow-[0_8px_28px_-8px_var(--glow)] hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:hover:translate-y-0"
+              >
+                {starting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {t.careerAssessment.startBtn} {!starting && <ArrowRight className="h-4 w-4" />}
               </button>
               <Link to="/methodology" className="mt-2 inline-block text-xs text-primary/80 hover:text-primary hover:underline">
                 {t.careerAssessment.howItWorks}
@@ -230,29 +261,52 @@ function CareerAssessmentPage() {
     );
   }
 
-  const progress = (step / TOTAL) * 100;
-  const sectionLabel = step < P_COUNT
-    ? t.careerAssessment.sectionPersonality
-    : step < P_COUNT + IQ_COUNT
-    ? t.careerAssessment.sectionCognitive
-    : t.careerAssessment.sectionInterests;
+  const phases = [
+    { icon: Brain, label: t.careerAssessment.sectionPersonality },
+    { icon: Target, label: t.careerAssessment.sectionCognitive },
+    { icon: Sparkles, label: t.careerAssessment.sectionInterests },
+  ];
+  const phaseIndex = step < P_COUNT ? 0 : step < P_COUNT + IQ_COUNT ? 1 : 2;
+  const progress = ((step + (canNext ? 1 : 0)) / TOTAL) * 100;
+  const sectionLabel = phases[phaseIndex].label;
+  const prompt = current ? current.q.prompt[l] : "";
 
   return (
     <PageShell>
       <section className="px-6 pt-12 pb-24">
         <div className="mx-auto max-w-3xl">
-          <div className="mb-4 flex items-center justify-between text-xs text-muted-foreground">
+          {/* Phase stepper */}
+          <div className="mb-4 flex items-center gap-1.5">
+            {phases.map((ph, i) => {
+              const active = i === phaseIndex;
+              const done = i < phaseIndex;
+              const Icon = ph.icon;
+              return (
+                <div key={i} className="flex flex-1 items-center gap-1.5">
+                  <div className={`flex items-center gap-2 rounded-full border px-2.5 py-1.5 transition-all ${active ? "border-primary/50 bg-primary/10 text-primary" : done ? "border-primary/25 text-primary/70" : "border-border text-muted-foreground"}`}>
+                    <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full transition-all ${active || done ? "bg-gradient-to-br from-primary to-accent text-primary-foreground" : "bg-secondary/60"}`}>
+                      {done ? <Check className="h-3 w-3" /> : <Icon className="h-3 w-3" />}
+                    </span>
+                    <span className="hidden text-xs font-medium sm:inline">{ph.label}</span>
+                  </div>
+                  {i < phases.length - 1 && <div className={`h-px flex-1 transition-colors ${done ? "bg-primary/40" : "bg-border"}`} />}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
             <span>{sectionLabel}</span>
             <span>{step + 1} / {TOTAL}</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-secondary/60">
-            <div className="h-full bg-gradient-to-r from-primary to-accent transition-all" style={{ width: `${progress}%`, boxShadow: "0 0 8px oklch(0.65 0.22 295 / 0.5)" }} />
+            <div className="h-full bg-gradient-to-r from-primary to-accent transition-[width] duration-500 ease-out" style={{ width: `${progress}%`, boxShadow: "0 0 8px oklch(0.65 0.22 295 / 0.5)" }} />
           </div>
 
           <div className="glass mt-6 rounded-3xl p-6 sm:p-8">
             {current && (
-              <>
-                <h2 className="text-xl font-semibold leading-relaxed whitespace-pre-line">{tPrompt(current.q.id, current.q.prompt, lang)}</h2>
+              <div key={step} className="animate-fade-up">
+                <h2 className="text-xl font-semibold leading-relaxed whitespace-pre-line">{prompt}</h2>
 
                 <div className="mt-6">
                   {current.kind === "p" && (
@@ -265,8 +319,11 @@ function CareerAssessmentPage() {
                             <input type="radio" name={`p-${current.q.id}`} checked={selected} onChange={() => setValue(v)} className="sr-only peer" />
                             <div className={`w-full rounded-xl border px-4 py-3 text-left transition-all duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-primary/70 ${selected ? "border-primary/50 bg-gradient-to-r from-primary/12 to-accent/8 shadow-[0_2px_12px_-4px_var(--glow)]" : "border-border hover:bg-secondary/40 hover:border-primary/20"}`}>
                               <div className="flex items-center justify-between">
-                                <span className="text-sm">{label}</span>
-                                <span className={`flex h-4 w-4 items-center justify-center rounded-full border transition-all ${selected ? "border-primary bg-gradient-to-br from-primary to-accent" : "border-border"}`}>
+                                <span className="flex items-center gap-3 text-sm">
+                                  <span className={`hidden h-5 w-5 shrink-0 items-center justify-center rounded-md border text-[10px] font-bold sm:flex ${selected ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"}`}>{v}</span>
+                                  {label}
+                                </span>
+                                <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-all ${selected ? "border-primary bg-gradient-to-br from-primary to-accent" : "border-border"}`}>
                                   {selected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
                                 </span>
                               </div>
@@ -279,7 +336,7 @@ function CareerAssessmentPage() {
 
                   {current.kind === "c" && (
                     <div role="radiogroup" aria-label={sectionLabel} className="space-y-2">
-                      {tCogOpts(current.q.id, (current.q as CognitiveQ).options, lang).map((opt, i) => {
+                      {current.q.options[l].map((opt, i) => {
                         const selected = value === i;
                         return (
                           <label key={i} className="block cursor-pointer">
@@ -300,7 +357,7 @@ function CareerAssessmentPage() {
 
                   {current.kind === "i" && (
                     <div role="radiogroup" aria-label={sectionLabel} className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-                      {(current.q as InterestQ).options.map((opt, optIdx) => {
+                      {current.q.options.map((opt, optIdx) => {
                         const arr = (value as string[]) ?? [];
                         const selected = arr.includes(opt.id);
                         return (
@@ -310,7 +367,7 @@ function CareerAssessmentPage() {
                               <span className="flex h-14 w-14 items-center justify-center">
                                 <InterestArt visual={opt.visual} />
                               </span>
-                              <span className="text-xs font-medium text-foreground">{tIntLabel(current.q.id, optIdx, opt.label, lang)}</span>
+                              <span className="text-xs font-medium text-foreground">{current.q.labels[l][optIdx]}</span>
                             </div>
                           </label>
                         );
@@ -318,12 +375,12 @@ function CareerAssessmentPage() {
                     </div>
                   )}
                 </div>
-              </>
+              </div>
             )}
 
             <div className="mt-8 flex items-center justify-between">
               <button
-                onClick={() => setStep((s) => Math.max(0, s - 1))}
+                onClick={goBack}
                 disabled={step === 0}
                 className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-5 py-2 text-sm text-primary/80 disabled:opacity-40 hover:border-primary/50 hover:bg-primary/10 transition-all"
               >
@@ -331,7 +388,7 @@ function CareerAssessmentPage() {
               </button>
               {step < TOTAL - 1 ? (
                 <button
-                  onClick={() => setStep((s) => s + 1)}
+                  onClick={goNext}
                   disabled={!canNext}
                   className="cta-sheen relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
                 >
@@ -340,9 +397,7 @@ function CareerAssessmentPage() {
               ) : (
                 <div className="flex flex-col items-end gap-2">
                   {submitError && (
-                    <div className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-2 text-xs text-destructive max-w-xs text-right">
-                      {submitError}
-                    </div>
+                    <div className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-2 text-xs text-destructive max-w-xs text-right">{submitError}</div>
                   )}
                   <button
                     onClick={() => { setSubmitError(null); finish(); }}
@@ -355,6 +410,10 @@ function CareerAssessmentPage() {
                 </div>
               )}
             </div>
+          </div>
+
+          <div className="mt-3 hidden items-center justify-center gap-1.5 text-[11px] text-muted-foreground sm:flex">
+            <Keyboard className="h-3.5 w-3.5" /> {t.careerAssessment.keyboardHint}
           </div>
         </div>
       </section>

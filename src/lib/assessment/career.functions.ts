@@ -7,8 +7,56 @@ import {
   deriveRiasecFromInterests, hollandCode,
   type Career, type Major, type RiasecProfile,
 } from "./career-engine";
-import { PERSONALITY_BANK, getIQCorrect, getInterestRiasec } from "./question-bank";
-import type { RiasecDim } from "./career-assessment";
+import { PERSONALITY_BANK, getIQCorrect, getInterestRiasec, pickSessionQuestions } from "./question-bank";
+import { QUESTION_TRANSLATIONS } from "./question-translations";
+import type { RiasecDim, InterestVisual } from "./career-assessment";
+
+// ---------- Session start (server-authoritative question delivery) ----------
+// Questions are picked and translated on the server so the client never
+// downloads the full question banks or the correct IQ answers. Each question
+// carries its text in all three languages (only the 30 picked ones — tiny),
+// so client-side language switching keeps working.
+export type LangText = { en: string; ru: string; uz: string };
+export type LangOpts = { en: string[]; ru: string[]; uz: string[] };
+export type ClientSession = {
+  personality: { id: string; prompt: LangText }[];
+  iq: { id: string; prompt: LangText; options: LangOpts }[];
+  interest: {
+    id: string;
+    theme: string;
+    prompt: LangText;
+    options: { id: string; visual: InterestVisual }[];
+    labels: LangOpts;
+  }[];
+};
+
+function lp(id: string, en: string): LangText {
+  const tr = QUESTION_TRANSLATIONS[id];
+  return { en, ru: tr?.ru?.prompt ?? en, uz: tr?.uz?.prompt ?? en };
+}
+function lo(id: string, en: string[]): LangOpts {
+  const tr = QUESTION_TRANSLATIONS[id];
+  return { en, ru: tr?.ru?.options ?? en, uz: tr?.uz?.options ?? en };
+}
+
+// Public (no auth): anonymous users can take the assessment, then sign in to
+// submit. Correct answers and RIASEC weights are never included.
+export const startCareerSession = createServerFn({ method: "GET" }).handler(
+  async (): Promise<ClientSession> => {
+    const s = pickSessionQuestions();
+    return {
+      personality: s.personality.map((q) => ({ id: q.id, prompt: lp(q.id, q.prompt) })),
+      iq: s.iq.map((q) => ({ id: q.id, prompt: lp(q.id, q.prompt), options: lo(q.id, q.options) })),
+      interest: s.interest.map((q) => ({
+        id: q.id,
+        theme: q.theme,
+        prompt: lp(q.id, q.prompt),
+        options: q.options.map((o) => ({ id: o.id, visual: o.visual })),
+        labels: lo(q.id, q.options.map((o) => o.label)),
+      })),
+    };
+  },
+);
 
 // Derive the RIASEC profile + Holland code (top-3 dimensions) from the persisted
 // field-interest weights, so both fresh and historical results carry them

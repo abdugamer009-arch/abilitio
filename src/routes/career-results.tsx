@@ -11,6 +11,7 @@ import { GlowBlob } from "@/components/GlowBlob";
 import { CountUp } from "@/components/CountUp";
 import { Brain, Target, Sparkles, Trophy, GraduationCap, Printer, Share2, RefreshCw, TrendingUp, Lightbulb, ImageIcon, ChevronDown, Check } from "lucide-react";
 import { useT } from "@/lib/i18n";
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from "recharts";
 
 export const Route = createFileRoute("/career-results")({
   head: () => ({ meta: [{ title: "Your Career Profile — Abilitio" }, { name: "robots", content: "noindex, follow" }] }),
@@ -80,6 +81,14 @@ function CareerResultsPage() {
   const archetype = r.holland_code?.[0]
     ? (t.riasec.archetypes as Record<string, string>)[r.holland_code[0]]
     : null;
+
+  const RIASEC_ORDER = ["R", "I", "A", "S", "E", "C"] as const;
+  const riasec = (r.riasec_profile ?? {}) as Record<string, number>;
+  const radarData = RIASEC_ORDER.map((k) => ({
+    dim: (t.riasec.dims as Record<string, string>)[k] ?? k,
+    value: Math.round((riasec[k] ?? 0) * 100),
+  }));
+  const hasRiasec = RIASEC_ORDER.some((k) => (riasec[k] ?? 0) > 0);
 
   async function share() {
     const url = `${window.location.origin}/career-results`;
@@ -271,6 +280,50 @@ function CareerResultsPage() {
               <ul className="space-y-1.5 text-sm">{r.recommended_skills.map((s) => <li key={s} className="flex items-start gap-2"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gradient-to-br from-primary to-accent" />{s}</li>)}</ul>
             </Card>
           </div>
+
+          {/* Interest orientation — RIASEC radar */}
+          {hasRiasec && (
+            <Reveal className="glass mt-6 block rounded-3xl p-6">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]"><Sparkles className="h-3.5 w-3.5" /></span>
+                <h3 className="text-sm font-semibold">{t.careerResults.interestProfile}</h3>
+              </div>
+              <div className="mt-2 grid items-center gap-4 md:grid-cols-2">
+                <div className="h-64 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart data={radarData} outerRadius="72%">
+                      <PolarGrid stroke="oklch(0.6 0.02 285 / 0.25)" />
+                      <PolarAngleAxis dataKey="dim" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} />
+                      <Radar dataKey="value" stroke="oklch(0.7 0.16 290)" fill="oklch(0.7 0.16 290)" fillOpacity={0.28} />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </div>
+                <div>
+                  {archetype && <div className="text-2xl font-bold gradient-text leading-tight">{archetype}</div>}
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {r.holland_code.map((d) => (
+                      <span key={d} className="rounded-full border border-primary/25 bg-primary/8 px-2 py-0.5 text-[11px] font-medium text-primary">
+                        {(t.riasec.dims as Record<string, string>)[d] ?? d}
+                      </span>
+                    ))}
+                  </div>
+                  <ul className="mt-4 space-y-1.5">
+                    {radarData.map((d) => (
+                      <li key={d.dim} className="flex items-center justify-between gap-3 text-sm">
+                        <span className="text-muted-foreground">{d.dim}</span>
+                        <div className="flex flex-1 items-center gap-2">
+                          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary/60">
+                            <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent" style={{ width: `${d.value}%` }} />
+                          </div>
+                          <span className="w-8 shrink-0 text-right text-xs tabular-nums text-foreground/70">{d.value}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </Reveal>
+          )}
 
           {/* Career matches */}
           <Reveal className="glass mt-6 block rounded-3xl p-6">
