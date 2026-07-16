@@ -48,8 +48,10 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       (id) => PERSONALITY_BANK.find((q) => q.id === id)
     ).filter(Boolean) as NonNullable<typeof PERSONALITY_BANK[number]>[];
 
-    // Resolve IQ correct answers server-side (never sent to client)
-    const iqCorrect = data.iqQIds.map((id) => getIQCorrect(id) ?? -1);
+    // Resolve IQ correct answers server-side (never sent to client). An unknown
+    // question id yields an impossible sentinel (-999) — never -1, which is also
+    // the "unanswered" answer value, so a bogus id can't be scored as correct.
+    const iqCorrect = data.iqQIds.map((id) => getIQCorrect(id) ?? -999);
 
     const personality = scorePersonality(data.personalityAnswers, personalityQs);
     const cognitive = scoreCognitive(data.iqAnswers, iqCorrect, personality.mbti);
