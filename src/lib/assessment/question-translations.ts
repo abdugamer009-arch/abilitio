@@ -322,6 +322,9 @@ export const QUESTION_TRANSLATIONS: Record<string, QT> = {
   ing1: { ru: { prompt: "В какую игру вы бы с радостью играли всю ночь?", options: ["Шахматы","Пазл","Импровизация","Командная эстафета","Карточный блеф","Конструктор"] }, uz: { prompt: "Qaysi o'yinni tun bo'yi zavq bilan o'ynardingiz?", options: ["Shaxmat","Pazl","Improvizatsiya","Jamoaviy estafeta","Karta blefi","Konstruktor"] } },
   inm1: { ru: { prompt: "Какой материал вы бы формировали руками?", options: ["Глина","Сталь","Стекло","Дерево","Ткань","Камень"] }, uz: { prompt: "Qaysi materialni qo'lingiz bilan shakllantirardingiz?", options: ["Loy","Po'lat","Shisha","Yog'och","Mato","Tosh"] } },
   inv1: { ru: { prompt: "Какое движение лучше всего описывает вас?", options: ["Спринт","Медленный подъём","Танец","Глубокое погружение","Ровный марш","Свободное скольжение"] }, uz: { prompt: "Qaysi harakat sizni eng yaxshi ta'riflaydi?", options: ["Sprint","Sekin ko'tarilish","Raqs","Chuqur sho'ng'ish","Bir maromdagi yurish","Erkin parvoz"] } },
+  inp2: { ru: { prompt: "Какую поверхность вы бы провели рукой?", options: ["Упорядоченные точки","Геометрия","Плавные формы","Микросхема","Мраморные прожилки","Свободный рисунок"] }, uz: { prompt: "Qaysi yuzani qo'lingiz bilan silardingiz?", options: ["Tartibli nuqtalar","Geometrik","Tabiiy oqim","Mikrosxema","Marmar tomirlari","Erkin chizma"] } },
+  ine2: { ru: { prompt: "Какая сила природы вас больше всего завораживает?", options: ["Огонь","Вода","Земля","Воздух","Молния","Кристалл"] }, uz: { prompt: "Tabiatning qaysi kuchi sizni ko'proq maftun etadi?", options: ["Olov","Suv","Yer","Havo","Chaqmoq","Kristall"] } },
+  ind2: { ru: { prompt: "Каким инструментом вы бы хотели овладеть?", options: ["Барабаны","Саксофон","Скрипка","Синтезатор","Электрогитара"] }, uz: { prompt: "Qaysi cholg'u asbobini o'rganmoqchisiz?", options: ["Baraban","Saksofon","Skripka","Sintezator","Elektrogitara"] } },
 };
 
 // ─── Standalone IQ test translations ───

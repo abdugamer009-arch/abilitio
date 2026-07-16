@@ -179,9 +179,23 @@ export function scoreInterests(
     return { key, score: Math.max(0, dot) };
   });
 
-  const max = Math.max(...raw.map((r) => r.score));
+  // Sharpen: cosine scores cluster high because the fields share RIASEC
+  // dimensions, which makes everything look similar. Rescale across this
+  // profile's own min/max and apply a gamma curve so the fields you actually
+  // lean toward stand out and the rest fall toward zero. Ranking is preserved
+  // (the transform is monotonic), so career/major matching stays consistent.
+  const scores = raw.map((r) => r.score);
+  const hi = Math.max(...scores);
+  const lo = Math.min(...scores);
+  const span = hi - lo;
+  const GAMMA = 1.6;
   const interests = raw
-    .map((r) => ({ key: r.key, weight: hasSignal && max > 0 ? r.score / max : 0 }))
+    .map((r) => {
+      let weight = 0;
+      if (hasSignal && span > 1e-6) weight = Math.pow((r.score - lo) / span, GAMMA);
+      else if (hasSignal && hi > 0) weight = r.score / hi;
+      return { key: r.key, weight };
+    })
     .sort((a, b) => b.weight - a.weight);
 
   // Normalized 0..1 profile (relative to its own strongest dimension), handy
@@ -193,13 +207,41 @@ export function scoreInterests(
   return { interests, riasec };
 }
 
+/**
+ * Approximate the user's RIASEC profile from their (persisted) field-interest
+ * weights, by summing each field's RIASEC signature weighted by how strongly
+ * the user scored it. Lets the results page surface a Holland profile without
+ * needing a separate stored column.
+ */
+export function deriveRiasecFromInterests(
+  interests: { key: string; weight: number }[],
+): RiasecProfile {
+  const sum = ZERO_PROFILE();
+  for (const { key, weight } of interests) {
+    const dv = DOMAIN_RIASEC[key];
+    if (!dv) continue;
+    for (const d of RIASEC_DIMS) sum[d] += (dv[d] ?? 0) * weight;
+  }
+  const mx = Math.max(...RIASEC_DIMS.map((d) => sum[d]));
+  const p = ZERO_PROFILE();
+  if (mx > 0) for (const d of RIASEC_DIMS) p[d] = sum[d] / mx;
+  return p;
+}
+
+/** Holland code: the user's top-3 RIASEC dimensions, strongest first. */
+export function hollandCode(p: RiasecProfile): RiasecDim[] {
+  return [...RIASEC_DIMS].sort((a, b) => p[b] - p[a]).slice(0, 3);
+}
+
 // ---------- Matching ----------
+export type CareerMatch = Match & { matchFields: string[] };
+
 export function matchCareers(
   careers: Career[],
   personality: PersonalityScore,
   cognitive: CognitiveScore,
   interests: { key: string; weight: number }[],
-): Match[] {
+): CareerMatch[] {
   const interestMap = new Map(interests.map((i) => [i.key, i.weight]));
   return careers
     .map((c) => {
@@ -226,7 +268,15 @@ export function matchCareers(
       const raw = pFit * 0.4 + cFit * 0.35 + iFit * 0.25;
       // demand multiplier nudge (small)
       const score = Math.round(Math.min(99, raw * 100 + (c.demand_score - 75) * 0.05));
-      return { key: c.key, name: c.name, category: c.category, score };
+      // The field interests this career needs that the user actually leans
+      // toward (top few) — powers a concrete "why this fits" on the results page.
+      const matchFields = req
+        .map((k) => ({ k, w: interestMap.get(k) ?? 0 }))
+        .filter((x) => x.w > 0.15)
+        .sort((a, b) => b.w - a.w)
+        .slice(0, 3)
+        .map((x) => x.k);
+      return { key: c.key, name: c.name, category: c.category, score, matchFields };
     })
     .sort((a, b) => b.score - a.score);
 }
@@ -236,11 +286,11 @@ export function matchCareers(
  * related_career_keys include the career, choose the one the user scores
  * highest on (so the recommendation is personalized, not just a static link).
  */
-export function attachMajorsToCareers(
-  careerMatches: Match[],
+export function attachMajorsToCareers<T extends Match>(
+  careerMatches: T[],
   majors: Major[],
   majorScores: Match[],
-): (Match & { major: string | null })[] {
+): (T & { major: string | null })[] {
   const scoreByKey = new Map(majorScores.map((m) => [m.key, m.score]));
   return careerMatches.map((c) => {
     let best: Major | null = null;

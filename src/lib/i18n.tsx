@@ -314,6 +314,18 @@ const translations = {
       minSat: "Min SAT",
       minIelts: "Min IELTS",
       scholarship: "Scholarship",
+      interestProfile: "Interest Profile",
+      alignedWith: "Aligned with",
+    },
+    fields: {
+      technology: "Technology", engineering: "Engineering", science: "Science", healthcare: "Healthcare",
+      business: "Business", finance: "Finance", entrepreneurship: "Entrepreneurship", marketing: "Marketing",
+      design: "Design", arts: "Arts", journalism: "Journalism", law: "Law", politics: "Politics",
+      education: "Education", psychology: "Psychology", sports: "Sports", architecture: "Architecture", environment: "Environment",
+    },
+    riasec: {
+      dims: { R: "Hands-on", I: "Investigative", A: "Creative", S: "Social", E: "Enterprising", C: "Organized" },
+      archetypes: { R: "The Builder", I: "The Analyst", A: "The Creator", S: "The Helper", E: "The Driver", C: "The Organizer" },
     },
     iqTest: {
       title: "IQ Test",
@@ -733,6 +745,18 @@ const translations = {
       minSat: "Мин. SAT",
       minIelts: "Мин. IELTS",
       scholarship: "Стипендия",
+      interestProfile: "Профиль интересов",
+      alignedWith: "Совпадает с",
+    },
+    fields: {
+      technology: "Технологии", engineering: "Инженерия", science: "Наука", healthcare: "Здравоохранение",
+      business: "Бизнес", finance: "Финансы", entrepreneurship: "Предпринимательство", marketing: "Маркетинг",
+      design: "Дизайн", arts: "Искусство", journalism: "Журналистика", law: "Право", politics: "Политика",
+      education: "Образование", psychology: "Психология", sports: "Спорт", architecture: "Архитектура", environment: "Экология",
+    },
+    riasec: {
+      dims: { R: "Практический", I: "Исследовательский", A: "Творческий", S: "Социальный", E: "Предприимчивый", C: "Организованный" },
+      archetypes: { R: "Созидатель", I: "Аналитик", A: "Творец", S: "Помощник", E: "Лидер", C: "Организатор" },
     },
     iqTest: {
       title: "IQ Тест",
@@ -1152,6 +1176,18 @@ const translations = {
       minSat: "Min SAT",
       minIelts: "Min IELTS",
       scholarship: "Stipendiya",
+      interestProfile: "Qiziqishlar profili",
+      alignedWith: "Mos keladi",
+    },
+    fields: {
+      technology: "Texnologiya", engineering: "Muhandislik", science: "Fan", healthcare: "Sog'liqni saqlash",
+      business: "Biznes", finance: "Moliya", entrepreneurship: "Tadbirkorlik", marketing: "Marketing",
+      design: "Dizayn", arts: "San'at", journalism: "Jurnalistika", law: "Huquq", politics: "Siyosat",
+      education: "Ta'lim", psychology: "Psixologiya", sports: "Sport", architecture: "Arxitektura", environment: "Ekologiya",
+    },
+    riasec: {
+      dims: { R: "Amaliy", I: "Tadqiqotchi", A: "Ijodiy", S: "Ijtimoiy", E: "Tashabbuskor", C: "Tartibli" },
+      archetypes: { R: "Quruvchi", I: "Tahlilchi", A: "Ijodkor", S: "Yordamchi", E: "Yetakchi", C: "Tashkilotchi" },
     },
     iqTest: {
       title: "IQ Test",

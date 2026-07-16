@@ -827,6 +827,41 @@ export const INTEREST_BANK: InterestQ[] = [
       { id: "v1_glide",  label: "A free glide", visual: { kind: "icon", icon: "parachute" }, riasec: { A: 1, E: 1, I: 1 } },
     ],
   },
+  {
+    id: "inp2", section: "interest", theme: "pattern", select: "one",
+    prompt: "Which surface would you run your hand over?",
+    options: [
+      { id: "p2_dots",      label: "Ordered dots",  visual: { kind: "icon", icon: "p_dots" },      riasec: { C: 2, I: 1 } },
+      { id: "p2_geometric", label: "Geometric",     visual: { kind: "icon", icon: "p_geometric" }, riasec: { I: 2, C: 1 } },
+      { id: "p2_organic",   label: "Organic flow",  visual: { kind: "icon", icon: "p_organic" },   riasec: { A: 2, S: 1 } },
+      { id: "p2_circuit",   label: "Circuitry",     visual: { kind: "icon", icon: "p_circuit" },   riasec: { I: 2, R: 1 } },
+      { id: "p2_marble",    label: "Marble veins",  visual: { kind: "icon", icon: "p_marble" },    riasec: { A: 2, R: 1 } },
+      { id: "p2_doodle",    label: "Free doodle",   visual: { kind: "icon", icon: "p_doodle" },    riasec: { A: 3 } },
+    ],
+  },
+  {
+    id: "ine2", section: "interest", theme: "element", select: "one",
+    prompt: "Which force of nature fascinates you most?",
+    options: [
+      { id: "e2_fire",      label: "Fire",      visual: { kind: "icon", icon: "fire" },      riasec: { E: 3 } },
+      { id: "e2_water",     label: "Water",     visual: { kind: "icon", icon: "water" },     riasec: { S: 2, A: 1 } },
+      { id: "e2_earth",     label: "Earth",     visual: { kind: "icon", icon: "earth" },     riasec: { R: 2, C: 1 } },
+      { id: "e2_air",       label: "Air",       visual: { kind: "icon", icon: "air" },       riasec: { A: 2, I: 1 } },
+      { id: "e2_lightning", label: "Lightning", visual: { kind: "icon", icon: "lightning" }, riasec: { E: 2, I: 1 } },
+      { id: "e2_crystal",   label: "Crystal",   visual: { kind: "icon", icon: "crystal" },   riasec: { C: 2, I: 1 } },
+    ],
+  },
+  {
+    id: "ind2", section: "interest", theme: "sound", select: "one",
+    prompt: "Which instrument would you most want to master?",
+    options: [
+      { id: "d2_drum",   label: "Drums",         visual: { kind: "icon", icon: "drum" },       riasec: { C: 2, R: 1 } },
+      { id: "d2_sax",    label: "Saxophone",     visual: { kind: "icon", icon: "sax" },        riasec: { A: 3 } },
+      { id: "d2_violin", label: "Violin",        visual: { kind: "icon", icon: "violin" },     riasec: { S: 2, A: 1 } },
+      { id: "d2_synth",  label: "Synth",         visual: { kind: "icon", icon: "headphones" }, riasec: { I: 2, A: 1 } },
+      { id: "d2_guitar", label: "Electric guitar", visual: { kind: "icon", icon: "guitar" },   riasec: { E: 2, A: 1 } },
+    ],
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────

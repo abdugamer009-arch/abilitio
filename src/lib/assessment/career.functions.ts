@@ -4,10 +4,22 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   scorePersonality, scoreCognitive, scoreInterests, matchCareers, matchMajors,
   attachMajorsToCareers, communitySlugForCareer, deriveStrengths, deriveImprovements, RECOMMENDED_SKILLS_BY_PROFILE,
-  type Career, type Major,
+  deriveRiasecFromInterests, hollandCode,
+  type Career, type Major, type RiasecProfile,
 } from "./career-engine";
 import { PERSONALITY_BANK, getIQCorrect, getInterestRiasec } from "./question-bank";
 import type { RiasecDim } from "./career-assessment";
+
+// Derive the RIASEC profile + Holland code (top-3 dimensions) from the persisted
+// field-interest weights, so both fresh and historical results carry them
+// without a stored column.
+function hollandFor(interests: { key: string; weight: number }[]): {
+  riasec_profile: RiasecProfile;
+  holland_code: string[];
+} {
+  const riasec_profile = deriveRiasecFromInterests(interests);
+  return { riasec_profile, holland_code: hollandCode(riasec_profile) };
+}
 
 export type CareerResultDTO = {
   id: string;
@@ -20,7 +32,9 @@ export type CareerResultDTO = {
   cognitive_tier: string | null;
   cognitive_profile: string | null;
   interests: { key: string; weight: number }[];
-  career_matches: { key: string; name: string; category: string; score: number; major?: string | null }[];
+  riasec_profile: RiasecProfile;
+  holland_code: string[];
+  career_matches: { key: string; name: string; category: string; score: number; major?: string | null; matchFields?: string[] }[];
   university_matches: { key: string; name: string; category: string; score: number }[];
   strengths: string[];
   improvements: string[];
@@ -34,7 +48,8 @@ const submitSchema = z.object({
   iqQIds: z.array(z.string()).length(9),
   iqAnswers: z.array(z.number().int().min(-1).max(3)).length(9),
   interestQIds: z.array(z.string()).length(9),
-  interestAnswers: z.array(z.array(z.string()).max(20)).length(9),
+  // Each interest question is single-select, so at most one option id per question.
+  interestAnswers: z.array(z.array(z.string()).max(1)).length(9),
 });
 
 export const submitCareerAssessment = createServerFn({ method: "POST" })
@@ -126,6 +141,7 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       cognitive_tier: row.cognitive_tier,
       cognitive_profile: row.cognitive_profile,
       interests: row.interests as { key: string; weight: number }[],
+      ...hollandFor(row.interests as { key: string; weight: number }[]),
       career_matches: row.career_matches as CareerResultDTO["career_matches"],
       university_matches: row.university_matches as CareerResultDTO["university_matches"],
       strengths: row.strengths as string[],
@@ -159,6 +175,7 @@ export const getMyCareerResult = createServerFn({ method: "GET" })
       cognitive_tier: data.cognitive_tier,
       cognitive_profile: data.cognitive_profile,
       interests: data.interests as { key: string; weight: number }[],
+      ...hollandFor(data.interests as { key: string; weight: number }[]),
       career_matches: data.career_matches as CareerResultDTO["career_matches"],
       university_matches: data.university_matches as CareerResultDTO["university_matches"],
       strengths: data.strengths as string[],

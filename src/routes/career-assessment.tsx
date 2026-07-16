@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { GlowBlob } from "@/components/GlowBlob";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth-context";
 import { submitCareerAssessment } from "@/lib/assessment/career.functions";
@@ -148,6 +148,21 @@ function CareerAssessmentPage() {
     ? (value as string[])?.length > 0
     : value !== null && value !== undefined;
 
+  // Interest questions are single-select gut picks — auto-advance to the next
+  // one so the section feels like a snappy quiz, not a form. Never on the final
+  // step (the user taps "See Results" there). Guarded so a manual Back/Next
+  // during the short delay can't cause a surprise double-jump.
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (advanceTimer.current) clearTimeout(advanceTimer.current); }, []);
+  function selectInterest(optId: string) {
+    setValue([optId]);
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+    if (step < TOTAL - 1) {
+      const from = step;
+      advanceTimer.current = setTimeout(() => setStep((s) => (s === from && s < TOTAL - 1 ? s + 1 : s)), 260);
+    }
+  }
+
   async function finish() {
     if (!user) { navigate({ to: "/auth", search: { mode: "login", next: "/career-assessment" } }); return; }
     if (!session) return;
@@ -290,7 +305,7 @@ function CareerAssessmentPage() {
                         const selected = arr.includes(opt.id);
                         return (
                           <label key={opt.id} className="cursor-pointer">
-                            <input type="radio" name={`i-${current.q.id}`} checked={selected} onChange={() => setValue([opt.id])} className="sr-only peer" />
+                            <input type="radio" name={`i-${current.q.id}`} checked={selected} onChange={() => selectInterest(opt.id)} className="sr-only peer" />
                             <div className={`flex h-full flex-col items-center gap-2.5 rounded-2xl border px-3 py-4 text-center transition-all duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-primary/70 ${selected ? "border-primary/60 bg-gradient-to-br from-primary/12 to-accent/8 text-primary shadow-[0_4px_16px_-6px_var(--glow)] -translate-y-0.5" : "border-border text-foreground/70 hover:-translate-y-0.5 hover:bg-secondary/40 hover:border-primary/25"}`}>
                               <span className="flex h-14 w-14 items-center justify-center">
                                 <InterestArt visual={opt.visual} />

@@ -76,6 +76,11 @@ function CareerResultsPage() {
     );
   }
 
+  const fieldLabel = (k: string) => (t.fields as Record<string, string>)[k] ?? k;
+  const archetype = r.holland_code?.[0]
+    ? (t.riasec.archetypes as Record<string, string>)[r.holland_code[0]]
+    : null;
+
   async function share() {
     const url = `${window.location.origin}/career-results`;
     if (navigator.share) { try { await navigator.share({ title: "My Abilitio Career Profile", url }); return; } catch { /* user cancelled share dialog */ } }
@@ -226,11 +231,23 @@ function CareerResultsPage() {
               <div className="text-xs text-muted-foreground">{r.cognitive_profile} {t.careerResults.thinker}</div>
             </Card>
             <Card icon={<Sparkles className="h-4 w-4" />} title={t.careerResults.topInterests}>
+              {archetype && (
+                <div className="mb-3">
+                  <div className="text-2xl font-bold gradient-text leading-tight">{archetype}</div>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {r.holland_code.map((d) => (
+                      <span key={d} className="rounded-full border border-primary/25 bg-primary/8 px-2 py-0.5 text-[10px] font-medium text-primary">
+                        {(t.riasec.dims as Record<string, string>)[d] ?? d}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
               <ul className="space-y-1.5 text-sm">
                 {r.interests.slice(0, 6).map((i, idx) => (
-                  <li key={i.key} className="flex items-center justify-between">
-                    <span className="capitalize">{i.key}</span>
-                    <div className="h-1.5 w-24 rounded-full bg-secondary/60 overflow-hidden">
+                  <li key={i.key} className="flex items-center justify-between gap-2">
+                    <span>{fieldLabel(i.key)}</span>
+                    <div className="h-1.5 w-24 shrink-0 rounded-full bg-secondary/60 overflow-hidden">
                       <div
                         className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-[width] duration-700 ease-out"
                         style={{ width: `${Math.round(i.weight * 100)}%`, transitionDelay: `${idx * 80}ms` }}
@@ -269,6 +286,16 @@ function CareerResultsPage() {
                     <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary shadow-[0_0_8px_-2px_oklch(0.65_0.22_295_/_0.3)]"><CountUp value={m.score} suffix="%" /></span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">{m.category}</p>
+                  {m.matchFields && m.matchFields.length > 0 && (
+                    <div className="mt-2 flex flex-wrap items-center gap-1">
+                      <span className="text-[10px] text-muted-foreground">{t.careerResults.alignedWith}:</span>
+                      {m.matchFields.map((f) => (
+                        <span key={f} className="rounded-full border border-accent/25 bg-accent/8 px-1.5 py-0.5 text-[10px] font-medium text-accent">
+                          {fieldLabel(f)}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   {m.major && (
                     <p className="mt-2 flex items-center gap-1.5 text-xs">
                       <GraduationCap className="h-3.5 w-3.5 shrink-0 text-accent" />
