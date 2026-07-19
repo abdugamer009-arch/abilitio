@@ -7,14 +7,39 @@ import type { Database } from "@/integrations/supabase/types";
 
 type DbClient = SupabaseClient<Database>;
 
-async function ensureAdmin(supabase: DbClient, userId: string) {
-  const { data } = await supabase
+// Admin access is decided by this email allow-list in application code, NOT by a
+// database `user_roles` row. This keeps admin access reliable even when the DB
+// role was never provisioned. Override/extend at deploy time with a
+// comma-separated ADMIN_EMAILS env var; the built-in founders are always admins.
+const BUILTIN_ADMIN_EMAILS = ["abdugamer009@gmail.com", "umaraxmedov0175@gmail.com"];
+
+function adminEmailSet(): Set<string> {
+  const fromEnv = (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  return new Set([...BUILTIN_ADMIN_EMAILS, ...fromEnv]);
+}
+
+type AuthContext = { supabase: DbClient; userId: string; claims?: { email?: string } };
+
+// True if the authenticated user is an admin. Email allow-list is authoritative;
+// we still honor a legacy `user_roles` admin row as a fallback.
+async function resolveIsAdmin(context: AuthContext): Promise<boolean> {
+  const email = context.claims?.email?.toLowerCase();
+  if (email && adminEmailSet().has(email)) return true;
+
+  const { data } = await context.supabase
     .from("user_roles")
     .select("role")
-    .eq("user_id", userId)
+    .eq("user_id", context.userId)
     .eq("role", "admin")
     .maybeSingle();
-  if (!data) throw new Error("forbidden");
+  return !!data;
+}
+
+async function ensureAdmin(context: AuthContext) {
+  if (!(await resolveIsAdmin(context))) throw new Error("forbidden");
 }
 
 export type AdminAnalytics = {
@@ -34,22 +59,23 @@ export type AdminAnalytics = {
 export const getAdminAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminAnalytics> => {
-    const { supabase, userId } = context;
-    await ensureAdmin(supabase, userId);
+    await ensureAdmin(context);
 
     const now = new Date();
     const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
     const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
+    // Read via the service-role client so analytics work regardless of whether
+    // this admin has a `user_roles` DB row (access is decided in app code above).
     const [profiles, results, adminRoles, communities, messages] = await Promise.all([
-      supabase.from("profiles").select("id, created_at, updated_at"),
-      supabase
+      supabaseAdmin.from("profiles").select("id, created_at, updated_at"),
+      supabaseAdmin
         .from("career_assessment_results")
         .select("id, user_id, personality_type, career_matches, created_at"),
-      supabase.from("user_roles").select("user_id").eq("role", "admin"),
-      supabase.from("communities").select("id, name"),
-      supabase.from("community_messages").select("community_id, user_id, created_at"),
+      supabaseAdmin.from("user_roles").select("user_id").eq("role", "admin"),
+      supabaseAdmin.from("communities").select("id, name"),
+      supabaseAdmin.from("community_messages").select("community_id, user_id, created_at"),
     ]);
 
     const adminIds = new Set<string>(
@@ -154,12 +180,11 @@ const ADMIN_USER_PAGE_SIZE = 500;
 export const getAdminUsers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminUserRow[]> => {
-    const { supabase, userId } = context;
-    await ensureAdmin(supabase, userId);
+    await ensureAdmin(context);
 
     const [profiles, results, authRes] = await Promise.all([
-      supabase.from("profiles").select("id, name, surname, age_group, is_banned, created_at"),
-      supabase.from("career_assessment_results").select("user_id"),
+      supabaseAdmin.from("profiles").select("id, name, surname, age_group, is_banned, created_at"),
+      supabaseAdmin.from("career_assessment_results").select("user_id"),
       supabaseAdmin.auth.admin.listUsers({ perPage: ADMIN_USER_PAGE_SIZE }),
     ]);
 
@@ -203,12 +228,13 @@ export const adminSetBan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => setBanSchema.parse(input))
   .handler(async ({ context, data }) => {
-    const { supabase, userId } = context;
-    await ensureAdmin(supabase, userId);
-    const { error } = await supabase.rpc("admin_set_ban", {
-      _target: data.target,
-      _banned: data.banned,
-    });
+    await ensureAdmin(context);
+    // Update directly via service role so ban works for app-code admins too
+    // (the admin_set_ban RPC gates on a `user_roles` DB row, which they may lack).
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .update({ is_banned: data.banned, updated_at: new Date().toISOString() })
+      .eq("id", data.target);
     if (error) throw new Error("Failed to update ban status");
     return { ok: true };
   });
@@ -216,12 +242,5 @@ export const adminSetBan = createServerFn({ method: "POST" })
 export const checkIsAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<{ isAdmin: boolean }> => {
-    const { supabase, userId } = context;
-    const { data } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
-    return { isAdmin: !!data };
+    return { isAdmin: await resolveIsAdmin(context) };
   });
