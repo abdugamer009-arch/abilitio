@@ -53,11 +53,11 @@ function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection heading="5. Payments and subscriptions">
+      <LegalSection heading="5. A free service">
         <p>
-          Paid plans, including school plans, are billed through our payment processor, Stripe. Prices and inclusions
-          are shown at the point of purchase. Unless required by law, fees already paid are non-refundable. You can
-          stop a recurring subscription at any time; it will remain active until the end of the current billing period.
+          Abilitio is provided free of charge. There are no paid plans, subscriptions, or in-app purchases, and we do
+          not collect payment information. We may introduce optional paid features in the future; if we ever do, we
+          will update these terms and clearly disclose any pricing before you are asked to pay.
         </p>
       </LegalSection>
 

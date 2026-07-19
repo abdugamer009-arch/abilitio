@@ -37,8 +37,8 @@ function PrivacyPage() {
           ]}
         />
         <p>
-          We do <strong className="text-foreground">not</strong> collect payment card numbers. Payments are handled
-          entirely by our payment processor (see "Service providers" below).
+          {SITE_NAME} is free to use, so we do <strong className="text-foreground">not</strong> collect payment card
+          numbers or any billing information.
         </p>
       </LegalSection>
 
@@ -70,7 +70,6 @@ function PrivacyPage() {
         <LegalList
           items={[
             <><strong className="text-foreground">Supabase</strong> — authentication, database, and file storage hosting.</>,
-            <><strong className="text-foreground">Stripe</strong> — payment processing for subscriptions and school plans.</>,
             <><strong className="text-foreground">Anthropic</strong> — powering AI features (such as the ABBI assistant) when enabled; conversation content needed to answer you may be processed.</>,
           ]}
         />

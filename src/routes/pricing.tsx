@@ -1,9 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { Check, Loader2 } from "lucide-react";
-import { useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { createCheckoutSession } from "@/lib/payments/stripe.functions";
+import { Check, Sparkles } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
 import { GlowBlob } from "@/components/GlowBlob";
 import { useT } from "@/lib/i18n";
@@ -12,7 +9,7 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { title: "Pricing — Abilitio" },
-      { name: "description", content: "Simple, transparent pricing for students, families, and schools." },
+      { name: "description", content: "Abilitio is 100% free. Every assessment, insight, and tool is available to everyone at no cost." },
     ],
   }),
   component: PricingPage,
@@ -20,58 +17,15 @@ export const Route = createFileRoute("/pricing")({
 
 function PricingPage() {
   const t = useT();
-  const checkoutFn = useServerFn(createCheckoutSession);
-  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
-  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
-  const plans = [
-    {
-      name: t.pricing.plan1Name,
-      planId: null as null,
-      price: t.pricing.plan1Price,
-      desc: t.pricing.plan1Desc,
-      features: [t.pricing.plan1F1, t.pricing.plan1F2, t.pricing.plan1F3],
-      cta: t.pricing.plan1Cta,
-      highlight: false,
-    },
-    {
-      name: t.pricing.plan2Name,
-      planId: "student" as const,
-      price: t.pricing.plan2Price,
-      period: t.pricing.plan2Period,
-      desc: t.pricing.plan2Desc,
-      features: [t.pricing.plan2F1, t.pricing.plan2F2, t.pricing.plan2F3, t.pricing.plan2F4, t.pricing.plan2F5],
-      cta: t.pricing.plan2Cta,
-      highlight: true,
-    },
-    {
-      name: t.pricing.plan3Name,
-      planId: "family" as const,
-      price: t.pricing.plan3Price,
-      period: t.pricing.plan3Period,
-      desc: t.pricing.plan3Desc,
-      features: [t.pricing.plan3F1, t.pricing.plan3F2, t.pricing.plan3F3, t.pricing.plan3F4],
-      cta: t.pricing.plan3Cta,
-      highlight: false,
-    },
-  ];
-
-  async function handlePlanClick(planId: "student" | "family") {
-    setLoadingPlan(planId);
-    setCheckoutError(null);
-    try {
-      const result = await checkoutFn({ data: { planId } });
-      if (result.url) {
-        window.location.href = result.url;
-      } else {
-        setCheckoutError(t.pricing.errorNotConfigured);
-      }
-    } catch {
-      setCheckoutError(t.pricing.errorGeneric);
-    } finally {
-      setLoadingPlan(null);
-    }
-  }
+  // Everything is free now — surface the full, previously-tiered feature set as
+  // a single free plan. De-duplicated so shared features only appear once.
+  const features = Array.from(
+    new Set([
+      t.pricing.plan2F1, t.pricing.plan2F2, t.pricing.plan2F3, t.pricing.plan2F4, t.pricing.plan2F5,
+      t.pricing.plan3F2, t.pricing.plan3F3, t.pricing.plan3F4,
+    ]),
+  );
 
   return (
     <PageShell>
@@ -79,75 +33,51 @@ function PricingPage() {
         <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
         <div className="relative animate-fade-up">
           <div className="text-xs uppercase tracking-widest text-accent">{t.pricing.eyebrow}</div>
-          <h1 className="mt-3 text-4xl font-bold md:text-6xl">{t.pricing.title} <span className="gradient-text">{t.pricing.titleHighlight}</span></h1>
+          <h1 className="mt-3 text-4xl font-bold md:text-6xl">
+            {t.pricing.title} <span className="gradient-text">{t.pricing.titleHighlight}</span>
+          </h1>
           <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">{t.pricing.subtitle}</p>
         </div>
       </section>
 
       <section className="px-6 pb-20">
-        <Reveal className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
-          {plans.map((p) => (
-            <div
-              key={p.name}
-              className={`relative overflow-hidden rounded-3xl p-8 transition-all duration-300 hover:-translate-y-1 ${
-                p.highlight ? "glass glow-purple border border-primary/40" : "glass hover-glow"
-              }`}
-            >
-              {p.highlight && (
-                <GlowBlob className="-right-10 -top-10 h-40 w-40 opacity-40 blur-3xl" />
-              )}
-              {p.highlight && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary to-accent px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground">
-                  {t.pricing.mostPopular}
-                </div>
-              )}
-              <h3 className="text-lg font-semibold">{p.name}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{p.desc}</p>
-              <div className="mt-6 flex items-baseline gap-1">
-                <span className="text-4xl font-bold gradient-text">{p.price}</span>
-                {"period" in p && p.period && <span className="text-sm text-muted-foreground">{p.period}</span>}
-              </div>
-              <ul className="mt-6 space-y-3 text-sm">
-                {p.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2">
-                    <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]">
-                      <Check className="h-2.5 w-2.5" />
-                    </span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              {p.planId === null ? (
-                <Link
-                  to="/assessment"
-                  className="mt-8 inline-flex w-full items-center justify-center rounded-full border border-primary/30 bg-primary/10 px-5 py-3 text-sm font-medium text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_6px_16px_-6px_oklch(0.55_0.22_295_/_0.3)]"
-                >
-                  {p.cta}
-                </Link>
-              ) : (
-                <button
-                  onClick={() => handlePlanClick(p.planId!)}
-                  disabled={loadingPlan !== null}
-                  className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-medium transition-all disabled:opacity-60 hover:-translate-y-0.5 ${
-                    p.highlight
-                      ? "cta-sheen relative overflow-hidden bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)]"
-                      : "border border-primary/30 bg-primary/10 text-primary hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_6px_16px_-6px_oklch(0.55_0.22_295_/_0.3)]"
-                  }`}
-                >
-                  {loadingPlan === p.planId ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  {p.cta}
-                </button>
-              )}
+        <Reveal className="mx-auto max-w-xl">
+          <div className="glass glow-purple relative overflow-hidden rounded-3xl border border-primary/40 p-8">
+            <GlowBlob className="-right-10 -top-10 h-40 w-40 opacity-40 blur-3xl" />
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary to-accent px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground">
+              {t.pricing.mostPopular}
             </div>
-          ))}
-        </Reveal>
 
-        {checkoutError && (
-          <div className="mx-auto mt-6 max-w-xl rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-center text-sm text-destructive">
-            {checkoutError}
+            <div className="flex items-center gap-2 text-primary">
+              <Sparkles className="h-4 w-4" />
+              <h3 className="text-lg font-semibold">{t.pricing.plan1Name}</h3>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">{t.pricing.plan1Desc}</p>
+
+            <div className="mt-6 flex items-baseline gap-2">
+              <span className="text-5xl font-bold gradient-text">{t.pricing.plan1Price}</span>
+              <span className="text-sm text-muted-foreground">{t.pricing.freeForever}</span>
+            </div>
+
+            <ul className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
+              {features.map((f) => (
+                <li key={f} className="flex items-center gap-2">
+                  <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]">
+                    <Check className="h-2.5 w-2.5" />
+                  </span>
+                  {f}
+                </li>
+              ))}
+            </ul>
+
+            <Link
+              to="/assessment"
+              className="cta-sheen relative mt-8 inline-flex w-full items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-5 py-3 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] transition-all hover:-translate-y-0.5"
+            >
+              {t.pricing.plan1Cta}
+            </Link>
           </div>
-        )}
+        </Reveal>
 
         <div className="mx-auto mt-10 max-w-2xl text-center text-sm text-muted-foreground">
           {t.pricing.schoolQuestion} <Link to="/contact" className="text-accent hover:underline">{t.pricing.getInTouch}</Link>.

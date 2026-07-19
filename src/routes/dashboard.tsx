@@ -5,7 +5,7 @@ import {
   Brain, Calendar, LogOut, User as UserIcon, TrendingUp, Trophy, Heart,
   Sparkles, Target, Award, Zap, Plus, Pencil, Trash2, Check, X,
   GraduationCap, Activity, BarChart3, Settings as SettingsIcon,
-  Star, Gauge, Languages, Moon, KeyRound, Bell, ChevronRight, Crown, Mail, Swords,
+  Star, Gauge, Languages, Moon, KeyRound, ChevronRight, Crown, Mail, Swords,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
@@ -917,9 +917,6 @@ function SettingsSection({
           </PrefRow>
           <PrefRow icon={Moon} label="Appearance" hint="Light or dark theme">
             <ThemeToggle />
-          </PrefRow>
-          <PrefRow icon={Bell} label="Notifications" hint="Coming soon">
-            <span className="rounded-full bg-secondary px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">Soon</span>
           </PrefRow>
           <WeeklyEmailToggle userId={userId} />
         </div>
