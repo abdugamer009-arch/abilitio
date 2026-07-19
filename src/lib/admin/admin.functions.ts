@@ -26,8 +26,16 @@ type AuthContext = { supabase: DbClient; userId: string; claims?: { email?: stri
 // True if the authenticated user is an admin. Email allow-list is authoritative;
 // we still honor a legacy `user_roles` admin row as a fallback.
 async function resolveIsAdmin(context: AuthContext): Promise<boolean> {
-  const email = context.claims?.email?.toLowerCase();
-  if (email && adminEmailSet().has(email)) return true;
+  const admins = adminEmailSet();
+
+  // Prefer the email from the verified JWT claims; fall back to a server-side
+  // lookup in case this project's tokens don't carry the email claim.
+  let email = context.claims?.email?.toLowerCase();
+  if (!email) {
+    const { data } = await supabaseAdmin.auth.admin.getUserById(context.userId);
+    email = data.user?.email?.toLowerCase();
+  }
+  if (email && admins.has(email)) return true;
 
   const { data } = await context.supabase
     .from("user_roles")
