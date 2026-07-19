@@ -12,7 +12,7 @@ export const Route = createFileRoute("/mentors")({
       {
         name: "description",
         content:
-          "Learn from experienced mentors who guide students through career choices, university paths, and skill-building.",
+          "A preview of the kinds of mentors who will guide students through career choices, university paths, and skill-building on Abilitio.",
       },
     ],
   }),
@@ -27,15 +27,23 @@ function MentorsPage() {
         <div className="relative mx-auto max-w-6xl">
           <header className="mb-10 text-center animate-fade-up">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
-              <Sparkles className="h-3 w-3" /> Career Mentors
+              <Sparkles className="h-3 w-3" /> Illustrative Examples
             </span>
             <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
               Learn from people already there
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Curated mentors aligned with the careers ABBI recommends.
+              A preview of the kinds of mentors we're building — aligned with the careers ABBI
+              recommends. Real mentors join as the program launches.
             </p>
           </header>
+
+          <Reveal>
+            <p className="mb-8 rounded-2xl border border-dashed border-border/70 bg-secondary/30 px-4 py-3 text-center text-xs text-muted-foreground">
+              Note: the mentor profiles below are illustrative examples, not real individuals.
+              Booking opens when the mentor program launches.
+            </p>
+          </Reveal>
 
           <Reveal className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {MENTORS.map((m) => (

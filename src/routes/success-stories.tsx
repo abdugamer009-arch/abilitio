@@ -13,7 +13,7 @@ export const Route = createFileRoute("/success-stories")({
       {
         name: "description",
         content:
-          "Real stories from students who discovered their strengths and found their direction with Abilitio.",
+          "Illustrative examples of how students can discover their strengths and find their direction with Abilitio.",
       },
     ],
   }),
@@ -29,14 +29,22 @@ function SuccessPage() {
         <div className="relative mx-auto max-w-5xl">
           <header className="mb-10 text-center animate-fade-up">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
-              <Sparkles className="h-3 w-3" /> Real Journeys
+              <Sparkles className="h-3 w-3" /> Illustrative Examples
             </span>
             <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Success Stories</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Abilitio members sharing how assessments, roadmaps, and community changed their
-              trajectory.
+              Illustrative examples of how assessments, roadmaps, and community can change a
+              student's trajectory. Real member stories will be featured here as our community
+              grows.
             </p>
           </header>
+
+          <Reveal>
+            <p className="mb-8 rounded-2xl border border-dashed border-border/70 bg-secondary/30 px-4 py-3 text-center text-xs text-muted-foreground">
+              Note: the profiles below are illustrative examples, not real individuals or
+              testimonials.
+            </p>
+          </Reveal>
 
           <Reveal className="grid gap-5 md:grid-cols-2">
             {SUCCESS_STORIES.map((s) => (
