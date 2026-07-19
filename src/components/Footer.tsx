@@ -75,7 +75,9 @@ export function Footer() {
           {/* Link columns */}
           {columns.map((col) => (
             <div key={col.title}>
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/70">{col.title}</h4>
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/70">
+                {col.title}
+              </h4>
               <ul className="mt-5 space-y-3 text-sm text-muted-foreground">
                 {col.links.map((link) => (
                   <li key={link.label}>
@@ -97,7 +99,9 @@ export function Footer() {
         </div>
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-border/50 pt-8 text-sm text-muted-foreground md:flex-row">
-          <p>© {new Date().getFullYear()} Abilitio. {t.footer.rights}</p>
+          <p>
+            © {new Date().getFullYear()} Abilitio. {t.footer.rights}
+          </p>
           <p className="inline-flex items-center gap-1.5">
             <Sparkles className="h-3.5 w-3.5 text-accent" />
             {t.footer.crafted}

@@ -1,21 +1,26 @@
 import { describe, it, expect } from "vitest";
-import { scorePersonality, scoreCognitive, scoreInterests, matchCareers } from "../assessment/career-engine";
+import {
+  scorePersonality,
+  scoreCognitive,
+  scoreInterests,
+  matchCareers,
+} from "../assessment/career-engine";
 import type { PersonalityQ } from "../assessment/career-assessment";
 import type { Career } from "../assessment/career-engine";
 
 const PERSONALITY_QS: PersonalityQ[] = [
-  { id: "p1",  section: "personality", prompt: "", axis: "EI", direction:  1 },
-  { id: "p2",  section: "personality", prompt: "", axis: "EI", direction: -1 },
-  { id: "p3",  section: "personality", prompt: "", axis: "EI", direction:  1 },
-  { id: "p4",  section: "personality", prompt: "", axis: "SN", direction:  1 },
-  { id: "p5",  section: "personality", prompt: "", axis: "SN", direction: -1 },
-  { id: "p6",  section: "personality", prompt: "", axis: "SN", direction:  1 },
-  { id: "p7",  section: "personality", prompt: "", axis: "TF", direction:  1 },
-  { id: "p8",  section: "personality", prompt: "", axis: "TF", direction: -1 },
-  { id: "p9",  section: "personality", prompt: "", axis: "TF", direction:  1 },
-  { id: "p10", section: "personality", prompt: "", axis: "JP", direction:  1 },
+  { id: "p1", section: "personality", prompt: "", axis: "EI", direction: 1 },
+  { id: "p2", section: "personality", prompt: "", axis: "EI", direction: -1 },
+  { id: "p3", section: "personality", prompt: "", axis: "EI", direction: 1 },
+  { id: "p4", section: "personality", prompt: "", axis: "SN", direction: 1 },
+  { id: "p5", section: "personality", prompt: "", axis: "SN", direction: -1 },
+  { id: "p6", section: "personality", prompt: "", axis: "SN", direction: 1 },
+  { id: "p7", section: "personality", prompt: "", axis: "TF", direction: 1 },
+  { id: "p8", section: "personality", prompt: "", axis: "TF", direction: -1 },
+  { id: "p9", section: "personality", prompt: "", axis: "TF", direction: 1 },
+  { id: "p10", section: "personality", prompt: "", axis: "JP", direction: 1 },
   { id: "p11", section: "personality", prompt: "", axis: "JP", direction: -1 },
-  { id: "p12", section: "personality", prompt: "", axis: "JP", direction:  1 },
+  { id: "p12", section: "personality", prompt: "", axis: "JP", direction: 1 },
 ];
 
 describe("scorePersonality", () => {
@@ -58,7 +63,7 @@ describe("scoreCognitive", () => {
 
   it("scores 0/9 as Basic", () => {
     const correct = [0, 1, 2, 3, 0, 1, 2, 3, 0];
-    const wrong   = [3, 0, 1, 2, 3, 0, 1, 2, 3];
+    const wrong = [3, 0, 1, 2, 3, 0, 1, 2, 3];
     const result = scoreCognitive(wrong, correct, "ESTP");
     expect(result.score).toBe(0);
     expect(result.tier).toBe("Basic");
@@ -93,7 +98,9 @@ describe("scoreInterests (RIASEC projection)", () => {
     const { interests } = scoreInterests([{ E: 3 }, { E: 3 }, { E: 2, C: 1 }]);
     const topKeys = interests.slice(0, 4).map((i) => i.key);
     // business / entrepreneurship / politics are the E-heavy fields
-    expect(topKeys.some((k) => ["business", "entrepreneurship", "politics"].includes(k))).toBe(true);
+    expect(topKeys.some((k) => ["business", "entrepreneurship", "politics"].includes(k))).toBe(
+      true,
+    );
     const business = interests.find((i) => i.key === "business")!;
     const arts = interests.find((i) => i.key === "arts")!;
     expect(business.weight).toBeGreaterThan(arts.weight);
@@ -157,8 +164,15 @@ describe("matchCareers", () => {
     void scorePersonality([1, 5, 1, 1, 5, 1, 1, 5, 1, 1, 5, 1], PERSONALITY_QS);
     const answers = [5, 1, 5, 5, 1, 5, 5, 1, 5, 5, 1, 5]; // ESTJ-ish actually
     const p2 = scorePersonality(answers, PERSONALITY_QS);
-    const cognitive = scoreCognitive([0,1,2,3,0,1,2,3,0], [0,1,2,3,0,1,2,3,0], p2.mbti);
-    const interests = [{ key: "technology", weight: 1 }, { key: "engineering", weight: 0.8 }];
+    const cognitive = scoreCognitive(
+      [0, 1, 2, 3, 0, 1, 2, 3, 0],
+      [0, 1, 2, 3, 0, 1, 2, 3, 0],
+      p2.mbti,
+    );
+    const interests = [
+      { key: "technology", weight: 1 },
+      { key: "engineering", weight: 0.8 },
+    ];
     const matches = matchCareers(careers, p2, cognitive, interests);
     expect(matches.length).toBe(2);
     // scores should be numbers between 0 and 99
@@ -167,9 +181,9 @@ describe("matchCareers", () => {
   });
 
   it("returns scores sorted descending", () => {
-    const answers = [3,3,3,3,3,3,3,3,3,3,3,3];
+    const answers = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3];
     const p = scorePersonality(answers, PERSONALITY_QS);
-    const c = scoreCognitive([0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0], p.mbti);
+    const c = scoreCognitive([0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], p.mbti);
     const matches = matchCareers(careers, p, c, []);
     expect(matches[0].score).toBeGreaterThanOrEqual(matches[1].score);
   });

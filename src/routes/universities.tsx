@@ -5,15 +5,28 @@ import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { GlowBlob } from "@/components/GlowBlob";
 import { FloatingShapes } from "@/components/FloatingShapes";
-import { UNIVERSITIES, COUNTRIES, MAJORS, checkEligibility, type University, type Eligibility } from "@/lib/abbi/abbi-extras";
+import {
+  UNIVERSITIES,
+  COUNTRIES,
+  MAJORS,
+  checkEligibility,
+  type University,
+  type Eligibility,
+} from "@/lib/abbi/abbi-extras";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/universities")({
-  head: () => ({ meta: [
-    { title: "University Explorer — Abilitio" },
-    { name: "description", content: "Find universities that match your scores and goals. Filter by SAT, IELTS, country, and major to see your fit and scholarships." },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "University Explorer — Abilitio" },
+      {
+        name: "description",
+        content:
+          "Find universities that match your scores and goals. Filter by SAT, IELTS, country, and major to see your fit and scholarships.",
+      },
+    ],
+  }),
   component: UniversitiesPage,
 });
 
@@ -51,10 +64,12 @@ function UniversitiesPage() {
       if (country && u.country !== country) return false;
       if (major && !u.majors.includes(major)) return false;
       return true;
-    }).map((u) => {
-      const elig = checkEligibility(u, satN, ieltsN);
-      return { u, fit: fitRank[elig], elig };
-    }).sort((a, b) => b.fit - a.fit || a.u.minSat - b.u.minSat);
+    })
+      .map((u) => {
+        const elig = checkEligibility(u, satN, ieltsN);
+        return { u, fit: fitRank[elig], elig };
+      })
+      .sort((a, b) => b.fit - a.fit || a.u.minSat - b.u.minSat);
   }, [sat, ielts, country, major]);
 
   return (
@@ -67,33 +82,67 @@ function UniversitiesPage() {
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
               <Sparkles className="h-3 w-3" /> ABBI University Explorer
             </span>
-            <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Find your future university</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Filter by your scores and preferences. ABBI ranks fit, competitiveness, and scholarships.</p>
+            <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+              Find your future university
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Filter by your scores and preferences. ABBI ranks fit, competitiveness, and
+              scholarships.
+            </p>
           </header>
 
           {/* Filters */}
           <div className="glass mb-8 rounded-3xl p-5">
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <FilterField label="SAT Score" icon={Search}>
-                <input type="number" min={400} max={1600} value={sat} onChange={(e) => setSat(e.target.value === "" ? "" : Number(e.target.value))}
+                <input
+                  type="number"
+                  min={400}
+                  max={1600}
+                  value={sat}
+                  onChange={(e) => setSat(e.target.value === "" ? "" : Number(e.target.value))}
                   placeholder="e.g. 1350"
-                  className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/50" />
+                  className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/50"
+                />
               </FilterField>
               <FilterField label="IELTS Band" icon={Search}>
-                <input type="number" min={4} max={9} step={0.5} value={ielts} onChange={(e) => setIelts(e.target.value === "" ? "" : Number(e.target.value))}
+                <input
+                  type="number"
+                  min={4}
+                  max={9}
+                  step={0.5}
+                  value={ielts}
+                  onChange={(e) => setIelts(e.target.value === "" ? "" : Number(e.target.value))}
                   placeholder="e.g. 7.0"
-                  className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/50" />
+                  className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/50"
+                />
               </FilterField>
               <FilterField label="Country" icon={MapPin}>
-                <select value={country} onChange={(e) => setCountry(e.target.value)} className="w-full bg-transparent text-sm outline-none">
+                <select
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  className="w-full bg-transparent text-sm outline-none"
+                >
                   <option value="">Any country</option>
-                  {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  {COUNTRIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
                 </select>
               </FilterField>
               <FilterField label="Intended Major" icon={Filter}>
-                <select value={major} onChange={(e) => setMajor(e.target.value)} className="w-full bg-transparent text-sm outline-none">
+                <select
+                  value={major}
+                  onChange={(e) => setMajor(e.target.value)}
+                  className="w-full bg-transparent text-sm outline-none"
+                >
                   <option value="">Any major</option>
-                  {MAJORS.map((m) => <option key={m} value={m}>{m}</option>)}
+                  {MAJORS.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
                 </select>
               </FilterField>
             </div>
@@ -101,10 +150,14 @@ function UniversitiesPage() {
 
           {/* Results */}
           <Reveal className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.map(({ u, fit, elig }) => <UniCard key={u.name} u={u} fit={fit} major={major} elig={elig} />)}
+            {filtered.map(({ u, fit, elig }) => (
+              <UniCard key={u.name} u={u} fit={fit} major={major} elig={elig} />
+            ))}
           </Reveal>
           {filtered.length === 0 && (
-            <p className="mt-12 text-center text-sm text-muted-foreground">No matches yet. Try widening your filters.</p>
+            <p className="mt-12 text-center text-sm text-muted-foreground">
+              No matches yet. Try widening your filters.
+            </p>
           )}
         </div>
       </section>
@@ -112,7 +165,15 @@ function UniversitiesPage() {
   );
 }
 
-function FilterField({ label, icon: Icon, children }: { label: string; icon: React.ElementType; children: React.ReactNode }) {
+function FilterField({
+  label,
+  icon: Icon,
+  children,
+}: {
+  label: string;
+  icon: React.ElementType;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block rounded-2xl border border-border/60 bg-secondary/30 px-4 py-3">
       <div className="mb-1 flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -123,13 +184,28 @@ function FilterField({ label, icon: Icon, children }: { label: string; icon: Rea
   );
 }
 
-function UniCard({ u, fit, major, elig }: { u: University; fit: number; major: string; elig: Eligibility }) {
-  const compColor = u.competitiveness === "Reach" ? "from-pink-500/30 to-primary/30 text-primary"
-    : u.competitiveness === "Match" ? "from-primary/30 to-accent/30 text-primary"
-    : "from-emerald-500/20 to-primary/20 text-emerald-300";
+function UniCard({
+  u,
+  fit,
+  major,
+  elig,
+}: {
+  u: University;
+  fit: number;
+  major: string;
+  elig: Eligibility;
+}) {
+  const compColor =
+    u.competitiveness === "Reach"
+      ? "from-pink-500/30 to-primary/30 text-primary"
+      : u.competitiveness === "Match"
+        ? "from-primary/30 to-accent/30 text-primary"
+        : "from-emerald-500/20 to-primary/20 text-emerald-300";
   return (
-    <div className="group relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-6 backdrop-blur-xl transition-all hover:-translate-y-1 hover:border-primary/40"
-      style={{ boxShadow: "0 10px 30px -15px oklch(0.55 0.22 295 / 0.4)" }}>
+    <div
+      className="group relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-6 backdrop-blur-xl transition-all hover:-translate-y-1 hover:border-primary/40"
+      style={{ boxShadow: "0 10px 30px -15px oklch(0.55 0.22 295 / 0.4)" }}
+    >
       <GlowBlob className="-right-12 -top-12 h-36 w-36 opacity-30 blur-3xl" />
       <div className="relative flex items-start justify-between gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_6px_20px_-8px_var(--glow)] transition-transform duration-300 group-hover:scale-105">
@@ -137,15 +213,21 @@ function UniCard({ u, fit, major, elig }: { u: University; fit: number; major: s
         </div>
         <span className="flex items-center gap-1.5">
           {elig !== "unknown" && (
-            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-              elig === "eligible" ? "border-green-500/40 bg-green-500/15 text-green-400" :
-              elig === "close" ? "border-yellow-500/40 bg-yellow-500/15 text-yellow-400" :
-              "border-red-500/40 bg-red-500/15 text-red-400"
-            }`}>
+            <span
+              className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                elig === "eligible"
+                  ? "border-green-500/40 bg-green-500/15 text-green-400"
+                  : elig === "close"
+                    ? "border-yellow-500/40 bg-yellow-500/15 text-yellow-400"
+                    : "border-red-500/40 bg-red-500/15 text-red-400"
+              }`}
+            >
               {elig === "eligible" ? "✓ Eligible" : elig === "close" ? "Close" : "Below min"}
             </span>
           )}
-          <span className={`rounded-full bg-gradient-to-br ${compColor} px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider`}>
+          <span
+            className={`rounded-full bg-gradient-to-br ${compColor} px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider`}
+          >
             {u.competitiveness}
           </span>
         </span>
@@ -166,9 +248,16 @@ function UniCard({ u, fit, major, elig }: { u: University; fit: number; major: s
         <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Top majors</div>
         <div className="mt-1.5 flex flex-wrap gap-1">
           {u.majors.slice(0, 4).map((m) => (
-            <span key={m} className={`rounded-full border px-2 py-0.5 text-[10px] ${
-              major === m ? "border-primary/50 bg-primary/15 text-primary" : "border-border/60 bg-secondary/50 text-muted-foreground"
-            }`}>{m}</span>
+            <span
+              key={m}
+              className={`rounded-full border px-2 py-0.5 text-[10px] ${
+                major === m
+                  ? "border-primary/50 bg-primary/15 text-primary"
+                  : "border-border/60 bg-secondary/50 text-muted-foreground"
+              }`}
+            >
+              {m}
+            </span>
           ))}
         </div>
       </div>
@@ -185,7 +274,9 @@ function Stat({ label, value, highlight }: { label: string; value: string; highl
   return (
     <div className="rounded-lg border border-border/60 bg-secondary/30 px-2 py-1.5">
       <div className="text-[9px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className={`text-sm font-semibold tabular-nums ${highlight ? "gradient-text" : ""}`}>{value}</div>
+      <div className={`text-sm font-semibold tabular-nums ${highlight ? "gradient-text" : ""}`}>
+        {value}
+      </div>
     </div>
   );
 }

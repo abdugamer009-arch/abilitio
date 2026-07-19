@@ -44,16 +44,31 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
 
     const [profiles, results, adminRoles, communities, messages] = await Promise.all([
       supabase.from("profiles").select("id, created_at, updated_at"),
-      supabase.from("career_assessment_results").select("id, user_id, personality_type, career_matches, created_at"),
+      supabase
+        .from("career_assessment_results")
+        .select("id, user_id, personality_type, career_matches, created_at"),
       supabase.from("user_roles").select("user_id").eq("role", "admin"),
       supabase.from("communities").select("id, name"),
       supabase.from("community_messages").select("community_id, user_id, created_at"),
     ]);
 
-    const adminIds = new Set<string>((adminRoles.data ?? []).map((r) => (r as { user_id: string }).user_id));
-    const allProfiles = (profiles.data ?? []).filter((p) => !adminIds.has((p as { id: string }).id)) as { id: string; created_at: string; updated_at: string }[];
-    const allResults = (results.data ?? []).filter((r) => !adminIds.has((r as { user_id: string }).user_id)) as { user_id: string; personality_type: string | null; career_matches: unknown; created_at: string }[];
-    const allMessages = (messages.data ?? []).filter((m) => !adminIds.has((m as { user_id: string }).user_id)) as { community_id: string; user_id: string; created_at: string }[];
+    const adminIds = new Set<string>(
+      (adminRoles.data ?? []).map((r) => (r as { user_id: string }).user_id),
+    );
+    const allProfiles = (profiles.data ?? []).filter(
+      (p) => !adminIds.has((p as { id: string }).id),
+    ) as { id: string; created_at: string; updated_at: string }[];
+    const allResults = (results.data ?? []).filter(
+      (r) => !adminIds.has((r as { user_id: string }).user_id),
+    ) as {
+      user_id: string;
+      personality_type: string | null;
+      career_matches: unknown;
+      created_at: string;
+    }[];
+    const allMessages = (messages.data ?? []).filter(
+      (m) => !adminIds.has((m as { user_id: string }).user_id),
+    ) as { community_id: string; user_id: string; created_at: string }[];
 
     const newUsersThisWeek = allProfiles.filter((p) => p.created_at >= weekAgo).length;
     const newUsersThisMonth = allProfiles.filter((p) => p.created_at >= monthAgo).length;
@@ -70,9 +85,12 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
       if (m.created_at >= monthAgo) activitySets.mau.add(m.user_id);
     }
 
-    const commNameMap = new Map<string, string>((communities.data ?? []).map((c) => [(c as { id: string }).id, (c as { name: string }).name]));
+    const commNameMap = new Map<string, string>(
+      (communities.data ?? []).map((c) => [(c as { id: string }).id, (c as { name: string }).name]),
+    );
     const commCount = new Map<string, number>();
-    for (const m of allMessages) commCount.set(m.community_id, (commCount.get(m.community_id) || 0) + 1);
+    for (const m of allMessages)
+      commCount.set(m.community_id, (commCount.get(m.community_id) || 0) + 1);
     const sortedComm = [...commCount.entries()].sort((a, b) => b[1] - a[1]);
     const mostActiveCommunity = sortedComm[0]
       ? { name: commNameMap.get(sortedComm[0][0]) ?? "—", messageCount: sortedComm[0][1] }
@@ -81,13 +99,20 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
     const mbtiCount = new Map<string, number>();
     const careerCount = new Map<string, number>();
     for (const r of allResults) {
-      if (r.personality_type) mbtiCount.set(r.personality_type, (mbtiCount.get(r.personality_type) || 0) + 1);
+      if (r.personality_type)
+        mbtiCount.set(r.personality_type, (mbtiCount.get(r.personality_type) || 0) + 1);
       const careers = (r.career_matches as { name?: string }[]) || [];
       const top = careers[0];
       if (top?.name) careerCount.set(top.name, (careerCount.get(top.name) || 0) + 1);
     }
-    const popularCareers = [...careerCount.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).map(([name, count]) => ({ name, count }));
-    const popularMbti = [...mbtiCount.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([type, count]) => ({ type, count }));
+    const popularCareers = [...careerCount.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([name, count]) => ({ name, count }));
+    const popularMbti = [...mbtiCount.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([type, count]) => ({ type, count }));
 
     const days: { day: string; count: number }[] = [];
     for (let i = 6; i >= 0; i--) {
@@ -142,9 +167,20 @@ export const getAdminUsers = createServerFn({ method: "GET" })
     for (const u of authRes.data?.users ?? []) {
       if (u.email) emailMap.set(u.id, u.email);
     }
-    const assessedSet = new Set<string>((results.data ?? []).map((r) => (r as { user_id: string }).user_id));
+    const assessedSet = new Set<string>(
+      (results.data ?? []).map((r) => (r as { user_id: string }).user_id),
+    );
 
-    return ((profiles.data ?? []) as { id: string; name: string | null; surname: string | null; age_group: string | null; is_banned: boolean | null; created_at: string }[])
+    return (
+      (profiles.data ?? []) as {
+        id: string;
+        name: string | null;
+        surname: string | null;
+        age_group: string | null;
+        is_banned: boolean | null;
+        created_at: string;
+      }[]
+    )
       .map((p) => ({
         id: p.id,
         name: p.name ?? "",
@@ -154,7 +190,8 @@ export const getAdminUsers = createServerFn({ method: "GET" })
         is_banned: !!p.is_banned,
         created_at: p.created_at,
         has_assessment: assessedSet.has(p.id),
-      })).sort((a, b) => (a.created_at > b.created_at ? -1 : 1));
+      }))
+      .sort((a, b) => (a.created_at > b.created_at ? -1 : 1));
   });
 
 const setBanSchema = z.object({

@@ -43,7 +43,9 @@ function AbbiPage() {
       <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-[600px] overflow-hidden">
         <div
           className="absolute left-1/2 top-[-200px] h-[700px] w-[1100px] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
-          style={{ background: "radial-gradient(ellipse, oklch(0.55 0.22 295 / 0.35), transparent 60%)" }}
+          style={{
+            background: "radial-gradient(ellipse, oklch(0.55 0.22 295 / 0.35), transparent 60%)",
+          }}
         />
       </div>
       <section className="px-4 pt-10 pb-24 sm:px-6">

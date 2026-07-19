@@ -36,7 +36,9 @@ export function AgeGate({
 
   return (
     <div className="mx-auto max-w-2xl text-center">
-      <span className="text-xs uppercase tracking-[0.2em] text-accent">Personalize your journey</span>
+      <span className="text-xs uppercase tracking-[0.2em] text-accent">
+        Personalize your journey
+      </span>
       <h2 className="mt-3 text-3xl font-bold md:text-4xl gradient-text">How old are you?</h2>
       <p className="mt-3 text-sm text-muted-foreground">
         We adapt the assessment, ABBI AI tone, and roadmap to your age group.

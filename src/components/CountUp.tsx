@@ -17,7 +17,13 @@ type CountUpProps = {
  * ease-out curve and respects prefers-reduced-motion (renders the final
  * value instantly).
  */
-export function CountUp({ value, duration = 1100, decimals = 0, suffix = "", className }: CountUpProps) {
+export function CountUp({
+  value,
+  duration = 1100,
+  decimals = 0,
+  suffix = "",
+  className,
+}: CountUpProps) {
   const ref = useRef<HTMLSpanElement | null>(null);
   const [display, setDisplay] = useState(0);
   const started = useRef(false);
@@ -50,7 +56,7 @@ export function CountUp({ value, duration = 1100, decimals = 0, suffix = "", cla
           requestAnimationFrame(tick);
         }
       },
-      { threshold: 0.4 }
+      { threshold: 0.4 },
     );
     obs.observe(el);
     return () => obs.disconnect();

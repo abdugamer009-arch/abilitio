@@ -33,7 +33,12 @@ export type AuthorDTO = {
 };
 
 async function isAdmin(supabase: SupabaseClient<Database>, userId: string): Promise<boolean> {
-  const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle();
+  const { data } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
   return !!data;
 }
 
@@ -80,28 +85,37 @@ async function ensureCommunityFromLatestResult(
     _slug: communitySlugForCareer(top),
   });
   if (!cid) return null;
-  const { data } = await supabase.from("communities").select("*").eq("id", cid as string).maybeSingle();
+  const { data } = await supabase
+    .from("communities")
+    .select("*")
+    .eq("id", cid as string)
+    .maybeSingle();
   return (data as CommunityDTO) ?? null;
 }
 
 export const getCommunityMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { communityId: string; limit?: number }) => input)
-  .handler(async ({ data, context }): Promise<{ messages: CommunityMessageDTO[]; authors: AuthorDTO[] }> => {
-    const { supabase } = context;
-    const limit = Math.min(Math.max(data.limit ?? 100, 1), 200);
-    const { data: rows, error } = await supabase
-      .from("community_messages")
-      .select("*")
-      .eq("community_id", data.communityId)
-      .order("created_at", { ascending: true })
-      .limit(limit);
-    if (error) throw new Error(error.message);
-    const messages = (rows ?? []) as CommunityMessageDTO[];
-    const ids = Array.from(new Set(messages.map((m) => m.user_id)));
-    const authors = await fetchAuthors(ids);
-    return { messages, authors };
-  });
+  .handler(
+    async ({
+      data,
+      context,
+    }): Promise<{ messages: CommunityMessageDTO[]; authors: AuthorDTO[] }> => {
+      const { supabase } = context;
+      const limit = Math.min(Math.max(data.limit ?? 100, 1), 200);
+      const { data: rows, error } = await supabase
+        .from("community_messages")
+        .select("*")
+        .eq("community_id", data.communityId)
+        .order("created_at", { ascending: true })
+        .limit(limit);
+      if (error) throw new Error(error.message);
+      const messages = (rows ?? []) as CommunityMessageDTO[];
+      const ids = Array.from(new Set(messages.map((m) => m.user_id)));
+      const authors = await fetchAuthors(ids);
+      return { messages, authors };
+    },
+  );
 
 export const fetchMessageAuthors = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -212,10 +226,15 @@ export const getCommunityDailyQuestion = createServerFn({ method: "GET" })
 
 export const setCommunityDailyQuestion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ communityId: z.string().uuid(), question: z.string().min(1).max(500) }).parse(input))
+  .inputValidator((input) =>
+    z.object({ communityId: z.string().uuid(), question: z.string().min(1).max(500) }).parse(input),
+  )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { error } = await supabase.rpc("admin_set_daily_question", { _community: data.communityId, _q: data.question });
+    const { error } = await supabase.rpc("admin_set_daily_question", {
+      _community: data.communityId,
+      _q: data.question,
+    });
     if (error) throw new Error(error.message);
     return { ok: true };
   });

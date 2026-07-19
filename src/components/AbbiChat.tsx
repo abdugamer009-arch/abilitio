@@ -6,10 +6,7 @@ import { Sparkles, Send, Bot, User as UserIcon } from "lucide-react";
 import { GlowBlob } from "@/components/GlowBlob";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  ABBI_SUGGESTIONS,
-  abbiGreeting,
-} from "@/lib/abbi/abbi-knowledge";
+import { ABBI_SUGGESTIONS, abbiGreeting } from "@/lib/abbi/abbi-knowledge";
 import { generateAbbiMessage } from "@/lib/abbi/abbi.functions";
 
 type ChatMsg = { id: string; role: "user" | "abbi"; content: string };
@@ -38,7 +35,9 @@ export function AbbiChat() {
       try {
         const saved: ChatMsg[] = JSON.parse(raw);
         if (saved.length > 0) setMessages(saved);
-      } catch { /* corrupt data — keep welcome message */ }
+      } catch {
+        /* corrupt data — keep welcome message */
+      }
     }
   }, [user]);
 
@@ -62,31 +61,34 @@ export function AbbiChat() {
       const [{ data: result }, { data: profile }] = await Promise.all([
         supabase
           .from("career_assessment_results")
-          .select("personality_type, cognitive_score, strengths, improvements, interests, career_matches")
+          .select(
+            "personality_type, cognitive_score, strengths, improvements, interests, career_matches",
+          )
           .eq("user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle(),
-        supabase
-          .from("profiles")
-          .select("name, age_group")
-          .eq("id", user.id)
-          .maybeSingle(),
+        supabase.from("profiles").select("name, age_group").eq("id", user.id).maybeSingle(),
       ]);
       const next: Record<string, unknown> = {
         firstName: (profile?.name as string | undefined) || null,
-        ageGroup: ((profile as { age_group?: string } | null)?.age_group) ?? null,
+        ageGroup: (profile as { age_group?: string } | null)?.age_group ?? null,
       };
       if (result) {
         const interests = (result.interests as Array<{ key: string; weight: number }> | null) ?? [];
-        const topInterests = [...interests].sort((a, b) => b.weight - a.weight).slice(0, 3).map((i) => i.key);
+        const topInterests = [...interests]
+          .sort((a, b) => b.weight - a.weight)
+          .slice(0, 3)
+          .map((i) => i.key);
         const cog = (result.cognitive_score as number | null) ?? 0;
         next.mbtiType = result.personality_type as string;
         next.iqScore = Math.round(70 + cog * 8);
         next.topStrengths = (result.strengths as string[]) ?? [];
         next.topInterests = topInterests;
         next.weaknesses = (result.improvements as string[]) ?? [];
-        next.topCareers = ((result.career_matches ?? []) as Array<{ name: string; score: number; category?: string }>)
+        next.topCareers = (
+          (result.career_matches ?? []) as Array<{ name: string; score: number; category?: string }>
+        )
           .slice(0, 3)
           .map((c) => ({ name: c.name, match: Math.round(c.score), reason: c.category ?? "" }));
       }
@@ -229,7 +231,12 @@ export function AbbiChat() {
             </button>
           </form>
           <div className="mt-2 flex justify-end">
-            <button onClick={clearHistory} className="text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors">Clear history</button>
+            <button
+              onClick={clearHistory}
+              className="text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+            >
+              Clear history
+            </button>
           </div>
         </div>
       </div>
@@ -258,9 +265,11 @@ function MessageBubble({ role, content }: { role: "user" | "abbi"; content: stri
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow">
         <Bot className="h-4 w-4" />
       </div>
-      <div className="prose prose-sm prose-invert max-w-[85%] rounded-2xl rounded-tl-md border border-border/40 bg-secondary/30 px-4 py-3 text-sm leading-relaxed text-foreground backdrop-blur-md
+      <div
+        className="prose prose-sm prose-invert max-w-[85%] rounded-2xl rounded-tl-md border border-border/40 bg-secondary/30 px-4 py-3 text-sm leading-relaxed text-foreground backdrop-blur-md
                       prose-headings:mt-2 prose-headings:mb-1 prose-headings:font-semibold prose-headings:text-foreground
-                      prose-h3:text-base prose-p:my-2 prose-strong:text-foreground prose-ul:my-2 prose-li:my-0.5">
+                      prose-h3:text-base prose-p:my-2 prose-strong:text-foreground prose-ul:my-2 prose-li:my-0.5"
+      >
         <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{content}</ReactMarkdown>
       </div>
     </div>
@@ -272,15 +281,30 @@ function TypingBubble() {
     <div className="flex items-start gap-3 animate-fade-in">
       <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow">
         <Bot className="h-4 w-4" />
-        <span className="absolute -inset-1 -z-10 rounded-full opacity-60 blur-md"
-          style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)" }} />
+        <span
+          className="absolute -inset-1 -z-10 rounded-full opacity-60 blur-md"
+          style={{
+            background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)",
+          }}
+        />
       </div>
       <div className="flex items-center gap-2 rounded-2xl rounded-tl-md border border-border/40 bg-secondary/30 px-4 py-3 backdrop-blur-md">
-        <span className="text-[11px] uppercase tracking-wider text-muted-foreground">ABBI is thinking</span>
+        <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
+          ABBI is thinking
+        </span>
         <span className="flex items-center gap-1">
-          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gradient-to-br from-primary to-accent" style={{ animationDelay: "0ms" }} />
-          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gradient-to-br from-primary to-accent" style={{ animationDelay: "150ms" }} />
-          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gradient-to-br from-primary to-accent" style={{ animationDelay: "300ms" }} />
+          <span
+            className="h-1.5 w-1.5 animate-bounce rounded-full bg-gradient-to-br from-primary to-accent"
+            style={{ animationDelay: "0ms" }}
+          />
+          <span
+            className="h-1.5 w-1.5 animate-bounce rounded-full bg-gradient-to-br from-primary to-accent"
+            style={{ animationDelay: "150ms" }}
+          />
+          <span
+            className="h-1.5 w-1.5 animate-bounce rounded-full bg-gradient-to-br from-primary to-accent"
+            style={{ animationDelay: "300ms" }}
+          />
         </span>
       </div>
     </div>

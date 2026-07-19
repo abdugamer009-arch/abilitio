@@ -64,8 +64,12 @@ describe("interest translations completeness (#6)", () => {
       expect(tr, `missing translation for interest question "${q.id}"`).toBeTruthy();
       expect(tr.ru?.prompt, `missing ru prompt for "${q.id}"`).toBeTruthy();
       expect(tr.uz?.prompt, `missing uz prompt for "${q.id}"`).toBeTruthy();
-      expect(tr.ru?.options?.length, `ru option count mismatch for "${q.id}"`).toBe(q.options.length);
-      expect(tr.uz?.options?.length, `uz option count mismatch for "${q.id}"`).toBe(q.options.length);
+      expect(tr.ru?.options?.length, `ru option count mismatch for "${q.id}"`).toBe(
+        q.options.length,
+      );
+      expect(tr.uz?.options?.length, `uz option count mismatch for "${q.id}"`).toBe(
+        q.options.length,
+      );
     }
   });
 });

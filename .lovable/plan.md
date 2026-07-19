@@ -25,6 +25,7 @@ New tables, all in `public`, with GRANTs + RLS:
 - `school_users` — id, school_id, user_id, role (`principal|vice_principal|counselor|psychologist|teacher`), created_at. (Reuses school_members semantics for staff; principals can promote.)
 
 SECURITY DEFINER RPCs:
+
 - `submit_career_assessment(_answers jsonb)` — validates 30 answers, computes MBTI, cognitive, interests, runs the matching engine (40/35/25), persists row, awards +20 Aura, returns full result.
 - `get_my_career_result()` — latest result.
 - `school_career_overview(_school)` — aggregated stats per school (career, personality, cognitive, university distributions; grade heatmap).
@@ -42,6 +43,7 @@ interest_fit    = weighted overlap (top interests)          * 0.25
 ```
 
 Same engine drives:
+
 - `careers` → top 15 with %
 - `university_majors` → top 10 with %
 - School aggregates (talent distribution, university readiness)

@@ -13,21 +13,38 @@ export type CareerInfo = {
   outlook: string;
   advantages: string[];
   challenges: string[];
-  fitsMbti?: string[];        // personality types it suits
-  interestKeys?: string[];    // matches `interest_scores` keys
+  fitsMbti?: string[]; // personality types it suits
+  interestKeys?: string[]; // matches `interest_scores` keys
 };
 
 export const CAREERS: CareerInfo[] = [
   {
     name: "Software Engineer",
     description: "Designs, builds and maintains software systems used by businesses and consumers.",
-    responsibilities: ["Write and review code", "Design system architecture", "Debug and optimize performance", "Collaborate with product & design"],
-    skills: ["Problem solving", "Algorithms & data structures", "JavaScript / Python / Go", "Version control (Git)", "System design"],
+    responsibilities: [
+      "Write and review code",
+      "Design system architecture",
+      "Debug and optimize performance",
+      "Collaborate with product & design",
+    ],
+    skills: [
+      "Problem solving",
+      "Algorithms & data structures",
+      "JavaScript / Python / Go",
+      "Version control (Git)",
+      "System design",
+    ],
     majors: ["Computer Science", "Software Engineering", "Computer Engineering"],
-    educationPath: "Bachelor's in CS or related → internships → junior engineer → mid/senior. Many succeed via self-taught + portfolio.",
+    educationPath:
+      "Bachelor's in CS or related → internships → junior engineer → mid/senior. Many succeed via self-taught + portfolio.",
     salaryRange: "$70k – $250k+ (US); $25k – $90k+ in emerging markets",
     outlook: "Very strong — 22% growth projected through 2030 (BLS).",
-    advantages: ["Remote-friendly", "High demand globally", "Creative + analytical work", "Strong compensation"],
+    advantages: [
+      "Remote-friendly",
+      "High demand globally",
+      "Creative + analytical work",
+      "Strong compensation",
+    ],
     challenges: ["Continuous learning required", "Long debugging sessions", "Can be sedentary"],
     fitsMbti: ["INTJ", "INTP", "ISTP", "ENTP"],
     interestKeys: ["analytical", "technical", "creativity"],
@@ -35,13 +52,29 @@ export const CAREERS: CareerInfo[] = [
   {
     name: "Data Analyst",
     description: "Turns raw data into insights that guide business decisions.",
-    responsibilities: ["Build dashboards & reports", "Run SQL queries", "Communicate findings to stakeholders", "Clean and validate data"],
-    skills: ["SQL", "Excel / Sheets", "Python or R", "Statistics", "Data visualization (Tableau, Power BI)"],
+    responsibilities: [
+      "Build dashboards & reports",
+      "Run SQL queries",
+      "Communicate findings to stakeholders",
+      "Clean and validate data",
+    ],
+    skills: [
+      "SQL",
+      "Excel / Sheets",
+      "Python or R",
+      "Statistics",
+      "Data visualization (Tableau, Power BI)",
+    ],
     majors: ["Statistics", "Mathematics", "Economics", "Business Analytics", "Computer Science"],
-    educationPath: "Bachelor's in a quantitative field → entry analyst role → senior analyst → analytics lead / data scientist.",
+    educationPath:
+      "Bachelor's in a quantitative field → entry analyst role → senior analyst → analytics lead / data scientist.",
     salaryRange: "$55k – $120k (US); $15k – $45k entry in emerging markets",
     outlook: "Strong — analytics is core to nearly every industry.",
-    advantages: ["Versatile across industries", "Clear career ladder", "Mix of logic + storytelling"],
+    advantages: [
+      "Versatile across industries",
+      "Clear career ladder",
+      "Mix of logic + storytelling",
+    ],
     challenges: ["Lots of data cleaning", "Stakeholder politics", "Requires precision"],
     fitsMbti: ["ISTJ", "INTJ", "ENTJ", "INTP"],
     interestKeys: ["analytical", "organization"],
@@ -49,24 +82,45 @@ export const CAREERS: CareerInfo[] = [
   {
     name: "Data Scientist",
     description: "Uses statistics, ML and code to discover patterns and build predictive models.",
-    responsibilities: ["Develop ML models", "A/B testing", "Feature engineering", "Productionize models with engineers"],
+    responsibilities: [
+      "Develop ML models",
+      "A/B testing",
+      "Feature engineering",
+      "Productionize models with engineers",
+    ],
     skills: ["Python", "Machine learning", "Statistics", "SQL", "Experimentation"],
     majors: ["Computer Science", "Statistics", "Applied Mathematics", "Physics"],
     educationPath: "Bachelor's → optional Master's/PhD → analyst or ML engineer → data scientist.",
     salaryRange: "$95k – $200k+ (US)",
     outlook: "High demand, especially in AI-driven companies.",
     advantages: ["Cutting-edge work", "High pay", "Strong impact on product"],
-    challenges: ["Steep math/stats requirement", "Models often fail in production", "Ambiguous problems"],
+    challenges: [
+      "Steep math/stats requirement",
+      "Models often fail in production",
+      "Ambiguous problems",
+    ],
     fitsMbti: ["INTJ", "INTP", "ENTJ"],
     interestKeys: ["analytical", "technical", "curiosity"],
   },
   {
     name: "Cybersecurity Specialist",
     description: "Protects organizations from digital threats, breaches and vulnerabilities.",
-    responsibilities: ["Monitor networks", "Run penetration tests", "Respond to incidents", "Build security policies"],
-    skills: ["Networking", "Linux", "Scripting", "Threat modeling", "Security certifications (CompTIA, CEH, OSCP)"],
+    responsibilities: [
+      "Monitor networks",
+      "Run penetration tests",
+      "Respond to incidents",
+      "Build security policies",
+    ],
+    skills: [
+      "Networking",
+      "Linux",
+      "Scripting",
+      "Threat modeling",
+      "Security certifications (CompTIA, CEH, OSCP)",
+    ],
     majors: ["Cybersecurity", "Computer Science", "Information Systems"],
-    educationPath: "Bachelor's + certifications → SOC analyst → security engineer → specialist or architect.",
+    educationPath:
+      "Bachelor's + certifications → SOC analyst → security engineer → specialist or architect.",
     salaryRange: "$80k – $180k (US)",
     outlook: "Critical and growing — every company needs security.",
     advantages: ["Mission-driven", "High pay", "Always evolving"],
@@ -76,22 +130,43 @@ export const CAREERS: CareerInfo[] = [
   },
   {
     name: "Product Manager",
-    description: "Owns the vision, strategy and roadmap of a product, aligning teams to ship value.",
-    responsibilities: ["Define product strategy", "Prioritize roadmap", "Talk to users", "Align engineering, design, marketing"],
-    skills: ["Communication", "Strategic thinking", "Data literacy", "User research", "Prioritization"],
+    description:
+      "Owns the vision, strategy and roadmap of a product, aligning teams to ship value.",
+    responsibilities: [
+      "Define product strategy",
+      "Prioritize roadmap",
+      "Talk to users",
+      "Align engineering, design, marketing",
+    ],
+    skills: [
+      "Communication",
+      "Strategic thinking",
+      "Data literacy",
+      "User research",
+      "Prioritization",
+    ],
     majors: ["Business", "Computer Science", "Engineering", "Design", "Economics"],
     educationPath: "Any bachelor's → APM/associate PM → PM → senior PM → director of product.",
     salaryRange: "$100k – $250k+ (US)",
     outlook: "Strong demand in tech; very competitive at top companies.",
     advantages: ["High impact", "Cross-functional work", "Great compensation"],
-    challenges: ["Accountability without authority", "Constant context switching", "Hard to break into"],
+    challenges: [
+      "Accountability without authority",
+      "Constant context switching",
+      "Hard to break into",
+    ],
     fitsMbti: ["ENTJ", "ENTP", "ENFJ", "INTJ"],
     interestKeys: ["leadership", "communication", "analytical"],
   },
   {
     name: "UX / UI Designer",
     description: "Designs intuitive, beautiful interfaces and end-to-end product experiences.",
-    responsibilities: ["User research", "Wireframes & prototypes", "Visual design", "Usability testing"],
+    responsibilities: [
+      "User research",
+      "Wireframes & prototypes",
+      "Visual design",
+      "Usability testing",
+    ],
     skills: ["Figma", "Design systems", "User research", "Typography", "Interaction design"],
     majors: ["Design", "HCI", "Psychology", "Computer Science"],
     educationPath: "Degree or bootcamp + portfolio → junior designer → senior → lead/principal.",
@@ -105,7 +180,12 @@ export const CAREERS: CareerInfo[] = [
   {
     name: "Graphic Designer",
     description: "Creates visual content for brands, campaigns, packaging and digital media.",
-    responsibilities: ["Brand identity", "Marketing collateral", "Social media graphics", "Print & digital layout"],
+    responsibilities: [
+      "Brand identity",
+      "Marketing collateral",
+      "Social media graphics",
+      "Print & digital layout",
+    ],
     skills: ["Adobe Suite / Figma", "Typography", "Color theory", "Composition", "Brand thinking"],
     majors: ["Graphic Design", "Visual Communication", "Fine Arts"],
     educationPath: "Degree or self-taught + strong portfolio → junior → senior → art director.",
@@ -118,14 +198,24 @@ export const CAREERS: CareerInfo[] = [
   },
   {
     name: "Psychologist",
-    description: "Studies the mind and behavior; helps individuals improve mental health and wellbeing.",
-    responsibilities: ["Counsel clients", "Conduct assessments", "Research behavior", "Develop treatment plans"],
+    description:
+      "Studies the mind and behavior; helps individuals improve mental health and wellbeing.",
+    responsibilities: [
+      "Counsel clients",
+      "Conduct assessments",
+      "Research behavior",
+      "Develop treatment plans",
+    ],
     skills: ["Empathy", "Active listening", "Research methods", "Ethical reasoning"],
     majors: ["Psychology", "Cognitive Science", "Neuroscience"],
     educationPath: "Bachelor's → Master's or PhD/PsyD → licensure → practice.",
     salaryRange: "$60k – $140k (US)",
     outlook: "Growing — mental health awareness is rising.",
-    advantages: ["Deeply meaningful", "Diverse settings (clinical, research, org)", "Lifelong learning"],
+    advantages: [
+      "Deeply meaningful",
+      "Diverse settings (clinical, research, org)",
+      "Lifelong learning",
+    ],
     challenges: ["Long education path", "Emotionally taxing", "Licensing requirements"],
     fitsMbti: ["INFJ", "INFP", "ENFJ"],
     interestKeys: ["eq", "communication", "curiosity"],
@@ -161,7 +251,12 @@ export const CAREERS: CareerInfo[] = [
   {
     name: "Public Relations Manager",
     description: "Shapes how organizations are perceived by media, customers and the public.",
-    responsibilities: ["Media relations", "Crisis communications", "Press releases", "Spokesperson coaching"],
+    responsibilities: [
+      "Media relations",
+      "Crisis communications",
+      "Press releases",
+      "Spokesperson coaching",
+    ],
     skills: ["Writing", "Networking", "Strategic communication", "Composure under pressure"],
     majors: ["PR", "Communications", "Journalism", "Marketing"],
     educationPath: "Bachelor's + internships → coordinator → specialist → manager → director.",
@@ -178,7 +273,8 @@ export const CAREERS: CareerInfo[] = [
     responsibilities: ["Plan lessons", "Teach classes", "Grade work", "Mentor students"],
     skills: ["Communication", "Patience", "Subject expertise", "Classroom management"],
     majors: ["Education", "Subject-specific (Math, History, etc.)"],
-    educationPath: "Bachelor's + teaching credential → classroom teacher → department lead → principal.",
+    educationPath:
+      "Bachelor's + teaching credential → classroom teacher → department lead → principal.",
     salaryRange: "$45k – $90k (US, varies wildly by region)",
     outlook: "Stable demand; shortages in STEM and special ed.",
     advantages: ["Meaningful impact", "Summers / breaks", "Job security"],
@@ -192,7 +288,8 @@ export const CAREERS: CareerInfo[] = [
     responsibilities: ["See patients", "Diagnose & treat", "Order tests", "Coordinate care"],
     skills: ["Biology & medicine mastery", "Diagnostic reasoning", "Empathy", "Stamina"],
     majors: ["Pre-med (Biology, Chemistry)", "Biomedical Sciences"],
-    educationPath: "Bachelor's → MCAT → 4-year medical school → 3–7 year residency → optional fellowship.",
+    educationPath:
+      "Bachelor's → MCAT → 4-year medical school → 3–7 year residency → optional fellowship.",
     salaryRange: "$200k – $500k+ (US)",
     outlook: "Always in demand; long & expensive path.",
     advantages: ["Save lives", "High prestige & pay", "Many specialties"],
@@ -203,7 +300,12 @@ export const CAREERS: CareerInfo[] = [
   {
     name: "Business Analyst",
     description: "Bridges business needs and technical solutions to improve processes.",
-    responsibilities: ["Gather requirements", "Process modeling", "Stakeholder workshops", "Translate needs to specs"],
+    responsibilities: [
+      "Gather requirements",
+      "Process modeling",
+      "Stakeholder workshops",
+      "Translate needs to specs",
+    ],
     skills: ["Communication", "SQL", "Process design", "Documentation", "Critical thinking"],
     majors: ["Business", "Information Systems", "Economics", "Computer Science"],
     educationPath: "Bachelor's → junior BA → senior BA → product owner or consultant.",
@@ -220,7 +322,8 @@ export const CAREERS: CareerInfo[] = [
     responsibilities: ["Set vision", "Raise capital", "Hire & lead team", "Sell & ship"],
     skills: ["Resilience", "Sales", "Strategy", "Storytelling", "Resourcefulness"],
     majors: ["Any — execution matters more than degree"],
-    educationPath: "Optional degree → side projects → first venture → iterate. Many top founders are self-taught.",
+    educationPath:
+      "Optional degree → side projects → first venture → iterate. Many top founders are self-taught.",
     salaryRange: "$0 – $∞ (long tail; most ventures fail; the winners go very far)",
     outlook: "Always relevant; tooling now lowers the barrier dramatically.",
     advantages: ["Total ownership", "Unlimited upside", "Build what you believe in"],
@@ -309,7 +412,11 @@ function personalizeFor(career: CareerInfo, ctx: AbbiContext): string | null {
   }
   const overlap = (career.interestKeys ?? []).filter((k) => ctx.topInterests?.includes(k));
   if (overlap.length) reasons.push(`your standout abilities in ${overlap.join(" & ")}`);
-  if (ctx.iqScore && ctx.iqScore >= 115 && (career.interestKeys?.includes("analytical") || career.interestKeys?.includes("technical"))) {
+  if (
+    ctx.iqScore &&
+    ctx.iqScore >= 115 &&
+    (career.interestKeys?.includes("analytical") || career.interestKeys?.includes("technical"))
+  ) {
     reasons.push(`your above-average cognitive score (${ctx.iqScore})`);
   }
   if (!reasons.length) return null;
@@ -494,13 +601,12 @@ function bestFitFromContext(ctx: AbbiContext): string {
       "Take the **Abilitio Assessment** first, then ask me again and I'll match you to careers based on your real IQ, personality and interests.",
     ].join("\n");
   }
-  const ranked = CAREERS
-    .map((c) => {
-      let score = 0;
-      if (ctx.mbtiType && c.fitsMbti?.includes(ctx.mbtiType)) score += 3;
-      score += (c.interestKeys ?? []).filter((k) => ctx.topInterests?.includes(k)).length;
-      return { c, score };
-    })
+  const ranked = CAREERS.map((c) => {
+    let score = 0;
+    if (ctx.mbtiType && c.fitsMbti?.includes(ctx.mbtiType)) score += 3;
+    score += (c.interestKeys ?? []).filter((k) => ctx.topInterests?.includes(k)).length;
+    return { c, score };
+  })
     .sort((a, b) => b.score - a.score)
     .filter((x) => x.score > 0)
     .slice(0, 3);
@@ -512,8 +618,12 @@ function bestFitFromContext(ctx: AbbiContext): string {
     `### Your top career matches`,
     ...ranked.map(({ c }, i) => `**${i + 1}. ${c.name}** — ${c.description}`),
     "",
-    ctx.mbtiType ? `These align with your **${ctx.mbtiType}** personality and your standout abilities.` : "",
-  ].filter(Boolean).join("\n");
+    ctx.mbtiType
+      ? `These align with your **${ctx.mbtiType}** personality and your standout abilities.`
+      : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 function skillsToLearn(ctx: AbbiContext): string {
@@ -528,7 +638,8 @@ function skillsToLearn(ctx: AbbiContext): string {
     "- **Public speaking** — careers compound when you can present.",
   ];
   if (focus === "creativity") base.push("- **Design fundamentals** — typography, layout, color.");
-  if (focus === "leadership") base.push("- **Negotiation & coaching** — read *Never Split the Difference*.");
+  if (focus === "leadership")
+    base.push("- **Negotiation & coaching** — read *Never Split the Difference*.");
   return base.join("\n");
 }
 
@@ -557,11 +668,17 @@ export function generateAbbiReply(message: string, ctx: AbbiContext): string {
       return [
         `### ${greet}Areas to grow`,
         "Based on your Abilitio assessment, here are the dimensions where you have the most room to grow:",
-        ...ctx.weaknesses.slice(0, 5).map((w) => `- **${w}** — pick one small, concrete habit this week to practice it.`),
+        ...ctx.weaknesses
+          .slice(0, 5)
+          .map((w) => `- **${w}** — pick one small, concrete habit this week to practice it.`),
         "",
-        ctx.mbtiType ? `As an **${ctx.mbtiType}**, growth often comes from intentionally stepping into situations that feel slightly uncomfortable.` : "",
+        ctx.mbtiType
+          ? `As an **${ctx.mbtiType}**, growth often comes from intentionally stepping into situations that feel slightly uncomfortable.`
+          : "",
         "Want a 30-day growth plan? Ask me *Make a 30-day plan for [skill]*.",
-      ].filter(Boolean).join("\n");
+      ]
+        .filter(Boolean)
+        .join("\n");
     }
     return "Once you complete the Abilitio Assessment I can tell you exactly where to focus. Take it first, then ask me again.";
   }
@@ -572,7 +689,8 @@ export function generateAbbiReply(message: string, ctx: AbbiContext): string {
     const target = becomeMatch[1].trim().replace(/[?.!]+$/, "");
     const career = findCareer(target);
     const top = ctx.topCareers?.[0];
-    const topMatchesTarget = top && career && top.name.toLowerCase().includes(career.name.toLowerCase().split(" ")[0]);
+    const topMatchesTarget =
+      top && career && top.name.toLowerCase().includes(career.name.toLowerCase().split(" ")[0]);
     if (career && top) {
       if (topMatchesTarget) {
         return `${greet}**Yes** — ${career.name} is your **#1 assessment match (${top.match}%)**. Your profile aligns strongly with this path.\n\n${md(career)}`;
@@ -585,7 +703,9 @@ export function generateAbbiReply(message: string, ctx: AbbiContext): string {
           : `Your personality and strengths point more naturally toward your top match — but ${career.name} is still achievable with focused effort.`,
         "",
         md(career),
-      ].filter(Boolean).join("\n");
+      ]
+        .filter(Boolean)
+        .join("\n");
     }
     if (career) {
       return `${md(career)}\n\nComplete the Abilitio Assessment to see how ${career.name} ranks against your personal profile.`;
@@ -593,13 +713,25 @@ export function generateAbbiReply(message: string, ctx: AbbiContext): string {
   }
 
   // Best-fit personalization
-  if (q.includes("career fits me") || q.includes("best career for me") || q.includes("which career") || q.includes("what career")) {
+  if (
+    q.includes("career fits me") ||
+    q.includes("best career for me") ||
+    q.includes("which career") ||
+    q.includes("what career")
+  ) {
     if (ctx.topCareers?.length) {
       const lines = [
         `### ${greet}Your top career matches`,
-        ...ctx.topCareers.slice(0, 3).map((c, i) => `**${i + 1}. ${c.name}** — ${c.match}% match${c.reason ? ` · ${c.reason}` : ""}`),
+        ...ctx.topCareers
+          .slice(0, 3)
+          .map(
+            (c, i) =>
+              `**${i + 1}. ${c.name}** — ${c.match}% match${c.reason ? ` · ${c.reason}` : ""}`,
+          ),
         "",
-        ctx.mbtiType ? `These reflect your **${ctx.mbtiType}** personality${ctx.iqScore ? `, IQ ${ctx.iqScore}` : ""}${ctx.topStrengths?.length ? ` and standout strengths in ${ctx.topStrengths.slice(0, 2).join(" & ")}` : ""}.` : "",
+        ctx.mbtiType
+          ? `These reflect your **${ctx.mbtiType}** personality${ctx.iqScore ? `, IQ ${ctx.iqScore}` : ""}${ctx.topStrengths?.length ? ` and standout strengths in ${ctx.topStrengths.slice(0, 2).join(" & ")}` : ""}.`
+          : "",
         ctx.ageGroup === "adult"
           ? "Want me to break down salaries, growth, and next steps for any of these?"
           : "Ask me about any of them to see skills, education path, and universities.",
@@ -631,11 +763,19 @@ export function generateAbbiReply(message: string, ctx: AbbiContext): string {
   }
 
   // Salary / jobs — adult-focused branch
-  if (ctx.ageGroup === "adult" && (q.includes("job") || q.includes("salary") || q.includes("career change") || q.includes("transition"))) {
+  if (
+    ctx.ageGroup === "adult" &&
+    (q.includes("job") ||
+      q.includes("salary") ||
+      q.includes("career change") ||
+      q.includes("transition"))
+  ) {
     const top = ctx.topCareers?.[0];
     return [
       `### ${greet}Career growth & transitions`,
-      top ? `Your strongest match is **${top.name} (${top.match}%)**. For a working adult, transitioning to a role like this typically takes **6–18 months** with focused upskilling.` : "I'd love to give you a personalized roadmap — complete the assessment first.",
+      top
+        ? `Your strongest match is **${top.name} (${top.match}%)**. For a working adult, transitioning to a role like this typically takes **6–18 months** with focused upskilling.`
+        : "I'd love to give you a personalized roadmap — complete the assessment first.",
       "",
       "**Plan**",
       "1. **Audit transferable skills** — what from your current work maps onto the target role?",
@@ -643,14 +783,20 @@ export function generateAbbiReply(message: string, ctx: AbbiContext): string {
       "3. **Portfolio** — build 2–3 visible artifacts (case studies, demos, contributions).",
       "4. **Network** — talk to 5 people in the target role each month.",
       "5. **Apply strategically** — 3 high-quality applications a week beats 30 generic ones.",
-    ].filter(Boolean).join("\n");
+    ]
+      .filter(Boolean)
+      .join("\n");
   }
 
   // CEO / entrepreneurship
-  if (q.includes("ceo") || q.includes("startup founder") || q.includes("become a founder")) return ceoPath();
+  if (q.includes("ceo") || q.includes("startup founder") || q.includes("become a founder"))
+    return ceoPath();
 
   // Skills
-  if (q.includes("skill") && (q.includes("should") || q.includes("learn") || q.includes("important"))) {
+  if (
+    q.includes("skill") &&
+    (q.includes("should") || q.includes("learn") || q.includes("important"))
+  ) {
     return skillsToLearn(ctx);
   }
 

@@ -5,8 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-display: 'Inter', system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Inter", system-ui, sans-serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -48,43 +48,102 @@
   --animate-marquee: marquee 28s linear infinite;
 
   @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
   @keyframes fade-up {
-    from { opacity: 0; transform: translateY(24px); filter: blur(6px); }
-    to { opacity: 1; transform: translateY(0); filter: blur(0); }
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+      filter: blur(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
   }
   @keyframes blur-in {
-    from { opacity: 0; filter: blur(14px); transform: scale(0.985); }
-    to { opacity: 1; filter: blur(0); transform: scale(1); }
+    from {
+      opacity: 0;
+      filter: blur(14px);
+      transform: scale(0.985);
+    }
+    to {
+      opacity: 1;
+      filter: blur(0);
+      transform: scale(1);
+    }
   }
   @keyframes float {
-    0%, 100% { transform: translateY(0) translateX(0); }
-    50% { transform: translateY(-22px) translateX(12px); }
+    0%,
+    100% {
+      transform: translateY(0) translateX(0);
+    }
+    50% {
+      transform: translateY(-22px) translateX(12px);
+    }
   }
   @keyframes drift {
-    0%, 100% { transform: translate3d(0,0,0) scale(1); }
-    50% { transform: translate3d(20px,-30px,0) scale(1.05); }
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    50% {
+      transform: translate3d(20px, -30px, 0) scale(1.05);
+    }
   }
   @keyframes marquee {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
   }
   @keyframes aurora {
-    0%   { transform: translate3d(0,0,0) scale(1);    opacity: 0.28; }
-    25%  { transform: translate3d(-40px,18px,0) scale(1.07); opacity: 0.4; }
-    50%  { transform: translate3d(30px,-25px,0) scale(0.96); opacity: 0.22; }
-    75%  { transform: translate3d(-18px,-35px,0) scale(1.04); opacity: 0.38; }
-    100% { transform: translate3d(0,0,0) scale(1);    opacity: 0.28; }
+    0% {
+      transform: translate3d(0, 0, 0) scale(1);
+      opacity: 0.28;
+    }
+    25% {
+      transform: translate3d(-40px, 18px, 0) scale(1.07);
+      opacity: 0.4;
+    }
+    50% {
+      transform: translate3d(30px, -25px, 0) scale(0.96);
+      opacity: 0.22;
+    }
+    75% {
+      transform: translate3d(-18px, -35px, 0) scale(1.04);
+      opacity: 0.38;
+    }
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+      opacity: 0.28;
+    }
   }
   @keyframes pulse-glow {
-    0%, 100% { opacity: 0.2; }
-    50% { opacity: 0.42; }
+    0%,
+    100% {
+      opacity: 0.2;
+    }
+    50% {
+      opacity: 0.42;
+    }
   }
   @keyframes shimmer-line {
-    0%, 100% { opacity: 0.55; }
-    50% { opacity: 1; }
+    0%,
+    100% {
+      opacity: 0.55;
+    }
+    50% {
+      opacity: 1;
+    }
   }
 }
 
@@ -96,21 +155,21 @@
   --radius: 0.75rem;
 
   /* Deep ink with subtle violet undertone */
-  --background: oklch(0.16 0.012 285);            /* #0F1117 */
+  --background: oklch(0.16 0.012 285); /* #0F1117 */
   --foreground: oklch(0.93 0.006 285);
-  --card: oklch(0.21 0.014 285);                  /* #1B1F2A */
+  --card: oklch(0.21 0.014 285); /* #1B1F2A */
   --card-foreground: oklch(0.93 0.006 285);
   --popover: oklch(0.2 0.014 285);
   --popover-foreground: oklch(0.93 0.006 285);
 
   /* Muted violet — luxurious, never neon */
-  --primary: oklch(0.7 0.14 290);                 /* ~#8B7CF6 */
+  --primary: oklch(0.7 0.14 290); /* ~#8B7CF6 */
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.24 0.014 285);             /* ~#151821 */
+  --secondary: oklch(0.24 0.014 285); /* ~#151821 */
   --secondary-foreground: oklch(0.93 0.006 285);
   --muted: oklch(0.23 0.012 285);
   --muted-foreground: oklch(0.67 0.018 285);
-  --accent: oklch(0.76 0.12 295);                 /* soft lavender ~#A78BFA */
+  --accent: oklch(0.76 0.12 295); /* soft lavender ~#A78BFA */
   --accent-foreground: oklch(0.16 0.012 285);
   --destructive: oklch(0.6 0.18 25);
   --destructive-foreground: oklch(0.98 0 0);
@@ -129,12 +188,8 @@
   --sidebar-border: oklch(0.32 0.018 285 / 50%);
   --sidebar-ring: oklch(0.7 0.14 290);
 
-  --shadow-elegant:
-    0 1px 2px rgba(0,0,0,0.25),
-    0 10px 30px -14px rgba(20, 14, 40, 0.6);
-  --shadow-soft:
-    0 1px 2px rgba(0,0,0,0.2),
-    0 2px 8px -4px rgba(20, 14, 40, 0.35);
+  --shadow-elegant: 0 1px 2px rgba(0, 0, 0, 0.25), 0 10px 30px -14px rgba(20, 14, 40, 0.6);
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.2), 0 2px 8px -4px rgba(20, 14, 40, 0.35);
 
   /* Gradient line — soft violet → purple → muted indigo */
   --gradient-line: linear-gradient(
@@ -154,25 +209,25 @@
    LIGHT MODE — airy lavender-tinted white, premium calm
    ============================================================ */
 :root:not(.dark) {
-  --background: oklch(0.975 0.01 290);            /* soft lavender-white ~#F4F2FB */
-  --foreground: oklch(0.2 0.018 285);             /* deeper ink for contrast */
-  --card: oklch(0.995 0.004 290);                 /* nearly-white with faint violet */
+  --background: oklch(0.975 0.01 290); /* soft lavender-white ~#F4F2FB */
+  --foreground: oklch(0.2 0.018 285); /* deeper ink for contrast */
+  --card: oklch(0.995 0.004 290); /* nearly-white with faint violet */
   --card-foreground: oklch(0.2 0.018 285);
   --popover: oklch(0.995 0.004 290);
   --popover-foreground: oklch(0.2 0.018 285);
 
   /* Deep elegant violet */
-  --primary: oklch(0.5 0.18 285);                 /* richer, more confident */
+  --primary: oklch(0.5 0.18 285); /* richer, more confident */
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.955 0.018 290);            /* soft lavender chip */
+  --secondary: oklch(0.955 0.018 290); /* soft lavender chip */
   --secondary-foreground: oklch(0.28 0.025 285);
   --muted: oklch(0.96 0.012 290);
-  --muted-foreground: oklch(0.46 0.025 285);      /* darker for legibility */
-  --accent: oklch(0.56 0.16 290);                 /* match primary family, deeper */
+  --muted-foreground: oklch(0.46 0.025 285); /* darker for legibility */
+  --accent: oklch(0.56 0.16 290); /* match primary family, deeper */
   --accent-foreground: oklch(0.99 0 0);
   --destructive: oklch(0.55 0.18 25);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.58 0.1 290 / 18%);            /* lavender-tinted, even */
+  --border: oklch(0.58 0.1 290 / 18%); /* lavender-tinted, even */
   --input: oklch(0.93 0.014 290);
   --ring: oklch(0.5 0.18 285 / 45%);
   --lavender: oklch(0.78 0.08 290);
@@ -188,12 +243,9 @@
   --sidebar-ring: oklch(0.5 0.18 285 / 45%);
 
   --shadow-elegant:
-    0 1px 2px rgba(40, 28, 80, 0.04),
-    0 6px 18px -6px rgba(50, 32, 100, 0.07),
-    0 20px 50px -20px rgba(70, 45, 130, 0.10);
-  --shadow-soft:
-    0 1px 2px rgba(40, 28, 80, 0.035),
-    0 3px 10px -3px rgba(50, 32, 100, 0.05);
+    0 1px 2px rgba(40, 28, 80, 0.04), 0 6px 18px -6px rgba(50, 32, 100, 0.07),
+    0 20px 50px -20px rgba(70, 45, 130, 0.1);
+  --shadow-soft: 0 1px 2px rgba(40, 28, 80, 0.035), 0 3px 10px -3px rgba(50, 32, 100, 0.05);
 
   /* Gradient line — deep violet over lavender background */
   --gradient-line: linear-gradient(
@@ -210,16 +262,20 @@
 }
 
 html {
-  transition: background-color 0.4s ease, color 0.4s ease;
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease;
 }
 body {
-  transition: background-color 0.4s ease, color 0.4s ease;
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease;
 }
 
 /* Subtle ambient gradients — slightly bluish purple wash */
 :root:not(.dark) body {
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%, oklch(0.55 0.18 285 / 0.10), transparent 70%),
+    radial-gradient(ellipse 80% 50% at 50% -20%, oklch(0.55 0.18 285 / 0.1), transparent 70%),
     radial-gradient(ellipse 60% 40% at 100% 100%, oklch(0.55 0.16 270 / 0.08), transparent 70%),
     radial-gradient(ellipse 50% 35% at 0% 80%, oklch(0.6 0.14 300 / 0.06), transparent 70%);
   background-attachment: fixed;
@@ -241,7 +297,7 @@ body {
        phantom horizontal scroll. `clip` (not `hidden`) preserves position:sticky. */
     overflow-x: clip;
     font-family: var(--font-sans);
-    font-feature-settings: 'cv11', 'ss01', 'ss03';
+    font-feature-settings: "cv11", "ss01", "ss03";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-size: 15px;
@@ -251,14 +307,25 @@ body {
       radial-gradient(ellipse 55% 35% at 100% 100%, oklch(0.4 0.12 280 / 0.1), transparent 70%);
     background-attachment: fixed;
   }
-  h1, h2, h3, h4, h5 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
     letter-spacing: -0.022em;
     font-weight: 600;
     line-height: 1.15;
   }
-  h1 { letter-spacing: -0.03em; font-weight: 650; }
-  h2 { letter-spacing: -0.028em; }
-  p { line-height: 1.65; }
+  h1 {
+    letter-spacing: -0.03em;
+    font-weight: 650;
+  }
+  h2 {
+    letter-spacing: -0.028em;
+  }
+  p {
+    line-height: 1.65;
+  }
 }
 
 /* ============================================================
@@ -277,27 +344,31 @@ body {
   border: 1px solid oklch(0.55 0.16 290 / 14%);
   box-shadow:
     0 1px 1px rgba(40, 28, 80, 0.025),
-    0 8px 24px -10px rgba(60, 40, 130, 0.10);
+    0 8px 24px -10px rgba(60, 40, 130, 0.1);
 }
 
 /* ============================================================
    Refined gradient text — violet → purple → indigo
    ============================================================ */
 @utility gradient-text {
-  background: linear-gradient(135deg,
+  background: linear-gradient(
+    135deg,
     oklch(0.88 0.05 295),
     oklch(0.78 0.13 290) 50%,
-    oklch(0.7 0.15 280));
+    oklch(0.7 0.15 280)
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 :root:not(.dark) .gradient-text {
-  background: linear-gradient(135deg,
+  background: linear-gradient(
+    135deg,
     oklch(0.32 0.08 285),
     oklch(0.46 0.17 290) 55%,
-    oklch(0.5 0.17 278));
+    oklch(0.5 0.17 278)
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -308,7 +379,7 @@ body {
    ============================================================ */
 @utility glow-purple {
   box-shadow:
-    0 1px 2px rgba(0,0,0,0.06),
+    0 1px 2px rgba(0, 0, 0, 0.06),
     0 10px 28px -12px var(--glow);
 }
 
@@ -319,7 +390,9 @@ body {
 }
 
 @utility hover-glow {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
   &:hover {
     box-shadow: var(--shadow-elegant);
     transform: translateY(-1px);
@@ -357,7 +430,10 @@ body {
 }
 
 /* Tactile transitions */
-button, [role="button"], .btn, a.inline-flex {
+button,
+[role="button"],
+.btn,
+a.inline-flex {
   transition:
     background-color 0.18s ease,
     color 0.18s ease,
@@ -367,7 +443,9 @@ button, [role="button"], .btn, a.inline-flex {
 }
 
 /* Satisfying press state — feels native, like iOS */
-button:active:not(:disabled), [role="button"]:active, a.inline-flex:active {
+button:active:not(:disabled),
+[role="button"]:active,
+a.inline-flex:active {
   transform: scale(0.97);
   transition-duration: 0.08s;
 }
@@ -429,7 +507,8 @@ button:active:not(:disabled), [role="button"]:active, a.inline-flex:active {
   outline-offset: 2px;
   border-radius: var(--radius);
 }
-:root:not(.dark) :where(a, button, [role="button"], input, textarea, select, summary):focus-visible {
+:root:not(.dark)
+  :where(a, button, [role="button"], input, textarea, select, summary):focus-visible {
   outline-color: oklch(0.5 0.18 285 / 0.7);
 }
 
@@ -453,7 +532,9 @@ button:active:not(:disabled), [role="button"]:active, a.inline-flex:active {
   }
 }
 @keyframes skeleton-sweep {
-  100% { transform: translateX(100%); }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Faint grid texture — depth without noise, fades out toward edges */
@@ -502,13 +583,23 @@ button:active:not(:disabled), [role="button"]:active, a.inline-flex:active {
   }
 }
 @keyframes pulse-ring {
-  0%, 100% { opacity: 0; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.6); }
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.6);
+  }
 }
 
 /* Subtle card lift with border brightening — a refined hover pattern */
 @utility card-lift {
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+  transition:
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
   &:hover {
     transform: translateY(-3px);
     border-color: oklch(0.7 0.14 290 / 35%);
@@ -520,7 +611,9 @@ button:active:not(:disabled), [role="button"]:active, a.inline-flex:active {
 
 /* Respect users who prefer less motion */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

@@ -13,7 +13,9 @@ export function GlowBlob({ className, alpha = 0.6 }: { className?: string; alpha
     <div
       aria-hidden
       className={`pointer-events-none absolute rounded-full ${className ?? ""}`}
-      style={{ background: `radial-gradient(circle, oklch(0.65 0.24 295 / ${alpha}), transparent 70%)` }}
+      style={{
+        background: `radial-gradient(circle, oklch(0.65 0.24 295 / ${alpha}), transparent 70%)`,
+      }}
     />
   );
 }

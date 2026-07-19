@@ -9,7 +9,11 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { title: "Pricing — Abilitio" },
-      { name: "description", content: "Abilitio is 100% free. Every assessment, insight, and tool is available to everyone at no cost." },
+      {
+        name: "description",
+        content:
+          "Abilitio is 100% free. Every assessment, insight, and tool is available to everyone at no cost.",
+      },
     ],
   }),
   component: PricingPage,
@@ -22,8 +26,14 @@ function PricingPage() {
   // a single free plan. De-duplicated so shared features only appear once.
   const features = Array.from(
     new Set([
-      t.pricing.plan2F1, t.pricing.plan2F2, t.pricing.plan2F3, t.pricing.plan2F4, t.pricing.plan2F5,
-      t.pricing.plan3F2, t.pricing.plan3F3, t.pricing.plan3F4,
+      t.pricing.plan2F1,
+      t.pricing.plan2F2,
+      t.pricing.plan2F3,
+      t.pricing.plan2F4,
+      t.pricing.plan2F5,
+      t.pricing.plan3F2,
+      t.pricing.plan3F3,
+      t.pricing.plan3F4,
     ]),
   );
 
@@ -36,7 +46,9 @@ function PricingPage() {
           <h1 className="mt-3 text-4xl font-bold md:text-6xl">
             {t.pricing.title} <span className="gradient-text">{t.pricing.titleHighlight}</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">{t.pricing.subtitle}</p>
+          <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
+            {t.pricing.subtitle}
+          </p>
         </div>
       </section>
 
@@ -80,7 +92,11 @@ function PricingPage() {
         </Reveal>
 
         <div className="mx-auto mt-10 max-w-2xl text-center text-sm text-muted-foreground">
-          {t.pricing.schoolQuestion} <Link to="/contact" className="text-accent hover:underline">{t.pricing.getInTouch}</Link>.
+          {t.pricing.schoolQuestion}{" "}
+          <Link to="/contact" className="text-accent hover:underline">
+            {t.pricing.getInTouch}
+          </Link>
+          .
         </div>
       </section>
     </PageShell>

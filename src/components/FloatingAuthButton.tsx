@@ -84,12 +84,7 @@ export function FloatingAuthButton() {
   }
 
   return (
-    <Link
-      to="/auth"
-      search={{ mode: "login" }}
-      aria-label="Sign in"
-      className={baseClass}
-    >
+    <Link to="/auth" search={{ mode: "login" }} aria-label="Sign in" className={baseClass}>
       {glow}
       <User className="h-5 w-5 text-foreground/90 transition-transform group-hover:scale-110" />
     </Link>

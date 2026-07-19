@@ -6,7 +6,11 @@ export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
       { title: "Terms of Service — Abilitio" },
-      { name: "description", content: "The terms that govern your use of Abilitio, including eligibility, assessments, and payments." },
+      {
+        name: "description",
+        content:
+          "The terms that govern your use of Abilitio, including eligibility, assessments, and payments.",
+      },
     ],
   }),
   component: TermsPage,
@@ -20,16 +24,17 @@ function TermsPage() {
     >
       <LegalSection heading="1. Acceptance of terms">
         <p>
-          By accessing or using {SITE_NAME}, you agree to be bound by these Terms of Service and our Privacy Policy.
-          If you do not agree, please do not use the service.
+          By accessing or using {SITE_NAME}, you agree to be bound by these Terms of Service and our
+          Privacy Policy. If you do not agree, please do not use the service.
         </p>
       </LegalSection>
 
       <LegalSection heading="2. Eligibility">
         <p>
-          {SITE_NAME} is intended for students and the parents, guardians, and schools that support them. If you are a
-          minor, you may use the service only with the consent and involvement of a parent, guardian, or participating
-          school. Schools confirm they are authorized to invite the students they onboard.
+          {SITE_NAME} is intended for students and the parents, guardians, and schools that support
+          them. If you are a minor, you may use the service only with the consent and involvement of
+          a parent, guardian, or participating school. Schools confirm they are authorized to invite
+          the students they onboard.
         </p>
       </LegalSection>
 
@@ -45,19 +50,21 @@ function TermsPage() {
 
       <LegalSection heading="4. Nature of assessments">
         <p>
-          {SITE_NAME}'s assessments — including personality, interest, cognitive, and IQ-style tests — are designed for
-          self-discovery, guidance, and educational planning. They are <strong className="text-foreground">not</strong>{" "}
-          clinical, diagnostic, or psychometrically certified instruments, and they should not be used as a substitute
-          for professional psychological, medical, or career counseling. Results are indicative and meant to spark
+          {SITE_NAME}'s assessments — including personality, interest, cognitive, and IQ-style tests
+          — are designed for self-discovery, guidance, and educational planning. They are{" "}
+          <strong className="text-foreground">not</strong> clinical, diagnostic, or psychometrically
+          certified instruments, and they should not be used as a substitute for professional
+          psychological, medical, or career counseling. Results are indicative and meant to spark
           reflection and conversation, not to label or limit anyone.
         </p>
       </LegalSection>
 
       <LegalSection heading="5. A free service">
         <p>
-          Abilitio is provided free of charge. There are no paid plans, subscriptions, or in-app purchases, and we do
-          not collect payment information. We may introduce optional paid features in the future; if we ever do, we
-          will update these terms and clearly disclose any pricing before you are asked to pay.
+          Abilitio is provided free of charge. There are no paid plans, subscriptions, or in-app
+          purchases, and we do not collect payment information. We may introduce optional paid
+          features in the future; if we ever do, we will update these terms and clearly disclose any
+          pricing before you are asked to pay.
         </p>
       </LegalSection>
 
@@ -75,37 +82,41 @@ function TermsPage() {
 
       <LegalSection heading="7. Intellectual property">
         <p>
-          The {SITE_NAME} platform, including its design, content, and assessment materials, is owned by {SITE_NAME} and
-          protected by applicable law. Your own data and results remain yours; you grant us the limited rights needed to
-          operate the service for you.
+          The {SITE_NAME} platform, including its design, content, and assessment materials, is
+          owned by {SITE_NAME} and protected by applicable law. Your own data and results remain
+          yours; you grant us the limited rights needed to operate the service for you.
         </p>
       </LegalSection>
 
       <LegalSection heading="8. Disclaimers and limitation of liability">
         <p>
-          The service is provided "as is" without warranties of any kind. To the maximum extent permitted by law,
-          {" "}{SITE_NAME} is not liable for indirect, incidental, or consequential damages, or for decisions made solely
-          on the basis of assessment results.
+          The service is provided "as is" without warranties of any kind. To the maximum extent
+          permitted by law, {SITE_NAME} is not liable for indirect, incidental, or consequential
+          damages, or for decisions made solely on the basis of assessment results.
         </p>
       </LegalSection>
 
       <LegalSection heading="9. Termination">
         <p>
-          You may stop using {SITE_NAME} and request account deletion at any time. We may suspend or terminate accounts
-          that violate these terms or harm other users or the service.
+          You may stop using {SITE_NAME} and request account deletion at any time. We may suspend or
+          terminate accounts that violate these terms or harm other users or the service.
         </p>
       </LegalSection>
 
       <LegalSection heading="10. Governing law">
         <p>
-          These terms are governed by the laws of {COMPANY_LOCATION}, without regard to conflict-of-law principles.
+          These terms are governed by the laws of {COMPANY_LOCATION}, without regard to
+          conflict-of-law principles.
         </p>
       </LegalSection>
 
       <LegalSection heading="11. Contact">
         <p>
           Questions about these terms? Email us at{" "}
-          <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary hover:underline">{CONTACT_EMAIL}</a>.
+          <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary hover:underline">
+            {CONTACT_EMAIL}
+          </a>
+          .
         </p>
       </LegalSection>
     </LegalPage>

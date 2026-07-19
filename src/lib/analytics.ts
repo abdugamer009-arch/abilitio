@@ -12,11 +12,15 @@
  */
 
 const DOMAIN = import.meta.env.VITE_PLAUSIBLE_DOMAIN as string | undefined;
-const SRC = (import.meta.env.VITE_PLAUSIBLE_SRC as string | undefined) ?? "https://plausible.io/js/script.js";
+const SRC =
+  (import.meta.env.VITE_PLAUSIBLE_SRC as string | undefined) ?? "https://plausible.io/js/script.js";
 
 declare global {
   interface Window {
-    plausible?: (event: string, opts?: { props?: Record<string, string | number | boolean> }) => void;
+    plausible?: (
+      event: string,
+      opts?: { props?: Record<string, string | number | boolean> },
+    ) => void;
   }
 }
 

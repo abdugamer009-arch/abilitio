@@ -32,9 +32,15 @@ export function LegalPage({
             <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
               <Icon className="h-3.5 w-3.5" /> {eyebrow}
             </div>
-            <h1 className="mt-5 text-3xl font-bold tracking-tight gradient-text sm:text-4xl">{title}</h1>
+            <h1 className="mt-5 text-3xl font-bold tracking-tight gradient-text sm:text-4xl">
+              {title}
+            </h1>
             <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground">{intro}</p>
-            {showUpdated && <p className="mt-3 text-xs text-muted-foreground">Last updated: {LEGAL_LAST_UPDATED}</p>}
+            {showUpdated && (
+              <p className="mt-3 text-xs text-muted-foreground">
+                Last updated: {LEGAL_LAST_UPDATED}
+              </p>
+            )}
           </header>
 
           <div className="glass mt-10 rounded-3xl p-7 sm:p-10">
@@ -47,7 +53,13 @@ export function LegalPage({
 }
 
 /** A numbered section within a legal document. */
-export function LegalSection({ heading, children }: { heading: string; children: React.ReactNode }) {
+export function LegalSection({
+  heading,
+  children,
+}: {
+  heading: string;
+  children: React.ReactNode;
+}) {
   return (
     <section className="space-y-3">
       <h2 className="text-lg font-semibold text-foreground">{heading}</h2>

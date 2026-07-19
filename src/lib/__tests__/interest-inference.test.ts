@@ -1,6 +1,16 @@
 import { describe, it, expect } from "vitest";
-import { INTEREST_BANK, getInterestRiasec, pickSessionQuestions } from "../assessment/question-bank";
-import { scoreInterests, matchCareers, scorePersonality, scoreCognitive, type Career } from "../assessment/career-engine";
+import {
+  INTEREST_BANK,
+  getInterestRiasec,
+  pickSessionQuestions,
+} from "../assessment/question-bank";
+import {
+  scoreInterests,
+  matchCareers,
+  scorePersonality,
+  scoreCognitive,
+  type Career,
+} from "../assessment/career-engine";
 import type { PersonalityQ, RiasecDim } from "../assessment/career-assessment";
 
 // Helper: find an option id in the bank by a substring of its id.
@@ -14,15 +24,23 @@ function resolve(ids: string[]): Partial<Record<RiasecDim, number>>[] {
 }
 
 const P: PersonalityQ[] = Array.from({ length: 12 }, (_, i) => ({
-  id: `p${i}`, section: "personality", prompt: "", axis: "EI", direction: 1,
+  id: `p${i}`,
+  section: "personality",
+  prompt: "",
+  axis: "EI",
+  direction: 1,
 }));
 
 describe("interest test end-to-end (projective → job)", () => {
   it("an artistic symbol picker gets creative fields on top", () => {
     // squiggle, paintbrush, jazz sax, violet palette, free doodle, ribbon line
     const picks = resolve([
-      optId("s1_squiggle"), optId("o1_brush"), optId("d1_sax"),
-      optId("c1_violet"), optId("p1_doodle"), optId("l2_wave"),
+      optId("s1_squiggle"),
+      optId("o1_brush"),
+      optId("d1_sax"),
+      optId("c1_violet"),
+      optId("p1_doodle"),
+      optId("l2_wave"),
     ]);
     const { interests } = scoreInterests(picks);
     const top5 = interests.slice(0, 5).map((i) => i.key);
@@ -36,19 +54,49 @@ describe("interest test end-to-end (projective → job)", () => {
   it("an enterprising symbol picker surfaces business-type careers", () => {
     // triangle, lion, rising line, ember palette, mountain peak, megaphone
     const picks = resolve([
-      optId("s1_triangle"), optId("a1_lion"), optId("l1_diagonal"),
-      optId("c1_ember"), optId("n1_mountain"), optId("o1_megaphone"),
+      optId("s1_triangle"),
+      optId("a1_lion"),
+      optId("l1_diagonal"),
+      optId("c1_ember"),
+      optId("n1_mountain"),
+      optId("o1_megaphone"),
     ]);
     const { interests } = scoreInterests(picks);
     const top5 = interests.slice(0, 5).map((i) => i.key);
-    expect(top5.some((k) => ["business", "entrepreneurship", "politics", "marketing"].includes(k))).toBe(true);
+    expect(
+      top5.some((k) => ["business", "entrepreneurship", "politics", "marketing"].includes(k)),
+    ).toBe(true);
 
     // Feed into full career matcher with a neutral personality/cognitive.
     const personality = scorePersonality(Array(12).fill(3), P);
     const cognitive = scoreCognitive([], [], personality.mbti);
     const careers: Career[] = [
-      { key: "entrepreneur", name: "Entrepreneur", category: "Business", description: null, salary_min: 0, salary_max: 0, demand_score: 80, required_traits: {}, required_profile: [], required_interests: ["entrepreneurship", "business"], required_skills: [] },
-      { key: "painter", name: "Painter", category: "Arts", description: null, salary_min: 0, salary_max: 0, demand_score: 60, required_traits: {}, required_profile: [], required_interests: ["arts", "design"], required_skills: [] },
+      {
+        key: "entrepreneur",
+        name: "Entrepreneur",
+        category: "Business",
+        description: null,
+        salary_min: 0,
+        salary_max: 0,
+        demand_score: 80,
+        required_traits: {},
+        required_profile: [],
+        required_interests: ["entrepreneurship", "business"],
+        required_skills: [],
+      },
+      {
+        key: "painter",
+        name: "Painter",
+        category: "Arts",
+        description: null,
+        salary_min: 0,
+        salary_max: 0,
+        demand_score: 60,
+        required_traits: {},
+        required_profile: [],
+        required_interests: ["arts", "design"],
+        required_skills: [],
+      },
     ];
     const matches = matchCareers(careers, personality, cognitive, interests);
     expect(matches[0].key).toBe("entrepreneur"); // enterprising picks → business career wins
@@ -56,8 +104,12 @@ describe("interest test end-to-end (projective → job)", () => {
 
   it("an investigative picker surfaces science/technology", () => {
     const picks = resolve([
-      optId("a1_owl"), optId("o1_book"), optId("l1_spiral"),
-      optId("c1_deep"), optId("o2_telescope"), optId("v1_dive"),
+      optId("a1_owl"),
+      optId("o1_book"),
+      optId("l1_spiral"),
+      optId("c1_deep"),
+      optId("o2_telescope"),
+      optId("v1_dive"),
     ]);
     const { interests } = scoreInterests(picks);
     const top5 = interests.slice(0, 5).map((i) => i.key);

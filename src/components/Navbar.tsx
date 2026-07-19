@@ -21,7 +21,6 @@ export function Navbar() {
     { to: "/about", label: t.nav.about },
   ];
 
-
   return (
     <header className="sticky top-0 z-50 w-full pt-[env(safe-area-inset-top)]">
       <div className="mx-auto mt-4 max-w-[1500px] px-4 lg:px-6">
@@ -29,9 +28,11 @@ export function Navbar() {
           <div className="flex min-w-0 flex-1 items-center gap-6 md:gap-12">
             <Link to="/" className="group flex shrink-0 items-center gap-2.5">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent shadow-[0_4px_18px_-6px_var(--glow)] transition-all duration-300 group-hover:shadow-[0_6px_24px_-4px_var(--glow)]">
-              <Sparkles className="h-4 w-4 text-primary-foreground" />
+                <Sparkles className="h-4 w-4 text-primary-foreground" />
               </div>
-              <span className="text-base font-semibold tracking-tight lg:text-[17px]">Abilitio</span>
+              <span className="text-base font-semibold tracking-tight lg:text-[17px]">
+                Abilitio
+              </span>
             </Link>
 
             <ul className="hidden min-w-0 flex-1 items-center justify-start gap-2 md:flex lg:gap-4">
@@ -40,7 +41,10 @@ export function Navbar() {
                   <Link
                     to={item.to}
                     className="whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary/70 hover:text-foreground lg:px-4 lg:text-[15px]"
-                    activeProps={{ className: "bg-gradient-to-br from-primary/15 to-accent/10 text-foreground border border-primary/20 shadow-[0_0_20px_-6px_var(--glow)]" }}
+                    activeProps={{
+                      className:
+                        "bg-gradient-to-br from-primary/15 to-accent/10 text-foreground border border-primary/20 shadow-[0_0_20px_-6px_var(--glow)]",
+                    }}
                     activeOptions={{ exact: true }}
                   >
                     {item.label}
@@ -76,7 +80,10 @@ export function Navbar() {
                   <LayoutDashboard className="h-4 w-4" />
                 </Link>
                 <button
-                  onClick={async () => { await signOut(); navigate({ to: "/" }); }}
+                  onClick={async () => {
+                    await signOut();
+                    navigate({ to: "/" });
+                  }}
                   className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_10px_-4px_var(--glow)] transition-all hover:-translate-y-0.5"
                   aria-label="Sign out"
                 >
@@ -120,7 +127,10 @@ export function Navbar() {
                     to={item.to}
                     onClick={() => setOpen(false)}
                     className="block rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-secondary/70 hover:text-foreground"
-                    activeProps={{ className: "text-foreground bg-gradient-to-r from-primary/15 to-accent/10 border border-primary/20" }}
+                    activeProps={{
+                      className:
+                        "text-foreground bg-gradient-to-r from-primary/15 to-accent/10 border border-primary/20",
+                    }}
                     activeOptions={{ exact: true }}
                   >
                     {item.label}

@@ -1,16 +1,29 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Sparkles, Swords, DollarSign, GraduationCap, TrendingUp, User as UserIcon } from "lucide-react";
+import {
+  Sparkles,
+  Swords,
+  DollarSign,
+  GraduationCap,
+  TrendingUp,
+  User as UserIcon,
+} from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { FloatingShapes } from "@/components/FloatingShapes";
 import { CAREER_SPECS, CAREER_BATTLES, type CareerSpec } from "@/lib/abbi/abbi-extras";
 
 export const Route = createFileRoute("/career-battles")({
-  head: () => ({ meta: [
-    { title: "Career Battles — Abilitio" },
-    { name: "description", content: "Compare careers head-to-head and discover which paths fit your strengths in a fun, interactive challenge." },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Career Battles — Abilitio" },
+      {
+        name: "description",
+        content:
+          "Compare careers head-to-head and discover which paths fit your strengths in a fun, interactive challenge.",
+      },
+    ],
+  }),
   component: CareerBattlesPage,
 });
 
@@ -18,7 +31,8 @@ function CareerBattlesPage() {
   const careerKeys = Object.keys(CAREER_SPECS);
   const [a, setA] = useState(CAREER_BATTLES[0].a);
   const [b, setB] = useState(CAREER_BATTLES[0].b);
-  const A = CAREER_SPECS[a]; const B = CAREER_SPECS[b];
+  const A = CAREER_SPECS[a];
+  const B = CAREER_SPECS[b];
 
   return (
     <PageShell>
@@ -30,8 +44,12 @@ function CareerBattlesPage() {
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
               <Sparkles className="h-3 w-3" /> Career Battles
             </span>
-            <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Compare two career paths</h1>
-            <p className="mt-2 text-sm text-muted-foreground">See salary, skills, education, demand, and personality fit side-by-side.</p>
+            <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+              Compare two career paths
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              See salary, skills, education, demand, and personality fit side-by-side.
+            </p>
           </header>
 
           {/* Quick presets */}
@@ -39,8 +57,14 @@ function CareerBattlesPage() {
             {CAREER_BATTLES.map((bt) => {
               const active = bt.a === a && bt.b === b;
               return (
-                <button key={bt.a + bt.b} onClick={() => { setA(bt.a); setB(bt.b); }}
-                  className={`rounded-full border px-3 py-1 text-xs transition-all duration-200 hover:-translate-y-0.5 ${active ? "border-primary/40 bg-gradient-to-r from-primary/15 to-accent/10 text-primary shadow-[0_0_10px_-3px_var(--glow)]" : "border-border/60 bg-secondary/40 hover:border-primary/40 hover:bg-primary/10 hover:text-primary"}`}>
+                <button
+                  key={bt.a + bt.b}
+                  onClick={() => {
+                    setA(bt.a);
+                    setB(bt.b);
+                  }}
+                  className={`rounded-full border px-3 py-1 text-xs transition-all duration-200 hover:-translate-y-0.5 ${active ? "border-primary/40 bg-gradient-to-r from-primary/15 to-accent/10 text-primary shadow-[0_0_10px_-3px_var(--glow)]" : "border-border/60 bg-secondary/40 hover:border-primary/40 hover:bg-primary/10 hover:text-primary"}`}
+                >
                   {bt.a} vs {bt.b}
                 </button>
               );
@@ -67,30 +91,59 @@ function CareerBattlesPage() {
   );
 }
 
-function Picker({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: string[] }) {
+function Picker({
+  value,
+  onChange,
+  options,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: string[];
+}) {
   return (
-    <select value={value} onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-2xl border border-border/60 bg-secondary/40 px-4 py-3 text-sm font-medium outline-none focus:border-primary/50">
-      {options.map((o) => <option key={o} value={o}>{o}</option>)}
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full rounded-2xl border border-border/60 bg-secondary/40 px-4 py-3 text-sm font-medium outline-none focus:border-primary/50"
+    >
+      {options.map((o) => (
+        <option key={o} value={o}>
+          {o}
+        </option>
+      ))}
     </select>
   );
 }
 
 function CareerCard({ c, winner }: { c: CareerSpec; accent: "left" | "right"; winner: boolean }) {
   return (
-    <div className={`relative overflow-hidden rounded-3xl border p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 ${
-      winner ? "border-primary/40 bg-gradient-to-br from-primary/15 to-accent/10" : "border-border/60 bg-gradient-to-br from-secondary/40 to-background/40"
-    }`}
-      style={{ boxShadow: winner ? "0 16px 40px -16px oklch(0.55 0.22 295 / 0.55)" : "0 10px 30px -15px oklch(0.55 0.22 295 / 0.3)" }}>
-      <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-30 blur-3xl"
-        style={{ background: `radial-gradient(circle, oklch(${winner ? "0.65 0.24 295" : "0.60 0.18 285"} / 0.6), transparent 70%)` }} />
+    <div
+      className={`relative overflow-hidden rounded-3xl border p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 ${
+        winner
+          ? "border-primary/40 bg-gradient-to-br from-primary/15 to-accent/10"
+          : "border-border/60 bg-gradient-to-br from-secondary/40 to-background/40"
+      }`}
+      style={{
+        boxShadow: winner
+          ? "0 16px 40px -16px oklch(0.55 0.22 295 / 0.55)"
+          : "0 10px 30px -15px oklch(0.55 0.22 295 / 0.3)",
+      }}
+    >
+      <div
+        className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-30 blur-3xl"
+        style={{
+          background: `radial-gradient(circle, oklch(${winner ? "0.65 0.24 295" : "0.60 0.18 285"} / 0.6), transparent 70%)`,
+        }}
+      />
       {winner && (
         <div className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow">
           <TrendingUp className="h-3 w-3" /> Higher demand
         </div>
       )}
       <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/10 ring-1 ring-primary/30 text-2xl shadow-[0_4px_16px_-6px_var(--glow)]">{c.emoji}</div>
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/10 ring-1 ring-primary/30 text-2xl shadow-[0_4px_16px_-6px_var(--glow)]">
+          {c.emoji}
+        </div>
         <h3 className="text-xl font-bold">{c.name}</h3>
       </div>
 
@@ -102,10 +155,17 @@ function CareerCard({ c, winner }: { c: CareerSpec; accent: "left" | "right"; wi
       </div>
 
       <div className="mt-5">
-        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Core skills</div>
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          Core skills
+        </div>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {c.skills.map((s) => (
-            <span key={s} className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[11px] text-primary">{s}</span>
+            <span
+              key={s}
+              className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[11px] text-primary"
+            >
+              {s}
+            </span>
           ))}
         </div>
       </div>
@@ -113,19 +173,34 @@ function CareerCard({ c, winner }: { c: CareerSpec; accent: "left" | "right"; wi
   );
 }
 
-function Row({ icon: Icon, label, value, bar }: { icon: React.ElementType; label: string; value: string; bar?: number }) {
+function Row({
+  icon: Icon,
+  label,
+  value,
+  bar,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  bar?: number;
+}) {
   return (
     <div className="rounded-xl border border-border/60 bg-secondary/30 p-3">
       <div className="flex items-center justify-between text-xs">
         <span className="flex items-center gap-1.5 text-muted-foreground">
-          <span className="flex h-4 w-4 items-center justify-center rounded bg-gradient-to-br from-primary to-accent text-primary-foreground"><Icon className="h-2.5 w-2.5" /></span>
+          <span className="flex h-4 w-4 items-center justify-center rounded bg-gradient-to-br from-primary to-accent text-primary-foreground">
+            <Icon className="h-2.5 w-2.5" />
+          </span>
           {label}
         </span>
         <span className="font-semibold">{value}</span>
       </div>
       {typeof bar === "number" && (
         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary/60">
-          <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent" style={{ width: `${bar}%` }} />
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
+            style={{ width: `${bar}%` }}
+          />
         </div>
       )}
     </div>

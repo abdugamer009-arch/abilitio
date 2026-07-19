@@ -7,7 +7,11 @@ export const Route = createFileRoute("/methodology")({
   head: () => ({
     meta: [
       { title: "How It Works — Abilitio Methodology" },
-      { name: "description", content: "How Abilitio's assessments work: what personality, cognitive, and interest signals measure, how career matches are scored, and the limits of the results." },
+      {
+        name: "description",
+        content:
+          "How Abilitio's assessments work: what personality, cognitive, and interest signals measure, how career matches are scored, and the limits of the results.",
+      },
     ],
   }),
   component: MethodologyPage,
@@ -23,42 +27,67 @@ function MethodologyPage() {
       intro={`${SITE_NAME} turns a short set of questions into a structured picture of your strengths. Here is exactly what we measure, how we combine it, and what the results do and don't mean.`}
     >
       <LegalSection heading="Three signals we measure">
-        <p>The Career Intelligence Assessment is 30 questions across three complementary signals:</p>
+        <p>
+          The Career Intelligence Assessment is 30 questions across three complementary signals:
+        </p>
         <LegalList
           items={[
-            <><strong className="text-foreground">Personality (12 questions)</strong> — agree/disagree statements that map your working style across well-established personality dimensions (the same trait families behind Big Five and MBTI-style frameworks).</>,
-            <><strong className="text-foreground">Cognitive reasoning (9 questions)</strong> — a short check of logic, pattern recognition, and analytical reasoning, scored 0–10. This is a quick aptitude signal, not an IQ measurement.</>,
-            <><strong className="text-foreground">Interests (9 questions)</strong> — what kinds of activities and problems genuinely pull your attention, in the spirit of interest-inventory models like RIASEC.</>,
+            <>
+              <strong className="text-foreground">Personality (12 questions)</strong> —
+              agree/disagree statements that map your working style across well-established
+              personality dimensions (the same trait families behind Big Five and MBTI-style
+              frameworks).
+            </>,
+            <>
+              <strong className="text-foreground">Cognitive reasoning (9 questions)</strong> — a
+              short check of logic, pattern recognition, and analytical reasoning, scored 0–10. This
+              is a quick aptitude signal, not an IQ measurement.
+            </>,
+            <>
+              <strong className="text-foreground">Interests (9 questions)</strong> — what kinds of
+              activities and problems genuinely pull your attention, in the spirit of
+              interest-inventory models like RIASEC.
+            </>,
           ]}
         />
       </LegalSection>
 
       <LegalSection heading="How career matches are scored">
         <p>
-          Each career in our library is described by the profile of strengths it tends to reward. We score your fit by
-          weighting the three signals:
+          Each career in our library is described by the profile of strengths it tends to reward. We
+          score your fit by weighting the three signals:
         </p>
         <LegalList
           items={[
-            <><strong className="text-foreground">40%</strong> personality fit</>,
-            <><strong className="text-foreground">35%</strong> cognitive fit</>,
-            <><strong className="text-foreground">25%</strong> interest fit</>,
+            <>
+              <strong className="text-foreground">40%</strong> personality fit
+            </>,
+            <>
+              <strong className="text-foreground">35%</strong> cognitive fit
+            </>,
+            <>
+              <strong className="text-foreground">25%</strong> interest fit
+            </>,
           ]}
         />
         <p>
-          The result is a ranked list of matches with a percentage for each, plus a cognitive profile and a personality
-          type. Questions are drawn from a larger bank and rotate between attempts, so retaking gives a fresh — and
-          often sharper — read.
+          The result is a ranked list of matches with a percentage for each, plus a cognitive
+          profile and a personality type. Questions are drawn from a larger bank and rotate between
+          attempts, so retaking gives a fresh — and often sharper — read.
         </p>
       </LegalSection>
 
       <LegalSection heading="The full IQ test is separate">
         <p>
-          The 9-question cognitive section above is a fast aptitude signal. If you want a deeper measure, the dedicated{" "}
-          <Link to="/iq-test" className="text-primary hover:underline">IQ Test</Link> is a separate, timed, 40-question
-          assessment covering verbal, numerical, spatial, and logical reasoning, with items adapted from Philip Carter's{" "}
-          <em>The Complete Book of Intelligence Tests</em> (Wiley, 2005). We keep the two clearly distinct so a quick
-          score is never mistaken for a formal one.
+          The 9-question cognitive section above is a fast aptitude signal. If you want a deeper
+          measure, the dedicated{" "}
+          <Link to="/iq-test" className="text-primary hover:underline">
+            IQ Test
+          </Link>{" "}
+          is a separate, timed, 40-question assessment covering verbal, numerical, spatial, and
+          logical reasoning, with items adapted from Philip Carter's{" "}
+          <em>The Complete Book of Intelligence Tests</em> (Wiley, 2005). We keep the two clearly
+          distinct so a quick score is never mistaken for a formal one.
         </p>
       </LegalSection>
 
@@ -75,9 +104,12 @@ function MethodologyPage() {
 
       <LegalSection heading="Privacy by design">
         <p>
-          Your answers and results belong to you. We restrict access at the database level so only you — and a school
-          you explicitly join — can see your results. See our{" "}
-          <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link> for the full picture.
+          Your answers and results belong to you. We restrict access at the database level so only
+          you — and a school you explicitly join — can see your results. See our{" "}
+          <Link to="/privacy" className="text-primary hover:underline">
+            Privacy Policy
+          </Link>{" "}
+          for the full picture.
         </p>
         <div className="pt-2">
           <Link

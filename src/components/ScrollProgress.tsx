@@ -34,7 +34,10 @@ export function ScrollProgress() {
   }, []);
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-x-0 top-[env(safe-area-inset-top)] z-[60] h-0.5">
+    <div
+      aria-hidden
+      className="pointer-events-none fixed inset-x-0 top-[env(safe-area-inset-top)] z-[60] h-0.5"
+    >
       <div
         ref={ref}
         className="h-full origin-left bg-gradient-to-r from-primary via-accent to-primary"

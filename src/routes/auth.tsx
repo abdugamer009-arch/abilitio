@@ -15,7 +15,9 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
-  head: () => ({ meta: [{ title: "Sign in — Abilitio" }, { name: "robots", content: "noindex, follow" }] }),
+  head: () => ({
+    meta: [{ title: "Sign in — Abilitio" }, { name: "robots", content: "noindex, follow" }],
+  }),
   component: AuthPage,
 });
 
@@ -28,7 +30,12 @@ type AuthStrings = ReturnType<typeof useT>["auth"];
 function localizeAuthError(message: string, a: AuthStrings): string {
   const m = message.toLowerCase();
   if (m.includes("invalid login credentials")) return a.errInvalidCredentials;
-  if (m.includes("already registered") || m.includes("already been registered") || m.includes("user already")) return a.errUserExists;
+  if (
+    m.includes("already registered") ||
+    m.includes("already been registered") ||
+    m.includes("user already")
+  )
+    return a.errUserExists;
   if (m.includes("email not confirmed")) return a.errEmailNotConfirmed;
   if (m.includes("password")) return a.errWeakPassword;
   return message || a.errGeneric;
@@ -49,7 +56,9 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [confirmEmailSent, setConfirmEmailSent] = useState<string | null>(null);
 
-  useEffect(() => { if (user) navigate({ to: next ?? "/dashboard" }); }, [user, next, navigate]);
+  useEffect(() => {
+    if (user) navigate({ to: next ?? "/dashboard" });
+  }, [user, next, navigate]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -69,7 +78,10 @@ function AuthPage() {
         const { data, error } = await supabase.auth.signUp({
           email: ep.data,
           password: pp.data,
-          options: { emailRedirectTo: window.location.origin, data: { name: name.trim(), surname: surname.trim() } },
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: { name: name.trim(), surname: surname.trim() },
+          },
         });
         if (error) throw error;
         track(AnalyticsEvent.SignedUp);
@@ -80,7 +92,10 @@ function AuthPage() {
           return;
         }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email: ep.data, password: pp.data });
+        const { error } = await supabase.auth.signInWithPassword({
+          email: ep.data,
+          password: pp.data,
+        });
         if (error) throw error;
       }
     } catch (e: unknown) {
@@ -95,7 +110,9 @@ function AuthPage() {
     setErr(null);
     const ep = emailSchema.safeParse(email.trim());
     if (!ep.success) return setErr(t.auth.errEmailFirst);
-    await supabase.auth.resetPasswordForEmail(ep.data, { redirectTo: window.location.origin + "/auth" });
+    await supabase.auth.resetPasswordForEmail(ep.data, {
+      redirectTo: window.location.origin + "/auth",
+    });
     setErr(t.auth.checkEmail);
   }
 
@@ -116,7 +133,12 @@ function AuthPage() {
               <p className="mt-2 text-xs text-muted-foreground">{t.auth.checkInboxHint}</p>
               <button
                 type="button"
-                onClick={() => { setConfirmEmailSent(null); setErr(null); setPassword(""); setTab("login"); }}
+                onClick={() => {
+                  setConfirmEmailSent(null);
+                  setErr(null);
+                  setPassword("");
+                  setTab("login");
+                }}
                 className="mt-6 inline-flex w-full items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 px-5 py-3 text-sm font-medium text-primary transition-all hover:bg-primary/15"
               >
                 {t.auth.backToLogin}
@@ -139,7 +161,14 @@ function AuthPage() {
               <div className="glass mt-8 rounded-3xl p-7">
                 <div className="mb-6 grid grid-cols-2 gap-1 rounded-full bg-secondary/60 p-1">
                   {(["login", "signup"] as const).map((m) => (
-                    <button key={m} onClick={() => { setTab(m); setErr(null); }} className={`rounded-full py-2 text-sm transition-all ${tab === m ? "bg-primary text-primary-foreground glow-purple" : "text-muted-foreground"}`}>
+                    <button
+                      key={m}
+                      onClick={() => {
+                        setTab(m);
+                        setErr(null);
+                      }}
+                      className={`rounded-full py-2 text-sm transition-all ${tab === m ? "bg-primary text-primary-foreground glow-purple" : "text-muted-foreground"}`}
+                    >
                       {m === "login" ? t.auth.login : t.auth.signup}
                     </button>
                   ))}
@@ -152,7 +181,12 @@ function AuthPage() {
                       <Input placeholder={t.auth.surname} value={surname} onChange={setSurname} />
                     </div>
                   )}
-                  <Input type="email" placeholder={t.auth.email} value={email} onChange={setEmail} />
+                  <Input
+                    type="email"
+                    placeholder={t.auth.email}
+                    value={email}
+                    onChange={setEmail}
+                  />
                   <PasswordInput
                     placeholder={t.auth.password}
                     value={password}
@@ -164,16 +198,26 @@ function AuthPage() {
                   />
 
                   {err && (
-                    <div className="rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">{err}</div>
+                    <div className="rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                      {err}
+                    </div>
                   )}
 
-                  <button type="submit" disabled={loading} className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-all hover:glow-purple disabled:opacity-60">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-all hover:glow-purple disabled:opacity-60"
+                  >
                     {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                     {tab === "signup" ? t.auth.createAccount : t.auth.login}
                   </button>
 
                   {tab === "login" && (
-                    <button type="button" onClick={forgot} className="block w-full text-center text-xs text-muted-foreground hover:text-foreground">
+                    <button
+                      type="button"
+                      onClick={forgot}
+                      className="block w-full text-center text-xs text-muted-foreground hover:text-foreground"
+                    >
                       {t.auth.forgot}
                     </button>
                   )}
@@ -182,10 +226,15 @@ function AuthPage() {
 
               <p className="mt-6 text-center text-xs text-muted-foreground">
                 {t.auth.terms}{" "}
-                <Link to="/terms" className="underline hover:text-foreground">{t.auth.termsLink}</Link>.
+                <Link to="/terms" className="underline hover:text-foreground">
+                  {t.auth.termsLink}
+                </Link>
+                .
               </p>
               <p className="mt-2 text-center text-xs text-muted-foreground">
-                <Link to="/privacy" className="underline hover:text-foreground">{t.auth.privacyLink}</Link>
+                <Link to="/privacy" className="underline hover:text-foreground">
+                  {t.auth.privacyLink}
+                </Link>
               </p>
             </>
           )}
@@ -195,17 +244,44 @@ function AuthPage() {
   );
 }
 
-function Input({ type = "text", placeholder, value, onChange }: { type?: string; placeholder: string; value: string; onChange: (v: string) => void; }) {
+function Input({
+  type = "text",
+  placeholder,
+  value,
+  onChange,
+}: {
+  type?: string;
+  placeholder: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
   return (
-    <input type={type} placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)} className="w-full rounded-2xl border border-border bg-secondary/40 px-4 py-3 text-sm outline-none transition-all focus:border-primary focus:bg-secondary focus:shadow-[0_0_0_4px_var(--glow)]" />
+    <input
+      type={type}
+      placeholder={placeholder}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full rounded-2xl border border-border bg-secondary/40 px-4 py-3 text-sm outline-none transition-all focus:border-primary focus:bg-secondary focus:shadow-[0_0_0_4px_var(--glow)]"
+    />
   );
 }
 
 function PasswordInput({
-  placeholder, value, onChange, visible, onToggle, showLabel, hideLabel,
+  placeholder,
+  value,
+  onChange,
+  visible,
+  onToggle,
+  showLabel,
+  hideLabel,
 }: {
-  placeholder: string; value: string; onChange: (v: string) => void;
-  visible: boolean; onToggle: () => void; showLabel: string; hideLabel: string;
+  placeholder: string;
+  value: string;
+  onChange: (v: string) => void;
+  visible: boolean;
+  onToggle: () => void;
+  showLabel: string;
+  hideLabel: string;
 }) {
   return (
     <div className="relative">

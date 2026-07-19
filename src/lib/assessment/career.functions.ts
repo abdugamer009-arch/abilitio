@@ -2,12 +2,28 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
-  scorePersonality, scoreCognitive, scoreInterests, matchCareers, matchMajors,
-  attachMajorsToCareers, communitySlugForCareer, deriveStrengths, deriveImprovements, RECOMMENDED_SKILLS_BY_PROFILE,
-  deriveRiasecFromInterests, hollandCode,
-  type Career, type Major, type RiasecProfile,
+  scorePersonality,
+  scoreCognitive,
+  scoreInterests,
+  matchCareers,
+  matchMajors,
+  attachMajorsToCareers,
+  communitySlugForCareer,
+  deriveStrengths,
+  deriveImprovements,
+  RECOMMENDED_SKILLS_BY_PROFILE,
+  deriveRiasecFromInterests,
+  hollandCode,
+  type Career,
+  type Major,
+  type RiasecProfile,
 } from "./career-engine";
-import { PERSONALITY_BANK, getIQCorrect, getInterestRiasec, pickSessionQuestions } from "./question-bank";
+import {
+  PERSONALITY_BANK,
+  getIQCorrect,
+  getInterestRiasec,
+  pickSessionQuestions,
+} from "./question-bank";
 import { QUESTION_TRANSLATIONS } from "./question-translations";
 import type { RiasecDim, InterestVisual } from "./career-assessment";
 
@@ -52,7 +68,10 @@ export const startCareerSession = createServerFn({ method: "GET" }).handler(
         theme: q.theme,
         prompt: lp(q.id, q.prompt),
         options: q.options.map((o) => ({ id: o.id, visual: o.visual })),
-        labels: lo(q.id, q.options.map((o) => o.label)),
+        labels: lo(
+          q.id,
+          q.options.map((o) => o.label),
+        ),
       })),
     };
   },
@@ -82,7 +101,14 @@ export type CareerResultDTO = {
   interests: { key: string; weight: number }[];
   riasec_profile: RiasecProfile;
   holland_code: string[];
-  career_matches: { key: string; name: string; category: string; score: number; major?: string | null; matchFields?: string[] }[];
+  career_matches: {
+    key: string;
+    name: string;
+    category: string;
+    score: number;
+    major?: string | null;
+    matchFields?: string[];
+  }[];
   university_matches: { key: string; name: string; category: string; score: number }[];
   strengths: string[];
   improvements: string[];
@@ -107,9 +133,9 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
 
     // Resolve personality questions from bank (server authoritative)
-    const personalityQs = data.personalityQIds.map(
-      (id) => PERSONALITY_BANK.find((q) => q.id === id)
-    ).filter(Boolean) as NonNullable<typeof PERSONALITY_BANK[number]>[];
+    const personalityQs = data.personalityQIds
+      .map((id) => PERSONALITY_BANK.find((q) => q.id === id))
+      .filter(Boolean) as NonNullable<(typeof PERSONALITY_BANK)[number]>[];
 
     // Resolve IQ correct answers server-side (never sent to client). An unknown
     // question id yields an impossible sentinel (-999) — never -1, which is also
@@ -243,8 +269,12 @@ export type SchoolCareerOverviewDTO = {
   universityDistribution: { name: string; count: number }[];
   classHeatmap: { className: string; buckets: Record<string, number> }[];
   students: {
-    user_id: string; name: string; class_name: string | null;
-    mbti: string | null; cognitive_score: number | null; cognitive_profile: string | null;
+    user_id: string;
+    name: string;
+    class_name: string | null;
+    mbti: string | null;
+    cognitive_score: number | null;
+    cognitive_profile: string | null;
     top_career: { name: string; score: number } | null;
     top_major: { name: string; score: number } | null;
     career_matches: { key: string; name: string; category: string; score: number }[];
@@ -257,7 +287,10 @@ export const getSchoolCareerOverview = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<SchoolCareerOverviewDTO> => {
     const { supabase, userId } = context;
     const { data: school } = await supabase
-      .from("schools").select("id").eq("owner_user_id", userId).maybeSingle();
+      .from("schools")
+      .select("id")
+      .eq("owner_user_id", userId)
+      .maybeSingle();
     if (!school) throw new Error("not_principal");
 
     const { data: members } = await supabase
@@ -270,13 +303,19 @@ export const getSchoolCareerOverview = createServerFn({ method: "GET" })
 
     const [classesRes, profilesRes, resultsRes] = await Promise.all([
       supabase.from("school_classes").select("id, name").eq("school_id", school.id),
-      userIds.length ? supabase.from("profiles").select("id, name, surname").in("id", userIds) : Promise.resolve({ data: [] as any[] }),
-      userIds.length ? supabase.from("career_assessment_results").select("*").in("user_id", userIds) : Promise.resolve({ data: [] as any[] }),
+      userIds.length
+        ? supabase.from("profiles").select("id, name, surname").in("id", userIds)
+        : Promise.resolve({ data: [] as any[] }),
+      userIds.length
+        ? supabase.from("career_assessment_results").select("*").in("user_id", userIds)
+        : Promise.resolve({ data: [] as any[] }),
     ]);
     const classMap = new Map<string, string>();
     (classesRes.data ?? []).forEach((c: any) => classMap.set(c.id, c.name));
     const profileMap = new Map<string, { name: string; surname: string }>();
-    (profilesRes.data ?? []).forEach((p: any) => profileMap.set(p.id, { name: p.name ?? "", surname: p.surname ?? "" }));
+    (profilesRes.data ?? []).forEach((p: any) =>
+      profileMap.set(p.id, { name: p.name ?? "", surname: p.surname ?? "" }),
+    );
 
     // Keep latest per user
     const latest = new Map<string, any>();
@@ -293,7 +332,7 @@ export const getSchoolCareerOverview = createServerFn({ method: "GET" })
 
     const students = (members ?? []).map((m) => {
       const r = latest.get(m.user_id);
-      const className = m.class_id ? classMap.get(m.class_id) ?? null : null;
+      const className = m.class_id ? (classMap.get(m.class_id) ?? null) : null;
       const top = r?.career_matches?.[0];
       const topU = r?.university_matches?.[0];
       const prof = profileMap.get(m.user_id) ?? { name: "Student", surname: "" };
@@ -301,7 +340,10 @@ export const getSchoolCareerOverview = createServerFn({ method: "GET" })
         personalityCounts[r.personality_type] = (personalityCounts[r.personality_type] ?? 0) + 1;
         cognitiveCounts[r.cognitive_tier] = (cognitiveCounts[r.cognitive_tier] ?? 0) + 1;
         if (top) {
-          careerCounts[top.category] = careerCounts[top.category] ?? { count: 0, category: top.category };
+          careerCounts[top.category] = careerCounts[top.category] ?? {
+            count: 0,
+            category: top.category,
+          };
           careerCounts[top.category].count++;
         }
         if (topU) universityCounts[topU.name] = (universityCounts[topU.name] ?? 0) + 1;
@@ -327,10 +369,20 @@ export const getSchoolCareerOverview = createServerFn({ method: "GET" })
     return {
       totalStudents: students.length,
       completed: Array.from(latest.values()).length,
-      careerDistribution: Object.entries(careerCounts).map(([name, v]) => ({ name, count: v.count, category: v.category })).sort((a, b) => b.count - a.count),
-      personalityDistribution: Object.entries(personalityCounts).map(([type, count]) => ({ type, count })).sort((a, b) => b.count - a.count),
-      cognitiveDistribution: Object.entries(cognitiveCounts).map(([tier, count]) => ({ tier, count })),
-      universityDistribution: Object.entries(universityCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 10),
+      careerDistribution: Object.entries(careerCounts)
+        .map(([name, v]) => ({ name, count: v.count, category: v.category }))
+        .sort((a, b) => b.count - a.count),
+      personalityDistribution: Object.entries(personalityCounts)
+        .map(([type, count]) => ({ type, count }))
+        .sort((a, b) => b.count - a.count),
+      cognitiveDistribution: Object.entries(cognitiveCounts).map(([tier, count]) => ({
+        tier,
+        count,
+      })),
+      universityDistribution: Object.entries(universityCounts)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10),
       classHeatmap: Object.entries(heatmap).map(([className, buckets]) => ({ className, buckets })),
       students,
     };
@@ -338,21 +390,31 @@ export const getSchoolCareerOverview = createServerFn({ method: "GET" })
 
 export const buildSpecializedClass = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({
-    focusCategory: z.string().min(1).max(64),
-    size: z.number().int().min(1).max(60).default(20),
-    save: z.boolean().default(false),
-  }).parse(d))
+  .inputValidator((d) =>
+    z
+      .object({
+        focusCategory: z.string().min(1).max(64),
+        size: z.number().int().min(1).max(60).default(20),
+        save: z.boolean().default(false),
+      })
+      .parse(d),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: school } = await supabase
-      .from("schools").select("id").eq("owner_user_id", userId).maybeSingle();
+      .from("schools")
+      .select("id")
+      .eq("owner_user_id", userId)
+      .maybeSingle();
     if (!school) throw new Error("not_principal");
 
     const overview = await (async () => {
       // inline minimal fetch
-      const { data: members } = await supabase.from("school_members")
-        .select("user_id, role").eq("school_id", school.id).eq("role", "student");
+      const { data: members } = await supabase
+        .from("school_members")
+        .select("user_id, role")
+        .eq("school_id", school.id)
+        .eq("role", "student");
       const userIds = (members ?? []).map((m) => m.user_id);
       if (!userIds.length) return { students: [] as any[] };
       const [profilesRes, resultsRes] = await Promise.all([
@@ -379,7 +441,10 @@ export const buildSpecializedClass = createServerFn({ method: "POST" })
 
     const ranked = overview.students
       .map((s) => {
-        const best = s.matches.find((m: { name: string; category: string; score: number }) => m.category.toLowerCase() === data.focusCategory.toLowerCase());
+        const best = s.matches.find(
+          (m: { name: string; category: string; score: number }) =>
+            m.category.toLowerCase() === data.focusCategory.toLowerCase(),
+        );
         return { ...s, score: best?.score ?? 0, best };
       })
       .filter((s) => s.score > 0)

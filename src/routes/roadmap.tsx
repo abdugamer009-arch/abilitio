@@ -5,16 +5,34 @@ import { GlowBlob } from "@/components/GlowBlob";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Sparkles, CheckCircle2, Clock, Zap, Star, Trophy,
-  ChevronRight, Compass, Map as MapIcon, GraduationCap,
+  Sparkles,
+  CheckCircle2,
+  Clock,
+  Zap,
+  Star,
+  Trophy,
+  ChevronRight,
+  Compass,
+  Map as MapIcon,
+  GraduationCap,
 } from "lucide-react";
-import { buildRoadmap, pickTrack, TRACK_LABEL, type RoadmapPhase, type RoadmapTrack } from "@/lib/roadmap/roadmap-world";
+import {
+  buildRoadmap,
+  pickTrack,
+  TRACK_LABEL,
+  type RoadmapPhase,
+  type RoadmapTrack,
+} from "@/lib/roadmap/roadmap-world";
 
 export const Route = createFileRoute("/roadmap")({
   head: () => ({
     meta: [
       { title: "Roadmap World — Your Career Journey | Abilitio" },
-      { name: "description", content: "Travel through 5 islands of personalized growth. Complete tasks, earn XP, and follow ABBI from Foundations to Mastery." },
+      {
+        name: "description",
+        content:
+          "Travel through 5 islands of personalized growth. Complete tasks, earn XP, and follow ABBI from Foundations to Mastery.",
+      },
       { property: "og:title", content: "Roadmap World — Abilitio" },
       { property: "og:description", content: "AI-personalized career journey across 5 islands." },
     ],
@@ -57,7 +75,9 @@ function RoadmapPage() {
     try {
       const raw = localStorage.getItem(`roadmap_tasks_${user.id}`);
       setTasksDone(raw ? JSON.parse(raw) : {});
-    } catch { setTasksDone({}); }
+    } catch {
+      setTasksDone({});
+    }
   }, [user]);
 
   function persistTasks(next: Record<string, boolean>) {
@@ -81,7 +101,9 @@ function RoadmapPage() {
   if (loading || !user) {
     return (
       <PageShell>
-        <div className="px-6 pt-32 text-center text-sm text-muted-foreground">Loading your world…</div>
+        <div className="px-6 pt-32 text-center text-sm text-muted-foreground">
+          Loading your world…
+        </div>
       </PageShell>
     );
   }
@@ -94,11 +116,15 @@ function RoadmapPage() {
       <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-[700px] overflow-hidden">
         <div
           className="absolute left-1/2 top-[-220px] h-[800px] w-[1200px] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
-          style={{ background: "radial-gradient(ellipse, oklch(0.55 0.22 295 / 0.35), transparent 60%)" }}
+          style={{
+            background: "radial-gradient(ellipse, oklch(0.55 0.22 295 / 0.35), transparent 60%)",
+          }}
         />
         <div
           className="absolute -bottom-40 right-[-200px] h-[500px] w-[800px] rounded-full opacity-40 blur-3xl"
-          style={{ background: "radial-gradient(circle, oklch(0.70 0.18 320 / 0.4), transparent 70%)" }}
+          style={{
+            background: "radial-gradient(circle, oklch(0.70 0.18 320 / 0.4), transparent 70%)",
+          }}
         />
       </div>
 
@@ -115,8 +141,8 @@ function RoadmapPage() {
                 Your <span className="gradient-text">Career Journey</span>
               </h1>
               <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-                Travel from <strong>Foundations</strong> to <strong>Mastery</strong> across five islands.
-                Follow ABBI, complete tasks, earn XP, and unlock your future.
+                Travel from <strong>Foundations</strong> to <strong>Mastery</strong> across five
+                islands. Follow ABBI, complete tasks, earn XP, and unlock your future.
               </p>
             </div>
             <Link
@@ -126,7 +152,9 @@ function RoadmapPage() {
             >
               <GraduationCap className="h-7 w-7 text-primary" />
               <div className="text-left">
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Find a University</div>
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Find a University
+                </div>
                 <div className="text-lg font-bold gradient-text">Explore</div>
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -180,8 +208,8 @@ function RoadmapPage() {
               <div className="relative space-y-3 transition-all">
                 {active.tasks.map((task, idx) => {
                   const done = !!tasksDone[task.id];
-                  const isCurrent = !done &&
-                    active.tasks.slice(0, idx).every((t) => tasksDone[t.id]);
+                  const isCurrent =
+                    !done && active.tasks.slice(0, idx).every((t) => tasksDone[t.id]);
                   return (
                     <TaskNode
                       key={task.id}
@@ -198,10 +226,7 @@ function RoadmapPage() {
 
           {/* Phase celebration */}
           {celebrating != null && (
-            <CelebrationModal
-              phaseIndex={celebrating}
-              onClose={() => setCelebrating(null)}
-            />
+            <CelebrationModal phaseIndex={celebrating} onClose={() => setCelebrating(null)} />
           )}
         </div>
       </section>
@@ -211,7 +236,10 @@ function RoadmapPage() {
 
 /* =================== WORLD MAP =================== */
 function WorldMap({
-  phases, activePhase, setActivePhase, tasksDone,
+  phases,
+  activePhase,
+  setActivePhase,
+  tasksDone,
 }: {
   phases: RoadmapPhase[];
   activePhase: number;
@@ -241,8 +269,7 @@ function WorldMap({
         <div
           className="absolute inset-0"
           style={{
-            background:
-              "linear-gradient(180deg, oklch(0.35 0.12 295 / 0.25) 0%, transparent 60%)",
+            background: "linear-gradient(180deg, oklch(0.35 0.12 295 / 0.25) 0%, transparent 60%)",
           }}
         />
         {[...Array(30)].map((_, i) => (
@@ -254,7 +281,7 @@ function WorldMap({
               top: `${(i * 53) % 60}%`,
               width: `${1 + (i % 3)}px`,
               height: `${1 + (i % 3)}px`,
-              opacity: 0.2 + ((i % 5) / 10),
+              opacity: 0.2 + (i % 5) / 10,
             }}
           />
         ))}
@@ -310,10 +337,7 @@ function WorldMap({
                 />
               )}
               {/* Island ellipse */}
-              <ellipse
-                cx="0" cy="6" rx="42" ry="14"
-                fill="oklch(0.20 0.04 285 / 0.6)"
-              />
+              <ellipse cx="0" cy="6" rx="42" ry="14" fill="oklch(0.20 0.04 285 / 0.6)" />
               <path
                 d="M -38 0 Q -30 -22, 0 -25 Q 32 -22, 38 0 Z"
                 fill="url(#islandFill)"
@@ -327,13 +351,21 @@ function WorldMap({
               {completed && (
                 <g transform="translate(0,-8)">
                   <circle r="10" fill="oklch(0.55 0.18 150)" />
-                  <path d="M -4 0 L -1 3 L 5 -3" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                  <path
+                    d="M -4 0 L -1 3 L 5 -3"
+                    stroke="white"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </g>
               )}
 
               {/* Label */}
               <text
-                x="0" y="40"
+                x="0"
+                y="40"
                 textAnchor="middle"
                 className="select-none"
                 fontSize="13"
@@ -342,12 +374,7 @@ function WorldMap({
               >
                 {p.name}
               </text>
-              <text
-                x="0" y="56"
-                textAnchor="middle"
-                fontSize="10"
-                fill="oklch(0.65 0.04 295)"
-              >
+              <text x="0" y="56" textAnchor="middle" fontSize="10" fill="oklch(0.65 0.04 295)">
                 Phase {p.index}
               </text>
             </g>
@@ -355,7 +382,10 @@ function WorldMap({
         })}
 
         {/* ABBI companion */}
-        <g transform={`translate(${abbiPos.x}, ${abbiPos.y - 50})`} style={{ transition: "transform 600ms cubic-bezier(0.16,1,0.3,1)" }}>
+        <g
+          transform={`translate(${abbiPos.x}, ${abbiPos.y - 50})`}
+          style={{ transition: "transform 600ms cubic-bezier(0.16,1,0.3,1)" }}
+        >
           <circle r="14" fill="oklch(0.65 0.24 295 / 0.35)" filter="url(#glow)" />
           <circle r="9" fill="oklch(0.75 0.20 295)" />
           <circle r="9" fill="url(#pathGrad)" />
@@ -363,8 +393,21 @@ function WorldMap({
           <circle cx="-2.5" cy="-1" r="1.3" fill="white" />
           <circle cx="2.5" cy="-1" r="1.3" fill="white" />
           {/* smile */}
-          <path d="M -2.5 2.5 Q 0 4, 2.5 2.5" stroke="white" strokeWidth="0.8" fill="none" strokeLinecap="round" />
-          <text x="0" y="-18" textAnchor="middle" fontSize="9" fontWeight="600" fill="oklch(0.85 0.04 295)">
+          <path
+            d="M -2.5 2.5 Q 0 4, 2.5 2.5"
+            stroke="white"
+            strokeWidth="0.8"
+            fill="none"
+            strokeLinecap="round"
+          />
+          <text
+            x="0"
+            y="-18"
+            textAnchor="middle"
+            fontSize="9"
+            fontWeight="600"
+            fill="oklch(0.85 0.04 295)"
+          >
             ABBI
           </text>
         </g>
@@ -375,7 +418,10 @@ function WorldMap({
 
 /* =================== TASK NODE =================== */
 function TaskNode({
-  task, done, isCurrent, onComplete,
+  task,
+  done,
+  isCurrent,
+  onComplete,
 }: {
   task: { id: string; title: string; description: string; xp: number; estimate: string };
   done: boolean;
@@ -385,11 +431,13 @@ function TaskNode({
   return (
     <div
       className={`group relative overflow-hidden rounded-2xl border p-5 backdrop-blur-xl transition-all
-        ${done
-          ? "border-accent/40 bg-accent/5"
-          : isCurrent
-          ? "border-primary/40 bg-gradient-to-br from-primary/10 via-secondary/30 to-background/40"
-          : "border-border/60 bg-secondary/20"}
+        ${
+          done
+            ? "border-accent/40 bg-accent/5"
+            : isCurrent
+              ? "border-primary/40 bg-gradient-to-br from-primary/10 via-secondary/30 to-background/40"
+              : "border-border/60 bg-secondary/20"
+        }
       `}
       style={done ? { boxShadow: "0 0 30px -10px oklch(0.75 0.18 150 / 0.4)" } : undefined}
     >
@@ -402,11 +450,13 @@ function TaskNode({
           onClick={onComplete}
           disabled={done}
           className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition-all
-            ${done
-              ? "border-accent bg-accent/20 text-accent"
-              : isCurrent
-              ? "border-primary/60 bg-gradient-to-br from-primary/15 to-accent/10 text-primary hover:border-transparent hover:from-primary hover:to-accent hover:text-primary-foreground hover:shadow-[0_0_16px_-4px_var(--glow)]"
-              : "border-border bg-background/50 text-muted-foreground"}
+            ${
+              done
+                ? "border-accent bg-accent/20 text-accent"
+                : isCurrent
+                  ? "border-primary/60 bg-gradient-to-br from-primary/15 to-accent/10 text-primary hover:border-transparent hover:from-primary hover:to-accent hover:text-primary-foreground hover:shadow-[0_0_16px_-4px_var(--glow)]"
+                  : "border-border bg-background/50 text-muted-foreground"
+            }
           `}
           aria-label={done ? "Completed" : "Mark complete"}
         >
@@ -415,7 +465,9 @@ function TaskNode({
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className={`text-sm font-semibold ${done ? "line-through text-muted-foreground" : ""}`}>
+            <h3
+              className={`text-sm font-semibold ${done ? "line-through text-muted-foreground" : ""}`}
+            >
               {task.title}
             </h3>
             {isCurrent && (
@@ -426,8 +478,12 @@ function TaskNode({
           </div>
           <p className="mt-1 text-xs text-muted-foreground">{task.description}</p>
           <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
-            <span className="inline-flex items-center gap-1"><Zap className="h-3 w-3 text-primary" /> {task.xp} XP</span>
-            <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" /> {task.estimate}</span>
+            <span className="inline-flex items-center gap-1">
+              <Zap className="h-3 w-3 text-primary" /> {task.xp} XP
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Clock className="h-3 w-3" /> {task.estimate}
+            </span>
           </div>
         </div>
       </div>
@@ -444,14 +500,22 @@ function Pill({ children, icon }: { children: React.ReactNode; icon: React.React
   );
 }
 
-function PhaseProgress({ phase, tasksDone }: { phase: RoadmapPhase; tasksDone: Record<string, boolean> }) {
+function PhaseProgress({
+  phase,
+  tasksDone,
+}: {
+  phase: RoadmapPhase;
+  tasksDone: Record<string, boolean>;
+}) {
   const done = phase.tasks.filter((t) => tasksDone[t.id]).length;
   const pct = (done / phase.tasks.length) * 100;
   return (
     <div className="mt-3">
       <div className="mb-1.5 flex items-center justify-between text-[11px] text-muted-foreground">
         <span>Progress</span>
-        <span className="tabular-nums">{done}/{phase.tasks.length} tasks</span>
+        <span className="tabular-nums">
+          {done}/{phase.tasks.length} tasks
+        </span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-secondary/60">
         <div

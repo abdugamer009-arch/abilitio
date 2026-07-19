@@ -16,11 +16,7 @@ export function GradientDivider({ className, glow = true }: GradientDividerProps
     <div
       role="separator"
       aria-orientation="horizontal"
-      className={cn(
-        glow ? "gradient-divider-glow" : "gradient-divider",
-        "my-10",
-        className,
-      )}
+      className={cn(glow ? "gradient-divider-glow" : "gradient-divider", "my-10", className)}
     />
   );
 }

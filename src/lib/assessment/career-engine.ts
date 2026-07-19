@@ -12,7 +12,7 @@ export type Career = {
   salary_max: number;
   demand_score: number;
   required_traits: Record<string, number>; // letter -> weight
-  required_profile: string[];              // Analytical, Strategic, etc.
+  required_profile: string[]; // Analytical, Strategic, etc.
   required_interests: string[];
   required_skills: string[];
 };
@@ -28,7 +28,7 @@ export type Major = {
 };
 
 export type PersonalityScore = {
-  mbti: string;            // 4 letters
+  mbti: string; // 4 letters
   letters: Record<string, number>; // E/I/S/N/T/F/J/P 0..1 confidence
   workStyle: string;
   leadershipStyle: string;
@@ -58,7 +58,7 @@ export function scorePersonality(answers: number[], questions: PersonalityQ[]): 
     (sums.JP > 0 ? "J" : "P");
 
   const letters: Record<string, number> = {};
-  for (const k of ["EI","SN","TF","JP"] as const) {
+  for (const k of ["EI", "SN", "TF", "JP"] as const) {
     const v = Math.max(-8, Math.min(8, sums[k]));
     const conf = Math.abs(v) / 8;
     const [a, b] = k.split("") as [string, string];
@@ -94,14 +94,23 @@ function teamStyleFor(m: string): string {
 }
 
 // ---------- Cognitive ----------
-export function scoreCognitive(answers: number[], correctIndexes: number[], mbti: string): CognitiveScore {
+export function scoreCognitive(
+  answers: number[],
+  correctIndexes: number[],
+  mbti: string,
+): CognitiveScore {
   let score = 0;
   for (let i = 0; i < correctIndexes.length; i++) if (answers[i] === correctIndexes[i]) score++;
   const tier =
-    score >= 9 ? "Exceptional" :
-    score >= 7 ? "Advanced" :
-    score >= 5 ? "Competent" :
-    score >= 3 ? "Developing" : "Basic";
+    score >= 9
+      ? "Exceptional"
+      : score >= 7
+        ? "Advanced"
+        : score >= 5
+          ? "Competent"
+          : score >= 3
+            ? "Developing"
+            : "Basic";
 
   // profile derived from MBTI × tier
   let profile: CognitiveScore["profile"];
@@ -125,24 +134,24 @@ export type RiasecProfile = Record<RiasecDim, number>;
 // to a squiggle" and "design / arts rank high for you". Keys must stay within
 // INTEREST_KEYS so downstream career/major matching keeps working.
 export const DOMAIN_RIASEC: Record<string, Partial<Record<RiasecDim, number>>> = {
-  technology:       { I: 3, R: 2, C: 1 },
-  engineering:      { R: 3, I: 2, C: 1 },
-  science:          { I: 3, R: 1 },
-  healthcare:       { S: 3, I: 2, R: 1 },
-  business:         { E: 3, C: 2 },
-  finance:          { C: 3, E: 2, I: 1 },
+  technology: { I: 3, R: 2, C: 1 },
+  engineering: { R: 3, I: 2, C: 1 },
+  science: { I: 3, R: 1 },
+  healthcare: { S: 3, I: 2, R: 1 },
+  business: { E: 3, C: 2 },
+  finance: { C: 3, E: 2, I: 1 },
   entrepreneurship: { E: 3, A: 1, R: 1 },
-  marketing:        { E: 3, A: 2, S: 1 },
-  design:           { A: 3, R: 1 },
-  arts:             { A: 3, S: 1 },
-  journalism:       { A: 2, S: 2, E: 1, I: 1 },
-  law:              { E: 2, I: 2, C: 1, S: 1 },
-  politics:         { E: 3, S: 2 },
-  education:        { S: 3, A: 1 },
-  psychology:       { S: 3, I: 2, A: 1 },
-  sports:           { R: 3, E: 1, S: 1 },
-  architecture:     { A: 2, R: 2, I: 1 },
-  environment:      { R: 2, I: 2, S: 1 },
+  marketing: { E: 3, A: 2, S: 1 },
+  design: { A: 3, R: 1 },
+  arts: { A: 3, S: 1 },
+  journalism: { A: 2, S: 2, E: 1, I: 1 },
+  law: { E: 2, I: 2, C: 1, S: 1 },
+  politics: { E: 3, S: 2 },
+  education: { S: 3, A: 1 },
+  psychology: { S: 3, I: 2, A: 1 },
+  sports: { R: 3, E: 1, S: 1 },
+  architecture: { A: 2, R: 2, I: 1 },
+  environment: { R: 2, I: 2, S: 1 },
 };
 
 const ZERO_PROFILE = (): RiasecProfile => ({ R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 });
@@ -151,7 +160,10 @@ const ZERO_PROFILE = (): RiasecProfile => ({ R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 
 function unit(v: Partial<Record<RiasecDim, number>>): RiasecProfile {
   const p = ZERO_PROFILE();
   let mag = 0;
-  for (const d of RIASEC_DIMS) { p[d] = v[d] ?? 0; mag += p[d] * p[d]; }
+  for (const d of RIASEC_DIMS) {
+    p[d] = v[d] ?? 0;
+    mag += p[d] * p[d];
+  }
   mag = Math.sqrt(mag);
   if (mag > 0) for (const d of RIASEC_DIMS) p[d] /= mag;
   return p;
@@ -163,9 +175,10 @@ function unit(v: Partial<Record<RiasecDim, number>>): RiasecProfile {
  * so the strongest field is 1.0 — matching the previous engine's contract, so
  * matchCareers/matchMajors and the results UI are unaffected.
  */
-export function scoreInterests(
-  picks: Partial<Record<RiasecDim, number>>[],
-): { interests: { key: string; weight: number }[]; riasec: RiasecProfile } {
+export function scoreInterests(picks: Partial<Record<RiasecDim, number>>[]): {
+  interests: { key: string; weight: number }[];
+  riasec: RiasecProfile;
+} {
   const sum = ZERO_PROFILE();
   for (const v of picks) for (const d of RIASEC_DIMS) sum[d] += v[d] ?? 0;
 
@@ -246,18 +259,19 @@ export function matchCareers(
   return careers
     .map((c) => {
       // personality fit: weighted by trait letter confidence
-      let pSum = 0, pCount = 0;
+      let pSum = 0,
+        pCount = 0;
       for (const [letter, weight] of Object.entries(c.required_traits ?? {})) {
         const conf = personality.letters[letter] ?? 0.5;
         pSum += conf * (weight ?? 1);
-        pCount += (weight ?? 1);
+        pCount += weight ?? 1;
       }
       const pFit = pCount ? pSum / pCount : 0.5;
 
       // cognitive fit
       const cogNorm = cognitive.score / 10;
       const profileMatch = c.required_profile?.includes(cognitive.profile) ? 1 : 0.5;
-      const cFit = (cogNorm * 0.6) + (profileMatch * 0.4);
+      const cFit = cogNorm * 0.6 + profileMatch * 0.4;
 
       // interest fit
       const req = c.required_interests ?? [];
@@ -298,7 +312,10 @@ export function attachMajorsToCareers<T extends Match>(
     for (const m of majors) {
       if (!m.related_career_keys?.includes(c.key)) continue;
       const s = scoreByKey.get(m.key) ?? 0;
-      if (s > bestScore) { best = m; bestScore = s; }
+      if (s > bestScore) {
+        best = m;
+        bestScore = s;
+      }
     }
     return { ...c, major: best?.name ?? null };
   });
@@ -313,10 +330,11 @@ export function matchMajors(
   const interestMap = new Map(interests.map((i) => [i.key, i.weight]));
   return majors
     .map((m) => {
-      let pSum = 0, pCount = 0;
+      let pSum = 0,
+        pCount = 0;
       for (const [letter, weight] of Object.entries(m.required_traits ?? {})) {
         pSum += (personality.letters[letter] ?? 0.5) * (weight ?? 1);
-        pCount += (weight ?? 1);
+        pCount += weight ?? 1;
       }
       const pFit = pCount ? pSum / pCount : 0.5;
       const cogNorm = cognitive.score / 10;
@@ -327,7 +345,12 @@ export function matchMajors(
         ? req.reduce((s, k) => s + (interestMap.get(k) ?? 0), 0) / req.length
         : 0.5;
       const raw = pFit * 0.4 + cFit * 0.35 + iFit * 0.25;
-      return { key: m.key, name: m.name, category: m.category, score: Math.round(Math.min(99, raw * 100)) };
+      return {
+        key: m.key,
+        name: m.name,
+        category: m.category,
+        score: Math.round(Math.min(99, raw * 100)),
+      };
     })
     .sort((a, b) => b.score - a.score);
 }
@@ -348,7 +371,8 @@ export function deriveStrengths(p: PersonalityScore, c: CognitiveScore): string[
 
 export function deriveImprovements(p: PersonalityScore, c: CognitiveScore): string[] {
   const out: string[] = [];
-  if (c.tier === "Developing" || c.tier === "Basic") out.push("Build problem-solving habits with daily logic puzzles");
+  if (c.tier === "Developing" || c.tier === "Basic")
+    out.push("Build problem-solving habits with daily logic puzzles");
   if (p.mbti[0] === "I") out.push("Practice public speaking to amplify ideas");
   if (p.mbti[0] === "E") out.push("Develop deep-work sessions for focus");
   if (p.mbti[3] === "P") out.push("Use structured planning tools");

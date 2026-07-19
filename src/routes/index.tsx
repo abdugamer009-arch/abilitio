@@ -1,5 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Brain, Compass, LineChart, Sparkles, Target, Users, Zap, ShieldCheck, Star, Swords, ChevronDown } from "lucide-react";
+import {
+  ArrowRight,
+  Brain,
+  Compass,
+  LineChart,
+  Sparkles,
+  Target,
+  Users,
+  Zap,
+  ShieldCheck,
+  Star,
+  Swords,
+  ChevronDown,
+} from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { ParticleConstellation } from "@/components/ParticleConstellation";
 import { GradientDivider } from "@/components/GradientDivider";
@@ -14,7 +27,11 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Abilitio — Discover Your True Potential" },
-      { name: "description", content: "AI-powered assessments that reveal natural talents, strengths, and career paths for students and parents." },
+      {
+        name: "description",
+        content:
+          "AI-powered assessments that reveal natural talents, strengths, and career paths for students and parents.",
+      },
     ],
   }),
   component: LandingPage,
@@ -78,11 +95,22 @@ function LandingPage() {
           </div>
 
           {/* Scroll indicator */}
-          <div className="mt-16 flex flex-col items-center gap-1.5 opacity-40 animate-fade-in" style={{ animationDelay: "1.4s" }}>
-            <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Scroll</span>
+          <div
+            className="mt-16 flex flex-col items-center gap-1.5 opacity-40 animate-fade-in"
+            style={{ animationDelay: "1.4s" }}
+          >
+            <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+              Scroll
+            </span>
             <div className="flex flex-col items-center gap-0.5">
-              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground animate-bounce" style={{ animationDuration: "1.4s" }} />
-              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground animate-bounce opacity-50" style={{ animationDuration: "1.4s", animationDelay: "0.15s" }} />
+              <ChevronDown
+                className="h-3.5 w-3.5 text-muted-foreground animate-bounce"
+                style={{ animationDuration: "1.4s" }}
+              />
+              <ChevronDown
+                className="h-3.5 w-3.5 text-muted-foreground animate-bounce opacity-50"
+                style={{ animationDuration: "1.4s", animationDelay: "0.15s" }}
+              />
             </div>
           </div>
         </div>
@@ -108,7 +136,10 @@ function LandingPage() {
             { value: 3, suffix: "", label: "Dimensions: mind, traits, interests" },
             { value: 5, suffix: " min", label: "Average completion time" },
           ].map((s) => (
-            <div key={s.label} className="glass rounded-2xl p-5 text-center transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]">
+            <div
+              key={s.label}
+              className="glass rounded-2xl p-5 text-center transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]"
+            >
               <div className="text-4xl font-bold gradient-text tabular-nums">
                 <CountUp value={s.value} suffix={s.suffix} duration={1400} />
               </div>
@@ -133,7 +164,9 @@ function LandingPage() {
                   <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-[0_6px_24px_-8px_var(--glow)]">
                     <Icon className="h-5 w-5 text-primary-foreground" />
                   </div>
-                  <div className="text-xs text-muted-foreground">{t.steps.step} {i + 1}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {t.steps.step} {i + 1}
+                  </div>
                   <h3 className="mt-1 text-xl font-semibold">{s.title}</h3>
                   <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
                 </SpotlightCard>
@@ -149,7 +182,10 @@ function LandingPage() {
           {t.featuresSection.items.map((f, i) => {
             const Icon = featureIcons[i];
             return (
-              <SpotlightCard key={f.title} className="glass rounded-2xl p-6 hover-glow transition-all duration-300 hover:-translate-y-1">
+              <SpotlightCard
+                key={f.title}
+                className="glass rounded-2xl p-6 hover-glow transition-all duration-300 hover:-translate-y-1"
+              >
                 <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_6px_24px_-8px_var(--glow)]">
                   <Icon className="h-5 w-5" />
                 </div>
@@ -168,7 +204,10 @@ function LandingPage() {
             <div>
               <h3 className="text-2xl font-semibold">{t.analytics.heading}</h3>
               <p className="mt-3 text-muted-foreground">{t.analytics.desc}</p>
-              <Link to="/dashboard" className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-accent hover:underline">
+              <Link
+                to="/dashboard"
+                className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-accent hover:underline"
+              >
                 {t.analytics.cta} <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -185,15 +224,23 @@ function LandingPage() {
             { title: "Research Scientist", match: 89 },
             { title: "Product Strategist", match: 86 },
           ].map((c) => (
-            <SpotlightCard key={c.title} className="glass rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-20px_oklch(0.55_0.22_295_/_0.35)]">
+            <SpotlightCard
+              key={c.title}
+              className="glass rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-20px_oklch(0.55_0.22_295_/_0.35)]"
+            >
               <div className="text-xs text-muted-foreground">{t.careersSec.recommended}</div>
               <h3 className="mt-1 text-lg font-semibold">{c.title}</h3>
               <div className="mt-4 flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">{t.careersSec.match}</span>
-                <span className="font-semibold gradient-text"><CountUp value={c.match} suffix="%" duration={1200} /></span>
+                <span className="font-semibold gradient-text">
+                  <CountUp value={c.match} suffix="%" duration={1200} />
+                </span>
               </div>
               <div className="mt-2 h-1.5 rounded-full bg-secondary/60 overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-primary to-accent" style={{ width: `${c.match}%`, boxShadow: "0 0 8px oklch(0.65 0.22 295 / 0.4)" }} />
+                <div
+                  className="h-full bg-gradient-to-r from-primary to-accent"
+                  style={{ width: `${c.match}%`, boxShadow: "0 0 8px oklch(0.65 0.22 295 / 0.4)" }}
+                />
               </div>
             </SpotlightCard>
           ))}
@@ -204,10 +251,19 @@ function LandingPage() {
       <Section eyebrow="Career Intelligence" title="Which path fits you best?">
         <div className="grid gap-5 md:grid-cols-2">
           {[
-            { a: { name: "Software Engineer", salary: "$70k → $250k", demand: 95, emoji: "💻" }, b: { name: "Data Scientist", salary: "$80k → $230k", demand: 90, emoji: "📊" } },
-            { a: { name: "Doctor", salary: "$200k → $500k+", demand: 88, emoji: "🩺" }, b: { name: "Psychologist", salary: "$60k → $180k", demand: 72, emoji: "🧠" } },
+            {
+              a: { name: "Software Engineer", salary: "$70k → $250k", demand: 95, emoji: "💻" },
+              b: { name: "Data Scientist", salary: "$80k → $230k", demand: 90, emoji: "📊" },
+            },
+            {
+              a: { name: "Doctor", salary: "$200k → $500k+", demand: 88, emoji: "🩺" },
+              b: { name: "Psychologist", salary: "$60k → $180k", demand: 72, emoji: "🧠" },
+            },
           ].map((battle, i) => (
-            <div key={i} className="group relative overflow-hidden glass rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-20px_oklch(0.55_0.22_295_/_0.4)]">
+            <div
+              key={i}
+              className="group relative overflow-hidden glass rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-20px_oklch(0.55_0.22_295_/_0.4)]"
+            >
               <GlowBlob className="-right-10 -top-10 h-32 w-32 opacity-20 blur-3xl transition-opacity duration-300 group-hover:opacity-40" />
               <div className="relative flex items-center justify-between gap-4">
                 <div className="flex-1 text-center">
@@ -215,7 +271,10 @@ function LandingPage() {
                   <div className="mt-2 text-sm font-semibold">{battle.a.name}</div>
                   <div className="mt-1 text-[11px] text-muted-foreground">{battle.a.salary}</div>
                   <div className="mt-2 h-1.5 rounded-full bg-secondary/60 overflow-hidden">
-                    <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent" style={{ width: `${battle.a.demand}%` }} />
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
+                      style={{ width: `${battle.a.demand}%` }}
+                    />
                   </div>
                   <div className="mt-1 text-[10px] text-primary">{battle.a.demand}% demand</div>
                 </div>
@@ -223,26 +282,37 @@ function LandingPage() {
                   <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_4px_14px_-4px_var(--glow)]">
                     <Swords className="h-4 w-4" />
                   </div>
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">vs</span>
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    vs
+                  </span>
                 </div>
                 <div className="flex-1 text-center">
                   <div className="text-3xl">{battle.b.emoji}</div>
                   <div className="mt-2 text-sm font-semibold">{battle.b.name}</div>
                   <div className="mt-1 text-[11px] text-muted-foreground">{battle.b.salary}</div>
                   <div className="mt-2 h-1.5 rounded-full bg-secondary/60 overflow-hidden">
-                    <div className="h-full rounded-full bg-gradient-to-r from-accent/70 to-primary/70" style={{ width: `${battle.b.demand}%` }} />
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-accent/70 to-primary/70"
+                      style={{ width: `${battle.b.demand}%` }}
+                    />
                   </div>
                   <div className="mt-1 text-[10px] text-primary">{battle.b.demand}% demand</div>
                 </div>
               </div>
-              <Link to="/career-battles" className="relative mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-medium text-primary transition-all hover:border-primary/50 hover:bg-primary/15 hover:-translate-y-0.5 hover:shadow-[0_6px_16px_-6px_oklch(0.55_0.22_295_/_0.3)]">
+              <Link
+                to="/career-battles"
+                className="relative mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-medium text-primary transition-all hover:border-primary/50 hover:bg-primary/15 hover:-translate-y-0.5 hover:shadow-[0_6px_16px_-6px_oklch(0.55_0.22_295_/_0.3)]"
+              >
                 See full comparison <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
           ))}
         </div>
         <div className="mt-6 text-center">
-          <Link to="/career-battles" className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all">
+          <Link
+            to="/career-battles"
+            className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"
+          >
             <Swords className="h-4 w-4" /> Explore All Career Battles
           </Link>
         </div>
@@ -252,18 +322,32 @@ function LandingPage() {
       <Section eyebrow={t.testimonials.eyebrow} title={t.testimonials.title}>
         <div className="grid gap-5 md:grid-cols-3">
           {t.testimonials.items.map((tt) => (
-            <figure key={tt.name} className="relative overflow-hidden glass rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-20px_oklch(0.55_0.22_295_/_0.35)]">
+            <figure
+              key={tt.name}
+              className="relative overflow-hidden glass rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-20px_oklch(0.55_0.22_295_/_0.35)]"
+            >
               <GlowBlob className="-right-8 -top-8 h-28 w-28 opacity-15 blur-2xl" alpha={0.7} />
               <div className="flex gap-0.5 text-accent">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star key={i} className="h-3.5 w-3.5 fill-current" />
                 ))}
               </div>
-              <div aria-hidden className="pointer-events-none mt-3 text-5xl font-serif leading-none text-primary/20 select-none">"</div>
-              <blockquote className="-mt-2 text-sm leading-relaxed text-foreground/90">{tt.quote}</blockquote>
+              <div
+                aria-hidden
+                className="pointer-events-none mt-3 text-5xl font-serif leading-none text-primary/20 select-none"
+              >
+                "
+              </div>
+              <blockquote className="-mt-2 text-sm leading-relaxed text-foreground/90">
+                {tt.quote}
+              </blockquote>
               <figcaption className="mt-5 flex items-center gap-3">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-[11px] font-bold text-primary-foreground shadow-[0_4px_12px_-4px_var(--glow)]">
-                  {tt.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
+                  {tt.name
+                    .split(" ")
+                    .map((n: string) => n[0])
+                    .join("")
+                    .slice(0, 2)}
                 </div>
                 <div className="text-xs">
                   <div className="font-medium text-foreground">{tt.name}</div>
@@ -282,7 +366,10 @@ function LandingPage() {
       <Section eyebrow={t.faq.eyebrow} title={t.faq.title}>
         <div className="mx-auto max-w-3xl space-y-3">
           {t.faq.items.map((f) => (
-            <details key={f.q} className="glass group rounded-2xl p-6 transition-all duration-300 hover:border-primary/20 open:border-primary/20 open:bg-gradient-to-br open:from-primary/5 open:to-secondary/30 [&_summary::-webkit-details-marker]:hidden">
+            <details
+              key={f.q}
+              className="glass group rounded-2xl p-6 transition-all duration-300 hover:border-primary/20 open:border-primary/20 open:bg-gradient-to-br open:from-primary/5 open:to-secondary/30 [&_summary::-webkit-details-marker]:hidden"
+            >
               <summary className="flex cursor-pointer items-center justify-between gap-4 text-sm font-medium">
                 {f.q}
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition-all duration-300 group-open:border-primary/40 group-open:bg-gradient-to-br group-open:from-primary group-open:to-accent group-open:text-primary-foreground group-open:shadow-[0_2px_8px_-2px_var(--glow)]">
@@ -298,11 +385,18 @@ function LandingPage() {
       {/* CTA */}
       <section className="relative px-6 py-24">
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute left-1/2 top-1/2 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30 blur-[120px]"
-            style={{ background: "radial-gradient(ellipse, oklch(0.6 0.22 290 / 0.5), transparent 65%)" }} />
+          <div
+            className="absolute left-1/2 top-1/2 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30 blur-[120px]"
+            style={{
+              background: "radial-gradient(ellipse, oklch(0.6 0.22 290 / 0.5), transparent 65%)",
+            }}
+          />
         </div>
         <Reveal className="mx-auto max-w-4xl">
-          <div className="glass relative overflow-hidden rounded-3xl p-12 text-center" style={{ boxShadow: "0 0 80px -20px oklch(0.6 0.22 295 / 0.4)" }}>
+          <div
+            className="glass relative overflow-hidden rounded-3xl p-12 text-center"
+            style={{ boxShadow: "0 0 80px -20px oklch(0.6 0.22 295 / 0.4)" }}
+          >
             <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
             <div className="relative">
               <h2 className="text-3xl font-bold md:text-5xl">{t.finalCta.title}</h2>
@@ -321,13 +415,26 @@ function LandingPage() {
   );
 }
 
-function Section({ id, eyebrow, title, children }: { id?: string; eyebrow: string; title: string; children: React.ReactNode }) {
+function Section({
+  id,
+  eyebrow,
+  title,
+  children,
+}: {
+  id?: string;
+  eyebrow: string;
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <section id={id} className="px-6 py-24 lg:py-28">
       <div className="mx-auto max-w-[1400px]">
         <Reveal className="mb-14 text-center">
           <div className="text-xs uppercase tracking-widest text-accent">{eyebrow}</div>
-          <div aria-hidden className="mx-auto mt-2 h-px w-8 rounded-full bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
+          <div
+            aria-hidden
+            className="mx-auto mt-2 h-px w-8 rounded-full bg-gradient-to-r from-transparent via-accent/60 to-transparent"
+          />
           <h2 className="mt-4 text-3xl font-bold md:text-4xl lg:text-5xl">{title}</h2>
         </Reveal>
         <Reveal delay={120}>{children}</Reveal>
@@ -347,16 +454,32 @@ function AnalyticsPreview() {
       </div>
       <div className="mt-6 flex h-40 items-end justify-between gap-3">
         {bars.map((b, i) => (
-          <div key={i} className="relative flex-1 rounded-t-lg bg-gradient-to-t from-primary/60 to-accent/80 transition-all duration-700"
-            style={{ height: `${b}%`, transitionDelay: `${i * 60}ms`, boxShadow: "0 -4px 16px oklch(0.65 0.22 295 / 0.3)" }}>
+          <div
+            key={i}
+            className="relative flex-1 rounded-t-lg bg-gradient-to-t from-primary/60 to-accent/80 transition-all duration-700"
+            style={{
+              height: `${b}%`,
+              transitionDelay: `${i * 60}ms`,
+              boxShadow: "0 -4px 16px oklch(0.65 0.22 295 / 0.3)",
+            }}
+          >
             <div className="absolute inset-x-0 top-0 h-px rounded-full bg-white/40" />
           </div>
         ))}
       </div>
       <div className="mt-6 grid grid-cols-3 gap-3 text-center text-xs">
-        {[{ l: t.analytics.cognitive, v: 91 }, { l: t.analytics.creative, v: 88 }, { l: t.analytics.social, v: 76 }].map((s) => (
-          <div key={s.l} className="rounded-xl border border-primary/15 bg-gradient-to-br from-primary/10 to-secondary/40 py-3 transition-all hover:-translate-y-0.5">
-            <div className="text-base font-semibold gradient-text"><CountUp value={s.v} duration={1600} /></div>
+        {[
+          { l: t.analytics.cognitive, v: 91 },
+          { l: t.analytics.creative, v: 88 },
+          { l: t.analytics.social, v: 76 },
+        ].map((s) => (
+          <div
+            key={s.l}
+            className="rounded-xl border border-primary/15 bg-gradient-to-br from-primary/10 to-secondary/40 py-3 transition-all hover:-translate-y-0.5"
+          >
+            <div className="text-base font-semibold gradient-text">
+              <CountUp value={s.v} duration={1600} />
+            </div>
             <div className="text-muted-foreground">{s.l}</div>
           </div>
         ))}

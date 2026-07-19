@@ -199,7 +199,7 @@ export function ParticleConstellation() {
           else stop();
         }
       },
-      { threshold: 0 }
+      { threshold: 0 },
     );
     io.observe(canvas);
 

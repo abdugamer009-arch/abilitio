@@ -38,11 +38,19 @@ function CenteredGlow({ children }: { children: React.ReactNode }) {
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div
           className="absolute left-1/2 top-[-10%] h-[55vh] w-[110vw] -translate-x-1/2 rounded-[50%] opacity-50"
-          style={{ background: "radial-gradient(ellipse at center, oklch(0.6 0.18 290 / 0.3), transparent 68%)", filter: "blur(70px)" }}
+          style={{
+            background:
+              "radial-gradient(ellipse at center, oklch(0.6 0.18 290 / 0.3), transparent 68%)",
+            filter: "blur(70px)",
+          }}
         />
         <div
           className="absolute -bottom-32 right-[-10%] h-[45vh] w-[55vw] rounded-full opacity-35"
-          style={{ background: "radial-gradient(ellipse at center, oklch(0.55 0.17 275 / 0.3), transparent 70%)", filter: "blur(80px)" }}
+          style={{
+            background:
+              "radial-gradient(ellipse at center, oklch(0.55 0.17 275 / 0.3), transparent 70%)",
+            filter: "blur(80px)",
+          }}
         />
       </div>
       {children}
@@ -93,7 +101,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         </p>
         <div className="mt-7 flex flex-wrap justify-center gap-2">
           <button
-            onClick={() => { router.invalidate(); reset(); }}
+            onClick={() => {
+              router.invalidate();
+              reset();
+            }}
             className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all hover:glow-purple hover:-translate-y-0.5"
           >
             <RefreshCw className="h-4 w-4" /> Try again
@@ -116,14 +127,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "Abilitio — Discover Your True Potential" },
-      { name: "description", content: "AI-powered talent discovery for students and parents. Uncover natural strengths and explore future career paths." },
+      {
+        name: "description",
+        content:
+          "AI-powered talent discovery for students and parents. Uncover natural strengths and explore future career paths.",
+      },
       { name: "author", content: "Abilitio" },
       { property: "og:title", content: "Abilitio — Discover Your True Potential" },
-      { property: "og:description", content: "AI-powered talent discovery for students and parents. Uncover natural strengths and explore future career paths." },
+      {
+        property: "og:description",
+        content:
+          "AI-powered talent discovery for students and parents. Uncover natural strengths and explore future career paths.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Abilitio — Discover Your True Potential" },
-      { name: "twitter:description", content: "AI-powered talent discovery for students and parents. Uncover natural strengths and explore future career paths." },
+      {
+        name: "twitter:description",
+        content:
+          "AI-powered talent discovery for students and parents. Uncover natural strengths and explore future career paths.",
+      },
       { property: "og:image", content: OG_IMAGE_URL },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
@@ -136,7 +159,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-icon", href: "/favicon.svg" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -166,7 +192,9 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
-  useEffect(() => { initAnalytics(); }, []);
+  useEffect(() => {
+    initAnalytics();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -2,7 +2,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
-import { GraduationCap, BarChart3, Users, Sparkles, Shield, ArrowRight, Check, Mail } from "lucide-react";
+import {
+  GraduationCap,
+  BarChart3,
+  Users,
+  Sparkles,
+  Shield,
+  ArrowRight,
+  Check,
+  Mail,
+} from "lucide-react";
 import { FloatingShapes } from "@/components/FloatingShapes";
 import { GlowBlob } from "@/components/GlowBlob";
 import { useT } from "@/lib/i18n";
@@ -11,9 +20,17 @@ export const Route = createFileRoute("/for-schools")({
   head: () => ({
     meta: [
       { title: "For Schools — Abilitio" },
-      { name: "description", content: "AI talent discovery for schools: identify student strengths and build specialized classes from real assessment data." },
+      {
+        name: "description",
+        content:
+          "AI talent discovery for schools: identify student strengths and build specialized classes from real assessment data.",
+      },
       { property: "og:title", content: "Abilitio for Schools" },
-      { property: "og:description", content: "Discover student talent and design specialized classes with AI-powered analytics." },
+      {
+        property: "og:description",
+        content:
+          "Discover student talent and design specialized classes with AI-powered analytics.",
+      },
     ],
   }),
   component: ForSchoolsPage,
@@ -23,9 +40,44 @@ function ForSchoolsPage() {
   const t = useT();
 
   const PLANS = [
-    { name: t.forSchools.plan1Name, limit: t.forSchools.plan1Limit, price: t.forSchools.plan1Price, cta: t.forSchools.plan1Cta, ctaTo: "/school/register" as const, contact: false, features: [t.forSchools.plan1F1, t.forSchools.plan1F2, t.forSchools.plan1F3] },
-    { name: t.forSchools.plan2Name, limit: t.forSchools.plan2Limit, price: t.forSchools.plan2Price, cta: t.forSchools.plan2Cta, ctaTo: "/contact" as const, contact: true, features: [t.forSchools.plan2F1, t.forSchools.plan2F2, t.forSchools.plan2F3, t.forSchools.plan2F4], highlight: true },
-    { name: t.forSchools.plan3Name, limit: t.forSchools.plan3Limit, price: t.forSchools.plan3Price, cta: t.forSchools.plan3Cta, ctaTo: "/contact" as const, contact: true, features: [t.forSchools.plan3F1, t.forSchools.plan3F2, t.forSchools.plan3F3, t.forSchools.plan3F4] },
+    {
+      name: t.forSchools.plan1Name,
+      limit: t.forSchools.plan1Limit,
+      price: t.forSchools.plan1Price,
+      cta: t.forSchools.plan1Cta,
+      ctaTo: "/school/register" as const,
+      contact: false,
+      features: [t.forSchools.plan1F1, t.forSchools.plan1F2, t.forSchools.plan1F3],
+    },
+    {
+      name: t.forSchools.plan2Name,
+      limit: t.forSchools.plan2Limit,
+      price: t.forSchools.plan2Price,
+      cta: t.forSchools.plan2Cta,
+      ctaTo: "/contact" as const,
+      contact: true,
+      features: [
+        t.forSchools.plan2F1,
+        t.forSchools.plan2F2,
+        t.forSchools.plan2F3,
+        t.forSchools.plan2F4,
+      ],
+      highlight: true,
+    },
+    {
+      name: t.forSchools.plan3Name,
+      limit: t.forSchools.plan3Limit,
+      price: t.forSchools.plan3Price,
+      cta: t.forSchools.plan3Cta,
+      ctaTo: "/contact" as const,
+      contact: true,
+      features: [
+        t.forSchools.plan3F1,
+        t.forSchools.plan3F2,
+        t.forSchools.plan3F3,
+        t.forSchools.plan3F4,
+      ],
+    },
   ];
 
   const FEATURES = [
@@ -44,17 +96,24 @@ function ForSchoolsPage() {
             <GraduationCap className="h-3.5 w-3.5" /> {t.forSchools.badge}
           </div>
           <h1 className="mt-6 text-4xl font-bold tracking-tight md:text-6xl">
-            <span className="gradient-text">{t.forSchools.titleA}</span><br />
+            <span className="gradient-text">{t.forSchools.titleA}</span>
+            <br />
             {t.forSchools.titleB}
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
             {t.forSchools.subtitle}
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link to="/school/register" className="cta-sheen relative inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-3 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] transition-all hover:-translate-y-0.5 overflow-hidden">
+            <Link
+              to="/school/register"
+              className="cta-sheen relative inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-3 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] transition-all hover:-translate-y-0.5 overflow-hidden"
+            >
               {t.forSchools.registerBtn} <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link to="/school/join" className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-6 py-3 text-sm font-medium text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_6px_16px_-6px_oklch(0.55_0.22_295_/_0.3)]">
+            <Link
+              to="/school/join"
+              className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-6 py-3 text-sm font-medium text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_6px_16px_-6px_oklch(0.55_0.22_295_/_0.3)]"
+            >
               {t.forSchools.joinBtn}
             </Link>
           </div>
@@ -83,11 +142,16 @@ function ForSchoolsPage() {
           </Reveal>
           <Reveal delay={100} className="grid gap-5 md:grid-cols-3">
             {PLANS.map((p) => (
-              <div key={p.name} className={`relative overflow-hidden glass rounded-3xl p-7 transition-all duration-300 hover:-translate-y-1 ${"highlight" in p && p.highlight ? "ring-1 ring-primary/40 shadow-[0_20px_60px_-30px_var(--glow)]" : "hover-glow"}`}>
+              <div
+                key={p.name}
+                className={`relative overflow-hidden glass rounded-3xl p-7 transition-all duration-300 hover:-translate-y-1 ${"highlight" in p && p.highlight ? "ring-1 ring-primary/40 shadow-[0_20px_60px_-30px_var(--glow)]" : "hover-glow"}`}
+              >
                 {"highlight" in p && p.highlight && (
                   <>
                     <GlowBlob className="-right-10 -top-10 h-40 w-40 opacity-40 blur-3xl" />
-                    <div className="relative mb-3 inline-flex rounded-full bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 text-[11px] font-semibold text-primary-foreground shadow-[0_2px_10px_-4px_var(--glow)]">{t.forSchools.mostPopular}</div>
+                    <div className="relative mb-3 inline-flex rounded-full bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 text-[11px] font-semibold text-primary-foreground shadow-[0_2px_10px_-4px_var(--glow)]">
+                      {t.forSchools.mostPopular}
+                    </div>
                   </>
                 )}
                 <div className="text-sm text-muted-foreground">{p.name}</div>
@@ -120,11 +184,16 @@ function ForSchoolsPage() {
           <div className="mt-8 text-center">
             <p className="text-sm text-muted-foreground">
               {t.forSchools.pricingQuestion}{" "}
-              <Link to="/contact" className="font-medium text-accent hover:underline">{t.forSchools.getInTouch}</Link>
+              <Link to="/contact" className="font-medium text-accent hover:underline">
+                {t.forSchools.getInTouch}
+              </Link>
             </p>
           </div>
           <div className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]"><Shield className="h-3 w-3" /></span> {t.forSchools.privacyNote}
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]">
+              <Shield className="h-3 w-3" />
+            </span>{" "}
+            {t.forSchools.privacyNote}
           </div>
         </div>
       </section>

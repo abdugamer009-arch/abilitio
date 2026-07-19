@@ -28,7 +28,9 @@ const abbiMessageSchema = z.object({
     firstName: z.string().nullable().optional(),
     mbtiType: z.string().nullable().optional(),
     iqScore: z.number().nullable().optional(),
-    topCareers: z.array(z.object({ name: z.string(), match: z.number(), reason: z.string().optional() })).optional(),
+    topCareers: z
+      .array(z.object({ name: z.string(), match: z.number(), reason: z.string().optional() }))
+      .optional(),
     topStrengths: z.array(z.string()).optional(),
     weaknesses: z.array(z.string()).optional(),
     ageGroup: z.enum(["teen", "adult"]).nullable().optional(),
@@ -56,10 +58,17 @@ export const generateAbbiMessage = createServerFn({ method: "POST" })
           "Be concise, encouraging, and practical. Use markdown formatting. Max 300 words per reply.",
           ctx.mbtiType ? `The user's personality type is ${ctx.mbtiType}.` : "",
           ctx.iqScore != null ? `Their cognitive score is ${ctx.iqScore}/10.` : "",
-          ctx.topCareers?.length ? `Their top career matches: ${ctx.topCareers.slice(0, 3).map(c => `${c.name} (${c.match}%)`).join(", ")}.` : "",
+          ctx.topCareers?.length
+            ? `Their top career matches: ${ctx.topCareers
+                .slice(0, 3)
+                .map((c) => `${c.name} (${c.match}%)`)
+                .join(", ")}.`
+            : "",
           ctx.topStrengths?.length ? `Their strengths: ${ctx.topStrengths.join(", ")}.` : "",
           ctx.weaknesses?.length ? `Areas to improve: ${ctx.weaknesses.join(", ")}.` : "",
-        ].filter(Boolean).join(" ");
+        ]
+          .filter(Boolean)
+          .join(" ");
 
         const response = await client.messages.create({
           model: "claude-sonnet-4-6",
@@ -71,10 +80,10 @@ export const generateAbbiMessage = createServerFn({ method: "POST" })
         const text = response.content[0]?.type === "text" ? response.content[0].text : null;
         if (text) {
           // Record the billable call (best-effort; never block the reply).
-          await supabaseAdmin.from("abbi_usage").insert({ user_id: context.userId }).then(
-            undefined,
-            (e) => console.warn("[abbi] usage log failed:", e),
-          );
+          await supabaseAdmin
+            .from("abbi_usage")
+            .insert({ user_id: context.userId })
+            .then(undefined, (e) => console.warn("[abbi] usage log failed:", e));
           return { reply: text };
         }
       } catch (err) {

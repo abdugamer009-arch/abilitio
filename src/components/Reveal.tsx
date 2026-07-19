@@ -36,7 +36,7 @@ export function Reveal({ children, delay = 0, className = "", as = "div" }: Reve
           }
         }
       },
-      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -51,7 +51,8 @@ export function Reveal({ children, delay = 0, className = "", as = "div" }: Reve
         opacity: shown ? 1 : 0,
         transform: shown ? "translateY(0)" : "translateY(22px)",
         filter: shown ? "blur(0)" : "blur(4px)",
-        transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1), filter 0.7s cubic-bezier(0.16,1,0.3,1)",
+        transition:
+          "opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1), filter 0.7s cubic-bezier(0.16,1,0.3,1)",
         transitionDelay: `${delay}ms`,
         willChange: "opacity, transform",
       }}

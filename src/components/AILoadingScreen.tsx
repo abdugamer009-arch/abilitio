@@ -11,7 +11,13 @@ const STEPS: Step[] = [
   { icon: Sparkles, label: "Composing your personal summary" },
 ];
 
-export function AILoadingScreen({ onDone, durationMs = 3600 }: { onDone: () => void; durationMs?: number }) {
+export function AILoadingScreen({
+  onDone,
+  durationMs = 3600,
+}: {
+  onDone: () => void;
+  durationMs?: number;
+}) {
   const [active, setActive] = useState(0);
 
   useEffect(() => {
@@ -54,7 +60,13 @@ export function AILoadingScreen({ onDone, durationMs = 3600 }: { onDone: () => v
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-[0_8px_28px_-8px_var(--glow)]">
               <Sparkles className="h-6 w-6 text-primary-foreground" />
-              <span className="absolute -inset-1 -z-10 rounded-2xl opacity-40 blur-md" style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }} />
+              <span
+                className="absolute -inset-1 -z-10 rounded-2xl opacity-40 blur-md"
+                style={{
+                  background:
+                    "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)",
+                }}
+              />
             </div>
           </div>
         </div>
@@ -77,8 +89,8 @@ export function AILoadingScreen({ onDone, durationMs = 3600 }: { onDone: () => v
                   current
                     ? "border-primary/40 bg-gradient-to-r from-primary/12 to-accent/8 shadow-[0_2px_12px_-4px_var(--glow)]"
                     : done
-                    ? "border-border/60 bg-secondary/40 opacity-80"
-                    : "border-border/40 bg-transparent opacity-40"
+                      ? "border-border/60 bg-secondary/40 opacity-80"
+                      : "border-border/40 bg-transparent opacity-40"
                 }`}
               >
                 <span
@@ -86,14 +98,18 @@ export function AILoadingScreen({ onDone, durationMs = 3600 }: { onDone: () => v
                     done
                       ? "bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]"
                       : current
-                      ? "bg-gradient-to-br from-primary to-accent text-primary-foreground"
-                      : "bg-secondary text-muted-foreground"
+                        ? "bg-gradient-to-br from-primary to-accent text-primary-foreground"
+                        : "bg-secondary text-muted-foreground"
                   }`}
                 >
-                  {current && <span className="absolute inset-0 rounded-full animate-ping bg-primary/30" />}
+                  {current && (
+                    <span className="absolute inset-0 rounded-full animate-ping bg-primary/30" />
+                  )}
                   {done ? <Check className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
                 </span>
-                <span className={current ? "text-foreground" : "text-muted-foreground"}>{s.label}</span>
+                <span className={current ? "text-foreground" : "text-muted-foreground"}>
+                  {s.label}
+                </span>
                 {current && (
                   <span className="ml-auto inline-flex gap-1">
                     <Dot delay={0} />

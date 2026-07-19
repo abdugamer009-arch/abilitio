@@ -232,9 +232,7 @@ export function ProfilePhotoCard({
             )}
           </div>
 
-          {error && (
-            <p className="mt-3 text-xs font-medium text-destructive">{error}</p>
-          )}
+          {error && <p className="mt-3 text-xs font-medium text-destructive">{error}</p>}
         </div>
       </div>
     </div>

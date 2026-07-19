@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { PERSONALITY_BANK, IQ_BANK, INTEREST_BANK, pickSessionQuestions, getIQCorrect, getInterestRiasec } from "../assessment/question-bank";
+import {
+  PERSONALITY_BANK,
+  IQ_BANK,
+  INTEREST_BANK,
+  pickSessionQuestions,
+  getIQCorrect,
+  getInterestRiasec,
+} from "../assessment/question-bank";
 import { RIASEC_DIMS } from "../assessment/career-assessment";
 import { INTEREST_ICONS } from "../assessment/interest-icons";
 

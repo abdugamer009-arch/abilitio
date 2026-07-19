@@ -32,14 +32,20 @@ export const Route = createFileRoute("/iq-test")({
   head: () => ({
     meta: [
       { title: "IQ Test — Abilitio" },
-      { name: "description", content: "40-question IQ test measuring verbal, numerical, spatial and logical reasoning. 90 minutes." },
+      {
+        name: "description",
+        content:
+          "40-question IQ test measuring verbal, numerical, spatial and logical reasoning. 90 minutes.",
+      },
     ],
   }),
   component: IQTestPage,
 });
 
 function fmt(sec: number) {
-  const m = Math.floor(sec / 60).toString().padStart(2, "0");
+  const m = Math.floor(sec / 60)
+    .toString()
+    .padStart(2, "0");
   const s = (sec % 60).toString().padStart(2, "0");
   return `${m}:${s}`;
 }
@@ -54,7 +60,14 @@ function IQTestPage() {
   const t = useT();
   const { lang } = useI18n();
   const catLabel = (cat: IQCategory) =>
-    ({ verbal: t.iqTest.categoryVerbal, numerical: t.iqTest.categoryNumerical, spatial: t.iqTest.categorySpatial, logical: t.iqTest.categoryLogical } as Record<IQCategory, string>)[cat] ?? CATEGORY_LABELS[cat];
+    (
+      ({
+        verbal: t.iqTest.categoryVerbal,
+        numerical: t.iqTest.categoryNumerical,
+        spatial: t.iqTest.categorySpatial,
+        logical: t.iqTest.categoryLogical,
+      }) as Record<IQCategory, string>
+    )[cat] ?? CATEGORY_LABELS[cat];
   const [phase, setPhase] = useState<"intro" | "test" | "results">("intro");
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(Array(40).fill(null));
@@ -109,7 +122,10 @@ function IQTestPage() {
   useEffect(() => {
     if (phase !== "test" || deadline == null) return;
     try {
-      localStorage.setItem(IQ_PROGRESS_KEY, JSON.stringify({ step, answers, deadline } satisfies IqSavedProgress));
+      localStorage.setItem(
+        IQ_PROGRESS_KEY,
+        JSON.stringify({ step, answers, deadline } satisfies IqSavedProgress),
+      );
     } catch {
       // Storage full or unavailable — non-fatal.
     }
@@ -118,7 +134,11 @@ function IQTestPage() {
   // Clear persisted progress once the attempt is over (finish, timeout, or restore-to-results).
   useEffect(() => {
     if (phase === "results") {
-      try { localStorage.removeItem(IQ_PROGRESS_KEY); } catch { /* non-fatal */ }
+      try {
+        localStorage.removeItem(IQ_PROGRESS_KEY);
+      } catch {
+        /* non-fatal */
+      }
     }
   }, [phase]);
 
@@ -169,21 +189,28 @@ function IQTestPage() {
             <div className="glass rounded-3xl p-10 text-center animate-fade-up">
               <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-[0_12px_40px_-12px_var(--glow)]">
                 <Brain className="h-10 w-10 text-primary-foreground" />
-                <span className="absolute -inset-1 -z-10 rounded-2xl opacity-50 blur-md" style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }} />
+                <span
+                  className="absolute -inset-1 -z-10 rounded-2xl opacity-50 blur-md"
+                  style={{
+                    background:
+                      "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)",
+                  }}
+                />
               </div>
               <h1 className="mt-6 text-4xl font-bold gradient-text">{t.iqTest.title}</h1>
-              <p className="mt-3 text-muted-foreground text-sm">
-                {t.iqTest.subtitle}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {t.iqTest.sourceNote}
-              </p>
+              <p className="mt-3 text-muted-foreground text-sm">{t.iqTest.subtitle}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t.iqTest.sourceNote}</p>
 
               <div className="mt-8 grid gap-4 md:grid-cols-4 text-left">
                 {(["verbal", "numerical", "spatial", "logical"] as IQCategory[]).map((cat) => (
-                  <div key={cat} className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]">
-                    <div className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full opacity-30 blur-2xl transition-opacity group-hover:opacity-60"
-                      style={{ background: CATEGORY_COLORS[cat] }} />
+                  <div
+                    key={cat}
+                    className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]"
+                  >
+                    <div
+                      className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full opacity-30 blur-2xl transition-opacity group-hover:opacity-60"
+                      style={{ background: CATEGORY_COLORS[cat] }}
+                    />
                     <span
                       className="relative inline-block mb-2 rounded-full px-2.5 py-0.5 text-[10px] font-semibold text-white shadow-[0_2px_8px_-2px_rgba(0,0,0,0.3)]"
                       style={{ background: CATEGORY_COLORS[cat] }}
@@ -198,7 +225,8 @@ function IQTestPage() {
               </div>
 
               <div className="mt-6 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-left text-xs text-muted-foreground">
-                <strong className="text-foreground">{t.iqTest.instructions}:</strong> {t.iqTest.instructionsBody}
+                <strong className="text-foreground">{t.iqTest.instructions}:</strong>{" "}
+                {t.iqTest.instructionsBody}
               </div>
 
               <button
@@ -225,7 +253,13 @@ function IQTestPage() {
             <div className="glass rounded-3xl p-10 text-center animate-fade-up">
               <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_30px_-10px_var(--glow)]">
                 <Trophy className="h-8 w-8" />
-                <span className="absolute -inset-1 -z-10 rounded-2xl opacity-50 blur-md" style={{ background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)" }} />
+                <span
+                  className="absolute -inset-1 -z-10 rounded-2xl opacity-50 blur-md"
+                  style={{
+                    background:
+                      "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)",
+                  }}
+                />
               </div>
               <div className="mt-4 text-7xl font-bold gradient-text tabular-nums">
                 <CountUp value={score} duration={1200} />
@@ -249,12 +283,17 @@ function IQTestPage() {
                     <thead>
                       <tr className="border-b border-border bg-secondary/40">
                         <th className="px-4 py-2 text-left font-semibold">{t.iqTest.scoreLabel}</th>
-                        <th className="px-4 py-2 text-left font-semibold">{t.iqTest.ratingLabel}</th>
+                        <th className="px-4 py-2 text-left font-semibold">
+                          {t.iqTest.ratingLabel}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {bandRows.map(([s, r]) => (
-                        <tr key={s} className={`border-b border-border/50 ${r === band.label ? "bg-primary/10 font-semibold" : ""}`}>
+                        <tr
+                          key={s}
+                          className={`border-b border-border/50 ${r === band.label ? "bg-primary/10 font-semibold" : ""}`}
+                        >
                           <td className="px-4 py-2">{s}</td>
                           <td className="px-4 py-2">{r}</td>
                         </tr>
@@ -268,7 +307,9 @@ function IQTestPage() {
             {/* Category breakdown */}
             <div className="glass rounded-3xl p-8">
               <div className="flex items-center gap-2 mb-6">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]"><BarChart3 className="h-4 w-4" /></span>
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">
+                  <BarChart3 className="h-4 w-4" />
+                </span>
                 <h2 className="text-lg font-semibold">{t.iqTest.performanceByCategory}</h2>
               </div>
               <div className="space-y-4">
@@ -303,7 +344,9 @@ function IQTestPage() {
             {/* Question review */}
             <div className="glass rounded-3xl p-8">
               <div className="flex items-center gap-2.5 mb-4">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]"><BarChart3 className="h-4 w-4" /></span>
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">
+                  <BarChart3 className="h-4 w-4" />
+                </span>
                 <h2 className="text-lg font-semibold">{t.iqTest.questionReview}</h2>
               </div>
               <div className="space-y-3">
@@ -318,20 +361,28 @@ function IQTestPage() {
                         skipped
                           ? "border-border/40 bg-secondary/20 text-muted-foreground"
                           : isCorrect
-                          ? "border-green-500/30 bg-green-500/10"
-                          : "border-red-500/30 bg-red-500/10"
+                            ? "border-green-500/30 bg-green-500/10"
+                            : "border-red-500/30 bg-red-500/10"
                       }`}
                     >
-                      <span className="shrink-0 font-mono text-xs w-6 text-center mt-0.5">{q.id}</span>
+                      <span className="shrink-0 font-mono text-xs w-6 text-center mt-0.5">
+                        {q.id}
+                      </span>
                       <span
                         className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold text-white"
                         style={{ background: CATEGORY_COLORS[q.category] }}
                       >
                         {catLabel(q.category)}
                       </span>
-                      <span className="flex-1 line-clamp-2">{tIQPrompt(q.id, q.prompt, lang).split("\n")[0]}</span>
+                      <span className="flex-1 line-clamp-2">
+                        {tIQPrompt(q.id, q.prompt, lang).split("\n")[0]}
+                      </span>
                       <span className="shrink-0 text-xs font-medium">
-                        {skipped ? "—" : isCorrect ? "✓" : `✗ → ${tIQOpts(q.id, q.options, lang)[q.correct]}`}
+                        {skipped
+                          ? "—"
+                          : isCorrect
+                            ? "✓"
+                            : `✗ → ${tIQOpts(q.id, q.options, lang)[q.correct]}`}
                       </span>
                     </div>
                   );
@@ -366,7 +417,9 @@ function IQTestPage() {
             >
               {catLabel(q.category)}
             </span>
-            <span>{t.iqTest.question} {step + 1} / 40</span>
+            <span>
+              {t.iqTest.question} {step + 1} / 40
+            </span>
             <span
               className={`flex items-center gap-1.5 font-mono font-semibold ${timeLeft < 300 ? "text-red-400" : "text-foreground"}`}
             >
@@ -385,12 +438,20 @@ function IQTestPage() {
 
           {/* Question card */}
           <div className="glass mt-6 rounded-3xl p-8">
-            <h2 className="text-lg font-semibold leading-relaxed whitespace-pre-line">{tIQPrompt(q.id, q.prompt, lang)}</h2>
+            <h2 className="text-lg font-semibold leading-relaxed whitespace-pre-line">
+              {tIQPrompt(q.id, q.prompt, lang)}
+            </h2>
             {q.note && (
-              <p className="mt-2 text-xs text-muted-foreground italic">{tIQNote(q.id, q.note, lang)}</p>
+              <p className="mt-2 text-xs text-muted-foreground italic">
+                {tIQNote(q.id, q.note, lang)}
+              </p>
             )}
 
-            <div role="radiogroup" aria-label={`${t.iqTest.question} ${step + 1}`} className="mt-6 space-y-2">
+            <div
+              role="radiogroup"
+              aria-label={`${t.iqTest.question} ${step + 1}`}
+              className="mt-6 space-y-2"
+            >
               {tIQOpts(q.id, q.options, lang).map((opt, i) => {
                 const isSelected = selected === i;
                 return (
@@ -416,7 +477,9 @@ function IQTestPage() {
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold ${isSelected ? "bg-primary border-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>
+                        <span
+                          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold ${isSelected ? "bg-primary border-primary text-primary-foreground" : "border-border text-muted-foreground"}`}
+                        >
                           {String.fromCharCode(65 + i)}
                         </span>
                         <span className="text-sm">{opt}</span>
@@ -448,8 +511,8 @@ function IQTestPage() {
                       i === step
                         ? "bg-gradient-to-br from-primary to-accent scale-125 shadow-[0_0_6px_-1px_var(--glow)]"
                         : answers[i] !== null
-                        ? "bg-primary/40"
-                        : "bg-border"
+                          ? "bg-primary/40"
+                          : "bg-border"
                     }`}
                   />
                 ))}

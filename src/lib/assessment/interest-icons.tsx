@@ -18,20 +18,26 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
   diamond: <path d="M32 10 L54 32 L32 54 L10 32 Z" />,
   squiggle: <path d="M10 44 C 18 20 26 20 32 34 C 38 48 46 48 54 22" />,
   hexagon: <path d="M32 10 L52 21 L52 43 L32 54 L12 43 L12 21 Z" />,
-  star: <path d="M32 10 L37.3 24.7 L52.9 25.2 L40.6 34.8 L44.9 49.8 L32 41 L19.1 49.8 L23.4 34.8 L11.1 25.2 L26.7 24.7 Z" />,
+  star: (
+    <path d="M32 10 L37.3 24.7 L52.9 25.2 L40.6 34.8 L44.9 49.8 L32 41 L19.1 49.8 L23.4 34.8 L11.1 25.2 L26.7 24.7 Z" />
+  ),
 
   // ── Lines ──
   l_straight: <path d="M10 32 H54" />,
   l_diagonal: <path d="M12 52 L52 14 M52 14 L41 15.5 M52 14 L50.5 25" />,
   l_wave: <path d="M8 32 Q 20 14 32 32 T 56 32" />,
   l_zigzag: <path d="M8 42 L20 20 L32 42 L44 20 L56 42" />,
-  l_spiral: <path d="M34 32 C 34 27 26 27 26 33 C 26 42 40 42 42 32 C 44 18 26 14 20 26 C 13 40 30 52 44 46" />,
+  l_spiral: (
+    <path d="M34 32 C 34 27 26 27 26 33 C 26 42 40 42 42 32 C 44 18 26 14 20 26 C 13 40 30 52 44 46" />
+  ),
   l_grid: <path d="M24 12 V52 M40 12 V52 M12 24 H52 M12 40 H52" />,
 
   // ── Patterns ──
   p_dots: (
     <g fill="currentColor" stroke="none">
-      {[20, 32, 44].flatMap((y) => [20, 32, 44].map((x) => <circle key={`${x}-${y}`} cx={x} cy={y} r="3.4" />))}
+      {[20, 32, 44].flatMap((y) =>
+        [20, 32, 44].map((x) => <circle key={`${x}-${y}`} cx={x} cy={y} r="3.4" />),
+      )}
     </g>
   ),
   p_geometric: <path d="M32 12 L52 32 L32 52 L12 32 Z M32 22 L42 32 L32 42 L22 32 Z" />,
@@ -40,7 +46,9 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
     <g>
       <path d="M12 20 H30 V40 H50 M30 20 V12 M50 40 V52" />
       <g fill="currentColor" stroke="none">
-        <circle cx="12" cy="20" r="3" /><circle cx="30" cy="40" r="3" /><circle cx="50" cy="40" r="3" />
+        <circle cx="12" cy="20" r="3" />
+        <circle cx="30" cy="40" r="3" />
+        <circle cx="50" cy="40" r="3" />
       </g>
     </g>
   ),
@@ -52,7 +60,10 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
     <g>
       <circle cx="32" cy="34" r="18" strokeDasharray="2.5 3.5" />
       <circle cx="32" cy="34" r="12" />
-      <g fill="currentColor" stroke="none"><circle cx="27" cy="33" r="1.6" /><circle cx="37" cy="33" r="1.6" /></g>
+      <g fill="currentColor" stroke="none">
+        <circle cx="27" cy="33" r="1.6" />
+        <circle cx="37" cy="33" r="1.6" />
+      </g>
       <path d="M32 36 v3 M32 39 q -3 2 -5 0 M32 39 q 3 2 5 0" />
     </g>
   ),
@@ -60,8 +71,12 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
     <g>
       <path d="M20 24 Q 32 10 44 24 Q 48 44 32 50 Q 16 44 20 24 Z" />
       <path d="M21 22 L25 28 M43 22 L39 28" />
-      <circle cx="26" cy="30" r="5" /><circle cx="38" cy="30" r="5" />
-      <g fill="currentColor" stroke="none"><circle cx="26" cy="30" r="1.6" /><circle cx="38" cy="30" r="1.6" /></g>
+      <circle cx="26" cy="30" r="5" />
+      <circle cx="38" cy="30" r="5" />
+      <g fill="currentColor" stroke="none">
+        <circle cx="26" cy="30" r="1.6" />
+        <circle cx="38" cy="30" r="1.6" />
+      </g>
       <path d="M30 34 L32 38 L34 34 Z" fill="currentColor" stroke="none" />
     </g>
   ),
@@ -84,14 +99,22 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
   fox: (
     <g>
       <path d="M17 22 L27 30 L32 28 L37 30 L47 22 L43 37 L32 46 L21 37 Z" />
-      <g fill="currentColor" stroke="none"><circle cx="27" cy="33" r="1.6" /><circle cx="37" cy="33" r="1.6" /><circle cx="32" cy="40" r="1.8" /></g>
+      <g fill="currentColor" stroke="none">
+        <circle cx="27" cy="33" r="1.6" />
+        <circle cx="37" cy="33" r="1.6" />
+        <circle cx="32" cy="40" r="1.8" />
+      </g>
     </g>
   ),
   wolf: (
     <g>
       <path d="M18 20 L25 31 M46 20 L39 31" />
       <path d="M23 29 Q 32 23 41 29 L43 40 L36 46 L32 43 L28 46 L21 40 Z" />
-      <g fill="currentColor" stroke="none"><circle cx="28" cy="34" r="1.5" /><circle cx="36" cy="34" r="1.5" /><circle cx="32" cy="41" r="1.8" /></g>
+      <g fill="currentColor" stroke="none">
+        <circle cx="28" cy="34" r="1.5" />
+        <circle cx="36" cy="34" r="1.5" />
+        <circle cx="32" cy="41" r="1.8" />
+      </g>
     </g>
   ),
   bee: (
@@ -142,7 +165,10 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
   octopus: (
     <g>
       <path d="M19 32 Q 32 14 45 32 Q 45 39 41 43 H23 Q 19 39 19 32 Z" />
-      <g fill="currentColor" stroke="none"><circle cx="27" cy="31" r="1.7" /><circle cx="37" cy="31" r="1.7" /></g>
+      <g fill="currentColor" stroke="none">
+        <circle cx="27" cy="31" r="1.7" />
+        <circle cx="37" cy="31" r="1.7" />
+      </g>
       <path d="M23 43 Q 18 50 13 50 M29 44 Q 26 52 21 54 M35 44 Q 38 52 43 54 M41 43 Q 46 50 51 50 M32 45 Q 32 53 32 55" />
     </g>
   ),
@@ -154,7 +180,9 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
       <path d="M19 30 L24 22 L29 30" />
     </g>
   ),
-  ocean: <path d="M8 26 Q 14 20 20 26 T 32 26 T 44 26 T 56 26 M8 36 Q 14 30 20 36 T 32 36 T 44 36 M8 46 Q 14 40 20 46 T 32 46 T 44 46 T 56 46" />,
+  ocean: (
+    <path d="M8 26 Q 14 20 20 26 T 32 26 T 44 26 T 56 26 M8 36 Q 14 30 20 36 T 32 36 T 44 36 M8 46 Q 14 40 20 46 T 32 46 T 44 46 T 56 46" />
+  ),
   forest: (
     <g>
       <path d="M14 46 L8 46 L14 32 L11 32 L16 20 L21 32 L18 32 L24 46 Z" />
@@ -166,7 +194,11 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
     <g>
       <path d="M10 50 V28 H22 V50 M22 50 V16 H36 V50 M36 50 V32 H52 V50" />
       <g fill="currentColor" stroke="none">
-        <circle cx="16" cy="34" r="1.3" /><circle cx="16" cy="42" r="1.3" /><circle cx="29" cy="24" r="1.3" /><circle cx="29" cy="34" r="1.3" /><circle cx="44" cy="40" r="1.3" />
+        <circle cx="16" cy="34" r="1.3" />
+        <circle cx="16" cy="42" r="1.3" />
+        <circle cx="29" cy="24" r="1.3" />
+        <circle cx="29" cy="34" r="1.3" />
+        <circle cx="44" cy="40" r="1.3" />
       </g>
     </g>
   ),
@@ -189,7 +221,10 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
     <g>
       <path d="M22 18 L24 25 L31 27 L24 29 L22 36 L20 29 L13 27 L20 25 Z" />
       <path d="M43 34 L44.5 39 L49 40 L44.5 41 L43 46 L41.5 41 L37 40 L41.5 39 Z" />
-      <g fill="currentColor" stroke="none"><circle cx="45" cy="20" r="1.5" /><circle cx="16" cy="44" r="1.5" /></g>
+      <g fill="currentColor" stroke="none">
+        <circle cx="45" cy="20" r="1.5" />
+        <circle cx="16" cy="44" r="1.5" />
+      </g>
     </g>
   ),
   farm: (
@@ -232,7 +267,9 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
   ),
 
   // ── Elements ──
-  fire: <path d="M32 12 C 40 22 45 28 41 38 C 45 35 47 31 47 31 C 51 43 43 53 32 53 C 21 53 13 44 18 33 C 20 37 23 37 25 35 C 22 26 30 22 32 12 Z" />,
+  fire: (
+    <path d="M32 12 C 40 22 45 28 41 38 C 45 35 47 31 47 31 C 51 43 43 53 32 53 C 21 53 13 44 18 33 C 20 37 23 37 25 35 C 22 26 30 22 32 12 Z" />
+  ),
   water: <path d="M32 12 C 42 28 47 35 43 44 C 39 53 25 53 21 44 C 17 35 22 28 32 12 Z" />,
   earth: (
     <g>
@@ -258,7 +295,9 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
       <circle cx="32" cy="32" r="1.6" fill="currentColor" stroke="none" />
     </g>
   ),
-  book: <path d="M32 22 C 26 18 16 18 11 20 V44 C 16 42 26 42 32 46 C 38 42 48 42 53 44 V20 C 48 18 38 18 32 22 Z M32 22 V46" />,
+  book: (
+    <path d="M32 22 C 26 18 16 18 11 20 V44 C 16 42 26 42 32 46 C 38 42 48 42 53 44 V20 C 48 18 38 18 32 22 Z M32 22 V46" />
+  ),
   brush: (
     <g>
       <path d="M45 13 L51 19 L31 39 L24 41 L23 40 L25 33 Z" />
@@ -279,7 +318,9 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
       <path d="M18 39 V47 H26 L22 37" />
     </g>
   ),
-  wrench: <path d="M43 14 A9 9 0 0 0 30 25 A9 9 0 0 0 31 29 L15 45 A4 4 0 0 0 19 49 L35 33 A9 9 0 0 0 39 34 A9 9 0 0 0 50 21 L44 27 L37 24 L40 17 Z" />,
+  wrench: (
+    <path d="M43 14 A9 9 0 0 0 30 25 A9 9 0 0 0 31 29 L15 45 A4 4 0 0 0 19 49 L35 33 A9 9 0 0 0 39 34 A9 9 0 0 0 50 21 L44 27 L37 24 L40 17 Z" />
+  ),
   telescope: (
     <g>
       <path d="M16 40 L40 16 L48 24 L24 48 Z" />
@@ -309,9 +350,15 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
       <rect x="13" y="17" width="38" height="30" rx="2" />
       <path d="M13 27 H51 M13 37 H51" />
       <g fill="currentColor" stroke="none">
-        <circle cx="21" cy="22" r="2.6" /><circle cx="29" cy="22" r="2.6" /><circle cx="43" cy="22" r="2.6" />
-        <circle cx="19" cy="32" r="2.6" /><circle cx="35" cy="32" r="2.6" /><circle cx="43" cy="32" r="2.6" />
-        <circle cx="21" cy="42" r="2.6" /><circle cx="29" cy="42" r="2.6" /><circle cx="37" cy="42" r="2.6" />
+        <circle cx="21" cy="22" r="2.6" />
+        <circle cx="29" cy="22" r="2.6" />
+        <circle cx="43" cy="22" r="2.6" />
+        <circle cx="19" cy="32" r="2.6" />
+        <circle cx="35" cy="32" r="2.6" />
+        <circle cx="43" cy="32" r="2.6" />
+        <circle cx="21" cy="42" r="2.6" />
+        <circle cx="29" cy="42" r="2.6" />
+        <circle cx="37" cy="42" r="2.6" />
       </g>
     </g>
   ),
@@ -341,7 +388,11 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
     <g>
       <path d="M24 12 L31 15" />
       <path d="M31 15 L30 26 Q 30 40 41 43 Q 52 46 50 33 Q 49 29 44 31" />
-      <g fill="currentColor" stroke="none"><circle cx="30.5" cy="22" r="1.4" /><circle cx="31.5" cy="30" r="1.4" /><circle cx="35" cy="38" r="1.4" /></g>
+      <g fill="currentColor" stroke="none">
+        <circle cx="30.5" cy="22" r="1.4" />
+        <circle cx="31.5" cy="30" r="1.4" />
+        <circle cx="35" cy="38" r="1.4" />
+      </g>
     </g>
   ),
   violin: (
@@ -351,7 +402,9 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
       <path d="M29 36 v6 M39 35 v6" />
     </g>
   ),
-  headphones: <path d="M14 36 A18 18 0 0 1 50 36 M14 36 V44 A4 4 0 0 0 22 44 V38 M50 36 V44 A4 4 0 0 1 42 44 V38" />,
+  headphones: (
+    <path d="M14 36 A18 18 0 0 1 50 36 M14 36 V44 A4 4 0 0 0 22 44 V38 M50 36 V44 A4 4 0 0 1 42 44 V38" />
+  ),
   guitar: (
     <g>
       <path d="M33 33 L50 15 L52 13 M46 16 L49 19" />
@@ -368,14 +421,22 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
       <path d="M25 34 H39 L42 46 H22 Z" />
     </g>
   ),
-  jigsaw: <path d="M18 18 H29 A3.5 3.5 0 0 1 35 18 H46 V29 A3.5 3.5 0 0 1 46 35 V46 H35 A3.5 3.5 0 0 0 29 46 H18 V35 A3.5 3.5 0 0 0 18 29 Z" />,
+  jigsaw: (
+    <path d="M18 18 H29 A3.5 3.5 0 0 1 35 18 H46 V29 A3.5 3.5 0 0 1 46 35 V46 H35 A3.5 3.5 0 0 0 29 46 H18 V35 A3.5 3.5 0 0 0 18 29 Z" />
+  ),
   masks: (
     <g>
       <path d="M12 20 Q 24 16 27 22 Q 28 36 20 42 Q 11 38 11 28 Z" />
-      <g fill="currentColor" stroke="none"><circle cx="16" cy="26" r="1.3" /><circle cx="22" cy="26" r="1.3" /></g>
+      <g fill="currentColor" stroke="none">
+        <circle cx="16" cy="26" r="1.3" />
+        <circle cx="22" cy="26" r="1.3" />
+      </g>
       <path d="M16 34 Q 19 37 23 34" />
       <path d="M37 24 Q 49 20 52 26 Q 53 40 45 46 Q 36 42 36 32 Z" />
-      <g fill="currentColor" stroke="none"><circle cx="41" cy="30" r="1.3" /><circle cx="47" cy="30" r="1.3" /></g>
+      <g fill="currentColor" stroke="none">
+        <circle cx="41" cy="30" r="1.3" />
+        <circle cx="47" cy="30" r="1.3" />
+      </g>
       <path d="M41 40 Q 44 37 48 40" />
     </g>
   ),
@@ -392,7 +453,11 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
     <g>
       <rect x="14" y="22" width="18" height="26" rx="2.5" transform="rotate(-12 23 35)" />
       <rect x="30" y="18" width="18" height="26" rx="2.5" transform="rotate(9 39 31)" />
-      <path d="M40 27 Q 43 23 45 27 Q 46 31 40 34 Q 34 31 35 27 Q 37 23 40 27 Z" fill="currentColor" stroke="none" />
+      <path
+        d="M40 27 Q 43 23 45 27 Q 46 31 40 34 Q 34 31 35 27 Q 37 23 40 27 Z"
+        fill="currentColor"
+        stroke="none"
+      />
     </g>
   ),
   blocks: (
@@ -424,7 +489,8 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
   wood: (
     <g>
       <rect x="14" y="24" width="36" height="16" rx="2" />
-      <circle cx="24" cy="32" r="6" /><circle cx="24" cy="32" r="2.5" />
+      <circle cx="24" cy="32" r="6" />
+      <circle cx="24" cy="32" r="2.5" />
       <path d="M38 26 V38 M44 26 V38" />
     </g>
   ),
@@ -447,9 +513,12 @@ export const INTEREST_ICONS: Record<string, ReactNode> = {
       <path d="M22 12 V52" />
       <path d="M22 15 H48 V33 H22" />
       <g fill="currentColor" stroke="none">
-        <rect x="22" y="15" width="6.5" height="6" /><rect x="35" y="15" width="6.5" height="6" />
-        <rect x="28.5" y="21" width="6.5" height="6" /><rect x="41.5" y="21" width="6.5" height="6" />
-        <rect x="22" y="27" width="6.5" height="6" /><rect x="35" y="27" width="6.5" height="6" />
+        <rect x="22" y="15" width="6.5" height="6" />
+        <rect x="35" y="15" width="6.5" height="6" />
+        <rect x="28.5" y="21" width="6.5" height="6" />
+        <rect x="41.5" y="21" width="6.5" height="6" />
+        <rect x="22" y="27" width="6.5" height="6" />
+        <rect x="35" y="27" width="6.5" height="6" />
       </g>
     </g>
   ),
