@@ -56,6 +56,8 @@ function AdminDashboardPage() {
 
   const [ready, setReady] = useState(false);
   const [forbidden, setForbidden] = useState(false);
+  const [serverEmail, setServerEmail] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [analytics, setAnalytics] = useState<AdminAnalytics | null>(null);
   const [users, setUsers] = useState<AdminUserRow[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
@@ -68,19 +70,28 @@ function AdminDashboardPage() {
       return;
     }
     (async () => {
+      // Distinguish "not an admin" from "something broke": only a definitive
+      // isAdmin=false shows the forbidden screen; any thrown error surfaces its
+      // message so misconfiguration is visible instead of masquerading as 403.
+      let admitted = false;
       try {
-        const { isAdmin } = await checkFn();
+        const { isAdmin, email } = await checkFn();
+        setServerEmail(email);
         if (!isAdmin) {
           setForbidden(true);
           setReady(true);
           return;
         }
+        admitted = true;
         const [a, u] = await Promise.all([analyticsFn(), usersFn()]);
         setAnalytics(a);
         setUsers(u);
-        setReady(true);
-      } catch {
-        setForbidden(true);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        setLoadError(
+          admitted ? `Admin verified, but dashboard data failed to load: ${msg}` : msg,
+        );
+      } finally {
         setReady(true);
       }
     })();
@@ -111,16 +122,33 @@ function AdminDashboardPage() {
     );
   }
 
-  if (forbidden) {
+  if (forbidden || loadError) {
     return (
       <PageShell>
         <section className="px-6 pt-24 pb-24">
           <div className="mx-auto max-w-md glass rounded-3xl p-10 text-center">
             <Shield className="mx-auto h-10 w-10 text-primary" />
-            <h1 className="mt-4 text-2xl font-semibold">Admin only</h1>
+            <h1 className="mt-4 text-2xl font-semibold">
+              {forbidden ? "Admin only" : "Admin dashboard error"}
+            </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              You don't have permission to view this page.
+              {forbidden
+                ? "This account is not an admin."
+                : "Access check or data loading failed on the server."}
             </p>
+            {forbidden && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                Signed in as{" "}
+                <span className="font-medium text-foreground">
+                  {serverEmail ?? user?.email ?? "unknown"}
+                </span>
+              </p>
+            )}
+            {loadError && (
+              <p className="mt-3 break-words rounded-xl bg-destructive/10 px-3 py-2 text-left text-xs text-destructive">
+                {loadError}
+              </p>
+            )}
             <Link
               to="/"
               className="mt-6 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple"
