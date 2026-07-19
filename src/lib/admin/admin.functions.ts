@@ -23,31 +23,45 @@ function adminEmailSet(): Set<string> {
 
 type AuthContext = { supabase: DbClient; userId: string; claims?: { email?: string } };
 
-// True if the authenticated user is an admin. Email allow-list is authoritative;
-// we still honor a legacy `user_roles` admin row as a fallback.
-async function resolveIsAdmin(context: AuthContext): Promise<boolean> {
+// Admin status plus the email the server resolved for this user, so the client
+// can show exactly which account was evaluated. Email allow-list is
+// authoritative; a legacy `user_roles` admin row is honored as a fallback.
+async function resolveAdminStatus(
+  context: AuthContext,
+): Promise<{ isAdmin: boolean; email: string | null }> {
   const admins = adminEmailSet();
 
   // Prefer the email from the verified JWT claims; fall back to a server-side
-  // lookup in case this project's tokens don't carry the email claim.
-  let email = context.claims?.email?.toLowerCase();
+  // lookup in case this project's tokens don't carry the email claim. The
+  // fallback must never crash the check (e.g. missing service-role key).
+  let email = context.claims?.email?.toLowerCase() ?? null;
   if (!email) {
-    const { data } = await supabaseAdmin.auth.admin.getUserById(context.userId);
-    email = data.user?.email?.toLowerCase();
+    try {
+      const { data } = await supabaseAdmin.auth.admin.getUserById(context.userId);
+      email = data.user?.email?.toLowerCase() ?? null;
+    } catch (e) {
+      console.error("[admin] service-role email lookup failed:", e);
+    }
   }
-  if (email && admins.has(email)) return true;
+  if (email && admins.has(email)) return { isAdmin: true, email };
 
-  const { data } = await context.supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", context.userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  return !!data;
+  try {
+    const { data } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    return { isAdmin: !!data, email };
+  } catch (e) {
+    console.error("[admin] user_roles fallback lookup failed:", e);
+    return { isAdmin: false, email };
+  }
 }
 
 async function ensureAdmin(context: AuthContext) {
-  if (!(await resolveIsAdmin(context))) throw new Error("forbidden");
+  const { isAdmin } = await resolveAdminStatus(context);
+  if (!isAdmin) throw new Error("forbidden");
 }
 
 export type AdminAnalytics = {
@@ -249,6 +263,6 @@ export const adminSetBan = createServerFn({ method: "POST" })
 
 export const checkIsAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ isAdmin: boolean }> => {
-    return { isAdmin: await resolveIsAdmin(context) };
+  .handler(async ({ context }): Promise<{ isAdmin: boolean; email: string | null }> => {
+    return resolveAdminStatus(context);
   });
