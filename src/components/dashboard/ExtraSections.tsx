@@ -15,6 +15,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { getMyGrowthState } from "@/lib/assessment/growth.functions";
+import { useI18n } from "@/lib/i18n";
 import {
   deriveSkillSnapshots,
   deriveWeeklyReport,
@@ -32,6 +33,7 @@ type StatsLite = {
 /* ─────────────── Skills tab ─────────────── */
 export function SkillsSection({ stats, mbti: _mbti }: { stats: StatsLite; mbti?: string | null }) {
   const fn = useServerFn(getMyGrowthState);
+  const { t } = useI18n();
   const [skills, setSkills] = useState<SkillSnapshot[] | null>(null);
 
   useEffect(() => {
@@ -60,10 +62,8 @@ export function SkillsSection({ stats, mbti: _mbti }: { stats: StatsLite; mbti?:
       <div className="glass rounded-3xl p-7">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-semibold">Skill Levels</h3>
-            <p className="mt-1 text-xs text-muted-foreground">
-              XP grows as you assess and stay consistent.
-            </p>
+            <h3 className="text-xl font-semibold">{t.dashboard.skillsTab.title}</h3>
+            <p className="mt-1 text-xs text-muted-foreground">{t.dashboard.skillsTab.subtitle}</p>
           </div>
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">
             <Sparkles className="h-4 w-4" />
@@ -86,15 +86,15 @@ export function SkillsSection({ stats, mbti: _mbti }: { stats: StatsLite; mbti?:
                     <span className="font-medium">{s.label}</span>
                   </div>
                   <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
-                    Level {s.level}
+                    {t.dashboard.skillsTab.level} {s.level}
                   </span>
                 </div>
                 <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
                   <span>
-                    <CountUp value={s.xp} className="tabular-nums" /> XP
+                    <CountUp value={s.xp} className="tabular-nums" /> {t.dashboard.skillsTab.xp}
                   </span>
                   <span className="tabular-nums">
-                    <CountUp value={s.progress} suffix="%" /> to next
+                    <CountUp value={s.progress} suffix="%" /> {t.dashboard.skillsTab.toNext}
                   </span>
                 </div>
                 <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary/60">
@@ -125,6 +125,7 @@ export function SkillsSection({ stats, mbti: _mbti }: { stats: StatsLite; mbti?:
 /* ─────────────── Weekly Report tab ─────────────── */
 export function WeeklyReportSection({ mbti }: { mbti?: string | null }) {
   const fn = useServerFn(getMyGrowthState);
+  const { t } = useI18n();
   const [report, setReport] = useState<ReturnType<typeof deriveWeeklyReport> | null>(null);
 
   useEffect(() => {
@@ -160,26 +161,34 @@ export function WeeklyReportSection({ mbti }: { mbti?: string | null }) {
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
               {report.week}
             </p>
-            <h3 className="mt-1 text-xl font-semibold">Your Weekly Growth Report</h3>
+            <h3 className="mt-1 text-xl font-semibold">{t.dashboard.weeklyTab.title}</h3>
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
-            <Sparkles className="h-3 w-3" /> ABBI insight
+            <Sparkles className="h-3 w-3" /> {t.dashboard.weeklyTab.abbiInsight}
           </span>
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          <Metric icon={Trophy} label="Tasks Completed" value={String(report.tasksCompleted)} />
-          <Metric icon={TrendingUp} label="Roadmap Progress" value={`${report.roadmapProgress}%`} />
+          <Metric
+            icon={Trophy}
+            label={t.dashboard.weeklyTab.tasksCompleted}
+            value={String(report.tasksCompleted)}
+          />
+          <Metric
+            icon={TrendingUp}
+            label={t.dashboard.weeklyTab.roadmapProgress}
+            value={`${report.roadmapProgress}%`}
+          />
           <Metric
             icon={Sparkles}
-            label="Assessments Taken"
+            label={t.dashboard.weeklyTab.assessmentsTaken}
             value={report.assessmentsCompleted.toLocaleString()}
           />
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <div className="rounded-2xl border border-border/60 bg-secondary/30 p-5">
-            <div className="text-sm font-semibold">Skill movement</div>
+            <div className="text-sm font-semibold">{t.dashboard.weeklyTab.skillMovement}</div>
             <div className="mt-4 h-44">
               <ResponsiveContainer>
                 <BarChart data={report.improvements}>
@@ -199,7 +208,7 @@ export function WeeklyReportSection({ mbti }: { mbti?: string | null }) {
             </div>
           </div>
           <div className="rounded-2xl border border-border/60 bg-secondary/30 p-5">
-            <div className="text-sm font-semibold">ABBI suggests</div>
+            <div className="text-sm font-semibold">{t.dashboard.weeklyTab.abbiSuggests}</div>
             <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
               {report.suggestions.map((s, i) => (
                 <li
@@ -246,30 +255,32 @@ function Metric({
 
 /* ─────────────── Universities tab + cross-page quick links ─────────────── */
 export function QuickLinks() {
+  const { t } = useI18n();
+  const e = t.dashboard.explore;
   const items = [
     {
       to: "/universities",
-      label: "University Explorer",
-      desc: "Find your future school",
+      label: e.uniExplorer,
+      desc: e.uniExplorerDesc,
       icon: GraduationCap,
     },
-    { to: "/mentors", label: "Mentors", desc: "Learn from those who made it", icon: Users },
+    { to: "/mentors", label: e.mentors, desc: e.mentorsDesc, icon: Users },
     {
       to: "/career-battles",
-      label: "Career Battles",
-      desc: "Compare careers side-by-side",
+      label: e.careerBattles,
+      desc: e.careerBattlesDesc,
       icon: Swords,
     },
     {
       to: "/success-stories",
-      label: "Success Stories",
-      desc: "Real Abilitio journeys",
+      label: e.successStories,
+      desc: e.successStoriesDesc,
       icon: BookOpen,
     },
   ];
   return (
     <div className="glass rounded-3xl p-6">
-      <div className="text-sm font-semibold">Explore more</div>
+      <div className="text-sm font-semibold">{e.title}</div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {items.map((it) => (
           <Link
@@ -295,6 +306,8 @@ export function QuickLinks() {
 }
 
 export function UniversitiesTabSection() {
+  const { t } = useI18n();
+  const e = t.dashboard.explore;
   return (
     <div className="space-y-6">
       <div className="glass relative overflow-hidden rounded-3xl p-8 text-center">
@@ -306,15 +319,13 @@ export function UniversitiesTabSection() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_30px_-10px_var(--glow)]">
             <GraduationCap className="h-8 w-8" />
           </div>
-          <h3 className="mt-4 text-xl font-semibold">University Explorer</h3>
-          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            Filter universities by SAT, IELTS, country, and major. ABBI ranks fit and scholarships.
-          </p>
+          <h3 className="mt-4 text-xl font-semibold">{e.uniExplorer}</h3>
+          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">{e.uniTabDesc}</p>
           <Link
             to="/universities"
             className="cta-sheen relative mt-6 inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"
           >
-            Open University Explorer <ChevronRight className="h-4 w-4" />
+            {e.openUniExplorer} <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
       </div>
