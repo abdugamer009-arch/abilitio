@@ -74,7 +74,12 @@ export function FloatingAuthButton() {
         {glow}
         <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-primary to-accent text-sm font-semibold text-primary-foreground ring-1 ring-white/20">
           {avatarUrl ? (
-            <img src={avatarUrl} alt="Profile" className="h-full w-full object-cover" />
+            <img
+              src={avatarUrl}
+              alt="Profile"
+              decoding="async"
+              className="h-full w-full object-cover"
+            />
           ) : (
             initial
           )}

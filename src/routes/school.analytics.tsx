@@ -95,9 +95,21 @@ function SchoolAnalytics() {
   if (!d)
     return (
       <PageShell>
-        <div className="px-6 pt-32 text-center text-sm text-muted-foreground">
-          {t.school.loadingAnalytics}
-        </div>
+        <section
+          className="px-6 pt-12 pb-24"
+          aria-busy="true"
+          aria-label={t.school.loadingAnalytics}
+        >
+          <div className="mx-auto max-w-6xl">
+            <div className="skeleton h-10 w-72 rounded-2xl" />
+            <div className="mt-8 grid gap-4 sm:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="skeleton h-24 rounded-2xl" />
+              ))}
+            </div>
+            <div className="skeleton mt-6 h-96 rounded-3xl" />
+          </div>
+        </section>
       </PageShell>
     );
 

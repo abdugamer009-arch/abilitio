@@ -295,9 +295,15 @@ function CareerAssessmentPage() {
   if (loading)
     return (
       <PageShell>
-        <div className="px-6 pt-32 text-center text-sm text-muted-foreground">
-          {t.careerAssessment.loading}
-        </div>
+        <section
+          className="px-6 pt-16 pb-24"
+          aria-busy="true"
+          aria-label={t.careerAssessment.loading}
+        >
+          <div className="mx-auto max-w-3xl">
+            <div className="skeleton h-96 rounded-3xl" />
+          </div>
+        </section>
       </PageShell>
     );
 

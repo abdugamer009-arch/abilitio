@@ -33,7 +33,12 @@ function AbbiPage() {
   if (loading || !user) {
     return (
       <PageShell>
-        <div className="px-6 pt-32 text-center text-sm text-muted-foreground">{t.abbi.loading}</div>
+        <section className="px-4 pt-10 pb-24 sm:px-6" aria-busy="true" aria-label={t.abbi.loading}>
+          <div className="mx-auto max-w-4xl space-y-4">
+            <div className="skeleton h-24 rounded-3xl" />
+            <div className="skeleton h-[480px] rounded-3xl" />
+          </div>
+        </section>
       </PageShell>
     );
   }

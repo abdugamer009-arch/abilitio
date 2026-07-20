@@ -101,9 +101,17 @@ function RoadmapPage() {
   if (loading || !user) {
     return (
       <PageShell>
-        <div className="px-6 pt-32 text-center text-sm text-muted-foreground">
-          Loading your world…
-        </div>
+        <section className="px-6 pt-12 pb-24" aria-busy="true" aria-label="Loading roadmap">
+          <div className="mx-auto max-w-5xl">
+            <div className="skeleton mx-auto h-10 w-72 rounded-2xl" />
+            <div className="skeleton mx-auto mt-3 h-5 w-96 max-w-full rounded-xl" />
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="skeleton h-40 rounded-3xl" />
+              ))}
+            </div>
+          </div>
+        </section>
       </PageShell>
     );
   }

@@ -338,7 +338,12 @@ function ProfileHeader({
           <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-primary via-accent to-primary opacity-70 blur-md transition-opacity group-hover:opacity-100" />
           <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-accent text-3xl font-bold text-primary-foreground shadow-2xl sm:h-28 sm:w-28">
             {resolvedAvatar ? (
-              <img src={resolvedAvatar} alt={fullName} className="h-full w-full object-cover" />
+              <img
+                src={resolvedAvatar}
+                alt={fullName}
+                decoding="async"
+                className="h-full w-full object-cover"
+              />
             ) : (
               <span>{initials}</span>
             )}

@@ -22,6 +22,16 @@ export function AbbiChat() {
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // Grow the composer with its content (up to the max height) so multi-line
+  // questions stay visible instead of scrolling inside a one-line box.
+  function autoGrow() {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
+  }
 
   function historyKey(userId: string) {
     return `abbi_history_${userId}_${new Date().toISOString().slice(0, 10)}`;
@@ -111,6 +121,7 @@ export function AbbiChat() {
     const userMsg: ChatMsg = { id: crypto.randomUUID(), role: "user", content };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
+    if (inputRef.current) inputRef.current.style.height = "auto";
     setTyping(true);
 
     try {
@@ -206,8 +217,12 @@ export function AbbiChat() {
           >
             <div className="flex flex-1 items-end gap-2 rounded-2xl border border-border/60 bg-secondary/30 px-3 py-2 transition-all focus-within:border-primary/40">
               <textarea
+                ref={inputRef}
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={(e) => {
+                  setInput(e.target.value);
+                  autoGrow();
+                }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
@@ -216,6 +231,7 @@ export function AbbiChat() {
                 }}
                 rows={1}
                 placeholder="Ask ABBI anything about careers, universities, SAT/IELTS…"
+                aria-label="Message ABBI"
                 className="flex-1 resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
                 style={{ maxHeight: 120 }}
               />
@@ -265,11 +281,10 @@ function MessageBubble({ role, content }: { role: "user" | "abbi"; content: stri
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow">
         <Bot className="h-4 w-4" />
       </div>
-      <div
-        className="prose prose-sm prose-invert max-w-[85%] rounded-2xl rounded-tl-md border border-border/40 bg-secondary/30 px-4 py-3 text-sm leading-relaxed text-foreground backdrop-blur-md
-                      prose-headings:mt-2 prose-headings:mb-1 prose-headings:font-semibold prose-headings:text-foreground
-                      prose-h3:text-base prose-p:my-2 prose-strong:text-foreground prose-ul:my-2 prose-li:my-0.5"
-      >
+      {/* chat-md (styles.css) styles the rendered markdown — headings, lists,
+          code. The former `prose-*` classes were inert: @tailwindcss/typography
+          was never installed, so ABBI's replies rendered as flat unstyled text. */}
+      <div className="chat-md max-w-[85%] rounded-2xl rounded-tl-md border border-border/40 bg-secondary/30 px-4 py-3 text-sm leading-relaxed text-foreground backdrop-blur-md">
         <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{content}</ReactMarkdown>
       </div>
     </div>

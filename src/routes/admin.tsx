@@ -114,9 +114,20 @@ function AdminDashboardPage() {
   if (loading || !ready) {
     return (
       <PageShell>
-        <div className="px-6 pt-32 text-center text-sm text-muted-foreground">
-          Loading admin dashboard…
-        </div>
+        <section className="px-6 pt-12 pb-24" aria-busy="true" aria-label="Loading admin dashboard">
+          <div className="mx-auto max-w-6xl">
+            <div className="skeleton h-10 w-64 rounded-2xl" />
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="skeleton h-28 rounded-3xl" />
+              ))}
+            </div>
+            <div className="mt-6 grid gap-4 lg:grid-cols-2">
+              <div className="skeleton h-72 rounded-3xl" />
+              <div className="skeleton h-72 rounded-3xl" />
+            </div>
+          </div>
+        </section>
       </PageShell>
     );
   }

@@ -115,9 +115,21 @@ function PrincipalDashboard() {
   if (!data) {
     return (
       <PageShell>
-        <div className="px-6 pt-32 text-center text-sm text-muted-foreground">
-          {t.school.loadingDashboard}
-        </div>
+        <section
+          className="px-6 pt-12 pb-24"
+          aria-busy="true"
+          aria-label={t.school.loadingDashboard}
+        >
+          <div className="mx-auto max-w-6xl">
+            <div className="skeleton h-10 w-72 rounded-2xl" />
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="skeleton h-24 rounded-3xl" />
+              ))}
+            </div>
+            <div className="skeleton mt-6 h-80 rounded-3xl" />
+          </div>
+        </section>
       </PageShell>
     );
   }

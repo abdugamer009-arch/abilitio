@@ -56,11 +56,24 @@ function CommunityPage() {
   }, [user, loading, navigate, getMine]);
 
   if (loading || !data) {
+    // Skeleton mirrors the real layout (sidebar + header + chat) so the page
+    // doesn't jump when content lands.
     return (
       <PageShell>
-        <div className="px-6 pt-32 text-center text-sm text-muted-foreground">
-          Loading community…
-        </div>
+        <section
+          className="px-4 pt-10 pb-24 sm:px-6"
+          aria-busy="true"
+          aria-label="Loading community"
+        >
+          <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[260px_1fr]">
+            <div className="skeleton hidden h-72 rounded-3xl lg:block" />
+            <div className="flex flex-col gap-4">
+              <div className="skeleton h-28 rounded-3xl" />
+              <div className="skeleton h-20 rounded-3xl" />
+              <div className="skeleton h-[58vh] rounded-3xl" />
+            </div>
+          </div>
+        </section>
       </PageShell>
     );
   }
@@ -161,6 +174,10 @@ function Sidebar({
   );
 }
 
+// A message row plus an optional client-only flag: optimistic sends render
+// immediately (marked pending) and reconcile with the server row when it lands.
+type ChatMessage = CommunityMessageDTO & { pending?: boolean };
+
 function CommunityChat({
   community,
   isAdmin,
@@ -178,12 +195,11 @@ function CommunityChat({
   const setDailyFn = useServerFn(setCommunityDailyQuestion);
   const fetchAuthors = useServerFn(fetchMessageAuthors);
 
-  const [messages, setMessages] = useState<CommunityMessageDTO[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [authors, setAuthors] = useState<Record<string, AuthorDTO>>({});
   const [daily, setDaily] = useState<{ question: string } | null>(null);
   const [input, setInput] = useState("");
   const [online, setOnline] = useState(1);
-  const [sending, setSending] = useState(false);
   const [editingDaily, setEditingDaily] = useState(false);
   const [dailyDraft, setDailyDraft] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -234,7 +250,20 @@ function CommunityChat({
         },
         (payload) => {
           const m = payload.new as CommunityMessageDTO;
-          setMessages((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m]));
+          setMessages((prev) => {
+            if (prev.some((x) => x.id === m.id)) return prev;
+            // Our own message may already be shown as an optimistic pending
+            // bubble; replace it in place instead of appending a duplicate.
+            const pendingIdx = prev.findIndex(
+              (x) => x.pending && x.user_id === m.user_id && x.content === m.content,
+            );
+            if (pendingIdx >= 0) {
+              const next = [...prev];
+              next[pendingIdx] = m;
+              return next;
+            }
+            return [...prev, m];
+          });
           upsertAuthor(m.user_id);
         },
       )
@@ -283,25 +312,42 @@ function CommunityChat({
 
   const pinned = useMemo(() => messages.filter((m) => m.is_pinned), [messages]);
 
+  // Optimistic send: the bubble appears the moment you hit Enter, then swaps
+  // for the server row (or rolls back, restoring the draft) — no round-trip
+  // wait between pressing send and seeing your message.
   const handleSend = async () => {
     const text = input.trim();
-    if (!text || sending) return;
-    setSending(true);
+    if (!text) return;
+    const tempId = `pending-${crypto.randomUUID()}`;
+    const optimistic: ChatMessage = {
+      id: tempId,
+      community_id: community.id,
+      user_id: currentUserId,
+      content: text,
+      is_pinned: false,
+      created_at: new Date().toISOString(),
+      pending: true,
+    };
+    setMessages((prev) => [...prev, optimistic]);
+    setInput("");
     try {
       const row = await sendFn({ data: { communityId: community.id, content: text } });
-      setMessages((prev) => (prev.some((x) => x.id === row.id) ? prev : [...prev, row]));
-      setInput("");
+      setMessages((prev) =>
+        prev.some((x) => x.id === row.id)
+          ? prev.filter((x) => x.id !== tempId) // realtime beat us to it
+          : prev.map((x) => (x.id === tempId ? row : x)),
+      );
       upsertAuthor(row.user_id);
     } catch (e) {
       console.error(e);
+      setMessages((prev) => prev.filter((x) => x.id !== tempId));
+      setInput((v) => v || text); // restore the draft unless they typed anew
       const banned = e instanceof Error && e.message.includes("account_banned");
       toast.error(
         banned
           ? "Your account has been suspended from posting."
           : "Message failed to send. Please try again.",
       );
-    } finally {
-      setSending(false);
     }
   };
 
@@ -423,6 +469,7 @@ function CommunityChat({
                 <MessageRow
                   key={m.id}
                   message={m}
+                  pending={m.pending}
                   author={authors[m.user_id]}
                   isOwn={m.user_id === currentUserId}
                   isAdmin={isAdmin}
@@ -458,7 +505,8 @@ function CommunityChat({
             />
             <button
               type="submit"
-              disabled={!input.trim() || sending}
+              disabled={!input.trim()}
+              aria-label="Send message"
               className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_20px_-8px_var(--glow)] transition-all hover:-translate-y-0.5 disabled:opacity-50"
             >
               <Send className="h-4 w-4" />
@@ -472,6 +520,7 @@ function CommunityChat({
 
 function MessageRow({
   message,
+  pending,
   author,
   isOwn,
   isAdmin,
@@ -479,6 +528,7 @@ function MessageRow({
   onTogglePin,
 }: {
   message: CommunityMessageDTO;
+  pending?: boolean;
   author: AuthorDTO | undefined;
   isOwn: boolean;
   isAdmin: boolean;
@@ -486,6 +536,26 @@ function MessageRow({
   onTogglePin: () => void;
 }) {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  // Two-tap delete: first tap arms the button (turns red), second tap deletes.
+  // Auto-disarms after a moment — lighter than a modal, still guards slips.
+  const [armed, setArmed] = useState(false);
+  const disarmTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (disarmTimer.current) clearTimeout(disarmTimer.current);
+    },
+    [],
+  );
+  function handleDeleteClick() {
+    if (armed) {
+      if (disarmTimer.current) clearTimeout(disarmTimer.current);
+      setArmed(false);
+      onDelete();
+      return;
+    }
+    setArmed(true);
+    disarmTimer.current = setTimeout(() => setArmed(false), 2500);
+  }
   useEffect(() => {
     let alive = true;
     resolveAvatarUrl(author?.avatar_url ?? null).then((u) => {
@@ -508,10 +578,18 @@ function MessageRow({
   });
 
   return (
-    <div className="group flex gap-3">
+    <div
+      className={`group flex gap-3 transition-opacity duration-200 ${pending ? "opacity-60" : ""}`}
+    >
       <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-primary to-accent text-xs font-semibold text-primary-foreground">
         {avatarUrl ? (
-          <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+          <img
+            src={avatarUrl}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover"
+          />
         ) : (
           <span className="flex h-full w-full items-center justify-center">{initials}</span>
         )}
@@ -522,23 +600,32 @@ function MessageRow({
           {author?.is_admin && <AdminBadge />}
           <span className="text-[10px] text-muted-foreground">{time}</span>
           {message.is_pinned && <Pin className="h-3 w-3 text-amber-400" />}
-          {(isAdmin || isOwn) && (
-            <div className="ml-auto flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+          {(isAdmin || isOwn) && !pending && (
+            <div
+              className={`ml-auto flex gap-1 transition-opacity group-hover:opacity-100 focus-within:opacity-100 ${armed ? "opacity-100" : "opacity-0"}`}
+            >
               {isAdmin && (
                 <button
                   onClick={onTogglePin}
                   className="rounded-md p-1 text-muted-foreground hover:text-amber-400"
                   title={message.is_pinned ? "Unpin" : "Pin"}
+                  aria-label={message.is_pinned ? "Unpin message" : "Pin message"}
                 >
                   <Pin className="h-3.5 w-3.5" />
                 </button>
               )}
               <button
-                onClick={onDelete}
-                className="rounded-md p-1 text-muted-foreground hover:text-destructive"
-                title="Delete"
+                onClick={handleDeleteClick}
+                className={`flex items-center gap-1 rounded-md p-1 transition-colors ${
+                  armed
+                    ? "bg-destructive/15 text-destructive"
+                    : "text-muted-foreground hover:text-destructive"
+                }`}
+                title={armed ? "Tap again to delete" : "Delete"}
+                aria-label={armed ? "Confirm delete" : "Delete message"}
               >
                 <Trash2 className="h-3.5 w-3.5" />
+                {armed && <span className="pr-0.5 text-[10px] font-medium">Sure?</span>}
               </button>
             </div>
           )}

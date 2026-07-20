@@ -148,7 +148,12 @@ export function ProfilePhotoCard({
           <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-primary via-accent to-primary opacity-70 blur-md" />
           <div className="relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-primary to-accent text-2xl font-bold text-primary-foreground shadow-2xl">
             {displayed ? (
-              <img src={displayed} alt="Avatar" className="h-full w-full object-cover" />
+              <img
+                src={displayed}
+                alt="Avatar"
+                decoding="async"
+                className="h-full w-full object-cover"
+              />
             ) : (
               <span>{initials}</span>
             )}

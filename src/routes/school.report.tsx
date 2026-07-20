@@ -30,7 +30,17 @@ function SchoolReportPage() {
   }, [user, loading, navigate, fetchDashboard]);
 
   if (!data)
-    return <div className="p-10 text-center text-sm text-muted-foreground">Loading report…</div>;
+    return (
+      <div
+        className="mx-auto max-w-4xl px-10 py-12"
+        aria-busy="true"
+        aria-label="Loading school report"
+      >
+        <div className="skeleton h-8 w-64 rounded-xl" />
+        <div className="skeleton mt-6 h-40 rounded-2xl" />
+        <div className="skeleton mt-4 h-40 rounded-2xl" />
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-white text-slate-900 print:bg-white">

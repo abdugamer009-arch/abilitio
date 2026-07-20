@@ -622,6 +622,87 @@ a.inline-flex:active {
 }
 
 /* ============================================================
+   Chat markdown — minimal typography for ABBI's rendered replies.
+   Scoped by class so it can't leak into the rest of the app; Tailwind's
+   preflight strips list/heading styles, so without this the markdown
+   renders as flat text with no bullets or hierarchy.
+   ============================================================ */
+@utility chat-md {
+  & h1,
+  & h2,
+  & h3,
+  & h4 {
+    margin: 0.75em 0 0.35em;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  & h1 {
+    font-size: 1.1em;
+  }
+  & h2 {
+    font-size: 1.05em;
+  }
+  & h3,
+  & h4 {
+    font-size: 1em;
+  }
+  & p {
+    margin: 0.5em 0;
+  }
+  & > :first-child {
+    margin-top: 0;
+  }
+  & > :last-child {
+    margin-bottom: 0;
+  }
+  & ul,
+  & ol {
+    margin: 0.5em 0;
+    padding-left: 1.25em;
+  }
+  & ul {
+    list-style: disc;
+  }
+  & ol {
+    list-style: decimal;
+  }
+  & li {
+    margin: 0.2em 0;
+  }
+  & strong {
+    font-weight: 600;
+    color: var(--foreground);
+  }
+  & a {
+    color: var(--primary);
+    text-decoration: underline;
+  }
+  & code {
+    border-radius: 0.375rem;
+    background: color-mix(in oklab, var(--primary) 10%, transparent);
+    padding: 0.1em 0.35em;
+    font-size: 0.9em;
+  }
+  & pre {
+    margin: 0.5em 0;
+    overflow-x: auto;
+    border-radius: 0.75rem;
+    background: color-mix(in oklab, var(--secondary) 70%, transparent);
+    padding: 0.75em;
+  }
+  & pre code {
+    background: transparent;
+    padding: 0;
+  }
+  & blockquote {
+    margin: 0.5em 0;
+    border-left: 2px solid var(--primary);
+    padding-left: 0.75em;
+    color: var(--muted-foreground);
+  }
+}
+
+/* ============================================================
    Mobile performance — smooth scrolling on phones.
 
    Phone GPUs choke on three things that are cheap on desktop:
