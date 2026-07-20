@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Brain,
   Calendar,
@@ -104,6 +104,18 @@ function DashboardPage() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [busy, setBusy] = useState(true);
   const [tab, setTab] = useState<TabKey>("results");
+  const tabsRef = useRef<HTMLDivElement>(null);
+
+  // Switching tabs remounts the content below; bring the tab bar to the top of
+  // the viewport so the new section is never hidden below the fold (otherwise a
+  // tab like "Weekly" looks empty until the user scrolls down).
+  function changeTab(next: TabKey) {
+    setTab(next);
+    if (typeof window === "undefined") return;
+    requestAnimationFrame(() => {
+      tabsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
 
   useEffect(() => {
     if (loading) return;
@@ -237,7 +249,9 @@ function DashboardPage() {
           />
 
           {/* HORIZONTAL TABS */}
-          <TabBar tab={tab} setTab={setTab} />
+          <div ref={tabsRef} className="scroll-mt-24">
+            <TabBar tab={tab} setTab={changeTab} t={t} />
+          </div>
 
           {/* CONTENT */}
           <div className="mt-8 animate-fade-in" key={tab}>
@@ -392,15 +406,23 @@ function ProfileHeader({
 /* ============================================================ */
 /* TAB BAR                                                       */
 /* ============================================================ */
-function TabBar({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
+function TabBar({
+  tab,
+  setTab,
+  t,
+}: {
+  tab: TabKey;
+  setTab: (t: TabKey) => void;
+  t: ReturnType<typeof useI18n>["t"];
+}) {
   const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
-    { key: "results", label: "Results", icon: Brain },
-    { key: "stats", label: "Stats", icon: BarChart3 },
-    { key: "skills", label: "Skills", icon: Trophy },
-    { key: "weekly", label: "Weekly", icon: TrendingUp },
-    { key: "universities", label: "Universities", icon: GraduationCap },
-    { key: "abbi", label: "ABBI AI", icon: Sparkles },
-    { key: "settings", label: "Settings", icon: SettingsIcon },
+    { key: "results", label: t.dashboard.tabs.results, icon: Brain },
+    { key: "stats", label: t.dashboard.tabs.stats, icon: BarChart3 },
+    { key: "skills", label: t.dashboard.tabs.skills, icon: Trophy },
+    { key: "weekly", label: t.dashboard.tabs.weekly, icon: TrendingUp },
+    { key: "universities", label: t.dashboard.tabs.universities, icon: GraduationCap },
+    { key: "abbi", label: t.dashboard.tabs.abbi, icon: Sparkles },
+    { key: "settings", label: t.dashboard.tabs.settings, icon: SettingsIcon },
   ];
   return (
     <div className="mt-8 overflow-x-auto">
@@ -462,10 +484,8 @@ function ResultsSection({
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_30px_-10px_var(--glow)]">
           <Brain className="h-8 w-8" />
         </div>
-        <h3 className="mt-4 text-xl font-semibold">No assessment yet</h3>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Take your first assessment to unlock your AI-powered insights.
-        </p>
+        <h3 className="mt-4 text-xl font-semibold">{t.dashboard.noAssessmentTitle}</h3>
+        <p className="mt-2 text-sm text-muted-foreground">{t.dashboard.noAssessmentBody}</p>
         <Link
           to="/assessment"
           className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_4px_16px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"
@@ -481,26 +501,26 @@ function ResultsSection({
       {/* Top metrics row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricRing
-          label="IQ Score"
+          label={t.dashboard.iqScore}
           value={latest.iq_score}
           max={160}
           hint={tIqLevel(latest.iq_level)}
           icon={Brain}
         />
         <MetricCard
-          label="Personality"
+          label={t.dashboard.personality}
           value={latest.mbti_type}
-          hint={MBTI_DESCRIPTIONS[latest.mbti_type] ?? "Unique mind"}
+          hint={MBTI_DESCRIPTIONS[latest.mbti_type] ?? t.dashboard.uniqueMind}
           icon={Sparkles}
         />
         <MetricCard
-          label="Assessments"
+          label={t.dashboard.assessments}
           value={String(results.length)}
-          hint="Total taken"
+          hint={t.dashboard.totalTaken}
           icon={Activity}
         />
         <MetricCard
-          label="Top Match"
+          label={t.dashboard.topMatch}
           value={latest.careers?.[0] ? `${latest.careers[0].match}%` : "—"}
           hint={latest.careers?.[0] ? tCareer(latest.careers[0].name).name : "—"}
           icon={Target}
@@ -510,7 +530,7 @@ function ResultsSection({
       {/* Cognitive bars + Strengths/Weaknesses */}
       <div className="grid gap-6 lg:grid-cols-2">
         <GlassCard className="p-7">
-          <SectionTitle icon={Gauge}>Cognitive Profile</SectionTitle>
+          <SectionTitle icon={Gauge}>{t.dashboard.cognitiveProfile}</SectionTitle>
           <div className="mt-6 space-y-5">
             <BarRow
               label={tTrait("Logical Reasoning") || "Logical Reasoning"}
@@ -529,7 +549,7 @@ function ResultsSection({
 
         <div className="grid gap-6">
           <GlassCard className="p-7">
-            <SectionTitle icon={Heart}>Top Strengths</SectionTitle>
+            <SectionTitle icon={Heart}>{t.dashboard.topStrengthsTitle}</SectionTitle>
             {latest.top_strengths?.length ? (
               <div className="mt-4 flex flex-wrap gap-2">
                 {latest.top_strengths.map((s) => (
@@ -542,11 +562,11 @@ function ResultsSection({
                 ))}
               </div>
             ) : (
-              <p className="mt-3 text-sm text-muted-foreground">No data yet.</p>
+              <p className="mt-3 text-sm text-muted-foreground">{t.dashboard.noData}</p>
             )}
           </GlassCard>
           <GlassCard className="p-7">
-            <SectionTitle icon={Zap}>Growth Areas</SectionTitle>
+            <SectionTitle icon={Zap}>{t.dashboard.growthAreas}</SectionTitle>
             {latest.weaknesses?.length ? (
               <div className="mt-4 flex flex-wrap gap-2">
                 {latest.weaknesses.map((s) => (
@@ -559,7 +579,7 @@ function ResultsSection({
                 ))}
               </div>
             ) : (
-              <p className="mt-3 text-sm text-muted-foreground">All round excellence.</p>
+              <p className="mt-3 text-sm text-muted-foreground">{t.dashboard.allRound}</p>
             )}
           </GlassCard>
         </div>
@@ -567,7 +587,7 @@ function ResultsSection({
 
       {/* Career matches */}
       <GlassCard className="p-7">
-        <SectionTitle icon={Trophy}>Top Career Matches</SectionTitle>
+        <SectionTitle icon={Trophy}>{t.dashboard.careerMatches}</SectionTitle>
         {latest.careers?.length ? (
           <div className="mt-6 grid gap-4 lg:grid-cols-3">
             {latest.careers.slice(0, 3).map((c, i) => (
@@ -581,7 +601,7 @@ function ResultsSection({
             ))}
           </div>
         ) : (
-          <p className="mt-3 text-sm text-muted-foreground">No career data yet.</p>
+          <p className="mt-3 text-sm text-muted-foreground">{t.dashboard.noCareerData}</p>
         )}
       </GlassCard>
 
@@ -595,10 +615,8 @@ function ResultsSection({
                 <Swords className="h-5 w-5" />
               </div>
               <div>
-                <div className="text-sm font-semibold">Try Career Battles</div>
-                <div className="text-xs text-muted-foreground">
-                  Compare your top careers side-by-side with AI insights
-                </div>
+                <div className="text-sm font-semibold">{t.dashboard.tryBattles}</div>
+                <div className="text-xs text-muted-foreground">{t.dashboard.battlesSub}</div>
               </div>
             </div>
             <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1" />
@@ -608,7 +626,7 @@ function ResultsSection({
 
       {/* History */}
       <GlassCard className="p-7">
-        <SectionTitle icon={TrendingUp}>Assessment History</SectionTitle>
+        <SectionTitle icon={TrendingUp}>{t.dashboard.assessmentHistory}</SectionTitle>
         <ul className="mt-5 space-y-2">
           {results.map((r, i) => (
             <li
@@ -627,10 +645,11 @@ function ResultsSection({
                 {new Date(r.created_at).toLocaleDateString()}
               </span>
               <span className="text-muted-foreground">
-                IQ <span className="font-semibold text-foreground">{r.iq_score}</span>
+                {t.dashboard.iq} <span className="font-semibold text-foreground">{r.iq_score}</span>
               </span>
               <span className="text-muted-foreground">
-                Type <span className="font-semibold text-foreground">{r.mbti_type}</span>
+                {t.dashboard.type}{" "}
+                <span className="font-semibold text-foreground">{r.mbti_type}</span>
               </span>
               <span className="text-muted-foreground">
                 Top:{" "}
