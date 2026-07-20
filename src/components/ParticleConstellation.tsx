@@ -38,9 +38,13 @@ export function ParticleConstellation() {
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
+    // Freeze to a single static frame for reduced-motion users and on touch
+    // devices: phones have no cursor to drive the interactivity, so the
+    // per-frame O(n²) link redraw is pure overhead that competes with scroll.
     const reduceMotion =
       typeof window !== "undefined" &&
-      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ||
+        window.matchMedia?.("(hover: none)").matches);
 
     let isDark = document.documentElement.classList.contains("dark");
     const palette = () =>
