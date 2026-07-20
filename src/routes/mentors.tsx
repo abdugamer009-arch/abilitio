@@ -4,6 +4,7 @@ import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { GlowBlob } from "@/components/GlowBlob";
 import { MENTORS } from "@/lib/abbi/abbi-extras";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/mentors")({
   head: () => ({
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/mentors")({
 });
 
 function MentorsPage() {
+  const t = useT();
   return (
     <PageShell>
       <section className="relative px-4 pt-16 pb-24 sm:px-6">
@@ -27,21 +29,17 @@ function MentorsPage() {
         <div className="relative mx-auto max-w-6xl">
           <header className="mb-10 text-center animate-fade-up">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
-              <Sparkles className="h-3 w-3" /> Illustrative Examples
+              <Sparkles className="h-3 w-3" /> {t.mentorsPage.badge}
             </span>
             <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-              Learn from people already there
+              {t.mentorsPage.title}
             </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              A preview of the kinds of mentors we're building — aligned with the careers ABBI
-              recommends. Real mentors join as the program launches.
-            </p>
+            <p className="mt-2 text-sm text-muted-foreground">{t.mentorsPage.subtitle}</p>
           </header>
 
           <Reveal>
             <p className="mb-8 rounded-2xl border border-dashed border-border/70 bg-secondary/30 px-4 py-3 text-center text-xs text-muted-foreground">
-              Note: the mentor profiles below are illustrative examples, not real individuals.
-              Booking opens when the mentor program launches.
+              {t.mentorsPage.note}
             </p>
           </Reveal>
 
@@ -94,11 +92,11 @@ function MentorsPage() {
                       rel="noopener noreferrer"
                       className="cta-sheen relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-4 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_28px_-10px_var(--glow)]"
                     >
-                      <Calendar className="h-4 w-4" /> Book a Session
+                      <Calendar className="h-4 w-4" /> {t.mentorsPage.book}
                     </a>
                   ) : (
                     <div className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border/40 bg-secondary/20 px-4 py-2.5 text-xs text-muted-foreground/60 cursor-not-allowed">
-                      <Calendar className="h-3.5 w-3.5" /> Booking opens soon
+                      <Calendar className="h-3.5 w-3.5" /> {t.mentorsPage.bookingSoon}
                     </div>
                   )}
                 </div>

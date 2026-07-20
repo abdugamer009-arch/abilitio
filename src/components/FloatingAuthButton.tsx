@@ -5,8 +5,10 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveAvatarUrl } from "@/components/ProfilePhotoCard";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 export function FloatingAuthButton() {
+  const t = useT();
   const { user, loading } = useAuth();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
@@ -70,7 +72,7 @@ export function FloatingAuthButton() {
 
   if (user) {
     return (
-      <Link to="/dashboard" aria-label="Open dashboard" className={baseClass}>
+      <Link to="/dashboard" aria-label={t.common.openDashboard} className={baseClass}>
         {glow}
         <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-primary to-accent text-sm font-semibold text-primary-foreground ring-1 ring-white/20">
           {avatarUrl ? (
@@ -89,7 +91,7 @@ export function FloatingAuthButton() {
   }
 
   return (
-    <Link to="/auth" search={{ mode: "login" }} aria-label="Sign in" className={baseClass}>
+    <Link to="/auth" search={{ mode: "login" }} aria-label={t.common.signIn} className={baseClass}>
       {glow}
       <User className="h-5 w-5 text-foreground/90 transition-transform group-hover:scale-110" />
     </Link>

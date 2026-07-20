@@ -82,11 +82,11 @@ function LandingPage() {
           {/* Honest trust signals */}
           <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
-              <Star className="h-3.5 w-3.5 fill-accent text-accent" /> Free to start
+              <Star className="h-3.5 w-3.5 fill-accent text-accent" /> {t.common.freeToStart}
             </span>
             <span className="hidden h-3 w-px bg-border sm:block" aria-hidden />
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-accent" /> No credit card needed
+              <ShieldCheck className="h-3.5 w-3.5 text-accent" /> {t.common.noCreditCard}
             </span>
             <span className="hidden h-3 w-px bg-border sm:block" aria-hidden />
             <span className="inline-flex items-center gap-1.5">

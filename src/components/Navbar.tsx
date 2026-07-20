@@ -85,7 +85,7 @@ export function Navbar() {
                     navigate({ to: "/" });
                   }}
                   className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_10px_-4px_var(--glow)] transition-all hover:-translate-y-0.5"
-                  aria-label="Sign out"
+                  aria-label={t.common.signOut}
                 >
                   <LogOut className="h-4 w-4" />
                 </button>
@@ -105,7 +105,7 @@ export function Navbar() {
               type="button"
               onClick={() => setOpen((v) => !v)}
               className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/70 text-foreground transition-all hover:bg-secondary/70 md:hidden"
-              aria-label="Toggle menu"
+              aria-label={t.common.toggleMenu}
               aria-expanded={open}
             >
               {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -117,7 +117,7 @@ export function Navbar() {
         {open && (
           <div className="md:hidden mt-2 glass rounded-2xl p-2 animate-fade-in">
             <div className="px-2 pt-1 pb-2 flex items-center justify-between">
-              <span className="text-xs text-muted-foreground font-medium">Language</span>
+              <span className="text-xs text-muted-foreground font-medium">{t.common.language}</span>
               <LanguageSwitcher />
             </div>
             <ul className="flex flex-col">

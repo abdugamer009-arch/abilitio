@@ -5,6 +5,7 @@ import { Reveal } from "@/components/Reveal";
 import { FloatingShapes } from "@/components/FloatingShapes";
 import { GlowBlob } from "@/components/GlowBlob";
 import { SUCCESS_STORIES } from "@/lib/abbi/abbi-extras";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/success-stories")({
   head: () => ({
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/success-stories")({
 });
 
 function SuccessPage() {
+  const t = useT();
   return (
     <PageShell>
       <section className="relative px-4 pt-16 pb-24 sm:px-6">
@@ -29,20 +31,17 @@ function SuccessPage() {
         <div className="relative mx-auto max-w-5xl">
           <header className="mb-10 text-center animate-fade-up">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
-              <Sparkles className="h-3 w-3" /> Illustrative Examples
+              <Sparkles className="h-3 w-3" /> {t.storiesPage.badge}
             </span>
-            <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Success Stories</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Illustrative examples of how assessments, roadmaps, and community can change a
-              student's trajectory. Real member stories will be featured here as our community
-              grows.
-            </p>
+            <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+              {t.storiesPage.title}
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">{t.storiesPage.subtitle}</p>
           </header>
 
           <Reveal>
             <p className="mb-8 rounded-2xl border border-dashed border-border/70 bg-secondary/30 px-4 py-3 text-center text-xs text-muted-foreground">
-              Note: the profiles below are illustrative examples, not real individuals or
-              testimonials.
+              {t.storiesPage.note}
             </p>
           </Reveal>
 
@@ -80,10 +79,8 @@ function SuccessPage() {
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_24px_-8px_var(--glow)]">
                   <Sparkles className="h-6 w-6" />
                 </div>
-                <h3 className="mt-4 text-lg font-semibold">Have a story to share?</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Story submissions open soon — get featured on this page.
-                </p>
+                <h3 className="mt-4 text-lg font-semibold">{t.storiesPage.shareTitle}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{t.storiesPage.shareBody}</p>
               </div>
             </div>
           </Reveal>

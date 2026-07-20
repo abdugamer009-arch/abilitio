@@ -1,6 +1,8 @@
 import { Shield } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 export function AdminBadge({ className = "" }: { className?: string }) {
+  const t = useT();
   return (
     <span
       className={
@@ -9,7 +11,7 @@ export function AdminBadge({ className = "" }: { className?: string }) {
       }
     >
       <Shield className="h-2.5 w-2.5" />
-      Admin
+      {t.common.admin}
     </span>
   );
 }

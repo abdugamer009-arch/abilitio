@@ -1,30 +1,33 @@
 /**
  * Infinite scrolling trust strip — pure CSS transform animation (GPU only).
- * The list is duplicated so the scroll feels seamless.
+ * The list is duplicated so the scroll feels seamless. University names are
+ * proper nouns and stay as-is; concept items come from i18n.
  */
-const ITEMS = [
-  "MIT",
-  "Harvard",
-  "Oxford",
-  "Stanford",
-  "Cambridge",
-  "MBTI Assessment",
-  "IQ Profiling",
-  "Career Intelligence",
-  "AI-Powered",
-  "SAT Prep",
-  "IELTS Ready",
-  "NUS Singapore",
-  "ETH Zürich",
-  "Toronto",
-  "UCL",
-  "KAIST",
-];
+import { useT } from "@/lib/i18n";
 
 const DOT = <span className="mx-4 h-1 w-1 rounded-full bg-primary/40 shrink-0" aria-hidden />;
 
 export function TrustMarquee() {
-  const row = ITEMS.map((label, i) => (
+  const t = useT();
+  const items = [
+    "MIT",
+    "Harvard",
+    "Oxford",
+    "Stanford",
+    "Cambridge",
+    t.marquee.mbti,
+    t.marquee.iq,
+    t.marquee.career,
+    t.marquee.ai,
+    t.marquee.sat,
+    t.marquee.ielts,
+    "NUS Singapore",
+    "ETH Zürich",
+    "Toronto",
+    "UCL",
+    "KAIST",
+  ];
+  const row = items.map((label, i) => (
     <span key={i} className="inline-flex shrink-0 items-center">
       <span className="text-xs font-medium text-muted-foreground/70 whitespace-nowrap">
         {label}

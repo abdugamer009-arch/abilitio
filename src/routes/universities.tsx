@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useT } from "@/lib/i18n";
 import { useEffect, useMemo, useState } from "react";
 import { GraduationCap, MapPin, Award, Sparkles, Search, Filter } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/universities")({
 });
 
 function UniversitiesPage() {
+  const t = useT();
   const { user } = useAuth();
   const [sat, setSat] = useState<number | "">("");
   const [ielts, setIelts] = useState<number | "">("");
@@ -80,21 +82,18 @@ function UniversitiesPage() {
         <div className="relative mx-auto max-w-6xl">
           <header className="mb-8 text-center animate-fade-up">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
-              <Sparkles className="h-3 w-3" /> ABBI University Explorer
+              <Sparkles className="h-3 w-3" /> {t.uniPage.badge}
             </span>
             <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-              Find your future university
+              {t.uniPage.title}
             </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Filter by your scores and preferences. ABBI ranks fit, competitiveness, and
-              scholarships.
-            </p>
+            <p className="mt-2 text-sm text-muted-foreground">{t.uniPage.subtitle}</p>
           </header>
 
           {/* Filters */}
           <div className="glass mb-8 rounded-3xl p-5">
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <FilterField label="SAT Score" icon={Search}>
+              <FilterField label={t.uniPage.satScore} icon={Search}>
                 <input
                   type="number"
                   min={400}
@@ -105,7 +104,7 @@ function UniversitiesPage() {
                   className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/50"
                 />
               </FilterField>
-              <FilterField label="IELTS Band" icon={Search}>
+              <FilterField label={t.uniPage.ieltsBand} icon={Search}>
                 <input
                   type="number"
                   min={4}
@@ -117,13 +116,13 @@ function UniversitiesPage() {
                   className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/50"
                 />
               </FilterField>
-              <FilterField label="Country" icon={MapPin}>
+              <FilterField label={t.uniPage.country} icon={MapPin}>
                 <select
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
                   className="w-full bg-transparent text-sm outline-none"
                 >
-                  <option value="">Any country</option>
+                  <option value="">{t.uniPage.anyCountry}</option>
                   {COUNTRIES.map((c) => (
                     <option key={c} value={c}>
                       {c}
@@ -131,13 +130,13 @@ function UniversitiesPage() {
                   ))}
                 </select>
               </FilterField>
-              <FilterField label="Intended Major" icon={Filter}>
+              <FilterField label={t.uniPage.intendedMajor} icon={Filter}>
                 <select
                   value={major}
                   onChange={(e) => setMajor(e.target.value)}
                   className="w-full bg-transparent text-sm outline-none"
                 >
-                  <option value="">Any major</option>
+                  <option value="">{t.uniPage.anyMajor}</option>
                   {MAJORS.map((m) => (
                     <option key={m} value={m}>
                       {m}
@@ -155,9 +154,7 @@ function UniversitiesPage() {
             ))}
           </Reveal>
           {filtered.length === 0 && (
-            <p className="mt-12 text-center text-sm text-muted-foreground">
-              No matches yet. Try widening your filters.
-            </p>
+            <p className="mt-12 text-center text-sm text-muted-foreground">{t.uniPage.noMatches}</p>
           )}
         </div>
       </section>
@@ -195,6 +192,12 @@ function UniCard({
   major: string;
   elig: Eligibility;
 }) {
+  const t = useT();
+  const compLabel: Record<University["competitiveness"], string> = {
+    Reach: t.uniPage.reach,
+    Match: t.uniPage.match,
+    Safety: t.uniPage.safety,
+  };
   const compColor =
     u.competitiveness === "Reach"
       ? "from-pink-500/30 to-primary/30 text-primary"
@@ -222,13 +225,17 @@ function UniCard({
                     : "border-red-500/40 bg-red-500/15 text-red-400"
               }`}
             >
-              {elig === "eligible" ? "✓ Eligible" : elig === "close" ? "Close" : "Below min"}
+              {elig === "eligible"
+                ? t.uniPage.eligible
+                : elig === "close"
+                  ? t.uniPage.close
+                  : t.uniPage.belowMin}
             </span>
           )}
           <span
             className={`rounded-full bg-gradient-to-br ${compColor} px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider`}
           >
-            {u.competitiveness}
+            {compLabel[u.competitiveness]}
           </span>
         </span>
       </div>
@@ -238,14 +245,16 @@ function UniCard({
       </div>
 
       <div className="relative mt-4 grid grid-cols-2 gap-2 text-[11px]">
-        <Stat label="Min SAT" value={u.minSat.toString()} />
-        <Stat label="Min IELTS" value={u.minIelts.toString()} />
-        <Stat label="Acceptance" value={`${u.acceptance}%`} />
-        <Stat label="Fit" value={elig === "unknown" ? "—" : `${fit}%`} highlight />
+        <Stat label={t.uniPage.minSat} value={u.minSat.toString()} />
+        <Stat label={t.uniPage.minIelts} value={u.minIelts.toString()} />
+        <Stat label={t.uniPage.acceptance} value={`${u.acceptance}%`} />
+        <Stat label={t.uniPage.fit} value={elig === "unknown" ? "—" : `${fit}%`} highlight />
       </div>
 
       <div className="relative mt-4">
-        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Top majors</div>
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          {t.uniPage.topMajors}
+        </div>
         <div className="mt-1.5 flex flex-wrap gap-1">
           {u.majors.slice(0, 4).map((m) => (
             <span

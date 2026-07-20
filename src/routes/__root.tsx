@@ -17,6 +17,7 @@ import { LanguageProvider } from "@/lib/i18n";
 import { FloatingAuthButton } from "@/components/FloatingAuthButton";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { SITE_URL, OG_IMAGE_URL, SITE_NAME, CONTACT_EMAIL } from "@/lib/constants";
+import { getStaticDict } from "@/lib/i18n";
 import { initAnalytics } from "@/lib/analytics";
 
 const ORG_JSONLD = {
@@ -59,6 +60,8 @@ function CenteredGlow({ children }: { children: React.ReactNode }) {
 }
 
 function NotFoundComponent() {
+  // getStaticDict, not useT: this can render outside LanguageProvider.
+  const t = getStaticDict();
   return (
     <CenteredGlow>
       <div className="glass max-w-md rounded-3xl p-10 text-center animate-fade-up">
@@ -66,16 +69,14 @@ function NotFoundComponent() {
           <Sparkles className="h-7 w-7 text-primary-foreground" />
         </div>
         <h1 className="mt-6 text-7xl font-bold gradient-text">404</h1>
-        <h2 className="mt-2 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-3 text-sm text-muted-foreground">
-          This page wandered off the map. Let's get you back to discovering your potential.
-        </p>
+        <h2 className="mt-2 text-xl font-semibold text-foreground">{t.errorPages.notFoundTitle}</h2>
+        <p className="mt-3 text-sm text-muted-foreground">{t.errorPages.notFoundBody}</p>
         <div className="mt-7">
           <Link
             to="/"
             className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all hover:glow-purple hover:-translate-y-0.5"
           >
-            <Home className="h-4 w-4" /> Back home
+            <Home className="h-4 w-4" /> {t.errorPages.backHome}
           </Link>
         </div>
       </div>
@@ -86,6 +87,8 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  // getStaticDict, not useT: the error may have unmounted LanguageProvider.
+  const t = getStaticDict();
 
   return (
     <CenteredGlow>
@@ -94,11 +97,9 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           <Sparkles className="h-7 w-7 text-primary-foreground" />
         </div>
         <h1 className="mt-6 text-2xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          {t.errorPages.errorTitle}
         </h1>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
-        </p>
+        <p className="mt-3 text-sm text-muted-foreground">{t.errorPages.errorBody}</p>
         <div className="mt-7 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
@@ -107,13 +108,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             }}
             className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all hover:glow-purple hover:-translate-y-0.5"
           >
-            <RefreshCw className="h-4 w-4" /> Try again
+            <RefreshCw className="h-4 w-4" /> {t.common.tryAgain}
           </button>
           <a
             href="/"
             className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary/60"
           >
-            <Home className="h-4 w-4" /> Go home
+            <Home className="h-4 w-4" /> {t.common.goHome}
           </a>
         </div>
       </div>

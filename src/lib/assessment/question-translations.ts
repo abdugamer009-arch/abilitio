@@ -2175,4 +2175,439 @@ export const QUESTION_TRANSLATIONS: Record<string, QT> = {
       options: ["Baraban", "Saksofon", "Skripka", "Sintezator", "Elektrogitara"],
     },
   },
+
+  // ── Cognitive bank (language-neutral questions, hand-adapted; the session
+  //    picker only draws cognitive questions that appear here — see
+  //    pickSessionQuestions — so RU/UZ users never see an untranslated item) ──
+  iq14: {
+    ru: {
+      prompt: "Бочка вмещает 85 литров. Сколько литров останется, если израсходовать 40%?",
+      options: ["34 литра", "45 литров", "51 литр", "55 литров"],
+    },
+    uz: {
+      prompt: "Bochka to'la holda 85 litr sig'diradi. 40% ishlatilgandan keyin necha litr qoladi?",
+      options: ["34 litr", "45 litr", "51 litr", "55 litr"],
+    },
+  },
+  iq16: {
+    ru: {
+      prompt: "Какое число должно стоять вместо знака вопроса?\n0, 19, 38, 57, ?, 95",
+      options: ["66", "72", "76", "80"],
+    },
+    uz: {
+      prompt: "So'roq belgisi o'rniga qaysi son qo'yilishi kerak?\n0, 19, 38, 57, ?, 95",
+      options: ["66", "72", "76", "80"],
+    },
+  },
+  iq18: {
+    ru: {
+      prompt:
+        "У Джо в 1,5 раза больше, чем у Мо. У Мо в 1,5 раза больше, чем у Фло. Вместе у них 76. Сколько у Джо?",
+      options: ["24", "30", "36", "40"],
+    },
+    uz: {
+      prompt:
+        "Jasurda Mansurdagidan 1,5 barobar ko'p. Mansurda Farhoddagidan 1,5 barobar ko'p. Uchalasida jami 76 ta bor. Jasurda nechta?",
+      options: ["24", "30", "36", "40"],
+    },
+  },
+  iq33: {
+    ru: { prompt: "Какое число следующее: 3, 6, 11, 18, 27, ?", options: ["36", "38", "39", "40"] },
+    uz: { prompt: "Keyingi son qaysi: 3, 6, 11, 18, 27, ?", options: ["36", "38", "39", "40"] },
+  },
+  iq38: {
+    ru: {
+      prompt: "Сколько всего квадратов в сетке 4×4 (включая составные квадраты)?",
+      options: ["16", "20", "30", "36"],
+    },
+    uz: {
+      prompt:
+        "4×4 katakli panjarada jami nechta kvadrat bor (katta-kichigi bilan barchasi hisoblansin)?",
+      options: ["16", "20", "30", "36"],
+    },
+  },
+  iq41: {
+    ru: {
+      prompt: "Какое число должно стоять вместо знака вопроса? 2, 3, 5, 8, 13, 21, ?",
+      options: ["30", "34", "36", "40"],
+    },
+    uz: {
+      prompt: "So'roq belgisi o'rniga qaysi son kelishi kerak? 2, 3, 5, 8, 13, 21, ?",
+      options: ["30", "34", "36", "40"],
+    },
+  },
+  iq42: {
+    ru: {
+      prompt:
+        "Улитка за день поднимается по стене на 3 м, а за ночь сползает на 1 м. За сколько дней она поднимется на 10 м?",
+      options: ["4", "5", "6", "7"],
+    },
+    uz: {
+      prompt:
+        "Shilliqqurt kunduzi devor bo'ylab 3 m ko'tariladi, kechasi esa 1 m pastga sirg'alib tushadi. U 10 m balandlikka necha kunda chiqadi?",
+      options: ["4", "5", "6", "7"],
+    },
+  },
+  iq43: {
+    ru: {
+      prompt: "Если все блупы — разлы, а все разлы — лазлы, то все блупы обязательно:",
+      options: ["разлы", "лазлы", "ни те, ни другие", "и те, и другие"],
+    },
+    uz: {
+      prompt:
+        "Agar barcha bluplar razl bo'lsa va barcha razllar lazl bo'lsa, unda barcha bluplar albatta:",
+      options: ["razl", "lazl", "hech qaysisi", "ikkalasi ham"],
+    },
+  },
+  iq46: {
+    ru: {
+      prompt: "Если считать от 1 до 100, сколько раз встретится цифра 9?",
+      options: ["9", "10", "19", "20"],
+    },
+    uz: {
+      prompt: "1 dan 100 gacha sanaganda 9 raqami necha marta uchraydi?",
+      options: ["9", "10", "19", "20"],
+    },
+  },
+  iq48: {
+    ru: {
+      prompt:
+        "Том на 4 года старше Джерри. Через 6 лет Том будет вдвое старше, чем Джерри сейчас. Сколько лет Тому сейчас?",
+      options: ["10", "12", "14", "16"],
+    },
+    uz: {
+      prompt:
+        "Tom Jerridan 4 yosh katta. 6 yildan keyin Tomning yoshi Jerrining hozirgi yoshidan ikki barobar bo'ladi. Hozir Tom necha yoshda?",
+      options: ["10", "12", "14", "16"],
+    },
+  },
+  iq49: {
+    ru: {
+      prompt: "Какое число следующее: 1, 8, 27, 64, 125, ?",
+      options: ["196", "216", "225", "256"],
+    },
+    uz: {
+      prompt: "Keyingi son qaysi: 1, 8, 27, 64, 125, ?",
+      options: ["196", "216", "225", "256"],
+    },
+  },
+  iq50: {
+    ru: {
+      prompt: "Если юг называется востоком, а восток — севером, то как будет называться запад?",
+      options: ["Север", "Юг", "Восток", "Северо-запад"],
+    },
+    uz: {
+      prompt: "Agar janub sharq deb, sharq esa shimol deb atalsa, g'arb qanday ataladi?",
+      options: ["Shimol", "Janub", "Sharq", "Shimoli-g'arb"],
+    },
+  },
+  iq51: {
+    ru: { prompt: "Какое число следующее: 2, 4, 8, 16, 32, ?", options: ["48", "56", "64", "72"] },
+    uz: { prompt: "Keyingi son qaysi: 2, 4, 8, 16, 32, ?", options: ["48", "56", "64", "72"] },
+  },
+  iq53: {
+    ru: {
+      prompt: "Какое число следующее: 1, 1, 2, 3, 5, 8, 13, ?",
+      options: ["18", "20", "21", "24"],
+    },
+    uz: { prompt: "Keyingi son qaysi: 1, 1, 2, 3, 5, 8, 13, ?", options: ["18", "20", "21", "24"] },
+  },
+  iq57: {
+    ru: { prompt: "Продолжите ряд: 50, 48, 44, 38, 30, ?", options: ["18", "20", "22", "24"] },
+    uz: {
+      prompt: "Qatorni davom ettiring: 50, 48, 44, 38, 30, ?",
+      options: ["18", "20", "22", "24"],
+    },
+  },
+  iq81: {
+    ru: {
+      prompt: "Врач относится к больнице так же, как учитель — к чему?",
+      options: ["Класс", "Школа", "Лекция", "Университет"],
+    },
+    uz: {
+      prompt: "Shifokor kasalxonaga qanday bog'liq bo'lsa, o'qituvchi nimaga shunday bog'liq?",
+      options: ["Sinf", "Maktab", "Ma'ruza", "Universitet"],
+    },
+  },
+  iq83: {
+    ru: {
+      prompt: "Ручка относится к писателю так же, как скальпель — к кому?",
+      options: ["Больница", "Пациент", "Хирург", "Медсестра"],
+    },
+    uz: {
+      prompt: "Qalam yozuvchiga tegishli bo'lgani kabi, skalpel kimga tegishli?",
+      options: ["Kasalxona", "Bemor", "Jarroh", "Hamshira"],
+    },
+  },
+  iq88: {
+    ru: {
+      prompt: "Какое слово лишнее: комета, метеор, планета, астероид, спутник?",
+      options: ["Комета", "Планета", "Метеор", "Астероид"],
+    },
+    uz: {
+      prompt: "Qaysi so'z ortiqcha: kometa, meteor, sayyora, asteroid, yo'ldosh?",
+      options: ["Kometa", "Sayyora", "Meteor", "Asteroid"],
+    },
+  },
+  iq104: {
+    ru: {
+      prompt: "Голод относится к еде так же, как жажда — к чему?",
+      options: ["Питьё", "Вода", "Сок", "Жидкость"],
+    },
+    uz: {
+      prompt: "Ochlik ovqatga bog'liq bo'lgani kabi, tashnalik nimaga bog'liq?",
+      options: ["Ichimlik", "Suv", "Sharbat", "Suyuqlik"],
+    },
+  },
+  iq106: {
+    ru: {
+      prompt: "Микроскоп относится к биологии так же, как телескоп — к чему?",
+      options: ["Физика", "Химия", "Астрономия", "География"],
+    },
+    uz: {
+      prompt: "Mikroskop biologiyaga xizmat qilgani kabi, teleskop qaysi fanga xizmat qiladi?",
+      options: ["Fizika", "Kimyo", "Astronomiya", "Geografiya"],
+    },
+  },
+  iq111: {
+    ru: {
+      prompt: "Все млекопитающие теплокровны. Летучая мышь — млекопитающее. Следовательно:",
+      options: [
+        "Летучие мыши холоднокровны",
+        "Летучие мыши теплокровны",
+        "Не все летучие мыши — млекопитающие",
+        "Летучие мыши — рептилии",
+      ],
+    },
+    uz: {
+      prompt: "Barcha sutemizuvchilar issiq qonli. Ko'rshapalak — sutemizuvchi. Demak:",
+      options: [
+        "Ko'rshapalaklar sovuq qonli",
+        "Ko'rshapalaklar issiq qonli",
+        "Hamma ko'rshapalak ham sutemizuvchi emas",
+        "Ko'rshapalaklar — sudralib yuruvchilar",
+      ],
+    },
+  },
+  iq112: {
+    ru: {
+      prompt:
+        "Ни одна рыба не является млекопитающим. Все дельфины — млекопитающие. Следовательно:",
+      options: [
+        "Некоторые дельфины — рыбы",
+        "Ни один дельфин не является рыбой",
+        "Все рыбы — дельфины",
+        "Некоторые рыбы — дельфины",
+      ],
+    },
+    uz: {
+      prompt: "Hech bir baliq sutemizuvchi emas. Barcha delfinlar — sutemizuvchi. Demak:",
+      options: [
+        "Ba'zi delfinlar — baliq",
+        "Hech bir delfin baliq emas",
+        "Barcha baliqlar — delfin",
+        "Ba'zi baliqlar — delfin",
+      ],
+    },
+  },
+  iq113: {
+    ru: {
+      prompt: "Если идёт дождь, земля становится мокрой. Земля мокрая. Какой вывод можно сделать?",
+      options: [
+        "Дождь точно был",
+        "Дождь мог быть, а мог и не быть",
+        "Дождя не было",
+        "Причина точно в другом",
+      ],
+    },
+    uz: {
+      prompt: "Yomg'ir yog'sa, yer ho'l bo'ladi. Yer ho'l. Qanday xulosa chiqarish mumkin?",
+      options: [
+        "Yomg'ir yoqqan",
+        "Yomg'ir yoqqan ham, yog'magan ham bo'lishi mumkin",
+        "Yomg'ir yog'magan",
+        "Sababi aniq boshqa narsada",
+      ],
+    },
+  },
+  iq114: {
+    ru: {
+      prompt: "Анна старше Бена. Карл старше Анны. Кто самый младший?",
+      options: ["Анна", "Бен", "Карл", "Нельзя определить"],
+    },
+    uz: {
+      prompt: "Anna Bendan katta. Karl Annadan katta. Eng kichigi kim?",
+      options: ["Anna", "Ben", "Karl", "Aniqlab bo'lmaydi"],
+    },
+  },
+  iq119: {
+    ru: {
+      prompt:
+        "В коробке красные и синие шары. Вероятность вытащить красный — 2/5. Если красных шаров 10, сколько синих?",
+      options: ["10", "12", "15", "20"],
+    },
+    uz: {
+      prompt:
+        "Qutida qizil va ko'k sharlar bor. Qizil shar chiqish ehtimoli — 2/5. Agar qizil sharlar 10 ta bo'lsa, ko'k sharlar nechta?",
+      options: ["10", "12", "15", "20"],
+    },
+  },
+  iq122: {
+    ru: {
+      prompt:
+        "Три коробки подписаны «ЯБЛОКИ», «АПЕЛЬСИНЫ» и «ЯБЛОКИ+АПЕЛЬСИНЫ», причём все надписи неверны. Вы достаёте один фрукт из коробки «ЯБЛОКИ+АПЕЛЬСИНЫ» — это яблоко. Что лежит в этой коробке?",
+      options: ["Только яблоки", "Только апельсины", "И то, и другое", "Нельзя определить"],
+    },
+    uz: {
+      prompt:
+        "Uchta qutiga «OLMA», «APELSIN» va «OLMA+APELSIN» deb yozilgan, lekin barcha yozuvlar noto'g'ri. «OLMA+APELSIN» qutisidan bitta meva olsangiz — u olma chiqdi. Bu qutida nima bor?",
+      options: ["Faqat olma", "Faqat apelsin", "Ikkalasi ham", "Aniqlab bo'lmaydi"],
+    },
+  },
+  iq124: {
+    ru: {
+      prompt: "Магазин снизил цены на 20%, а затем поднял на 20%. Итоговое изменение цены:",
+      options: ["+4%", "0%", "−4%", "−6%"],
+    },
+    uz: {
+      prompt:
+        "Do'kon narxlarni 20% ga tushirdi, keyin 20% ga oshirdi. Narxning yakuniy o'zgarishi qancha?",
+      options: ["+4%", "0%", "−4%", "−6%"],
+    },
+  },
+  iq125: {
+    ru: {
+      prompt: "Вы читаете 40 страниц в час. Сколько времени займёт книга из 300 страниц?",
+      options: ["6 ч", "7 ч 30 мин", "8 ч", "8 ч 30 мин"],
+    },
+    uz: {
+      prompt: "Soatiga 40 bet o'qiysiz. 300 betlik kitobni o'qish qancha vaqt oladi?",
+      options: ["6 soat", "7 soat 30 daqiqa", "8 soat", "8 soat 30 daqiqa"],
+    },
+  },
+  iq128: {
+    ru: {
+      prompt:
+        "6 рабочих выполняют работу за 8 дней. Сколько рабочих нужно, чтобы выполнить её за 4 дня?",
+      options: ["10", "12", "14", "16"],
+    },
+    uz: {
+      prompt:
+        "6 ishchi ishni 8 kunda bajaradi. Xuddi shu ishni 4 kunda bajarish uchun nechta ishchi kerak?",
+      options: ["10", "12", "14", "16"],
+    },
+  },
+  iq134: {
+    ru: {
+      prompt:
+        "Автомобиль проезжает 60 км со скоростью 40 км/ч, затем ещё 60 км со скоростью 60 км/ч. Какова средняя скорость на всём пути?",
+      options: ["48 км/ч", "50 км/ч", "52 км/ч", "54 км/ч"],
+    },
+    uz: {
+      prompt:
+        "Avtomobil 60 km ni 40 km/soat tezlikda, keyingi 60 km ni 60 km/soat tezlikda bosib o'tadi. Butun yo'ldagi o'rtacha tezlik qancha?",
+      options: ["48 km/soat", "50 km/soat", "52 km/soat", "54 km/soat"],
+    },
+  },
+  iq156: {
+    ru: {
+      prompt:
+        "Куб покрасили со всех сторон и распилили на 27 одинаковых кубиков. У скольких кубиков окрашены ровно две грани?",
+      options: ["8", "12", "16", "20"],
+    },
+    uz: {
+      prompt:
+        "Kubning hamma tomoni bo'yalib, u 27 ta teng kichik kubchaga bo'lindi. Nechta kubchaning roppa-rosa ikki tomoni bo'yalgan?",
+      options: ["8", "12", "16", "20"],
+    },
+  },
+  iq157: {
+    ru: {
+      prompt:
+        "Куб покрасили со всех сторон и распилили на 27 одинаковых кубиков. У скольких кубиков нет ни одной окрашенной грани?",
+      options: ["0", "1", "2", "4"],
+    },
+    uz: {
+      prompt:
+        "Kub hamma tomondan bo'yalib, 27 ta teng kubchaga bo'lindi. Nechta kubchaning birorta ham tomoni bo'yalmagan?",
+      options: ["0", "1", "2", "4"],
+    },
+  },
+  iq158: {
+    ru: {
+      prompt:
+        "Квадратный лист бумаги дважды сложили пополам и пробили отверстие через все слои. Сколько отверстий будет на развёрнутом листе?",
+      options: ["2", "4", "6", "8"],
+    },
+    uz: {
+      prompt:
+        "Kvadrat qog'oz ikki marta teng buklandi va barcha qatlamlari teshib o'tildi. Qog'oz yoyilganda nechta teshik ko'rinadi?",
+      options: ["2", "4", "6", "8"],
+    },
+  },
+  iq159: {
+    ru: {
+      prompt: "Часы показывают 3:00. Какое время видно в зеркальном отражении циферблата?",
+      options: ["9:00", "3:00", "6:00", "12:00"],
+    },
+    uz: {
+      prompt: "Soat 3:00 ni ko'rsatyapti. Ko'zgudagi aksida soat qanday vaqtni ko'rsatadi?",
+      options: ["9:00", "3:00", "6:00", "12:00"],
+    },
+  },
+  iq169: {
+    ru: {
+      prompt: "Сколько процентов составляет 45 от 180?",
+      options: ["20%", "25%", "30%", "35%"],
+    },
+    uz: {
+      prompt: "45 soni 180 ning necha foizini tashkil qiladi?",
+      options: ["20%", "25%", "30%", "35%"],
+    },
+  },
+  iq191: {
+    ru: {
+      prompt: "Какое число следующее: 1, 2, 6, 24, 120, ?",
+      options: ["360", "480", "720", "840"],
+    },
+    uz: { prompt: "Keyingi son qaysi: 1, 2, 6, 24, 120, ?", options: ["360", "480", "720", "840"] },
+  },
+  iq219: {
+    ru: {
+      prompt:
+        "3 кошки ловят 3 мышей за 3 минуты. Сколько кошек нужно, чтобы поймать 9 мышей за 9 минут?",
+      options: ["1", "2", "3", "9"],
+    },
+    uz: {
+      prompt:
+        "3 ta mushuk 3 daqiqada 3 ta sichqonni tutadi. 9 daqiqada 9 ta sichqonni tutish uchun nechta mushuk kerak?",
+      options: ["1", "2", "3", "9"],
+    },
+  },
+  iq224: {
+    ru: { prompt: "Сколько рёбер у куба?", options: ["6", "8", "10", "12"] },
+    uz: { prompt: "Kubning nechta qirrasi bor?", options: ["6", "8", "10", "12"] },
+  },
+  iq225: {
+    ru: {
+      prompt: "Радиус круга удвоили. Во сколько раз увеличится его площадь?",
+      options: ["В 2 раза", "В 4 раза", "В 6 раз", "В 8 раз"],
+    },
+    uz: {
+      prompt: "Doira radiusi ikki barobarga oshirildi. Uning yuzi necha barobar ortadi?",
+      options: ["2 barobar", "4 barobar", "6 barobar", "8 barobar"],
+    },
+  },
+  iq232: {
+    ru: {
+      prompt:
+        "Алиса выполняет работу за 6 часов, Боб — за 4 часа. За какое время они справятся, работая вместе?",
+      options: ["2 ч", "2 ч 20 мин", "2 ч 24 мин", "3 ч"],
+    },
+    uz: {
+      prompt:
+        "Alisa ishni 6 soatda, Bob 4 soatda bajaradi. Birgalikda ishlashsa, qancha vaqtda tugatishadi?",
+      options: ["2 soat", "2 soat 20 daqiqa", "2 soat 24 daqiqa", "3 soat"],
+    },
+  },
 };

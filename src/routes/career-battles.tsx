@@ -12,6 +12,7 @@ import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { FloatingShapes } from "@/components/FloatingShapes";
 import { CAREER_SPECS, CAREER_BATTLES, type CareerSpec } from "@/lib/abbi/abbi-extras";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/career-battles")({
   head: () => ({
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/career-battles")({
 });
 
 function CareerBattlesPage() {
+  const t = useT();
   const careerKeys = Object.keys(CAREER_SPECS);
   const [a, setA] = useState(CAREER_BATTLES[0].a);
   const [b, setB] = useState(CAREER_BATTLES[0].b);
@@ -42,14 +44,12 @@ function CareerBattlesPage() {
         <div className="relative mx-auto max-w-5xl">
           <header className="mb-8 text-center animate-fade-up">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
-              <Sparkles className="h-3 w-3" /> Career Battles
+              <Sparkles className="h-3 w-3" /> {t.battles.badge}
             </span>
             <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-              Compare two career paths
+              {t.battles.title}
             </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              See salary, skills, education, demand, and personality fit side-by-side.
-            </p>
+            <p className="mt-2 text-sm text-muted-foreground">{t.battles.subtitle}</p>
           </header>
 
           {/* Quick presets */}
@@ -116,6 +116,7 @@ function Picker({
 }
 
 function CareerCard({ c, winner }: { c: CareerSpec; accent: "left" | "right"; winner: boolean }) {
+  const t = useT();
   return (
     <div
       className={`relative overflow-hidden rounded-3xl border p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 ${
@@ -137,7 +138,7 @@ function CareerCard({ c, winner }: { c: CareerSpec; accent: "left" | "right"; wi
       />
       {winner && (
         <div className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow">
-          <TrendingUp className="h-3 w-3" /> Higher demand
+          <TrendingUp className="h-3 w-3" /> {t.battles.higherDemand}
         </div>
       )}
       <div className="flex items-center gap-3">
@@ -148,15 +149,20 @@ function CareerCard({ c, winner }: { c: CareerSpec; accent: "left" | "right"; wi
       </div>
 
       <div className="mt-5 space-y-3">
-        <Row icon={DollarSign} label="Salary range" value={c.salary} />
-        <Row icon={GraduationCap} label="Education" value={c.education} />
-        <Row icon={UserIcon} label="Personality fit" value={c.personality} />
-        <Row icon={TrendingUp} label="Future demand" value={`${c.demand}/100`} bar={c.demand} />
+        <Row icon={DollarSign} label={t.battles.salary} value={c.salary} />
+        <Row icon={GraduationCap} label={t.battles.education} value={c.education} />
+        <Row icon={UserIcon} label={t.battles.personalityFit} value={c.personality} />
+        <Row
+          icon={TrendingUp}
+          label={t.battles.futureDemand}
+          value={`${c.demand}/100`}
+          bar={c.demand}
+        />
       </div>
 
       <div className="mt-5">
         <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-          Core skills
+          {t.battles.coreSkills}
         </div>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {c.skills.map((s) => (

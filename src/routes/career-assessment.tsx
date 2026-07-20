@@ -251,7 +251,7 @@ function CareerAssessmentPage() {
       // The system placed them in a community during submit — say so, so
       // nobody thinks another test is needed to join one.
       if (result.joined_community) {
-        toast.success(`You've been added to the ${result.joined_community} community.`);
+        toast.success(t.community.joined.replace("{name}", result.joined_community));
       }
       navigate({ to: "/career-results" });
     } catch (e: unknown) {

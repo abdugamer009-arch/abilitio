@@ -8,10 +8,12 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { ABBI_SUGGESTIONS, abbiGreeting } from "@/lib/abbi/abbi-knowledge";
 import { generateAbbiMessage } from "@/lib/abbi/abbi.functions";
+import { useT } from "@/lib/i18n";
 
 type ChatMsg = { id: string; role: "user" | "abbi"; content: string };
 
 export function AbbiChat() {
+  const t = useT();
   const { user } = useAuth();
   const replyFn = useServerFn(generateAbbiMessage);
 
@@ -162,9 +164,7 @@ export function AbbiChat() {
               <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
                 ABBI <span className="gradient-text">AI</span>
               </h2>
-              <p className="text-xs text-muted-foreground">
-                Your free AI career mentor — careers, universities, SAT/IELTS & growth.
-              </p>
+              <p className="text-xs text-muted-foreground">{t.abbiChat.tagline}</p>
             </div>
           </div>
         </div>
@@ -189,7 +189,7 @@ export function AbbiChat() {
         {messages.length <= 2 && (
           <div className="border-t border-border/60 bg-secondary/20 px-4 py-3 sm:px-6">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              Suggested prompts
+              {t.abbiChat.suggested}
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
               {ABBI_SUGGESTIONS.slice(0, 8).map((s) => (
@@ -230,8 +230,8 @@ export function AbbiChat() {
                   }
                 }}
                 rows={1}
-                placeholder="Ask ABBI anything about careers, universities, SAT/IELTS…"
-                aria-label="Message ABBI"
+                placeholder={t.abbiChat.placeholder}
+                aria-label={t.abbiChat.inputAria}
                 className="flex-1 resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
                 style={{ maxHeight: 120 }}
               />
@@ -241,7 +241,7 @@ export function AbbiChat() {
               disabled={!canSend}
               className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
               style={{ boxShadow: "0 10px 24px -10px oklch(0.55 0.22 295 / 0.6)" }}
-              aria-label="Send message"
+              aria-label={t.community.send}
             >
               <Send className="h-4 w-4" />
             </button>
@@ -251,7 +251,7 @@ export function AbbiChat() {
               onClick={clearHistory}
               className="text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
             >
-              Clear history
+              {t.abbiChat.clear}
             </button>
           </div>
         </div>
@@ -292,6 +292,7 @@ function MessageBubble({ role, content }: { role: "user" | "abbi"; content: stri
 }
 
 function TypingBubble() {
+  const t = useT();
   return (
     <div className="flex items-start gap-3 animate-fade-in">
       <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow">
@@ -305,7 +306,7 @@ function TypingBubble() {
       </div>
       <div className="flex items-center gap-2 rounded-2xl rounded-tl-md border border-border/40 bg-secondary/30 px-4 py-3 backdrop-blur-md">
         <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
-          ABBI is thinking
+          {t.abbiChat.thinking}
         </span>
         <span className="flex items-center gap-1">
           <span

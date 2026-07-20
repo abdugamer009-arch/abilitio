@@ -2,6 +2,7 @@
 // Expandable: add more questions to each array; the session picker selects 10 from each.
 
 import type { PersonalityQ, CognitiveQ, InterestQ, RiasecDim } from "./career-assessment";
+import { QUESTION_TRANSLATIONS } from "./question-translations";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PERSONALITY BANK  (target: 200 questions)
@@ -4906,6 +4907,22 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+// Localization gate for the cognitive section. One picked session serves every
+// language (the client switches languages mid-test), so a question is only
+// eligible if it carries complete Russian AND Uzbek translations — prompt plus
+// a full options list. Questions built on English wordplay (anagrams, alphabet
+// positions, vocabulary) stay in the bank but out of the pool until someone
+// writes a proper adaptation. Enforced by src/lib/__tests__/localization.test.ts.
+export const TRANSLATED_IQ_POOL: CognitiveQ[] = IQ_BANK.filter((q) => {
+  const t = QUESTION_TRANSLATIONS[q.id];
+  return (
+    !!t?.ru?.prompt &&
+    t.ru.options?.length === q.options.length &&
+    !!t?.uz?.prompt &&
+    t.uz.options?.length === q.options.length
+  );
+});
+
 export function pickSessionQuestions(): SessionQuestions {
   // Personality: 12 questions with guaranteed 3 per axis (EI, SN, TF, JP)
   // 3 per axis = 12 fixed slots — no random padding needed
@@ -4919,7 +4936,7 @@ export function pickSessionQuestions(): SessionQuestions {
 
   return {
     personality: shuffle(personality),
-    iq: shuffle(IQ_BANK).slice(0, 9),
+    iq: shuffle(TRANSLATED_IQ_POOL).slice(0, 9),
     interest: pickInterestQuestions(9),
   };
 }

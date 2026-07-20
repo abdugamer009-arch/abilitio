@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useServerFn } from "@tanstack/react-start";
 import { joinSchool } from "@/lib/schools/schools.functions";
 import { Loader2, Users } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/school/join")({
   head: () => ({
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/school/join")({
 });
 
 function SchoolJoinPage() {
+  const t = useT();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const join = useServerFn(joinSchool);
@@ -41,10 +43,10 @@ function SchoolJoinPage() {
       const msg = e instanceof Error ? e.message : "";
       setErr(
         msg.includes("invalid_code")
-          ? "School code not found."
+          ? t.schoolJoin.codeNotFound
           : msg.includes("invalid_class")
-            ? "Class name is invalid."
-            : msg || "Failed to join.",
+            ? t.schoolJoin.classInvalid
+            : msg || t.schoolJoin.failed,
       );
     } finally {
       setSubmitting(false);
@@ -59,14 +61,14 @@ function SchoolJoinPage() {
             <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground glow-purple">
               <Users className="h-5 w-5" />
             </div>
-            <h1 className="mt-5 text-3xl font-bold gradient-text">Join your school</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Enter the code your principal gave you.
-            </p>
+            <h1 className="mt-5 text-3xl font-bold gradient-text">{t.schoolJoin.title}</h1>
+            <p className="mt-2 text-sm text-muted-foreground">{t.schoolJoin.subtitle}</p>
           </div>
           <form onSubmit={submit} className="glass mt-8 space-y-3 rounded-3xl p-7">
             <label className="block">
-              <span className="mb-1 block text-xs text-muted-foreground">School Code</span>
+              <span className="mb-1 block text-xs text-muted-foreground">
+                {t.schoolJoin.codeLabel}
+              </span>
               <input
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
@@ -76,7 +78,9 @@ function SchoolJoinPage() {
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-xs text-muted-foreground">Class (e.g. 9A, 10B)</span>
+              <span className="mb-1 block text-xs text-muted-foreground">
+                {t.schoolJoin.classLabel}
+              </span>
               <input
                 value={className}
                 onChange={(e) => setClassName(e.target.value.toUpperCase())}
@@ -97,7 +101,7 @@ function SchoolJoinPage() {
               className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground hover:glow-purple disabled:opacity-60"
             >
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-              Join school
+              {t.schoolJoin.joinBtn}
             </button>
           </form>
         </div>

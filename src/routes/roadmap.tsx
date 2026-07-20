@@ -23,6 +23,7 @@ import {
   type RoadmapPhase,
   type RoadmapTrack,
 } from "@/lib/roadmap/roadmap-world";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/roadmap")({
   head: () => ({
@@ -41,6 +42,7 @@ export const Route = createFileRoute("/roadmap")({
 });
 
 function RoadmapPage() {
+  const t = useT();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -101,7 +103,7 @@ function RoadmapPage() {
   if (loading || !user) {
     return (
       <PageShell>
-        <section className="px-6 pt-12 pb-24" aria-busy="true" aria-label="Loading roadmap">
+        <section className="px-6 pt-12 pb-24" aria-busy="true" aria-label={t.roadmapUi.loadingAria}>
           <div className="mx-auto max-w-5xl">
             <div className="skeleton mx-auto h-10 w-72 rounded-2xl" />
             <div className="skeleton mx-auto mt-3 h-5 w-96 max-w-full rounded-xl" />
@@ -143,15 +145,12 @@ function RoadmapPage() {
           <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between animate-fade-up">
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
-                <MapIcon className="h-3 w-3" /> Roadmap World · {TRACK_LABEL[track]}
+                <MapIcon className="h-3 w-3" /> {t.roadmapUi.badge} · {TRACK_LABEL[track]}
               </span>
               <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-                Your <span className="gradient-text">Career Journey</span>
+                {t.roadmapUi.titleA} <span className="gradient-text">{t.roadmapUi.titleB}</span>
               </h1>
-              <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-                Travel from <strong>Foundations</strong> to <strong>Mastery</strong> across five
-                islands. Follow ABBI, complete tasks, earn XP, and unlock your future.
-              </p>
+              <p className="mt-2 max-w-xl text-sm text-muted-foreground">{t.roadmapUi.subtitle}</p>
             </div>
             <Link
               to="/universities"
@@ -161,9 +160,9 @@ function RoadmapPage() {
               <GraduationCap className="h-7 w-7 text-primary" />
               <div className="text-left">
                 <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  Find a University
+                  {t.roadmapUi.findUniversity}
                 </div>
-                <div className="text-lg font-bold gradient-text">Explore</div>
+                <div className="text-lg font-bold gradient-text">{t.roadmapUi.explore}</div>
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </Link>
@@ -189,7 +188,8 @@ function RoadmapPage() {
               <GlowBlob className="-right-16 -top-16 h-48 w-48 opacity-50 blur-3xl" alpha={0.45} />
               <div className="relative">
                 <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground">
-                  <Star className="h-3 w-3 text-accent" /> Island {active.index} of 5
+                  <Star className="h-3 w-3 text-accent" /> {t.roadmapUi.island} {active.index}{" "}
+                  {t.roadmapUi.of5}
                 </div>
                 <h2 className="mt-2 text-2xl font-bold tracking-tight">{active.name}</h2>
                 <p className="mt-1 text-sm text-muted-foreground">{active.subtitle}</p>
@@ -198,13 +198,15 @@ function RoadmapPage() {
                   <Pill icon={<Zap className="h-3 w-3" />}>
                     {active.tasks.reduce((s, t) => s + t.xp, 0)} XP
                   </Pill>
-                  <Pill icon={<Clock className="h-3 w-3" />}>{active.tasks.length} tasks</Pill>
+                  <Pill icon={<Clock className="h-3 w-3" />}>
+                    {active.tasks.length} {t.roadmapUi.tasks}
+                  </Pill>
                 </div>
 
                 <div className="mt-6 rounded-2xl border border-accent/30 bg-accent/5 p-5">
                   <div className="flex items-center gap-2 text-accent">
                     <CheckCircle2 className="h-4 w-4" />
-                    <span className="text-sm font-medium">Your Island</span>
+                    <span className="text-sm font-medium">{t.roadmapUi.yourIsland}</span>
                   </div>
                   <PhaseProgress phase={active} tasksDone={tasksDone} />
                 </div>
@@ -254,6 +256,7 @@ function WorldMap({
   setActivePhase: (i: RoadmapPhase["index"]) => void;
   tasksDone: Record<string, boolean>;
 }) {
+  const phaseWord = useT().roadmapUi.phase;
   // Island positions on a 1000×400 viewBox
   const positions: Record<number, { x: number; y: number }> = {
     1: { x: 110, y: 280 },
@@ -383,7 +386,7 @@ function WorldMap({
                 {p.name}
               </text>
               <text x="0" y="56" textAnchor="middle" fontSize="10" fill="oklch(0.65 0.04 295)">
-                Phase {p.index}
+                {phaseWord} {p.index}
               </text>
             </g>
           );
@@ -436,6 +439,7 @@ function TaskNode({
   isCurrent: boolean;
   onComplete: () => void;
 }) {
+  const t = useT();
   return (
     <div
       className={`group relative overflow-hidden rounded-2xl border p-5 backdrop-blur-xl transition-all
@@ -466,7 +470,7 @@ function TaskNode({
                   : "border-border bg-background/50 text-muted-foreground"
             }
           `}
-          aria-label={done ? "Completed" : "Mark complete"}
+          aria-label={done ? t.roadmapUi.completed : t.roadmapUi.markComplete}
         >
           {done ? <CheckCircle2 className="h-5 w-5" /> : <Sparkles className="h-4 w-4" />}
         </button>
@@ -480,7 +484,7 @@ function TaskNode({
             </h3>
             {isCurrent && (
               <span className="rounded-full border border-primary/30 bg-gradient-to-r from-primary/15 to-accent/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-primary shadow-[0_0_8px_-2px_var(--glow)]">
-                Up next · ABBI is here
+                {t.roadmapUi.upNext}
               </span>
             )}
           </div>
@@ -515,14 +519,15 @@ function PhaseProgress({
   phase: RoadmapPhase;
   tasksDone: Record<string, boolean>;
 }) {
+  const t = useT();
   const done = phase.tasks.filter((t) => tasksDone[t.id]).length;
   const pct = (done / phase.tasks.length) * 100;
   return (
     <div className="mt-3">
       <div className="mb-1.5 flex items-center justify-between text-[11px] text-muted-foreground">
-        <span>Progress</span>
+        <span>{t.roadmapUi.progress}</span>
         <span className="tabular-nums">
-          {done}/{phase.tasks.length} tasks
+          {done}/{phase.tasks.length} {t.roadmapUi.tasks}
         </span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-secondary/60">
@@ -536,6 +541,7 @@ function PhaseProgress({
 }
 
 function CelebrationModal({ phaseIndex, onClose }: { phaseIndex: number; onClose: () => void }) {
+  const t = useT();
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
       <div
@@ -547,16 +553,16 @@ function CelebrationModal({ phaseIndex, onClose }: { phaseIndex: number; onClose
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg">
             <Trophy className="h-8 w-8" />
           </div>
-          <h3 className="mt-4 text-2xl font-bold tracking-tight">Island {phaseIndex} Complete!</h3>
-          <p className="mt-2 text-sm text-muted-foreground">
-            ABBI is proud. You've earned a new badge and the next island is yours to explore.
-          </p>
+          <h3 className="mt-4 text-2xl font-bold tracking-tight">
+            {t.roadmapUi.celebrationTitle.replace("{i}", String(phaseIndex))}
+          </h3>
+          <p className="mt-2 text-sm text-muted-foreground">{t.roadmapUi.celebrationBody}</p>
           <button
             onClick={onClose}
             className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-br from-primary to-accent px-6 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:-translate-y-0.5"
             style={{ boxShadow: "0 10px 28px -10px oklch(0.55 0.22 295 / 0.6)" }}
           >
-            Continue your journey <Compass className="h-4 w-4" />
+            {t.roadmapUi.continueJourney} <Compass className="h-4 w-4" />
           </button>
         </div>
       </div>

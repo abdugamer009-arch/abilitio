@@ -21,6 +21,7 @@ import { resolveAvatarUrl } from "@/components/ProfilePhotoCard";
 import { AdminBadge } from "@/components/AdminBadge";
 import { Send, Pin, Trash2, Users, Sparkles, Lock, Pencil } from "lucide-react";
 import { toast } from "sonner";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/community")({
   head: () => ({
@@ -37,6 +38,7 @@ export const Route = createFileRoute("/community")({
 });
 
 function CommunityPage() {
+  const t = useT();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const getMine = useServerFn(getMyCommunities);
@@ -63,7 +65,7 @@ function CommunityPage() {
         <section
           className="px-4 pt-10 pb-24 sm:px-6"
           aria-busy="true"
-          aria-label="Loading community"
+          aria-label={t.community.loadingAria}
         >
           <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[260px_1fr]">
             <div className="skeleton hidden h-72 rounded-3xl lg:block" />
@@ -84,18 +86,13 @@ function CommunityPage() {
         <section className="px-4 pt-16 pb-24 sm:px-6">
           <div className="mx-auto max-w-xl rounded-3xl border border-border/60 bg-secondary/30 p-10 text-center backdrop-blur-xl">
             <Lock className="mx-auto h-10 w-10 text-primary" />
-            <h1 className="mt-4 text-2xl font-semibold">
-              Take your first test to unlock your community
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Finish the talent assessment and you'll be placed in your community automatically —
-              matched with people who share your strengths and career interests. No extra steps.
-            </p>
+            <h1 className="mt-4 text-2xl font-semibold">{t.community.unlockTitle}</h1>
+            <p className="mt-2 text-sm text-muted-foreground">{t.community.unlockBody}</p>
             <button
               onClick={() => navigate({ to: "/assessment" })}
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:glow-purple"
             >
-              Start assessment
+              {t.community.startAssessment}
             </button>
           </div>
         </section>
@@ -141,11 +138,12 @@ function Sidebar({
   setActive: (id: string) => void;
   isAdmin: boolean;
 }) {
+  const t = useT();
   return (
     <aside className="rounded-3xl border border-border/60 bg-secondary/30 p-3 backdrop-blur-xl lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)] lg:overflow-y-auto">
       <div className="px-3 pt-2 pb-3">
         <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          {isAdmin ? "All Communities" : "Your Community"}
+          {isAdmin ? t.community.allCommunities : t.community.yourCommunity}
         </h2>
       </div>
       <ul className="space-y-1">
@@ -187,6 +185,7 @@ function CommunityChat({
   isAdmin: boolean;
   currentUserId: string;
 }) {
+  const t = useT();
   const fetchMsgs = useServerFn(getCommunityMessages);
   const sendFn = useServerFn(sendCommunityMessage);
   const deleteFn = useServerFn(deleteCommunityMessage);
@@ -343,11 +342,7 @@ function CommunityChat({
       setMessages((prev) => prev.filter((x) => x.id !== tempId));
       setInput((v) => v || text); // restore the draft unless they typed anew
       const banned = e instanceof Error && e.message.includes("account_banned");
-      toast.error(
-        banned
-          ? "Your account has been suspended from posting."
-          : "Message failed to send. Please try again.",
-      );
+      toast.error(banned ? t.community.sendBanned : t.community.sendFailed);
     }
   };
 
@@ -361,8 +356,7 @@ function CommunityChat({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">
-              {community.name}{" "}
-              <span className="text-muted-foreground/70 font-normal">Community</span>
+              {t.community.headerTitle.replace("{name}", community.name)}
             </h1>
             <p className="mt-1 max-w-xl text-sm text-muted-foreground">
               {community.welcome_message}
@@ -370,11 +364,11 @@ function CommunityChat({
           </div>
           <div className="flex shrink-0 items-center gap-3 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary/60 px-3 py-1.5">
-              <Users className="h-3.5 w-3.5" /> {community.member_count} members
+              <Users className="h-3.5 w-3.5" /> {community.member_count} {t.community.membersSuffix}
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-primary">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_var(--glow)]" />
-              {online} online
+              {online} {t.community.online}
             </span>
           </div>
         </div>
@@ -394,7 +388,7 @@ function CommunityChat({
           </div>
           <div className="flex-1">
             <div className="text-[10px] uppercase tracking-[0.2em] text-primary/80">
-              ABBI Daily Question
+              {t.community.dailyQuestion}
             </div>
             {editingDaily ? (
               <div className="mt-2 flex gap-2">
@@ -411,13 +405,13 @@ function CommunityChat({
                   }}
                   className="rounded-xl bg-primary px-3 py-2 text-xs font-medium text-primary-foreground"
                 >
-                  Save
+                  {t.common.save}
                 </button>
                 <button
                   onClick={() => setEditingDaily(false)}
                   className="rounded-xl border border-border px-3 py-2 text-xs"
                 >
-                  Cancel
+                  {t.common.cancel}
                 </button>
               </div>
             ) : (
@@ -431,7 +425,7 @@ function CommunityChat({
                 setEditingDaily(true);
               }}
               className="rounded-full border border-border/70 p-2 text-muted-foreground hover:text-foreground"
-              aria-label="Edit daily question"
+              aria-label={t.community.editDailyAria}
             >
               <Pencil className="h-3.5 w-3.5" />
             </button>
@@ -443,7 +437,7 @@ function CommunityChat({
       {pinned.length > 0 && (
         <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-3">
           <div className="mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-amber-400/90">
-            <Pin className="h-3 w-3" /> Pinned
+            <Pin className="h-3 w-3" /> {t.community.pinned}
           </div>
           <div className="space-y-1.5">
             {pinned.map((m) => (
@@ -461,7 +455,7 @@ function CommunityChat({
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 sm:px-6">
           {messages.length === 0 ? (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-              Be the first to start the conversation.
+              {t.community.beFirst}
             </div>
           ) : (
             <div className="space-y-4">
@@ -499,14 +493,14 @@ function CommunityChat({
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={`Message ${community.name}…`}
+              placeholder={t.community.messagePlaceholder.replace("{name}", community.name)}
               maxLength={2000}
               className="flex-1 rounded-full border border-border/70 bg-background/60 px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary/50"
             />
             <button
               type="submit"
               disabled={!input.trim()}
-              aria-label="Send message"
+              aria-label={t.community.send}
               className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_20px_-8px_var(--glow)] transition-all hover:-translate-y-0.5 disabled:opacity-50"
             >
               <Send className="h-4 w-4" />
@@ -535,6 +529,7 @@ function MessageRow({
   onDelete: () => void;
   onTogglePin: () => void;
 }) {
+  const t = useT();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   // Two-tap delete: first tap arms the button (turns red), second tap deletes.
   // Auto-disarms after a moment — lighter than a modal, still guards slips.
@@ -608,8 +603,8 @@ function MessageRow({
                 <button
                   onClick={onTogglePin}
                   className="rounded-md p-1 text-muted-foreground hover:text-amber-400"
-                  title={message.is_pinned ? "Unpin" : "Pin"}
-                  aria-label={message.is_pinned ? "Unpin message" : "Pin message"}
+                  title={message.is_pinned ? t.community.unpin : t.community.pin}
+                  aria-label={message.is_pinned ? t.community.unpin : t.community.pin}
                 >
                   <Pin className="h-3.5 w-3.5" />
                 </button>
@@ -621,11 +616,13 @@ function MessageRow({
                     ? "bg-destructive/15 text-destructive"
                     : "text-muted-foreground hover:text-destructive"
                 }`}
-                title={armed ? "Tap again to delete" : "Delete"}
-                aria-label={armed ? "Confirm delete" : "Delete message"}
+                title={armed ? t.common.deleteConfirm : t.common.delete}
+                aria-label={armed ? t.common.deleteConfirm : t.common.delete}
               >
                 <Trash2 className="h-3.5 w-3.5" />
-                {armed && <span className="pr-0.5 text-[10px] font-medium">Sure?</span>}
+                {armed && (
+                  <span className="pr-0.5 text-[10px] font-medium">{t.common.deleteConfirm}</span>
+                )}
               </button>
             </div>
           )}

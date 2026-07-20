@@ -1,15 +1,9 @@
 import { useEffect, useState } from "react";
 import { Brain, Sparkles, Target, Heart, GraduationCap, Check } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
-type Step = { icon: typeof Brain; label: string };
-
-const STEPS: Step[] = [
-  { icon: Brain, label: "Analyzing cognitive patterns" },
-  { icon: Target, label: "Mapping strengths and abilities" },
-  { icon: Heart, label: "Synthesizing personality profile" },
-  { icon: GraduationCap, label: "Matching careers and universities" },
-  { icon: Sparkles, label: "Composing your personal summary" },
-];
+// Icons for the five analysis steps; the labels come from i18n (t.aiLoading.steps).
+const STEP_ICONS = [Brain, Target, Heart, GraduationCap, Sparkles] as const;
 
 export function AILoadingScreen({
   onDone,
@@ -18,13 +12,15 @@ export function AILoadingScreen({
   onDone: () => void;
   durationMs?: number;
 }) {
+  const t = useT();
   const [active, setActive] = useState(0);
+  const steps = t.aiLoading.steps.map((label, i) => ({ icon: STEP_ICONS[i], label }));
 
   useEffect(() => {
-    const per = durationMs / STEPS.length;
+    const per = durationMs / STEP_ICONS.length;
     const interval = setInterval(() => {
       setActive((i) => {
-        if (i >= STEPS.length - 1) {
+        if (i >= STEP_ICONS.length - 1) {
           clearInterval(interval);
           setTimeout(onDone, per * 0.9);
           return i;
@@ -71,14 +67,12 @@ export function AILoadingScreen({
           </div>
         </div>
 
-        <p className="text-xs uppercase tracking-[0.2em] text-accent">AI Analysis</p>
-        <h2 className="mt-3 text-2xl font-semibold gradient-text">Crafting your talent profile</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Our model is reading your responses and assembling something personal.
-        </p>
+        <p className="text-xs uppercase tracking-[0.2em] text-accent">{t.aiLoading.eyebrow}</p>
+        <h2 className="mt-3 text-2xl font-semibold gradient-text">{t.aiLoading.title}</h2>
+        <p className="mt-2 text-sm text-muted-foreground">{t.aiLoading.subtitle}</p>
 
         <ul className="mt-10 space-y-3 text-left">
-          {STEPS.map((s, i) => {
+          {steps.map((s, i) => {
             const done = i < active;
             const current = i === active;
             const Icon = s.icon;
