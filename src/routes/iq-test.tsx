@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Brain, Clock, Trophy, BarChart3 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Brain, Check, Clock, Trophy, BarChart3 } from "lucide-react";
 import { CountUp } from "@/components/CountUp";
 import {
   IQ_QUESTIONS,
@@ -9,8 +9,10 @@ import {
   CATEGORY_COLORS,
   CATEGORY_LABELS,
   IQ_TIME_LIMIT_SECONDS,
+  scoreIq,
   type IQCategory,
 } from "@/lib/assessment/iq-test";
+import { submitIqResult, getMyIqHistory, type IqHistoryDTO } from "@/lib/assessment/iq.functions";
 import { useT, useI18n } from "@/lib/i18n";
 import { IQ_TEST_TRANSLATIONS } from "@/lib/assessment/iq-test-translations";
 import { track, AnalyticsEvent } from "@/lib/analytics";
@@ -58,6 +60,9 @@ function fmt(sec: number) {
 // of work. We store the absolute deadline (not a ticking counter) so the clock
 // keeps running in real time — closing the tab can't buy extra time.
 const IQ_PROGRESS_KEY = "abilitio.iq_test.progress.v1";
+// Completed-but-unsaved sheet from an anonymous attempt, submitted
+// automatically on the next signed-in visit (24h TTL).
+const IQ_UNSAVED_KEY = "abilitio.iq_test.unsaved_result.v1";
 type IqSavedProgress = { step: number; answers: (number | null)[]; deadline: number };
 
 function IQTestPage() {
@@ -79,6 +84,7 @@ function IQTestPage() {
   const [elapsed, setElapsed] = useState(0);
   const [deadline, setDeadline] = useState<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { user } = useAuth();
 
   // Deadline-driven clock. Re-syncs to wall-clock time on each tick, so it stays
   // accurate after a reload (where it resumes from the persisted deadline).
@@ -135,22 +141,33 @@ function IQTestPage() {
     }
   }, [phase, deadline, step, answers]);
 
-  // Clear persisted progress once the attempt is over (finish, timeout, or restore-to-results).
+  // Clear persisted progress once the attempt is over (finish, timeout, or
+  // restore-to-results). For anonymous takers, stash the completed sheet so
+  // "Sign in to save your results" is a real promise: the sheet is submitted
+  // automatically on their next signed-in visit.
   useEffect(() => {
     if (phase === "results") {
       try {
         localStorage.removeItem(IQ_PROGRESS_KEY);
+        if (!user) {
+          localStorage.setItem(
+            IQ_UNSAVED_KEY,
+            JSON.stringify({ answers, elapsed, at: Date.now() }),
+          );
+        }
       } catch {
         /* non-fatal */
       }
     }
-  }, [phase]);
+    // `answers`/`elapsed` are frozen once results begin; keying on phase alone
+    // writes the stash exactly once per attempt.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, user]);
 
   // First test completed → the system assigns a community automatically, no
   // second test required. Server-side no-op if they already belong to one, so
   // this never overrides a career-assessment placement. Best-effort: a failure
   // here must not disturb the results screen.
-  const { user } = useAuth();
   const joinCommunity = useServerFn(ensureMyCommunity);
   useEffect(() => {
     if (phase !== "results" || !user) return;
@@ -165,6 +182,68 @@ function IQTestPage() {
       });
   }, [phase, user, joinCommunity]);
 
+  // Persist the attempt for signed-in users. The server re-scores the raw
+  // answer sheet, so the stored row is authoritative. Ref-guarded so one
+  // attempt saves exactly once; best-effort so a failure never blocks results.
+  const saveIq = useServerFn(submitIqResult);
+  const savedRef = useRef(false);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "failed">("idle");
+  useEffect(() => {
+    if (phase !== "results" || !user || savedRef.current) return;
+    savedRef.current = true;
+    setSaveState("saving");
+    saveIq({ data: { answers, timeSeconds: elapsed } })
+      .then(() => setSaveState("saved"))
+      .catch(() => setSaveState("failed"));
+    // `answers`/`elapsed` are frozen once the results phase begins, so only the
+    // phase transition should trigger this.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, user, saveIq]);
+
+  // A sheet completed while signed out gets submitted on the next signed-in
+  // visit (kept for 24h), completing the "sign in to save" promise.
+  const flushRef = useRef(false);
+  useEffect(() => {
+    if (!user || flushRef.current) return;
+    flushRef.current = true;
+    try {
+      const raw = localStorage.getItem(IQ_UNSAVED_KEY);
+      if (!raw) return;
+      const stash = JSON.parse(raw) as { answers: (number | null)[]; elapsed: number; at: number };
+      if (
+        !Array.isArray(stash.answers) ||
+        stash.answers.length !== 40 ||
+        Date.now() - stash.at > 24 * 60 * 60 * 1000
+      ) {
+        localStorage.removeItem(IQ_UNSAVED_KEY);
+        return;
+      }
+      saveIq({ data: { answers: stash.answers, timeSeconds: stash.elapsed ?? 0 } })
+        .then((res) => {
+          localStorage.removeItem(IQ_UNSAVED_KEY);
+          toast.success(`Your IQ result (${res.score}/40 · ${res.level}) was saved.`);
+          setSaveState((s) => (s === "idle" ? "saved" : s));
+        })
+        .catch(() => {
+          flushRef.current = false; // retry on a later visit
+        });
+    } catch {
+      /* corrupt stash — ignore */
+    }
+  }, [user, saveIq]);
+
+  // Past attempts (best/last) for the intro screen.
+  const fetchHistory = useServerFn(getMyIqHistory);
+  const [history, setHistory] = useState<IqHistoryDTO | null>(null);
+  useEffect(() => {
+    if (!user) return;
+    fetchHistory()
+      .then(setHistory)
+      .catch(() => {
+        /* history is decorative — never block the intro */
+      });
+  }, [user, fetchHistory, saveState]);
+
   function start() {
     setPhase("test");
     setStep(0);
@@ -172,6 +251,8 @@ function IQTestPage() {
     setTimeLeft(IQ_TIME_LIMIT_SECONDS);
     setElapsed(0);
     setDeadline(Date.now() + IQ_TIME_LIMIT_SECONDS * 1000);
+    savedRef.current = false; // a fresh attempt must save again
+    setSaveState("idle");
     track(AnalyticsEvent.IqStarted);
   }
 
@@ -185,14 +266,10 @@ function IQTestPage() {
   const selected = answers[step];
   const progress = ((step + 1) / 40) * 100;
 
-  // Results computation
-  const score = answers.filter((a, i) => a === IQ_QUESTIONS[i].correct).length;
+  // Results computation — scoreIq is the same helper the server-side save
+  // uses, so the screen and the stored row always agree.
+  const { score, byCat } = scoreIq(answers);
   const band = IQ_BAND(score);
-  const byCat = (["verbal", "numerical", "spatial", "logical"] as IQCategory[]).map((cat) => {
-    const qs = IQ_QUESTIONS.filter((q) => q.category === cat);
-    const correct = qs.filter((q, _) => answers[q.id - 1] === q.correct).length;
-    return { cat, correct, total: qs.length };
-  });
 
   const bandRows: [string, string][] = [
     ["36–40", t.iqTest.bandExceptional],
@@ -252,12 +329,21 @@ function IQTestPage() {
                 {t.iqTest.instructionsBody}
               </div>
 
-              <button
-                onClick={start}
-                className="cta-sheen relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 text-sm font-medium text-primary-foreground shadow-[0_8px_28px_-8px_var(--glow)] hover:-translate-y-0.5 transition-all"
-              >
-                {t.iqTest.startBtn} <ArrowRight className="h-4 w-4" />
-              </button>
+              {history && history.attempts > 0 && history.best && (
+                <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs text-primary">
+                  <Trophy className="h-3.5 w-3.5" />
+                  Your best: {history.best.score}/40 · {history.best.level} · {history.attempts}{" "}
+                  {history.attempts === 1 ? "attempt" : "attempts"}
+                </div>
+              )}
+              <div>
+                <button
+                  onClick={start}
+                  className="cta-sheen relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 text-sm font-medium text-primary-foreground shadow-[0_8px_28px_-8px_var(--glow)] hover:-translate-y-0.5 transition-all"
+                >
+                  {t.iqTest.startBtn} <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
               <p className="mt-3 text-xs text-muted-foreground">{t.iqTest.timeLimit}</p>
             </div>
           </div>
@@ -298,6 +384,37 @@ function IQTestPage() {
                 <Clock className="h-4 w-4" />
                 {t.iqTest.timeTaken}: {fmt(elapsed)}
               </div>
+
+              {/* Persistence status — signed-in results save to the profile;
+                  anonymous takers get a sign-in nudge instead of losing it silently. */}
+              {user ? (
+                <div className="mt-3 text-xs">
+                  {saveState === "saved" && (
+                    <span className="inline-flex items-center gap-1.5 text-primary">
+                      <Check className="h-3.5 w-3.5" /> Saved to your profile
+                    </span>
+                  )}
+                  {saveState === "saving" && (
+                    <span className="text-muted-foreground">Saving to your profile…</span>
+                  )}
+                  {saveState === "failed" && (
+                    <span className="text-muted-foreground">
+                      Couldn't save this attempt — your score is still shown above.
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  <Link
+                    to="/auth"
+                    search={{ mode: "login", next: "/iq-test" }}
+                    className="text-primary underline hover:no-underline"
+                  >
+                    Sign in
+                  </Link>{" "}
+                  to save your results and track your progress.
+                </p>
+              )}
 
               {/* Band table */}
               <div className="mt-6 text-left">

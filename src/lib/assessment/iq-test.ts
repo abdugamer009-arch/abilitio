@@ -364,3 +364,19 @@ export const CATEGORY_LABELS: Record<IQCategory, string> = {
 };
 
 export const IQ_TIME_LIMIT_SECONDS = 90 * 60;
+
+/** Score a full answer sheet (option index per question, null = unanswered).
+ *  Single source of truth used by BOTH the results screen and the server-side
+ *  save, so what the user sees and what gets stored can never disagree. */
+export function scoreIq(answers: (number | null)[]): {
+  score: number;
+  byCat: { cat: IQCategory; correct: number; total: number }[];
+} {
+  const score = IQ_QUESTIONS.filter((q, i) => answers[i] === q.correct).length;
+  const byCat = (["verbal", "numerical", "spatial", "logical"] as IQCategory[]).map((cat) => {
+    const qs = IQ_QUESTIONS.filter((q) => q.category === cat);
+    const correct = qs.filter((q) => answers[q.id - 1] === q.correct).length;
+    return { cat, correct, total: qs.length };
+  });
+  return { score, byCat };
+}
