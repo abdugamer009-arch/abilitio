@@ -14,6 +14,10 @@ import {
 import { useT, useI18n } from "@/lib/i18n";
 import { IQ_TEST_TRANSLATIONS } from "@/lib/assessment/iq-test-translations";
 import { track, AnalyticsEvent } from "@/lib/analytics";
+import { useAuth } from "@/lib/auth-context";
+import { useServerFn } from "@tanstack/react-start";
+import { ensureMyCommunity } from "@/lib/community/community.functions";
+import { toast } from "sonner";
 
 function tIQPrompt(id: number, original: string, lang: string): string {
   if (lang === "en") return original;
@@ -141,6 +145,25 @@ function IQTestPage() {
       }
     }
   }, [phase]);
+
+  // First test completed → the system assigns a community automatically, no
+  // second test required. Server-side no-op if they already belong to one, so
+  // this never overrides a career-assessment placement. Best-effort: a failure
+  // here must not disturb the results screen.
+  const { user } = useAuth();
+  const joinCommunity = useServerFn(ensureMyCommunity);
+  useEffect(() => {
+    if (phase !== "results" || !user) return;
+    joinCommunity()
+      .then((res) => {
+        if (res.joined && res.community) {
+          toast.success(`You've been added to the ${res.community.name} community.`);
+        }
+      })
+      .catch(() => {
+        /* silent — community join is a bonus on this screen, not the result */
+      });
+  }, [phase, user, joinCommunity]);
 
   function start() {
     setPhase("test");

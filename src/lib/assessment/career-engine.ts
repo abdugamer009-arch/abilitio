@@ -428,14 +428,51 @@ const CATEGORY_COMMUNITY: Record<string, string> = {
   Government: "law",
 };
 
-/** Community slug for a user's top career match. Falls back to "general". */
+// Career display-name → community slug. Results saved before the catalog
+// overhaul carry only { name, score } — no key/category — so without this map
+// every legacy user healed into General and could only reach their specific
+// community by retaking the assessment.
+const CAREER_NAME_COMMUNITY: Record<string, string> = {
+  "Software Engineer": "software-engineering",
+  "Data Analyst": "data-analytics",
+  "Data Scientist": "data-science",
+  "Cybersecurity Specialist": "cybersecurity",
+  "Product Manager": "product-management",
+  "UX / UI Designer": "design",
+  "UX / Product Designer": "design",
+  "Graphic Designer": "creative",
+  "Content Creator": "creative",
+  Psychologist: "psychology",
+  Journalist: "journalism",
+  "Marketing Specialist": "marketing",
+  "Marketing Manager": "marketing",
+  "Public Relations Manager": "public-relations",
+  "Public Relations Specialist": "public-relations",
+  Teacher: "education",
+  "Teacher / Educator": "education",
+  Doctor: "medicine",
+  "Doctor / Healthcare Professional": "medicine",
+  "Business Analyst": "business-analysis",
+  "Operations Manager": "business-analysis",
+  Entrepreneur: "entrepreneurship",
+  "Entrepreneur / Startup Founder": "entrepreneurship",
+  Accountant: "finance",
+  "Financial Analyst": "finance",
+  Lawyer: "law",
+  "Civil Engineer / Architect": "engineering",
+  "Research Scientist": "science",
+};
+
+/** Community slug for a user's top career match. Resolves via key override,
+ *  then category, then display name (legacy results), falling back to "general". */
 export function communitySlugForCareer(
-  match: { key?: string | null; category?: string | null } | null | undefined,
+  match: { key?: string | null; category?: string | null; name?: string | null } | null | undefined,
 ): string {
   if (!match) return "general";
   return (
     (match.key ? CAREER_COMMUNITY_OVERRIDES[match.key] : undefined) ??
     (match.category ? CATEGORY_COMMUNITY[match.category] : undefined) ??
+    (match.name ? CAREER_NAME_COMMUNITY[match.name] : undefined) ??
     "general"
   );
 }

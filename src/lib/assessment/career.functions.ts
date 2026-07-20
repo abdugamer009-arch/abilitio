@@ -115,6 +115,9 @@ export type CareerResultDTO = {
   improvements: string[];
   recommended_skills: string[];
   created_at: string;
+  /** Name of the community the submit auto-joined, so the UI can say so.
+   *  Only set on fresh submissions; null when the join was skipped/failed. */
+  joined_community?: string | null;
 };
 
 const submitSchema = z.object({
@@ -211,10 +214,22 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
 
     // Auto-join the community matching the #1 career. Best-effort: a failure
-    // here must never fail the assessment itself.
+    // here must never fail the assessment itself. The joined community's name
+    // is returned so the client can tell the user it happened.
+    let joinedCommunity: string | null = null;
     try {
       const slug = communitySlugForCareer(careerMatches[0]);
-      await supabase.rpc("assign_user_to_community_by_slug", { _slug: slug });
+      const { data: cid } = await supabase.rpc("assign_user_to_community_by_slug", {
+        _slug: slug,
+      });
+      if (cid) {
+        const { data: c } = await supabase
+          .from("communities")
+          .select("name")
+          .eq("id", cid as string)
+          .maybeSingle();
+        joinedCommunity = (c as { name?: string } | null)?.name ?? null;
+      }
     } catch (e) {
       console.warn("[career] community auto-join failed", e);
     }
@@ -237,6 +252,7 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       improvements: row.improvements as string[],
       recommended_skills: recommendedSkills,
       created_at: row.created_at,
+      joined_community: joinedCommunity,
     };
   });
 

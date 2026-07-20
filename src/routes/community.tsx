@@ -85,11 +85,11 @@ function CommunityPage() {
           <div className="mx-auto max-w-xl rounded-3xl border border-border/60 bg-secondary/30 p-10 text-center backdrop-blur-xl">
             <Lock className="mx-auto h-10 w-10 text-primary" />
             <h1 className="mt-4 text-2xl font-semibold">
-              Complete your assessment to unlock your community
+              Take your first test to unlock your community
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Take the talent assessment so we can match you with people who share your strengths
-              and career interests.
+              Finish the talent assessment and you'll be placed in your community automatically —
+              matched with people who share your strengths and career interests. No extra steps.
             </p>
             <button
               onClick={() => navigate({ to: "/assessment" })}

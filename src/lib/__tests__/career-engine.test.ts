@@ -4,6 +4,7 @@ import {
   scoreCognitive,
   scoreInterests,
   matchCareers,
+  communitySlugForCareer,
 } from "../assessment/career-engine";
 import type { PersonalityQ } from "../assessment/career-assessment";
 import type { Career } from "../assessment/career-engine";
@@ -186,5 +187,35 @@ describe("matchCareers", () => {
     const c = scoreCognitive([0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], p.mbti);
     const matches = matchCareers(careers, p, c, []);
     expect(matches[0].score).toBeGreaterThanOrEqual(matches[1].score);
+  });
+});
+
+describe("communitySlugForCareer", () => {
+  it("resolves via key override first", () => {
+    expect(communitySlugForCareer({ key: "data_scientist", category: "Technology" })).toBe(
+      "data-science",
+    );
+  });
+
+  it("resolves via category when no key override applies", () => {
+    expect(communitySlugForCareer({ key: "web_developer", category: "Technology" })).toBe(
+      "software-engineering",
+    );
+  });
+
+  it("resolves legacy results that only carry a display name", () => {
+    // Pre-overhaul career_matches rows had { name, score } and nothing else;
+    // they must land in their specific community, not General.
+    expect(communitySlugForCareer({ name: "Software Engineer" })).toBe("software-engineering");
+    expect(communitySlugForCareer({ name: "Doctor / Healthcare Professional" })).toBe("medicine");
+    expect(communitySlugForCareer({ name: "Entrepreneur / Startup Founder" })).toBe(
+      "entrepreneurship",
+    );
+  });
+
+  it("falls back to general for unknown or missing matches", () => {
+    expect(communitySlugForCareer({ name: "Astronaut Influencer" })).toBe("general");
+    expect(communitySlugForCareer(null)).toBe("general");
+    expect(communitySlugForCareer(undefined)).toBe("general");
   });
 });
