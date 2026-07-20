@@ -506,6 +506,14 @@ const translations = {
       tryBattles: "Try Career Battles",
       battlesSub: "Compare your top careers side-by-side with AI insights",
       assessmentHistory: "Assessment History",
+      levelLabel: "Level",
+      progressToLevel: "Progress to Level",
+      taglines: {
+        future: "Future Builder",
+        analytical: "Analytical Thinker",
+        creative: "Creative Strategist",
+        growth: "Growth Explorer",
+      },
       tabs: {
         results: "Results",
         stats: "Stats",
@@ -1372,6 +1380,14 @@ const translations = {
       tryBattles: "Попробуйте «Битвы профессий»",
       battlesSub: "Сравните ваши топ-карьеры бок о бок с аналитикой ИИ",
       assessmentHistory: "История оценок",
+      levelLabel: "Уровень",
+      progressToLevel: "Прогресс до уровня",
+      taglines: {
+        future: "Строитель будущего",
+        analytical: "Аналитический ум",
+        creative: "Креативный стратег",
+        growth: "Исследователь роста",
+      },
       tabs: {
         results: "Результаты",
         stats: "Статистика",
@@ -2246,6 +2262,14 @@ const translations = {
       tryBattles: "Kasb janglarini sinab ko'ring",
       battlesSub: "Top kasblaringizni AI tahlili bilan yonma-yon solishtiring",
       assessmentHistory: "Baholash tarixi",
+      levelLabel: "Daraja",
+      progressToLevel: "Darajagacha jarayon",
+      taglines: {
+        future: "Kelajak quruvchisi",
+        analytical: "Tahliliy fikrlovchi",
+        creative: "Ijodkor strateg",
+        growth: "O'sish tadqiqotchisi",
+      },
       tabs: {
         results: "Natijalar",
         stats: "Statistika",

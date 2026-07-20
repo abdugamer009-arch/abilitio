@@ -186,12 +186,12 @@ function DashboardPage() {
 
   const tagline = useMemo(() => {
     if (stats?.tagline) return stats.tagline;
-    if (!latest) return "Future Builder";
+    if (!latest) return t.dashboard.taglines.future;
     const m = latest.mbti_type;
-    if (m?.startsWith("INT") || m?.startsWith("ENT")) return "Analytical Thinker";
-    if (m?.includes("F")) return "Creative Strategist";
-    return "Growth Explorer";
-  }, [stats, latest]);
+    if (m?.startsWith("INT") || m?.startsWith("ENT")) return t.dashboard.taglines.analytical;
+    if (m?.includes("F")) return t.dashboard.taglines.creative;
+    return t.dashboard.taglines.growth;
+  }, [stats, latest, t]);
 
   // level derives from activity: assessments + achievements
   const activityXp = results.length * 50 + achievements.length * 25;
@@ -246,6 +246,7 @@ function DashboardPage() {
             level={level}
             levelProgress={levelProgress}
             tagline={tagline}
+            t={t}
           />
 
           {/* HORIZONTAL TABS */}
@@ -313,6 +314,7 @@ function ProfileHeader({
   level,
   levelProgress,
   tagline,
+  t,
 }: {
   fullName: string;
   email: string;
@@ -321,6 +323,7 @@ function ProfileHeader({
   level: number;
   levelProgress: number;
   tagline: string;
+  t: ReturnType<typeof useI18n>["t"];
 }) {
   const [resolvedAvatar, setResolvedAvatar] = useState<string | null>(null);
   useEffect(() => {
@@ -373,7 +376,7 @@ function ProfileHeader({
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="truncate text-2xl font-bold tracking-tight sm:text-3xl">{fullName}</h1>
             <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary">
-              <Sparkles className="h-3 w-3" /> Level {level}
+              <Sparkles className="h-3 w-3" /> {t.dashboard.levelLabel} {level}
             </span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">{email}</p>
@@ -385,7 +388,9 @@ function ProfileHeader({
           {/* Level progress */}
           <div className="mt-5 max-w-md">
             <div className="mb-1.5 flex items-center justify-between text-[11px] text-muted-foreground">
-              <span>Progress to Level {level + 1}</span>
+              <span>
+                {t.dashboard.progressToLevel} {level + 1}
+              </span>
               <span className="font-medium tabular-nums">{Math.round(levelProgress)}%</span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-secondary/60">
