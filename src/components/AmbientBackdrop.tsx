@@ -50,9 +50,13 @@ export function AmbientBackdrop() {
         }}
       />
 
+      {/* Aurora accents — the two heaviest layers (blur 100–110px). They're a
+          subtle "whisper" on top of the four orbs above, so we drop them on
+          phones (hidden below md) to save GPU memory and paint cost. */}
+
       {/* Aurora accent — top-right cyan-indigo whisper */}
       <div
-        className="absolute -right-[15%] top-[5%] h-[50vh] w-[55vw] rounded-full animate-aurora"
+        className="absolute -right-[15%] top-[5%] hidden h-[50vh] w-[55vw] rounded-full animate-aurora md:block"
         style={{
           background:
             "radial-gradient(ellipse at center, oklch(0.68 0.14 260 / 0.18), oklch(0.72 0.12 240 / 0.08) 50%, transparent 70%)",
@@ -64,7 +68,7 @@ export function AmbientBackdrop() {
 
       {/* Aurora accent — mid-left soft rose-violet */}
       <div
-        className="absolute left-[-8%] top-[35%] h-[45vh] w-[50vw] rounded-full animate-aurora"
+        className="absolute left-[-8%] top-[35%] hidden h-[45vh] w-[50vw] rounded-full animate-aurora md:block"
         style={{
           background:
             "radial-gradient(ellipse at center, oklch(0.7 0.12 310 / 0.14), transparent 65%)",
