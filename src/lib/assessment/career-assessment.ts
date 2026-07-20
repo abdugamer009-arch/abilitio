@@ -29,8 +29,7 @@ export const RIASEC_DIMS: RiasecDim[] = ["R", "I", "A", "S", "E", "C"];
 // icon set (see interest-icons.tsx); `swatch` is a two-stop colour gradient.
 // Both are fully self-contained — there are no emoji or external images.
 export type InterestVisual =
-  | { kind: "icon"; icon: string }
-  | { kind: "swatch"; colors: [string, string] };
+  { kind: "icon"; icon: string } | { kind: "swatch"; colors: [string, string] };
 
 export type InterestOption = {
   id: string; // globally-unique, e.g. "s1_square"

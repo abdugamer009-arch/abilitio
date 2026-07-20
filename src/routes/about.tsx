@@ -5,6 +5,7 @@ import { SpotlightCard } from "@/components/SpotlightCard";
 import { Heart, Lightbulb, Globe, User, Phone, Mail, Send, Loader2, Check } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { useT } from "@/lib/i18n";
+import { CONTACT_EMAIL } from "@/lib/constants";
 
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/mqejjovw";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -185,7 +186,7 @@ function AboutPage() {
             </div>
           </a>
           <a
-            href="mailto:ibodullayevabdurahmon95@gmail.com"
+            href={`mailto:${CONTACT_EMAIL}`}
             className="glass group flex items-center gap-4 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_-12px_var(--glow)]"
           >
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_4px_14px_-4px_var(--glow)] transition-transform duration-300 group-hover:scale-105">
@@ -195,9 +196,7 @@ function AboutPage() {
               <div className="text-[11px] uppercase tracking-widest text-muted-foreground">
                 {t.contact.email}
               </div>
-              <div className="mt-0.5 truncate text-sm font-medium">
-                ibodullayevabdurahmon95@gmail.com
-              </div>
+              <div className="mt-0.5 truncate text-sm font-medium">{CONTACT_EMAIL}</div>
             </div>
           </a>
         </div>

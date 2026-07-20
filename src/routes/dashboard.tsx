@@ -1240,9 +1240,13 @@ function SettingsSection({
                 <Crown className="h-6 w-6" />
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wider text-accent">Founder access</div>
-                <div className="text-lg font-bold gradient-text">Open Admin Dashboard</div>
-                <div className="text-xs text-muted-foreground">Analytics and user management</div>
+                <div className="text-xs uppercase tracking-wider text-accent">
+                  {t.dashboard.settings.founderAccess}
+                </div>
+                <div className="text-lg font-bold gradient-text">
+                  {t.dashboard.settings.openAdmin}
+                </div>
+                <div className="text-xs text-muted-foreground">{t.dashboard.settings.adminSub}</div>
               </div>
             </div>
             <ChevronRight className="h-5 w-5 text-primary transition-transform group-hover:translate-x-1" />
@@ -1272,18 +1276,18 @@ function SettingsSection({
       />
       <div className="grid gap-6 lg:grid-cols-2">
         <GlassCard className="p-7">
-          <SectionTitle icon={UserIcon}>Profile</SectionTitle>
+          <SectionTitle icon={UserIcon}>{t.dashboard.settings.profile}</SectionTitle>
           <div className="mt-5 space-y-3">
-            <Field label="Email" value={email} disabled />
+            <Field label={t.dashboard.settings.email} value={email} disabled />
             {editing ? (
               <>
                 <Field
-                  label="First name"
+                  label={t.dashboard.settings.firstName}
                   value={draft.name}
                   onChange={(v) => setDraft({ ...draft, name: v })}
                 />
                 <Field
-                  label="Last name"
+                  label={t.dashboard.settings.lastName}
                   value={draft.surname}
                   onChange={(v) => setDraft({ ...draft, surname: v })}
                 />
@@ -1295,25 +1299,33 @@ function SettingsSection({
                     }}
                     className="rounded-full border border-border px-4 py-1.5 text-xs hover:bg-secondary"
                   >
-                    Cancel
+                    {t.dashboard.settings.cancel}
                   </button>
                   <button
                     onClick={saveProfile}
                     className="rounded-full bg-gradient-to-r from-primary to-accent px-4 py-1.5 text-xs font-medium text-primary-foreground shadow-[0_2px_8px_-3px_var(--glow)] hover:-translate-y-0.5 transition-all"
                   >
-                    Save
+                    {t.dashboard.settings.save}
                   </button>
                 </div>
               </>
             ) : (
               <>
-                <Field label="First name" value={profile?.name ?? ""} disabled />
-                <Field label="Last name" value={profile?.surname ?? ""} disabled />
+                <Field
+                  label={t.dashboard.settings.firstName}
+                  value={profile?.name ?? ""}
+                  disabled
+                />
+                <Field
+                  label={t.dashboard.settings.lastName}
+                  value={profile?.surname ?? ""}
+                  disabled
+                />
                 <button
                   onClick={() => setEditing(true)}
                   className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary hover:bg-primary/20"
                 >
-                  <Pencil className="h-3.5 w-3.5" /> Edit profile
+                  <Pencil className="h-3.5 w-3.5" /> {t.dashboard.settings.editProfile}
                 </button>
               </>
             )}
@@ -1321,37 +1333,41 @@ function SettingsSection({
         </GlassCard>
 
         <GlassCard className="p-7">
-          <SectionTitle icon={SettingsIcon}>Preferences</SectionTitle>
+          <SectionTitle icon={SettingsIcon}>{t.dashboard.settings.preferences}</SectionTitle>
           <div className="mt-5 space-y-4">
-            <PrefRow icon={Languages} label="Language" hint="Switch interface language">
+            <PrefRow
+              icon={Languages}
+              label={t.dashboard.settings.language}
+              hint={t.dashboard.settings.languageHint}
+            >
               <LanguageSwitcher />
             </PrefRow>
-            <PrefRow icon={Moon} label="Appearance" hint="Light or dark theme">
+            <PrefRow
+              icon={Moon}
+              label={t.dashboard.settings.appearance}
+              hint={t.dashboard.settings.appearanceHint}
+            >
               <ThemeToggle />
             </PrefRow>
-            <WeeklyEmailToggle userId={userId} />
+            <WeeklyEmailToggle userId={userId} t={t} />
           </div>
         </GlassCard>
 
         <GlassCard className="p-7">
-          <SectionTitle icon={KeyRound}>Security</SectionTitle>
-          <p className="mt-3 text-sm text-muted-foreground">
-            Reset your password — we'll send a secure link to your email.
-          </p>
+          <SectionTitle icon={KeyRound}>{t.dashboard.settings.security}</SectionTitle>
+          <p className="mt-3 text-sm text-muted-foreground">{t.dashboard.settings.securityBody}</p>
           <button
             onClick={changePassword}
             className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary hover:bg-primary/20"
           >
-            <KeyRound className="h-3.5 w-3.5" /> Send reset link
+            <KeyRound className="h-3.5 w-3.5" /> {t.dashboard.settings.sendReset}
           </button>
           {msg && <p className="mt-3 text-xs text-muted-foreground">{msg}</p>}
         </GlassCard>
 
         <GlassCard className="p-7">
-          <SectionTitle icon={LogOut}>Session</SectionTitle>
-          <p className="mt-3 text-sm text-muted-foreground">
-            Sign out from this device. Your progress is saved.
-          </p>
+          <SectionTitle icon={LogOut}>{t.dashboard.settings.session}</SectionTitle>
+          <p className="mt-3 text-sm text-muted-foreground">{t.dashboard.settings.sessionBody}</p>
           <button
             onClick={onLogout}
             className="mt-4 inline-flex items-center gap-2 rounded-full border border-destructive/30 bg-destructive/10 px-4 py-2 text-xs font-medium text-destructive transition-all hover:bg-destructive/20"
@@ -1364,7 +1380,7 @@ function SettingsSection({
   );
 }
 
-function WeeklyEmailToggle({ userId }: { userId: string }) {
+function WeeklyEmailToggle({ userId, t }: { userId: string; t: ReturnType<typeof useI18n>["t"] }) {
   const key = `pref_weekly_email_${userId}`;
   const [enabled, setEnabled] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -1378,8 +1394,8 @@ function WeeklyEmailToggle({ userId }: { userId: string }) {
   return (
     <PrefRow
       icon={Mail}
-      label="Weekly digest email"
-      hint="Activate in Lovable integrations to enable sending"
+      label={t.dashboard.settings.weeklyDigest}
+      hint={t.dashboard.settings.weeklyDigestHint}
     >
       <button
         onClick={toggle}

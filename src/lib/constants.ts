@@ -10,7 +10,7 @@ export const SITE_NAME = "Abilitio";
 // social meta tags, the sitemap, and structured data.
 export const SITE_URL = "https://abilitio.app";
 export const OG_IMAGE_URL = `${SITE_URL}/og-image.png`;
-export const CONTACT_EMAIL = "ibodullayevabdurahmon95@gmail.com";
+export const CONTACT_EMAIL = "umaraxmedov0175@gmail.com";
 export const CONTACT_PHONE = "+998 88 048 18 81";
 export const COMPANY_LOCATION = "Uzbekistan";
 // Last review date for the legal documents. Update when policies change.

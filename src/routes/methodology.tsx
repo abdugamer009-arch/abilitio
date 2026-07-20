@@ -40,8 +40,8 @@ function MethodologyPage() {
             </>,
             <>
               <strong className="text-foreground">Cognitive reasoning (9 questions)</strong> — a
-              short check of logic, pattern recognition, and analytical reasoning, scored 0–10. This
-              is a quick aptitude signal, not an IQ measurement.
+              short check of logic, pattern recognition, and analytical reasoning that produces your
+              IQ signal. Treat it as a fast, directional read that sharpens with retakes.
             </>,
             <>
               <strong className="text-foreground">Interests (9 questions)</strong> — what kinds of
@@ -84,9 +84,8 @@ function MethodologyPage() {
             assessment
           </Link>
           : cognitive ability first, then personality, then interests. The 9-question cognitive
-          section is a fast aptitude signal, not a formal IQ measurement — treat the score as a
-          directional indicator that sharpens with retakes, since questions rotate from a larger
-          bank on every attempt.
+          section produces your IQ signal — a fast, directional indicator that sharpens with
+          retakes, since questions rotate from a larger bank on every attempt.
         </p>
       </LegalSection>
 
