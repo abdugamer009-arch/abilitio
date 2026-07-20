@@ -10,7 +10,14 @@ import { track, AnalyticsEvent } from "@/lib/analytics";
 
 const searchSchema = z.object({
   mode: z.enum(["login", "signup"]).optional().default("login"),
-  next: z.string().optional(),
+  // Post-login destination. Restricted to same-site paths: "/x" but not "//x"
+  // (protocol-relative) — anything else could bounce a fresh login to an
+  // attacker-chosen site via a crafted link.
+  next: z
+    .string()
+    .regex(/^\/(?!\/)/)
+    .optional()
+    .catch(undefined),
 });
 
 export const Route = createFileRoute("/auth")({
@@ -53,6 +60,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [confirmEmailSent, setConfirmEmailSent] = useState<string | null>(null);
 
@@ -63,6 +71,7 @@ function AuthPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setErr(null);
+    setInfo(null);
     const ep = emailSchema.safeParse(email.trim());
     if (!ep.success) return setErr(t.auth.errInvalidEmail);
     const pp = passSchema.safeParse(password);
@@ -108,12 +117,14 @@ function AuthPage() {
 
   async function forgot() {
     setErr(null);
+    setInfo(null);
     const ep = emailSchema.safeParse(email.trim());
     if (!ep.success) return setErr(t.auth.errEmailFirst);
     await supabase.auth.resetPasswordForEmail(ep.data, {
       redirectTo: window.location.origin + "/auth",
     });
-    setErr(t.auth.checkEmail);
+    // Success, not an error — render it as a calm confirmation.
+    setInfo(t.auth.checkEmail);
   }
 
   return (
@@ -166,6 +177,7 @@ function AuthPage() {
                       onClick={() => {
                         setTab(m);
                         setErr(null);
+                        setInfo(null);
                       }}
                       className={`rounded-full py-2 text-sm transition-all ${tab === m ? "bg-primary text-primary-foreground glow-purple" : "text-muted-foreground"}`}
                     >
@@ -177,18 +189,33 @@ function AuthPage() {
                 <form onSubmit={submit} className="space-y-3">
                   {tab === "signup" && (
                     <div className="grid grid-cols-2 gap-3">
-                      <Input placeholder={t.auth.name} value={name} onChange={setName} />
-                      <Input placeholder={t.auth.surname} value={surname} onChange={setSurname} />
+                      <Input
+                        name="given-name"
+                        autoComplete="given-name"
+                        placeholder={t.auth.name}
+                        value={name}
+                        onChange={setName}
+                      />
+                      <Input
+                        name="family-name"
+                        autoComplete="family-name"
+                        placeholder={t.auth.surname}
+                        value={surname}
+                        onChange={setSurname}
+                      />
                     </div>
                   )}
                   <Input
                     type="email"
+                    name="email"
+                    autoComplete="email"
                     placeholder={t.auth.email}
                     value={email}
                     onChange={setEmail}
                   />
                   <PasswordInput
                     placeholder={t.auth.password}
+                    autoComplete={tab === "signup" ? "new-password" : "current-password"}
                     value={password}
                     onChange={setPassword}
                     visible={showPassword}
@@ -198,8 +225,19 @@ function AuthPage() {
                   />
 
                   {err && (
-                    <div className="rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                    <div
+                      role="alert"
+                      className="rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+                    >
                       {err}
+                    </div>
+                  )}
+                  {info && (
+                    <div
+                      role="status"
+                      className="rounded-xl border border-primary/40 bg-primary/10 px-3 py-2 text-xs text-primary"
+                    >
+                      {info}
                     </div>
                   )}
 
@@ -246,11 +284,15 @@ function AuthPage() {
 
 function Input({
   type = "text",
+  name,
+  autoComplete,
   placeholder,
   value,
   onChange,
 }: {
   type?: string;
+  name?: string;
+  autoComplete?: string;
   placeholder: string;
   value: string;
   onChange: (v: string) => void;
@@ -258,7 +300,10 @@ function Input({
   return (
     <input
       type={type}
+      name={name}
+      autoComplete={autoComplete}
       placeholder={placeholder}
+      aria-label={placeholder}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       className="w-full rounded-2xl border border-border bg-secondary/40 px-4 py-3 text-sm outline-none transition-all focus:border-primary focus:bg-secondary focus:shadow-[0_0_0_4px_var(--glow)]"
@@ -268,6 +313,7 @@ function Input({
 
 function PasswordInput({
   placeholder,
+  autoComplete,
   value,
   onChange,
   visible,
@@ -276,6 +322,7 @@ function PasswordInput({
   hideLabel,
 }: {
   placeholder: string;
+  autoComplete: string;
   value: string;
   onChange: (v: string) => void;
   visible: boolean;
@@ -287,7 +334,10 @@ function PasswordInput({
     <div className="relative">
       <input
         type={visible ? "text" : "password"}
+        name="password"
+        autoComplete={autoComplete}
         placeholder={placeholder}
+        aria-label={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-2xl border border-border bg-secondary/40 px-4 py-3 pr-11 text-sm outline-none transition-all focus:border-primary focus:bg-secondary focus:shadow-[0_0_0_4px_var(--glow)]"

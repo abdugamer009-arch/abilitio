@@ -17,6 +17,7 @@ import {
   Line,
 } from "recharts";
 import { Shield, Users, Brain, Sparkles, TrendingUp, Crown, Ban, Check } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -88,9 +89,7 @@ function AdminDashboardPage() {
         setUsers(u);
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        setLoadError(
-          admitted ? `Admin verified, but dashboard data failed to load: ${msg}` : msg,
-        );
+        setLoadError(admitted ? `Admin verified, but dashboard data failed to load: ${msg}` : msg);
       } finally {
         setReady(true);
       }
@@ -420,7 +419,7 @@ function StatCard({
   valueText,
   hint,
 }: {
-  icon: any;
+  icon: LucideIcon;
   label: string;
   value?: number;
   valueText?: string;

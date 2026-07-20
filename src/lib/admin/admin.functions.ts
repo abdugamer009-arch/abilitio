@@ -21,12 +21,15 @@ function adminEmailSet(): Set<string> {
   return new Set([...BUILTIN_ADMIN_EMAILS, ...fromEnv]);
 }
 
-type AuthContext = { supabase: DbClient; userId: string; claims?: { email?: string } };
+export type AuthContext = { supabase: DbClient; userId: string; claims?: { email?: string } };
 
 // Admin status plus the email the server resolved for this user, so the client
 // can show exactly which account was evaluated. Email allow-list is
 // authoritative; a legacy `user_roles` admin row is honored as a fallback.
-async function resolveAdminStatus(
+// Exported so every server function (community moderation, admin dashboard)
+// answers "is this user an admin?" identically — a DB-role-only check would
+// wrongly deny allow-list admins.
+export async function resolveAdminStatus(
   context: AuthContext,
 ): Promise<{ isAdmin: boolean; email: string | null }> {
   const admins = adminEmailSet();
@@ -59,9 +62,27 @@ async function resolveAdminStatus(
   }
 }
 
-async function ensureAdmin(context: AuthContext) {
+export async function ensureAdmin(context: AuthContext) {
   const { isAdmin } = await resolveAdminStatus(context);
   if (!isAdmin) throw new Error("forbidden");
+}
+
+/** Throw if the user's profile is flagged banned. Used on write paths (chat,
+ *  assessment submit, AI chat) so a ban actually revokes participation instead
+ *  of only being a row in the admin table. Fails open on lookup error — a DB
+ *  hiccup must not lock out every legitimate user. */
+export async function ensureNotBanned(userId: string): Promise<void> {
+  try {
+    const { data } = await supabaseAdmin
+      .from("profiles")
+      .select("is_banned")
+      .eq("id", userId)
+      .maybeSingle();
+    if (data?.is_banned) throw new Error("account_banned");
+  } catch (e) {
+    if (e instanceof Error && e.message === "account_banned") throw e;
+    console.error("[admin] ban lookup failed, allowing:", e);
+  }
 }
 
 export type AdminAnalytics = {

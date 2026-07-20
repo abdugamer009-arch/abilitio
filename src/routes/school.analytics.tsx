@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import type { LucideIcon } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -367,7 +368,15 @@ function SchoolAnalytics() {
   );
 }
 
-function Stat({ icon: Icon, label, value }: { icon: any; label: string; value: string | number }) {
+function Stat({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+}) {
   return (
     <div className="glass rounded-2xl p-5">
       <div className="flex items-center justify-between">

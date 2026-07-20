@@ -58,8 +58,8 @@ function SchoolRegisterPage() {
       });
       setSchool(res.school);
       track(AnalyticsEvent.SchoolRegistered);
-    } catch (e: any) {
-      setErr(e?.message ?? "Failed to register school.");
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Failed to register school.");
     } finally {
       setSubmitting(false);
     }

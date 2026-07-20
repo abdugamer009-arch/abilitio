@@ -171,11 +171,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+// Applied before first paint so a stored "light" preference doesn't flash the
+// SSR-default dark theme for a frame on every load. Must stay inline &
+// synchronous; ThemeToggle takes over after hydration.
+const THEME_INIT_SCRIPT = `try{if(localStorage.getItem("abilitio-theme")==="light")document.documentElement.classList.remove("dark")}catch(e){}`;
+
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    // suppressHydrationWarning: the inline script above may legitimately strip
+    // the server-rendered "dark" class before React hydrates.
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <HeadContent />
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSONLD) }}

@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import type { LucideIcon } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
@@ -368,7 +369,7 @@ function StatCard({
   label,
   value,
 }: {
-  icon: any;
+  icon: LucideIcon;
   label: string;
   value: string | number;
 }) {

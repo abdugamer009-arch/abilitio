@@ -1194,7 +1194,7 @@ function SettingsSection({
   useEffect(() => {
     if (!userId) return;
     supabase
-      .from("user_roles" as any)
+      .from("user_roles")
       .select("role")
       .eq("user_id", userId)
       .eq("role", "admin")

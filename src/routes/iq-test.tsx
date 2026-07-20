@@ -12,7 +12,7 @@ import {
   type IQCategory,
 } from "@/lib/assessment/iq-test";
 import { useT, useI18n } from "@/lib/i18n";
-import { IQ_TEST_TRANSLATIONS } from "@/lib/assessment/question-translations";
+import { IQ_TEST_TRANSLATIONS } from "@/lib/assessment/iq-test-translations";
 import { track, AnalyticsEvent } from "@/lib/analytics";
 
 function tIQPrompt(id: number, original: string, lang: string): string {

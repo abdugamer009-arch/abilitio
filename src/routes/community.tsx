@@ -20,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { resolveAvatarUrl } from "@/components/ProfilePhotoCard";
 import { AdminBadge } from "@/components/AdminBadge";
 import { Send, Pin, Trash2, Users, Sparkles, Lock, Pencil } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/community")({
   head: () => ({
@@ -187,15 +188,26 @@ function CommunityChat({
   const [dailyDraft, setDailyDraft] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Known-author ids live in a ref (not state) because this runs inside
+  // realtime callbacks whose closures capture a stale `authors` snapshot —
+  // checking state there would refetch the same author on every message.
+  const knownAuthorIds = useRef<Set<string>>(new Set());
   const upsertAuthor = async (uid: string) => {
-    if (authors[uid]) return;
-    const res = await fetchAuthors({ data: { userIds: [uid] } });
-    setAuthors((a) => ({ ...a, ...Object.fromEntries(res.map((x) => [x.user_id, x])) }));
+    if (knownAuthorIds.current.has(uid)) return;
+    knownAuthorIds.current.add(uid);
+    try {
+      const res = await fetchAuthors({ data: { userIds: [uid] } });
+      setAuthors((a) => ({ ...a, ...Object.fromEntries(res.map((x) => [x.user_id, x])) }));
+    } catch {
+      // Allow a retry on the next message from this author.
+      knownAuthorIds.current.delete(uid);
+    }
   };
 
   useEffect(() => {
     setMessages([]);
     setAuthors({});
+    knownAuthorIds.current = new Set();
     (async () => {
       const [m, q] = await Promise.all([
         fetchMsgs({ data: { communityId: community.id } }),
@@ -203,6 +215,7 @@ function CommunityChat({
       ]);
       setMessages(m.messages);
       setAuthors(Object.fromEntries(m.authors.map((a) => [a.user_id, a])));
+      knownAuthorIds.current = new Set(m.authors.map((a) => a.user_id));
       setDaily({ question: q.question });
     })();
   }, [community.id, fetchMsgs, fetchDaily]);
@@ -234,8 +247,8 @@ function CommunityChat({
           filter: `community_id=eq.${community.id}`,
         },
         (payload) => {
-          const id = (payload.old as any).id;
-          setMessages((prev) => prev.filter((x) => x.id !== id));
+          const id = (payload.old as { id?: string }).id;
+          if (id) setMessages((prev) => prev.filter((x) => x.id !== id));
         },
       )
       .on(
@@ -279,8 +292,14 @@ function CommunityChat({
       setMessages((prev) => (prev.some((x) => x.id === row.id) ? prev : [...prev, row]));
       setInput("");
       upsertAuthor(row.user_id);
-    } catch (e: any) {
+    } catch (e) {
       console.error(e);
+      const banned = e instanceof Error && e.message.includes("account_banned");
+      toast.error(
+        banned
+          ? "Your account has been suspended from posting."
+          : "Message failed to send. Please try again.",
+      );
     } finally {
       setSending(false);
     }

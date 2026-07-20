@@ -26,6 +26,7 @@ import {
 } from "./question-bank";
 import { QUESTION_TRANSLATIONS } from "./question-translations";
 import type { RiasecDim, InterestVisual } from "./career-assessment";
+import { ensureNotBanned } from "../admin/admin.functions";
 
 // ---------- Session start (server-authoritative question delivery) ----------
 // Questions are picked and translated on the server so the client never
@@ -131,18 +132,32 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
   .inputValidator((d) => submitSchema.parse(d))
   .handler(async ({ data, context }): Promise<CareerResultDTO> => {
     const { supabase, userId } = context;
+    await ensureNotBanned(userId);
 
-    // Resolve personality questions from bank (server authoritative)
-    const personalityQs = data.personalityQIds
-      .map((id) => PERSONALITY_BANK.find((q) => q.id === id))
-      .filter(Boolean) as NonNullable<(typeof PERSONALITY_BANK)[number]>[];
+    // Resolve personality questions from bank (server authoritative). Every id
+    // must exist and be distinct — silently filtering unknown ids would shift
+    // the questions array against the parallel answers array and score each
+    // remaining answer against the wrong question; duplicates would let a
+    // crafted client weight one axis 12 times.
+    const personalityQs = data.personalityQIds.map((id) =>
+      PERSONALITY_BANK.find((q) => q.id === id),
+    );
+    if (
+      personalityQs.some((q) => q === undefined) ||
+      new Set(data.personalityQIds).size !== data.personalityQIds.length
+    ) {
+      throw new Error("invalid_session: unknown or duplicate personality question ids");
+    }
 
     // Resolve IQ correct answers server-side (never sent to client). An unknown
     // question id yields an impossible sentinel (-999) — never -1, which is also
     // the "unanswered" answer value, so a bogus id can't be scored as correct.
     const iqCorrect = data.iqQIds.map((id) => getIQCorrect(id) ?? -999);
 
-    const personality = scorePersonality(data.personalityAnswers, personalityQs);
+    const personality = scorePersonality(
+      data.personalityAnswers,
+      personalityQs as NonNullable<(typeof PERSONALITY_BANK)[number]>[],
+    );
     const cognitive = scoreCognitive(data.iqAnswers, iqCorrect, personality.mbti);
 
     // Interests: the client submits the ids of the symbols it chose. We resolve
@@ -301,25 +316,36 @@ export const getSchoolCareerOverview = createServerFn({ method: "GET" })
 
     const userIds = (members ?? []).map((m) => m.user_id);
 
+    type NameRow = { id: string; name: string | null; surname: string | null };
+    type OverviewResultRow = {
+      user_id: string;
+      created_at: string;
+      personality_type: string;
+      cognitive_tier: string;
+      cognitive_score: number | null;
+      cognitive_profile: string | null;
+      career_matches: { key: string; name: string; category: string; score: number }[] | null;
+      university_matches: { key: string; name: string; category: string; score: number }[] | null;
+    };
     const [classesRes, profilesRes, resultsRes] = await Promise.all([
       supabase.from("school_classes").select("id, name").eq("school_id", school.id),
       userIds.length
         ? supabase.from("profiles").select("id, name, surname").in("id", userIds)
-        : Promise.resolve({ data: [] as any[] }),
+        : Promise.resolve({ data: [] as NameRow[] }),
       userIds.length
         ? supabase.from("career_assessment_results").select("*").in("user_id", userIds)
-        : Promise.resolve({ data: [] as any[] }),
+        : Promise.resolve({ data: [] }),
     ]);
     const classMap = new Map<string, string>();
-    (classesRes.data ?? []).forEach((c: any) => classMap.set(c.id, c.name));
+    (classesRes.data ?? []).forEach((c) => classMap.set(c.id, c.name));
     const profileMap = new Map<string, { name: string; surname: string }>();
-    (profilesRes.data ?? []).forEach((p: any) =>
+    ((profilesRes.data ?? []) as NameRow[]).forEach((p) =>
       profileMap.set(p.id, { name: p.name ?? "", surname: p.surname ?? "" }),
     );
 
     // Keep latest per user
-    const latest = new Map<string, any>();
-    for (const r of (resultsRes.data ?? []) as any[]) {
+    const latest = new Map<string, OverviewResultRow>();
+    for (const r of (resultsRes.data ?? []) as unknown as OverviewResultRow[]) {
       const prev = latest.get(r.user_id);
       if (!prev || new Date(r.created_at) > new Date(prev.created_at)) latest.set(r.user_id, r);
     }
@@ -408,7 +434,10 @@ export const buildSpecializedClass = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!school) throw new Error("not_principal");
 
-    const overview = await (async () => {
+    type MatchEntry = { name: string; category: string; score: number };
+    type StudentEntry = { user_id: string; name: string; matches: MatchEntry[] };
+
+    const overview = await (async (): Promise<{ students: StudentEntry[] }> => {
       // inline minimal fetch
       const { data: members } = await supabase
         .from("school_members")
@@ -416,24 +445,28 @@ export const buildSpecializedClass = createServerFn({ method: "POST" })
         .eq("school_id", school.id)
         .eq("role", "student");
       const userIds = (members ?? []).map((m) => m.user_id);
-      if (!userIds.length) return { students: [] as any[] };
+      if (!userIds.length) return { students: [] };
       const [profilesRes, resultsRes] = await Promise.all([
         supabase.from("profiles").select("id, name, surname").in("id", userIds),
         supabase.from("career_assessment_results").select("*").in("user_id", userIds),
       ]);
-      const pmap = new Map((profilesRes.data ?? []).map((p: any) => [p.id, p]));
-      const latest = new Map<string, any>();
-      for (const r of (resultsRes.data ?? []) as any[]) {
+      type NameRow = { id: string; name: string | null; surname: string | null };
+      type ResultRow = { user_id: string; created_at: string; career_matches: MatchEntry[] | null };
+      const pmap = new Map<string, NameRow>(
+        ((profilesRes.data ?? []) as NameRow[]).map((p) => [p.id, p]),
+      );
+      const latest = new Map<string, ResultRow>();
+      for (const r of (resultsRes.data ?? []) as unknown as ResultRow[]) {
         const prev = latest.get(r.user_id);
         if (!prev || new Date(r.created_at) > new Date(prev.created_at)) latest.set(r.user_id, r);
       }
       const students = userIds.map((uid) => {
         const r = latest.get(uid);
-        const p = pmap.get(uid) as any;
+        const p = pmap.get(uid);
         return {
           user_id: uid,
           name: `${p?.name ?? ""} ${p?.surname ?? ""}`.trim() || "Student",
-          matches: (r?.career_matches ?? []) as { name: string; category: string; score: number }[],
+          matches: r?.career_matches ?? [],
         };
       });
       return { students };
@@ -442,8 +475,7 @@ export const buildSpecializedClass = createServerFn({ method: "POST" })
     const ranked = overview.students
       .map((s) => {
         const best = s.matches.find(
-          (m: { name: string; category: string; score: number }) =>
-            m.category.toLowerCase() === data.focusCategory.toLowerCase(),
+          (m) => m.category.toLowerCase() === data.focusCategory.toLowerCase(),
         );
         return { ...s, score: best?.score ?? 0, best };
       })
@@ -461,7 +493,7 @@ export const buildSpecializedClass = createServerFn({ method: "POST" })
         _reason: `Auto-built from Career Intelligence data; top ${ranked.length} students by ${data.focusCategory} fit.`,
         _students: ranked.map((r) => r.user_id),
       });
-      savedId = id as any;
+      savedId = (id as string | null) ?? null;
     }
 
     return {

@@ -37,8 +37,8 @@ function SchoolJoinPage() {
     try {
       await join({ data: { code, className } });
       navigate({ to: "/dashboard" });
-    } catch (e: any) {
-      const msg = String(e?.message ?? "");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
       setErr(
         msg.includes("invalid_code")
           ? "School code not found."

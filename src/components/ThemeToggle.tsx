@@ -7,7 +7,9 @@ function getInitialTheme(): Theme {
   if (typeof window === "undefined") return "dark";
   const stored = localStorage.getItem("abilitio-theme") as Theme | null;
   if (stored === "dark" || stored === "light") return stored;
-  return document.documentElement.classList.contains("dark") ? "dark" : "dark";
+  // No stored preference: reflect whatever the document currently shows
+  // (the root shell defaults to dark; the pre-paint script may have removed it).
+  return document.documentElement.classList.contains("dark") ? "dark" : "light";
 }
 
 export function ThemeToggle() {

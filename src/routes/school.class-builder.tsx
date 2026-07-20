@@ -58,8 +58,8 @@ function ClassBuilderPage() {
       const r = await build({ data: { focusCategory: focus, size, save } });
       setResult({ focus: r.focus, students: r.students });
       if (r.savedId) setSavedId(r.savedId);
-    } catch (e: any) {
-      setErr(String(e?.message ?? ""));
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Failed to build class.");
     } finally {
       setRunning(false);
     }

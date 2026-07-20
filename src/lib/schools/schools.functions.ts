@@ -1,6 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
+
+type DbClient = SupabaseClient<Database>;
 
 export type SchoolDTO = {
   id: string;
@@ -173,7 +177,7 @@ type StudentRow = {
   strengths: string[];
 };
 
-async function loadPrincipalSchool(supabase: any, userId: string) {
+async function loadPrincipalSchool(supabase: DbClient, userId: string) {
   const { data: school } = await supabase
     .from("schools")
     .select("*")
@@ -198,8 +202,8 @@ async function loadStudentsForSchool(school: SchoolDTO): Promise<{
     .select("user_id, class_id")
     .eq("school_id", school.id)
     .eq("role", "student");
-  const studentIds = (members ?? []).map((m: any) => m.user_id);
-  const classMap = new Map<string, ClassDTO>((classes ?? []).map((c: any) => [c.id, c]));
+  const studentIds = (members ?? []).map((m) => m.user_id);
+  const classMap = new Map<string, ClassDTO>((classes ?? []).map((c) => [c.id, c as ClassDTO]));
   if (!studentIds.length) return { classes: (classes ?? []) as ClassDTO[], students: [] };
   const [{ data: profiles }, { data: results }] = await Promise.all([
     supabaseAdmin.from("profiles").select("id, name, surname").in("id", studentIds),
@@ -208,13 +212,24 @@ async function loadStudentsForSchool(school: SchoolDTO): Promise<{
       .select("user_id, career_matches, personality_type, cognitive_score, strengths, created_at")
       .in("user_id", studentIds),
   ]);
-  const profMap = new Map<string, any>((profiles ?? []).map((p: any) => [p.id, p]));
-  const latestResult = new Map<string, any>();
-  for (const r of (results ?? []) as any[]) {
+  type ProfileRow = { id: string; name: string | null; surname: string | null };
+  type ResultRow = {
+    user_id: string;
+    career_matches: { name?: string }[] | null;
+    personality_type: string | null;
+    cognitive_score: number | null;
+    strengths: string[] | null;
+    created_at: string;
+  };
+  const profMap = new Map<string, ProfileRow>(
+    ((profiles ?? []) as ProfileRow[]).map((p) => [p.id, p]),
+  );
+  const latestResult = new Map<string, ResultRow>();
+  for (const r of (results ?? []) as unknown as ResultRow[]) {
     const prev = latestResult.get(r.user_id);
     if (!prev || new Date(r.created_at) > new Date(prev.created_at)) latestResult.set(r.user_id, r);
   }
-  const students: StudentRow[] = (members ?? []).map((m: any) => {
+  const students: StudentRow[] = (members ?? []).map((m) => {
     const p = profMap.get(m.user_id);
     const r = latestResult.get(m.user_id);
     const topCareer = r?.career_matches?.[0]?.name ?? null;
@@ -285,15 +300,15 @@ export const getPrincipalDashboard = createServerFn({ method: "GET" })
     });
 
     // Top talents (by latest assessment dims)
-    const dim = (key: keyof StudentRow): { user_id: string; name: string; score: number }[] => {
-      return [...students]
-        .filter((s) => typeof (s as any)[key] === "number")
-        .sort((a, b) => ((b as any)[key] ?? 0) - ((a as any)[key] ?? 0))
+    const dim = (key: "iq"): { user_id: string; name: string; score: number }[] => {
+      return students
+        .filter((s): s is StudentRow & { iq: number } => typeof s[key] === "number")
+        .sort((a, b) => b[key] - a[key])
         .slice(0, 5)
         .map((s) => ({
           user_id: s.user_id,
           name: `${s.name} ${s.surname}`.trim(),
-          score: (s as any)[key],
+          score: s[key],
         }));
     };
     const topByStrength = (label: string): { user_id: string; name: string; score: number }[] => {
@@ -420,22 +435,32 @@ export const listSpecializedClasses = createServerFn({ method: "GET" })
       .select("*")
       .eq("school_id", school.id)
       .order("focus");
-    const ids = Array.from(
-      new Set((rows ?? []).flatMap((r: any) => r.student_user_ids as string[])),
-    );
+    type SpecClassRow = {
+      id: string;
+      title: string;
+      focus: string;
+      reason: string;
+      student_user_ids: string[];
+    };
+    type NameRow = { id: string; name: string | null; surname: string | null };
+    const classRows = (rows ?? []) as unknown as SpecClassRow[];
+    const ids = Array.from(new Set(classRows.flatMap((r) => r.student_user_ids)));
     const { data: profiles } = ids.length
       ? await supabaseAdmin.from("profiles").select("id, name, surname").in("id", ids)
-      : { data: [] as any[] };
-    const pmap = new Map<string, any>((profiles ?? []).map((p: any) => [p.id, p]));
+      : { data: [] as NameRow[] };
+    const pmap = new Map<string, NameRow>(((profiles ?? []) as NameRow[]).map((p) => [p.id, p]));
     return {
-      classes: (rows ?? []).map((r: any) => ({
+      classes: classRows.map((r) => ({
         id: r.id,
         title: r.title,
         focus: r.focus,
         reason: r.reason,
-        students: (r.student_user_ids as string[]).map((uid) => {
+        students: r.student_user_ids.map((uid) => {
           const p = pmap.get(uid);
-          return { user_id: uid, name: p ? `${p.name} ${p.surname}`.trim() : "Student" };
+          return {
+            user_id: uid,
+            name: p ? `${p.name ?? ""} ${p.surname ?? ""}`.trim() : "Student",
+          };
         }),
       })),
     };

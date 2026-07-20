@@ -4,6 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { generateAbbiReply, type AbbiContext } from "./abbi-knowledge";
 import { ABBI_DAILY_AI_LIMIT } from "../constants";
+import { ensureNotBanned } from "../admin/admin.functions";
 
 /** True if the user is still under today's AI-reply cap. Fails open on error
  *  (a monitoring/DB hiccup should degrade to "allowed", not block the chat). */
@@ -42,6 +43,7 @@ export const generateAbbiMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => abbiMessageSchema.parse(d))
   .handler(async ({ data, context }): Promise<{ reply: string }> => {
+    await ensureNotBanned(context.userId);
     const apiKey = process.env.ANTHROPIC_API_KEY;
 
     // Only spend on the Anthropic API while the user is under the daily cap;

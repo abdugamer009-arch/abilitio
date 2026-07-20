@@ -5,6 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Database } from "@/integrations/supabase/types";
 import { communitySlugForCareer } from "../assessment/career-engine";
+import { resolveAdminStatus, ensureNotBanned, type AuthContext } from "../admin/admin.functions";
 
 export type CommunityDTO = {
   id: string;
@@ -32,30 +33,29 @@ export type AuthorDTO = {
   is_admin: boolean;
 };
 
-async function isAdmin(supabase: SupabaseClient<Database>, userId: string): Promise<boolean> {
-  const { data } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  return !!data;
+// Single source of truth for admin status (email allow-list first, DB role as
+// fallback) — the same rule the admin dashboard uses. A DB-role-only check here
+// would show the moderation UI to allow-list admins and then fail their actions.
+async function isAdmin(context: AuthContext): Promise<boolean> {
+  const { isAdmin: admin } = await resolveAdminStatus(context);
+  return admin;
 }
 
 export const getMyCommunities = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<{ communities: CommunityDTO[]; isAdmin: boolean }> => {
     const { supabase, userId } = context;
-    const admin = await isAdmin(supabase, userId);
+    const admin = await isAdmin(context);
     if (admin) {
-      const { data } = await supabase.from("communities").select("*").order("name");
+      // Service-role read: allow-list admins may lack the DB role RLS expects.
+      const { data } = await supabaseAdmin.from("communities").select("*").order("name");
       return { communities: (data ?? []) as CommunityDTO[], isAdmin: true };
     }
     const { data: memberships } = await supabase
       .from("community_members")
       .select("community_id")
       .eq("user_id", userId);
-    const ids = (memberships ?? []).map((m: any) => m.community_id);
+    const ids = (memberships ?? []).map((m) => m.community_id);
     if (ids.length) {
       const { data } = await supabase.from("communities").select("*").in("id", ids);
       return { communities: (data ?? []) as CommunityDTO[], isAdmin: false };
@@ -95,7 +95,14 @@ async function ensureCommunityFromLatestResult(
 
 export const getCommunityMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { communityId: string; limit?: number }) => input)
+  .inputValidator((input) =>
+    z
+      .object({
+        communityId: z.string().uuid(),
+        limit: z.number().int().min(1).max(200).optional(),
+      })
+      .parse(input),
+  )
   .handler(
     async ({
       data,
@@ -119,10 +126,19 @@ export const getCommunityMessages = createServerFn({ method: "GET" })
 
 export const fetchMessageAuthors = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { userIds: string[] }) => input)
-  .handler(async ({ data, context: _context }): Promise<AuthorDTO[]> => {
+  // Strict validation matters here: this reads via the service role, so without
+  // it any signed-in user could pump arbitrary strings/volumes through a
+  // profile lookup. UUID-only plus a hard cap keeps it scoped to its real job
+  // (resolving authors of messages already visible to the caller).
+  .inputValidator((input) =>
+    z.object({ userIds: z.array(z.string().uuid()).max(100) }).parse(input),
+  )
+  .handler(async ({ data }): Promise<AuthorDTO[]> => {
     return fetchAuthors(data.userIds);
   });
+
+type ProfileNameRow = { id: string; name: string | null; surname: string | null };
+type StatRow = { user_id: string; avatar_url: string | null };
 
 async function fetchAuthors(userIds: string[]): Promise<AuthorDTO[]> {
   if (!userIds.length) return [];
@@ -132,9 +148,11 @@ async function fetchAuthors(userIds: string[]): Promise<AuthorDTO[]> {
     supabaseAdmin.from("user_roles").select("user_id").eq("role", "admin").in("user_id", userIds),
   ]);
   const sMap = new Map<string, string | null>();
-  for (const s of stats.data ?? []) sMap.set((s as any).user_id, (s as any).avatar_url);
-  const adminSet = new Set<string>((roles.data ?? []).map((r: any) => r.user_id));
-  return (profiles.data ?? []).map((p: any) => ({
+  for (const s of (stats.data ?? []) as StatRow[]) sMap.set(s.user_id, s.avatar_url);
+  const adminSet = new Set<string>(
+    ((roles.data ?? []) as { user_id: string }[]).map((r) => r.user_id),
+  );
+  return ((profiles.data ?? []) as ProfileNameRow[]).map((p) => ({
     user_id: p.id,
     name: `${p.name ?? ""} ${p.surname ?? ""}`.trim() || "Explorer",
     avatar_url: sMap.get(p.id) ?? null,
@@ -149,6 +167,7 @@ export const sendCommunityMessage = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    await ensureNotBanned(userId);
     const { data: row, error } = await supabase
       .from("community_messages")
       .insert({ community_id: data.communityId, user_id: userId, content: data.content })
@@ -162,10 +181,12 @@ export const deleteCommunityMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { userId } = context;
 
-    // Verify ownership or admin role before deleting
-    const { data: msg } = await supabase
+    // Verify ownership or admin status before deleting. Lookup + delete go
+    // through the service role so admin moderation works regardless of RLS
+    // (allow-list admins have no user_roles row for policies to key on).
+    const { data: msg } = await supabaseAdmin
       .from("community_messages")
       .select("user_id")
       .eq("id", data.id)
@@ -174,17 +195,9 @@ export const deleteCommunityMessage = createServerFn({ method: "POST" })
     if (!msg) throw new Error("Message not found");
 
     const isOwner = (msg as { user_id: string }).user_id === userId;
-    if (!isOwner) {
-      const { data: role } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId)
-        .eq("role", "admin")
-        .maybeSingle();
-      if (!role) throw new Error("forbidden");
-    }
+    if (!isOwner && !(await isAdmin(context))) throw new Error("forbidden");
 
-    const { error } = await supabase.from("community_messages").delete().eq("id", data.id);
+    const { error } = await supabaseAdmin.from("community_messages").delete().eq("id", data.id);
     if (error) throw new Error("Failed to delete message");
     return { ok: true };
   });
@@ -193,8 +206,13 @@ export const togglePinMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ id: z.string().uuid(), pin: z.boolean() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { error } = await supabase.rpc("admin_toggle_pin", { _msg: data.id, _pin: data.pin });
+    // App-code admin check + service-role write, replacing the admin_toggle_pin
+    // RPC: that RPC gates on a user_roles DB row, which allow-list admins lack.
+    if (!(await isAdmin(context))) throw new Error("forbidden");
+    const { error } = await supabaseAdmin
+      .from("community_messages")
+      .update({ is_pinned: data.pin })
+      .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -209,7 +227,7 @@ const DEFAULT_DAILY = [
 
 export const getCommunityDailyQuestion = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { communityId: string }) => input)
+  .inputValidator((input) => z.object({ communityId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }): Promise<{ question: string; createdAt: string | null }> => {
     const { supabase } = context;
     const { data: row } = await supabase
@@ -219,7 +237,10 @@ export const getCommunityDailyQuestion = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
-    if (row) return { question: (row as any).question, createdAt: (row as any).created_at };
+    if (row) {
+      const r = row as { question: string; created_at: string };
+      return { question: r.question, createdAt: r.created_at };
+    }
     const idx = Math.floor(Date.now() / 86400000) % DEFAULT_DAILY.length;
     return { question: DEFAULT_DAILY[idx], createdAt: null };
   });
@@ -230,11 +251,12 @@ export const setCommunityDailyQuestion = createServerFn({ method: "POST" })
     z.object({ communityId: z.string().uuid(), question: z.string().min(1).max(500) }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { error } = await supabase.rpc("admin_set_daily_question", {
-      _community: data.communityId,
-      _q: data.question,
-    });
+    // Same pattern as togglePinMessage: the admin_set_daily_question RPC only
+    // accepts DB-role admins, so check in app code and write via service role.
+    if (!(await isAdmin(context))) throw new Error("forbidden");
+    const { error } = await supabaseAdmin
+      .from("community_daily_questions")
+      .insert({ community_id: data.communityId, question: data.question });
     if (error) throw new Error(error.message);
     return { ok: true };
   });

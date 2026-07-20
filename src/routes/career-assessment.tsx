@@ -162,26 +162,29 @@ function CareerAssessmentPage() {
     return answers.interest[current.idx];
   }, [current, answers]);
 
-  function setValue(v: number | string[]) {
-    if (!current) return;
-    setAnswers((a) => {
-      const next = { ...a };
-      if (current.kind === "p") {
-        const arr = [...a.personality];
-        arr[current.idx] = v as number;
-        next.personality = arr;
-      } else if (current.kind === "c") {
-        const arr = [...a.iq];
-        arr[current.idx] = v as number;
-        next.iq = arr;
-      } else {
-        const arr = a.interest.map((x) => [...x]);
-        arr[current.idx] = v as string[];
-        next.interest = arr;
-      }
-      return next;
-    });
-  }
+  const setValue = useCallback(
+    (v: number | string[]) => {
+      if (!current) return;
+      setAnswers((a) => {
+        const next = { ...a };
+        if (current.kind === "p") {
+          const arr = [...a.personality];
+          arr[current.idx] = v as number;
+          next.personality = arr;
+        } else if (current.kind === "c") {
+          const arr = [...a.iq];
+          arr[current.idx] = v as number;
+          next.iq = arr;
+        } else {
+          const arr = a.interest.map((x) => [...x]);
+          arr[current.idx] = v as string[];
+          next.interest = arr;
+        }
+        return next;
+      });
+    },
+    [current],
+  );
 
   const canNext =
     current?.kind === "i" ? (value as string[])?.length > 0 : value !== null && value !== undefined;
@@ -214,9 +217,8 @@ function CareerAssessmentPage() {
           260,
         );
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
-    [step, current],
+    [step, setValue],
   );
 
   const finish = useCallback(async () => {
