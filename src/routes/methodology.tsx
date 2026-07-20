@@ -77,17 +77,16 @@ function MethodologyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection heading="The full IQ test is separate">
+      <LegalSection heading="One assessment, three sections in order">
         <p>
-          The 9-question cognitive section above is a fast aptitude signal. If you want a deeper
-          measure, the dedicated{" "}
-          <Link to="/iq-test" className="text-primary hover:underline">
-            IQ Test
-          </Link>{" "}
-          is a separate, timed, 40-question assessment covering verbal, numerical, spatial, and
-          logical reasoning, with items adapted from Philip Carter's{" "}
-          <em>The Complete Book of Intelligence Tests</em> (Wiley, 2005). We keep the two clearly
-          distinct so a quick score is never mistaken for a formal one.
+          Everything happens inside a single{" "}
+          <Link to="/career-assessment" className="text-primary hover:underline">
+            assessment
+          </Link>
+          : cognitive ability first, then personality, then interests. The 9-question cognitive
+          section is a fast aptitude signal, not a formal IQ measurement — treat the score as a
+          directional indicator that sharpens with retakes, since questions rotate from a larger
+          bank on every attempt.
         </p>
       </LegalSection>
 

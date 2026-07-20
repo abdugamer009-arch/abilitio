@@ -95,38 +95,6 @@ async function ensureCommunityFromLatestResult(
   return (data as CommunityDTO) ?? null;
 }
 
-/** Guarantee the user has a community home after their FIRST test — whichever
- *  test that is. Career-assessment takers land in their match's community;
- *  users whose first test was the (client-scored) IQ test have no career
- *  result to key on, so they join General and get re-assigned automatically
- *  when they later complete the career assessment. No-op when a membership
- *  already exists, so it never downgrades a specific community to General. */
-export const ensureMyCommunity = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ joined: boolean; community: CommunityDTO | null }> => {
-    const { supabase, userId } = context;
-    const { data: existing } = await supabase
-      .from("community_members")
-      .select("community_id")
-      .eq("user_id", userId)
-      .maybeSingle();
-    if (existing) return { joined: false, community: null };
-
-    const healed = await ensureCommunityFromLatestResult(supabase, userId);
-    if (healed) return { joined: true, community: healed };
-
-    const { data: cid } = await supabase.rpc("assign_user_to_community_by_slug", {
-      _slug: "general",
-    });
-    if (!cid) return { joined: false, community: null };
-    const { data } = await supabase
-      .from("communities")
-      .select("*")
-      .eq("id", cid as string)
-      .maybeSingle();
-    return { joined: true, community: (data as CommunityDTO) ?? null };
-  });
-
 export const getCommunityMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>

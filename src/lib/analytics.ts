@@ -51,8 +51,6 @@ export function track(event: string, props?: Record<string, string | number | bo
 export const AnalyticsEvent = {
   AssessmentStarted: "assessment_started",
   AssessmentCompleted: "assessment_completed",
-  IqStarted: "iq_test_started",
-  IqCompleted: "iq_test_completed",
   SignedUp: "signed_up",
   SchoolRegistered: "school_registered",
 } as const;

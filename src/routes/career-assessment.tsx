@@ -45,9 +45,10 @@ const IQ_COUNT = 9;
 const INT_COUNT = 9;
 const TOTAL = P_COUNT + IQ_COUNT + INT_COUNT; // 30
 
-// v2: sessions are now server-delivered with per-language text; older cached
-// (v1) sessions have an incompatible shape, so the key bump discards them.
-const PROGRESS_KEY = "abilitio.career_assessment.progress.v2";
+// Section order: cognitive (IQ) first, then personality, then interests.
+// v3: the section order changed (IQ now leads); bumping discards saved v2
+// progress whose step index pointed into the old ordering.
+const PROGRESS_KEY = "abilitio.career_assessment.progress.v3";
 type SavedProgress = { session: ClientSession; step: number; answers: Answers };
 
 type Answers = {
@@ -146,13 +147,13 @@ function CareerAssessmentPage() {
 
   const current = useMemo(() => {
     if (!session) return null;
-    if (step < P_COUNT) return { kind: "p" as const, q: session.personality[step], idx: step };
-    if (step < P_COUNT + IQ_COUNT)
-      return { kind: "c" as const, q: session.iq[step - P_COUNT], idx: step - P_COUNT };
+    if (step < IQ_COUNT) return { kind: "c" as const, q: session.iq[step], idx: step };
+    if (step < IQ_COUNT + P_COUNT)
+      return { kind: "p" as const, q: session.personality[step - IQ_COUNT], idx: step - IQ_COUNT };
     return {
       kind: "i" as const,
-      q: session.interest[step - P_COUNT - IQ_COUNT],
-      idx: step - P_COUNT - IQ_COUNT,
+      q: session.interest[step - IQ_COUNT - P_COUNT],
+      idx: step - IQ_COUNT - P_COUNT,
     };
   }, [session, step]);
 
@@ -340,14 +341,14 @@ function CareerAssessmentPage() {
 
               <div className="mt-8 grid gap-4 md:grid-cols-3 text-left">
                 <Section
-                  icon={<Brain className="h-4 w-4" />}
-                  title={t.careerAssessment.sectionPersonality}
-                  caption={t.careerAssessment.captionPersonality}
-                />
-                <Section
                   icon={<Target className="h-4 w-4" />}
                   title={t.careerAssessment.sectionCognitive}
                   caption={t.careerAssessment.captionCognitive}
+                />
+                <Section
+                  icon={<Brain className="h-4 w-4" />}
+                  title={t.careerAssessment.sectionPersonality}
+                  caption={t.careerAssessment.captionPersonality}
                 />
                 <Section
                   icon={<Sparkles className="h-4 w-4" />}
@@ -384,11 +385,11 @@ function CareerAssessmentPage() {
   }
 
   const phases = [
-    { icon: Brain, label: t.careerAssessment.sectionPersonality },
     { icon: Target, label: t.careerAssessment.sectionCognitive },
+    { icon: Brain, label: t.careerAssessment.sectionPersonality },
     { icon: Sparkles, label: t.careerAssessment.sectionInterests },
   ];
-  const phaseIndex = step < P_COUNT ? 0 : step < P_COUNT + IQ_COUNT ? 1 : 2;
+  const phaseIndex = step < IQ_COUNT ? 0 : step < IQ_COUNT + P_COUNT ? 1 : 2;
   const progress = ((step + (canNext ? 1 : 0)) / TOTAL) * 100;
   const sectionLabel = phases[phaseIndex].label;
   const prompt = current ? current.q.prompt[l] : "";
