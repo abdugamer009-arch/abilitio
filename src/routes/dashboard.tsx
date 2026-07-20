@@ -272,6 +272,7 @@ function DashboardPage() {
                 setStats={setStats}
                 achievements={achievements}
                 setAchievements={setAchievements}
+                t={t}
               />
             )}
             {tab === "skills" && <SkillsSection stats={stats} mbti={latest?.mbti_type} />}
@@ -852,12 +853,14 @@ function StatsSection({
   setStats,
   achievements,
   setAchievements,
+  t,
 }: {
   userId: string;
   stats: Stats | null;
   setStats: (s: Stats) => void;
   achievements: Achievement[];
   setAchievements: (a: Achievement[]) => void;
+  t: ReturnType<typeof useI18n>["t"];
 }) {
   const [editing, setEditing] = useState(false);
   const empty: Stats = {
@@ -894,18 +897,18 @@ function StatsSection({
       {/* Stats grid */}
       <GlassCard className="p-7">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <SectionTitle icon={BarChart3}>Personal Stats</SectionTitle>
+          <SectionTitle icon={BarChart3}>{t.dashboard.stats.personalStats}</SectionTitle>
           <button
             onClick={() => (editing ? saveStats() : setEditing(true))}
             className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary/20"
           >
             {editing ? (
               <>
-                <Check className="h-3.5 w-3.5" /> Save
+                <Check className="h-3.5 w-3.5" /> {t.dashboard.stats.save}
               </>
             ) : (
               <>
-                <Pencil className="h-3.5 w-3.5" /> Edit Stats
+                <Pencil className="h-3.5 w-3.5" /> {t.dashboard.stats.editStats}
               </>
             )}
           </button>
@@ -926,7 +929,8 @@ function StatsSection({
                     <Icon className="h-3 w-3" />
                   </span>
                   <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                    {f.label}
+                    {t.dashboard.stats.fields[f.key as keyof typeof t.dashboard.stats.fields] ??
+                      f.label}
                   </span>
                 </div>
                 {editing ? (
@@ -971,7 +975,7 @@ function StatsSection({
               }}
               className="rounded-full border border-border px-4 py-1.5 text-xs hover:bg-secondary"
             >
-              Cancel
+              {t.dashboard.stats.cancel}
             </button>
           </div>
         )}
@@ -982,6 +986,7 @@ function StatsSection({
         userId={userId}
         achievements={achievements}
         setAchievements={setAchievements}
+        t={t}
       />
     </div>
   );
@@ -991,10 +996,12 @@ function AchievementsBlock({
   userId,
   achievements,
   setAchievements,
+  t,
 }: {
   userId: string;
   achievements: Achievement[];
   setAchievements: (a: Achievement[]) => void;
+  t: ReturnType<typeof useI18n>["t"];
 }) {
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -1044,7 +1051,7 @@ function AchievementsBlock({
   return (
     <GlassCard className="p-7">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <SectionTitle icon={Award}>Achievements & Activities</SectionTitle>
+        <SectionTitle icon={Award}>{t.dashboard.stats.achievementsTitle}</SectionTitle>
         <button
           onClick={() => {
             setAdding(true);
@@ -1052,7 +1059,7 @@ function AchievementsBlock({
           }}
           className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary/20"
         >
-          <Plus className="h-3.5 w-3.5" /> Add
+          <Plus className="h-3.5 w-3.5" /> {t.dashboard.stats.add}
         </button>
       </div>
 
@@ -1060,13 +1067,13 @@ function AchievementsBlock({
         <div className="mt-5 rounded-2xl border border-primary/30 bg-primary/5 p-4">
           <input
             autoFocus
-            placeholder="e.g. Founder of NavoiUnity"
+            placeholder={t.dashboard.stats.titlePlaceholder}
             value={draft.title}
             onChange={(e) => setDraft({ ...draft, title: e.target.value })}
             className="w-full bg-transparent text-sm font-medium outline-none placeholder:text-muted-foreground/60"
           />
           <textarea
-            placeholder="Short description (optional)"
+            placeholder={t.dashboard.stats.descPlaceholder}
             value={draft.description}
             onChange={(e) => setDraft({ ...draft, description: e.target.value })}
             className="mt-2 w-full resize-none bg-transparent text-xs text-muted-foreground outline-none placeholder:text-muted-foreground/60"
@@ -1077,13 +1084,13 @@ function AchievementsBlock({
               onClick={() => setAdding(false)}
               className="rounded-full border border-border px-3 py-1 text-[11px] hover:bg-secondary"
             >
-              Cancel
+              {t.dashboard.stats.cancel}
             </button>
             <button
               onClick={addOne}
               className="rounded-full bg-gradient-to-r from-primary to-accent px-3 py-1 text-[11px] font-medium text-primary-foreground shadow-[0_2px_8px_-3px_var(--glow)] hover:-translate-y-0.5 transition-all"
             >
-              Save
+              {t.dashboard.stats.save}
             </button>
           </div>
         </div>
@@ -1092,9 +1099,9 @@ function AchievementsBlock({
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         {achievements.length === 0 && !adding && (
           <div className="col-span-full rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
-            No achievements yet. Add your first one — e.g.{" "}
-            <span className="text-foreground">"Olympiad Participant"</span> or{" "}
-            <span className="text-foreground">"Debate Club Member"</span>.
+            {t.dashboard.stats.emptyPrefix}{" "}
+            <span className="text-foreground">"{t.dashboard.stats.emptyExample1}"</span> ·{" "}
+            <span className="text-foreground">"{t.dashboard.stats.emptyExample2}"</span>
           </div>
         )}
         {achievements.map((a) => {
