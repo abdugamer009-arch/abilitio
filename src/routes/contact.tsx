@@ -4,7 +4,9 @@ import { Reveal } from "@/components/Reveal";
 import { Mail, MessageSquare, MapPin, Send, Phone, Copy, Check, Loader2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { useT } from "@/lib/i18n";
+import { CONTACT_EMAIL, CONTACT_PHONE } from "@/lib/constants";
 
+const CONTACT_PHONE_TEL = CONTACT_PHONE.replace(/\s+/g, "");
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/mqejjovw";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -116,7 +118,7 @@ function ContactPage() {
       <section className="px-6 pb-12">
         <Reveal className="mx-auto flex max-w-3xl flex-col items-center gap-6 md:flex-row md:justify-center">
           <a
-            href="tel:+998880481881"
+            href={`tel:${CONTACT_PHONE_TEL}`}
             className="group glass relative w-full max-w-sm overflow-hidden rounded-3xl p-8 text-center transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_60px_-10px_var(--glow)] md:w-auto md:flex-1"
           >
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_24px_-8px_var(--glow)] transition-all duration-500 group-hover:scale-110">
@@ -126,13 +128,13 @@ function ContactPage() {
               {t.contact.phone}
             </div>
             <div className="mt-2 text-2xl font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary">
-              +998 88 048 18 81
+              {CONTACT_PHONE}
             </div>
             <button
               type="button"
               onClick={(e) => {
                 e.preventDefault();
-                handleCopy("+998880481881", "phone");
+                handleCopy(CONTACT_PHONE_TEL, "phone");
               }}
               className="mx-auto mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs text-muted-foreground transition-all duration-300 hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
             >
@@ -146,7 +148,7 @@ function ContactPage() {
           </a>
 
           <a
-            href="mailto:ibodullayevabdurahmon95@gmail.com"
+            href={`mailto:${CONTACT_EMAIL}`}
             className="group glass relative w-full max-w-sm overflow-hidden rounded-3xl p-8 text-center transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_60px_-10px_var(--glow)] md:w-auto md:flex-1"
           >
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_24px_-8px_var(--glow)] transition-all duration-500 group-hover:scale-110">
@@ -156,13 +158,13 @@ function ContactPage() {
               {t.contact.email}
             </div>
             <div className="mt-2 text-lg font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary md:text-xl">
-              ibodullayevabdurahmon95@gmail.com
+              {CONTACT_EMAIL}
             </div>
             <button
               type="button"
               onClick={(e) => {
                 e.preventDefault();
-                handleCopy("ibodullayevabdurahmon95@gmail.com", "email");
+                handleCopy(CONTACT_EMAIL, "email");
               }}
               className="mx-auto mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs text-muted-foreground transition-all duration-300 hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
             >
