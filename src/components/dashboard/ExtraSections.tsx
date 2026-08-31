@@ -8,7 +8,6 @@ import {
   Sparkles,
   TrendingUp,
   GraduationCap,
-  Users,
   Swords,
   Trophy,
   BookOpen,
@@ -256,19 +255,16 @@ export function QuickLinks() {
       desc: "Find your future school",
       icon: GraduationCap,
     },
-    { to: "/mentors", label: "Mentors", desc: "Learn from those who made it", icon: Users },
     {
       to: "/career-battles",
       label: "Career Battles",
       desc: "Compare careers side-by-side",
       icon: Swords,
     },
-    {
-      to: "/success-stories",
-      label: "Success Stories",
-      desc: "Real Abilitio journeys",
-      icon: BookOpen,
-    },
+    { to: "/roadmap", label: "Your Roadmap", desc: "Phase-by-phase growth plan", icon: BookOpen },
+    // Mentors and Success Stories were here. Both are now honest "coming soon"
+    // pages, and a signed-in user's dashboard shouldn't spend prime space
+    // pointing at features that aren't open yet.
   ];
   return (
     <div className="glass rounded-3xl p-6">

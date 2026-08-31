@@ -1,10 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Sparkles, Trophy } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Sparkles } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { FloatingShapes } from "@/components/FloatingShapes";
 import { GlowBlob } from "@/components/GlowBlob";
-import { SUCCESS_STORIES } from "@/lib/abbi/abbi-extras";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/success-stories")({
@@ -14,7 +13,7 @@ export const Route = createFileRoute("/success-stories")({
       {
         name: "description",
         content:
-          "Illustrative examples of how students can discover their strengths and find their direction with Abilitio.",
+          "Real student stories from Abilitio, published as members share them.",
       },
     ],
   }),
@@ -39,41 +38,14 @@ function SuccessPage() {
             <p className="mt-2 text-sm text-muted-foreground">{t.storiesPage.subtitle}</p>
           </header>
 
-          <Reveal>
-            <p className="mb-8 rounded-2xl border border-dashed border-border/70 bg-secondary/30 px-4 py-3 text-center text-xs text-muted-foreground">
-              {t.storiesPage.note}
-            </p>
-          </Reveal>
-
-          <Reveal className="grid gap-5 md:grid-cols-2">
-            {SUCCESS_STORIES.map((s) => (
-              <article
-                key={s.name}
-                className="group relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-6 backdrop-blur-xl transition-all hover:-translate-y-1 hover:border-primary/40"
-                style={{ boxShadow: "0 10px 30px -15px oklch(0.55 0.22 295 / 0.4)" }}
-              >
-                <GlowBlob className="-right-10 -top-10 h-32 w-32 opacity-30 blur-3xl" />
-                <div className="relative flex items-start gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-base font-bold text-primary-foreground shadow-lg">
-                    {s.initials}
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="text-base font-semibold">{s.name}</h3>
-                    <p className="mt-0.5 text-sm font-medium text-foreground/90">{s.title}</p>
-                  </div>
-                </div>
-                <p className="relative mt-4 text-sm leading-relaxed text-muted-foreground">
-                  {s.story}
-                </p>
-                <div className="relative mt-5 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
-                  <Trophy className="h-3 w-3" /> {s.badge}
-                </div>
-              </article>
-            ))}
-          </Reveal>
-
-          <Reveal>
-            <div className="mt-10 relative overflow-hidden rounded-3xl border border-dashed border-primary/30 bg-gradient-to-br from-primary/5 via-secondary/30 to-background/40 p-10 text-center">
+          {/* Four invented students used to sit here — fabricated names and
+              outcomes ("SAT 1490 -> MIT-style scholarship") shown as success
+              stories, under a note admitting none of them were real. Inventing
+              student outcomes is the least defensible thing on a launch site
+              aimed at students and schools, so the page now says plainly that
+              there are none yet and invites the first real one. */}
+          <Reveal className="mx-auto max-w-xl">
+            <div className="relative overflow-hidden rounded-3xl border border-dashed border-primary/30 bg-gradient-to-br from-primary/5 via-secondary/30 to-background/40 p-10 text-center">
               <GlowBlob className="left-1/2 top-0 h-32 w-64 -translate-x-1/2 opacity-30 blur-3xl" />
               <div className="relative">
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_24px_-8px_var(--glow)]">
@@ -81,6 +53,12 @@ function SuccessPage() {
                 </div>
                 <h3 className="mt-4 text-lg font-semibold">{t.storiesPage.shareTitle}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{t.storiesPage.shareBody}</p>
+                <Link
+                  to="/contact"
+                  className="mt-6 inline-flex items-center justify-center rounded-full bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_28px_-10px_var(--glow)]"
+                >
+                  {t.storiesPage.shareCta}
+                </Link>
               </div>
             </div>
           </Reveal>

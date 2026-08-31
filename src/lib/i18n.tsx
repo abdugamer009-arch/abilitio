@@ -128,22 +128,23 @@ const translations = {
       thinking: "ABBI is thinking",
     },
     mentorsPage: {
-      badge: "Illustrative Examples",
+      badge: "Coming soon",
       title: "Learn from people already there",
       subtitle:
-        "A preview of the kinds of mentors we're building — aligned with the careers ABBI recommends. Real mentors join as the program launches.",
-      note: "Note: the mentor profiles below are illustrative examples, not real individuals. Booking opens when the mentor program launches.",
+        "We're building a mentor network matched to the careers your assessment surfaces — working professionals you can book a session with.",
+      note: "The programme isn't open yet. If you'd like to mentor students, or be told when booking opens, get in touch.",
       book: "Book a Session",
       bookingSoon: "Booking opens soon",
+      cta: "Get in touch",
     },
     storiesPage: {
-      badge: "Illustrative Examples",
+      badge: "Coming soon",
       title: "Success Stories",
       subtitle:
-        "Illustrative examples of how assessments, roadmaps, and community can change a student's trajectory. Real member stories will be featured here as our community grows.",
-      note: "Note: the profiles below are illustrative examples, not real individuals or testimonials.",
+        "Abilitio is new, so there are no member stories here yet. Real ones will be published as students share them — nothing invented in the meantime.",
       shareTitle: "Have a story to share?",
-      shareBody: "Story submissions open soon — get featured on this page.",
+      shareBody: "Tell us what changed after your assessment and we'll feature it here.",
+      shareCta: "Share your story",
     },
     uniPage: {
       badge: "ABBI University Explorer",
@@ -896,22 +897,23 @@ const translations = {
       thinking: "ABBI думает",
     },
     mentorsPage: {
-      badge: "Иллюстративные примеры",
+      badge: "Скоро",
       title: "Учитесь у тех, кто уже прошёл этот путь",
       subtitle:
-        "Примеры менторов, которых мы подбираем под профессии, рекомендованные ABBI. Настоящие менторы присоединятся с запуском программы.",
-      note: "Обратите внимание: профили ниже — иллюстративные примеры, а не реальные люди. Запись откроется с запуском программы менторства.",
+        "Мы формируем сеть менторов под профессии, которые покажет ваша оценка, — практикующих специалистов, к которым можно записаться.",
+      note: "Программа ещё не открыта. Если вы хотите стать ментором или узнать о запуске записи — напишите нам.",
       book: "Записаться на сессию",
       bookingSoon: "Запись скоро откроется",
+      cta: "Связаться с нами",
     },
     storiesPage: {
-      badge: "Иллюстративные примеры",
+      badge: "Скоро",
       title: "Истории успеха",
       subtitle:
-        "Примеры того, как тесты, дорожные карты и сообщество могут изменить путь ученика. Реальные истории появятся здесь по мере роста сообщества.",
-      note: "Обратите внимание: профили ниже — иллюстративные примеры, а не реальные люди или отзывы.",
+        "Abilitio только запустился, поэтому здесь пока нет историй участников. Мы опубликуем настоящие, когда студенты ими поделятся — и не станем ничего выдумывать.",
       shareTitle: "Есть своя история?",
-      shareBody: "Скоро вы сможете поделиться историей и попасть на эту страницу.",
+      shareBody: "Расскажите, что изменилось после вашей оценки, и мы разместим историю здесь.",
+      shareCta: "Поделиться историей",
     },
     uniPage: {
       badge: "Подбор университетов ABBI",
@@ -1671,22 +1673,23 @@ const translations = {
       thinking: "ABBI o'ylayapti",
     },
     mentorsPage: {
-      badge: "Namunaviy misollar",
+      badge: "Tez orada",
       title: "Bu yo'ldan o'tganlardan o'rganing",
       subtitle:
-        "ABBI tavsiya qilgan kasblarga mos mentorlar namunalari. Dastur ishga tushgach, haqiqiy mentorlar qo'shiladi.",
-      note: "Eslatma: quyidagi profillar namunaviy misollar bo'lib, haqiqiy shaxslar emas. Yozilish mentorlik dasturi boshlanganda ochiladi.",
+        "Testingiz ko'rsatgan kasblarga mos mentorlar tarmog'ini shakllantirmoqdamiz — sessiyaga yozilishingiz mumkin bo'lgan amaliyotchi mutaxassislar.",
+      note: "Dastur hali ochilmagan. Mentor bo'lishni xohlasangiz yoki yozilish ochilganda xabar olishni istasangiz — biz bilan bog'laning.",
       book: "Sessiyaga yozilish",
       bookingSoon: "Yozilish tez orada ochiladi",
+      cta: "Bog'lanish",
     },
     storiesPage: {
-      badge: "Namunaviy misollar",
+      badge: "Tez orada",
       title: "Muvaffaqiyat tarixi",
       subtitle:
-        "Testlar, yo'l xaritalari va jamoa o'quvchi hayotini qanday o'zgartirishi mumkinligiga doir namunalar. Jamoamiz o'sgani sari bu yerda haqiqiy hikoyalar paydo bo'ladi.",
-      note: "Eslatma: quyidagi profillar namunaviy misollar bo'lib, haqiqiy shaxslar yoki fikrlar emas.",
+        "Abilitio yaqinda ishga tushdi, shuning uchun bu yerda hali ishtirokchilar hikoyalari yo'q. O'quvchilar bo'lishgach, haqiqiylarini chop etamiz — hech narsa to'qib chiqarmaymiz.",
       shareTitle: "O'z hikoyangiz bormi?",
-      shareBody: "Tez orada hikoyangizni yuborib, ushbu sahifadan joy olishingiz mumkin.",
+      shareBody: "Testdan keyin nima o'zgarganini ayting — biz uni shu yerda joylashtiramiz.",
+      shareCta: "Hikoyangizni ulashing",
     },
     uniPage: {
       badge: "ABBI universitet tanlovi",
