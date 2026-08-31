@@ -38,7 +38,7 @@ const abbiMessageSchema = z.object({
   }),
 });
 
-/** Generate an ABBI reply. Uses Claude claude-sonnet-4-6 if ANTHROPIC_API_KEY is set, otherwise falls back to template engine. */
+/** Generate an ABBI reply. Uses Claude claude-sonnet-5 if ANTHROPIC_API_KEY is set, otherwise falls back to template engine. */
 export const generateAbbiMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => abbiMessageSchema.parse(d))
@@ -73,7 +73,7 @@ export const generateAbbiMessage = createServerFn({ method: "POST" })
           .join(" ");
 
         const response = await client.messages.create({
-          model: "claude-sonnet-4-6",
+          model: "claude-sonnet-5",
           max_tokens: 512,
           system: systemPrompt,
           messages: [{ role: "user", content: data.message }],
