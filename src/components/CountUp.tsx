@@ -40,26 +40,48 @@ export function CountUp({
       return;
     }
 
+    const animate = () => {
+      if (started.current) return;
+      started.current = true;
+      const start = performance.now();
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - t, 3);
+        setDisplay(value * eased);
+        if (t < 1) requestAnimationFrame(tick);
+        else setDisplay(value);
+      };
+      requestAnimationFrame(tick);
+    };
+
+    // Snap straight to the final value when the element is already behind us.
+    // A big scroll jump (anchor link, End key, restored scroll position, hard
+    // flick) can move it from below the fold to above it without ever
+    // producing an intersecting frame, so waiting on the observer alone would
+    // leave the number stuck at 0 for good — the page then reads as broken.
+    const settleIfPassed = () => {
+      if (started.current) return;
+      if (el.getBoundingClientRect().bottom <= 0) {
+        started.current = true;
+        setDisplay(value);
+      }
+    };
+
     const obs = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !started.current) {
-          started.current = true;
+        if (entries[0].isIntersecting) {
           obs.disconnect();
-          const start = performance.now();
-          const tick = (now: number) => {
-            const t = Math.min(1, (now - start) / duration);
-            const eased = 1 - Math.pow(1 - t, 3);
-            setDisplay(value * eased);
-            if (t < 1) requestAnimationFrame(tick);
-            else setDisplay(value);
-          };
-          requestAnimationFrame(tick);
+          animate();
         }
       },
-      { threshold: 0.4 },
+      { threshold: 0 },
     );
     obs.observe(el);
-    return () => obs.disconnect();
+    window.addEventListener("scroll", settleIfPassed, { passive: true });
+    return () => {
+      obs.disconnect();
+      window.removeEventListener("scroll", settleIfPassed);
+    };
   }, [value, duration]);
 
   return (
