@@ -3,10 +3,7 @@ import {
   ArrowRight,
   Brain,
   Compass,
-  LineChart,
   Sparkles,
-  Target,
-  Users,
   Zap,
   ShieldCheck,
   Star,
@@ -38,7 +35,6 @@ export const Route = createFileRoute("/")({
 });
 
 const stepIcons = [Brain, Zap, Compass];
-const featureIcons = [Target, LineChart, Compass, Users, ShieldCheck, Sparkles];
 
 function LandingPage() {
   const t = useT();
@@ -176,26 +172,10 @@ function LandingPage() {
         </div>
       </Section>
 
-      {/* Features */}
-      <Section eyebrow={t.featuresSection.eyebrow} title={t.featuresSection.title}>
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {t.featuresSection.items.map((f, i) => {
-            const Icon = featureIcons[i];
-            return (
-              <SpotlightCard
-                key={f.title}
-                className="glass rounded-2xl p-6 hover-glow transition-all duration-300 hover:-translate-y-1"
-              >
-                <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_6px_24px_-8px_var(--glow)]">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <h3 className="font-semibold">{f.title}</h3>
-                <p className="mt-1.5 text-sm text-muted-foreground">{f.desc}</p>
-              </SpotlightCard>
-            );
-          })}
-        </div>
-      </Section>
+      {/* The six-card "Features" grid used to sit here. It restated the two
+          sections either side of it (Analytics, Career Paths) and claimed "24
+          dimensions" where the hero strip on this same page says 3. The
+          dedicated /features page carries this content instead. */}
 
       {/* AI Analytics Preview */}
       <Section eyebrow={t.analytics.eyebrow} title={t.analytics.title}>
@@ -318,49 +298,11 @@ function LandingPage() {
         </div>
       </Section>
 
-      {/* Testimonials */}
-      <Section eyebrow={t.testimonials.eyebrow} title={t.testimonials.title}>
-        <div className="grid gap-5 md:grid-cols-3">
-          {t.testimonials.items.map((tt) => (
-            <figure
-              key={tt.name}
-              className="relative overflow-hidden glass rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-20px_oklch(0.55_0.22_295_/_0.35)]"
-            >
-              <GlowBlob className="-right-8 -top-8 h-28 w-28 opacity-15 blur-2xl" alpha={0.7} />
-              <div className="flex gap-0.5 text-accent">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-current" />
-                ))}
-              </div>
-              <div
-                aria-hidden
-                className="pointer-events-none mt-3 text-5xl font-serif leading-none text-primary/20 select-none"
-              >
-                "
-              </div>
-              <blockquote className="-mt-2 text-sm leading-relaxed text-foreground/90">
-                {tt.quote}
-              </blockquote>
-              <figcaption className="mt-5 flex items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-[11px] font-bold text-primary-foreground shadow-[0_4px_12px_-4px_var(--glow)]">
-                  {tt.name
-                    .split(" ")
-                    .map((n: string) => n[0])
-                    .join("")
-                    .slice(0, 2)}
-                </div>
-                <div className="text-xs">
-                  <div className="font-medium text-foreground">{tt.name}</div>
-                  <div className="text-muted-foreground">{tt.role}</div>
-                </div>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-        <p className="mt-8 text-center text-xs text-muted-foreground/70">
-          Illustrative examples — real member stories coming soon.
-        </p>
-      </Section>
+      {/* A three-card testimonial wall used to sit here. The quotes were
+          invented people ("Maya R., Parent" / "Dr. Lin, School Counselor")
+          shown with five-star ratings, under a footnote admitting they were
+          illustrative. Fabricated social proof is worse than none on a launch
+          page; /success-stories still carries this content, clearly labelled. */}
 
       {/* FAQ */}
       <Section eyebrow={t.faq.eyebrow} title={t.faq.title}>
