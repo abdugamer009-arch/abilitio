@@ -31,6 +31,9 @@ export const Route = createFileRoute("/universities")({
   component: UniversitiesPage,
 });
 
+/** Cards rendered per "page"; 12 fills the 3-column grid four rows deep. */
+const PAGE_SIZE = 12;
+
 function UniversitiesPage() {
   const t = useT();
   const { user } = useAuth();
@@ -73,6 +76,14 @@ function UniversitiesPage() {
       })
       .sort((a, b) => b.fit - a.fit || a.u.minSat - b.u.minSat);
   }, [sat, ielts, country, major]);
+
+  // Render a page at a time. The whole catalogue at once ran ~14 screens of
+  // cards, which buried the filters that are the actual feature here.
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  useEffect(() => {
+    setVisible(PAGE_SIZE);
+  }, [sat, ielts, country, major]);
+  const shown = filtered.slice(0, visible);
 
   return (
     <PageShell>
@@ -148,11 +159,29 @@ function UniversitiesPage() {
           </div>
 
           {/* Results */}
+          {filtered.length > 0 && (
+            <p className="mb-4 text-sm text-muted-foreground">
+              {t.uniPage.showingCount
+                .replace("{shown}", String(shown.length))
+                .replace("{total}", String(filtered.length))}
+            </p>
+          )}
           <Reveal className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.map(({ u, fit, elig }) => (
+            {shown.map(({ u, fit, elig }) => (
               <UniCard key={u.name} u={u} fit={fit} major={major} elig={elig} />
             ))}
           </Reveal>
+          {visible < filtered.length && (
+            <div className="mt-8 text-center">
+              <button
+                type="button"
+                onClick={() => setVisible((v) => v + PAGE_SIZE)}
+                className="rounded-full border border-border bg-secondary/40 px-5 py-2.5 text-sm transition-colors hover:bg-secondary"
+              >
+                {t.uniPage.showMore}
+              </button>
+            </div>
+          )}
           {filtered.length === 0 && (
             <p className="mt-12 text-center text-sm text-muted-foreground">{t.uniPage.noMatches}</p>
           )}
