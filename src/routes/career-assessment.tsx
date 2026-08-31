@@ -132,6 +132,14 @@ function CareerAssessmentPage() {
     }
   }, []);
 
+  // Bring each new question into view. Without this the page keeps the previous
+  // scroll offset, so the prompt sits above the viewport for all 30 steps.
+  useEffect(() => {
+    if (!session) return;
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+  }, [session, step]);
+
   // Persist after every answer / step change while an attempt is in progress.
   useEffect(() => {
     if (!session) return;
