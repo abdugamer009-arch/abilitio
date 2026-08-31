@@ -294,7 +294,7 @@ const translations = {
         },
         {
           q: "Is my data safe?",
-          a: "All data is end-to-end encrypted. We never share or sell personal information.",
+          a: "Your data travels over encrypted connections and is stored on managed infrastructure with access controls. We never share or sell personal information.",
         },
         {
           q: "How long does an assessment take?",
@@ -359,8 +359,7 @@ const translations = {
         recs: { title: "AI Recommendations", desc: "Updated as you grow and learn." },
         reports: { title: "Reports & Exports", desc: "Beautiful PDF reports for schools." },
         career: { title: "Career Mapping", desc: "Explore matched paths and roles." },
-        parent: { title: "Parent Dashboard", desc: "Empower parents to nurture talent." },
-        privacy: { title: "Private & Secure", desc: "Encrypted end-to-end, always." },
+        privacy: { title: "Private & Secure", desc: "Encrypted connections, never sold." },
       },
     },
     contact: {
@@ -703,7 +702,8 @@ const translations = {
       registerBtn: "Register your school",
       joinBtn: "Join as a student",
       feature1Title: "Premium Analytics",
-      feature1Body: "Talent distribution, career fit, IQ insights — visualized for every class.",
+      feature1Body:
+        "Talent distribution, career fit, aptitude scores — visualized for every class.",
       feature2Title: "Class Intelligence",
       feature2Body: "Compare classes, find leaders, surface hidden strengths automatically.",
       feature3Title: "AI Class Builder",
@@ -1062,7 +1062,7 @@ const translations = {
         },
         {
           q: "Безопасны ли мои данные?",
-          a: "Все данные шифруются end-to-end. Мы не делимся и не продаём личную информацию.",
+          a: "Данные передаются по зашифрованным соединениям и хранятся на управляемой инфраструктуре с контролем доступа. Мы не делимся и не продаём личную информацию.",
         },
         {
           q: "Сколько длится оценка?",
@@ -1127,8 +1127,10 @@ const translations = {
         recs: { title: "Рекомендации ИИ", desc: "Обновляются по мере вашего роста и обучения." },
         reports: { title: "Отчёты и экспорт", desc: "Красивые PDF-отчёты для школ." },
         career: { title: "Карта карьеры", desc: "Изучите подходящие пути и роли." },
-        parent: { title: "Кабинет родителя", desc: "Помогите родителям развивать талант." },
-        privacy: { title: "Приватность и безопасность", desc: "End-to-end шифрование, всегда." },
+        privacy: {
+          title: "Приватность и безопасность",
+          desc: "Зашифрованные соединения, данные не продаются.",
+        },
       },
     },
     contact: {
@@ -1474,7 +1476,7 @@ const translations = {
       joinBtn: "Присоединиться как ученик",
       feature1Title: "Премиум-аналитика",
       feature1Body:
-        "Распределение талантов, карьерное соответствие, инсайты IQ — визуализированы для каждого класса.",
+        "Распределение талантов, карьерное соответствие, баллы способностей — визуализированы для каждого класса.",
       feature2Title: "Интеллект класса",
       feature2Body:
         "Сравнивайте классы, находите лидеров, автоматически выявляйте скрытые сильные стороны.",
@@ -1840,7 +1842,7 @@ const translations = {
         },
         {
           q: "Ma'lumotlarim xavfsizmi?",
-          a: "Hamma ma'lumot end-to-end shifrlangan. Biz shaxsiy ma'lumotlarni ulashmaymiz va sotmaymiz.",
+          a: "Ma'lumotlar shifrlangan ulanishlar orqali uzatiladi va kirish nazorati bilan boshqariladigan infratuzilmada saqlanadi. Biz shaxsiy ma'lumotlarni ulashmaymiz va sotmaymiz.",
         },
         {
           q: "Test qancha vaqt oladi?",
@@ -1905,8 +1907,7 @@ const translations = {
           desc: "Maktablar uchun chiroyli PDF hisobotlar.",
         },
         career: { title: "Kasb xaritasi", desc: "Mos yo'llar va rollarni o'rganing." },
-        parent: { title: "Ota-ona paneli", desc: "Ota-onalarga iste'dodni o'stirishga yordam." },
-        privacy: { title: "Maxfiy va xavfsiz", desc: "Doimo end-to-end shifrlangan." },
+        privacy: { title: "Maxfiy va xavfsiz", desc: "Shifrlangan ulanishlar, sotilmaydi." },
       },
     },
     contact: {
@@ -2253,7 +2254,7 @@ const translations = {
       joinBtn: "O'quvchi sifatida qo'shiling",
       feature1Title: "Premium analitika",
       feature1Body:
-        "Iste'dod taqsimoti, kasb mosligi, IQ tushunchalari — har bir sinf uchun vizuallashtirilgan.",
+        "Iste'dod taqsimoti, kasb mosligi, qobiliyat ballari — har bir sinf uchun vizuallashtirilgan.",
       feature2Title: "Sinf intellekti",
       feature2Body:
         "Sinflarni solishtiring, yetakchilarni toping, yashirin kuchli tomonlarni avtomatik aniqlang.",

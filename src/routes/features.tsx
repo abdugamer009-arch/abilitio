@@ -6,7 +6,6 @@ import {
   Compass,
   ShieldCheck,
   Sparkles,
-  Users,
   Target,
   BookOpen,
   Zap,
@@ -24,7 +23,7 @@ export const Route = createFileRoute("/features")({
       {
         name: "description",
         content:
-          "Talent discovery, AI analytics, career mapping, and parent insights — all in one beautiful platform.",
+          "Talent discovery, analytics, and career mapping — all in one platform.",
       },
     ],
   }),
@@ -53,8 +52,9 @@ function FeaturesPage() {
     {
       title: t.featuresPage.grow,
       items: [
+        // A "Parent Dashboard" card sat here. No parent-facing route or feature
+        // exists anywhere in the app, so it advertised something that isn't built.
         { icon: Compass, ...t.featuresPage.items.career },
-        { icon: Users, ...t.featuresPage.items.parent },
         { icon: ShieldCheck, ...t.featuresPage.items.privacy },
       ],
     },

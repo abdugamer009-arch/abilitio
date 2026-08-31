@@ -31,7 +31,8 @@ function PricingPage() {
       t.pricing.plan2F3,
       t.pricing.plan2F4,
       t.pricing.plan2F5,
-      t.pricing.plan3F2,
+      // plan3F2 ("Parent dashboard") is deliberately not listed: no
+      // parent-facing feature exists in the app.
       t.pricing.plan3F3,
       t.pricing.plan3F4,
     ]),
