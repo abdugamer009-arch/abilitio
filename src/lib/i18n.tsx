@@ -3061,6 +3061,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Keep <html lang> in sync with the active language, including the restore
+  // above — otherwise a returning ru/uz visitor gets translated copy still
+  // announced as English by screen readers.
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
   const setLang = (l: Lang) => {
     setLangState(l);
     try {
@@ -3068,7 +3075,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     } catch {
       /* ignore */
     }
-    if (typeof document !== "undefined") document.documentElement.lang = l;
   };
 
   const value: Ctx = {
