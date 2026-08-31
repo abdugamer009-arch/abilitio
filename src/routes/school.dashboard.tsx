@@ -293,7 +293,7 @@ function PrincipalDashboard() {
                       <li key={s.user_id} className="flex items-center justify-between">
                         <span>{s.name}</span>
                         {talent.dimension.includes("Analytical") && (
-                          <span className="text-xs text-muted-foreground">IQ {s.score}</span>
+                          <span className="text-xs text-muted-foreground">{s.score}/10</span>
                         )}
                       </li>
                     ))}

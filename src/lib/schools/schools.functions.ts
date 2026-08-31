@@ -173,7 +173,7 @@ type StudentRow = {
   top_career: string | null;
   bucket: string | null;
   mbti: string | null;
-  iq: number | null;
+  cognitive: number | null;
   strengths: string[];
 };
 
@@ -243,7 +243,10 @@ async function loadStudentsForSchool(school: SchoolDTO): Promise<{
       top_career: topCareer,
       bucket: topCareer ? bucketOf(topCareer) : null,
       mbti: r?.personality_type ?? null,
-      iq: r?.cognitive_score != null ? Math.round(70 + r.cognitive_score * 8) : null,
+      // Raw 0-10 aptitude score. Deliberately NOT rescaled into an IQ-looking
+      // number: this is a 9-question screener, not a clinical IQ test, and the
+      // student-facing copy says so too.
+      cognitive: r?.cognitive_score ?? null,
       strengths: Array.isArray(r?.strengths) ? r.strengths : [],
     };
   });
@@ -300,9 +303,9 @@ export const getPrincipalDashboard = createServerFn({ method: "GET" })
     });
 
     // Top talents (by latest assessment dims)
-    const dim = (key: "iq"): { user_id: string; name: string; score: number }[] => {
+    const dim = (key: "cognitive"): { user_id: string; name: string; score: number }[] => {
       return students
-        .filter((s): s is StudentRow & { iq: number } => typeof s[key] === "number")
+        .filter((s): s is StudentRow & { cognitive: number } => typeof s[key] === "number")
         .sort((a, b) => b[key] - a[key])
         .slice(0, 5)
         .map((s) => ({
@@ -318,7 +321,7 @@ export const getPrincipalDashboard = createServerFn({ method: "GET" })
         .map((s) => ({ user_id: s.user_id, name: `${s.name} ${s.surname}`.trim(), score: 1 }));
     };
     const topTalents = [
-      { dimension: "Top Analytical Thinkers", students: dim("iq") },
+      { dimension: "Top Analytical Thinkers", students: dim("cognitive") },
       { dimension: "Top Leaders", students: topByStrength("leadership") },
       { dimension: "Top Communicators", students: topByStrength("communication") },
       { dimension: "Top Creatives", students: topByStrength("creativity") },

@@ -228,7 +228,7 @@ export const QUESTION_TRANSLATIONS: Record<string, QT> = {
   },
   p46: {
     ru: { prompt: "Вы первыми представляетесь в комнате, полной незнакомцев." },
-    uz: { prompt: "Begonalar to'la xonada birinchi bo'lib o'zingizni tanishtirасиз." },
+    uz: { prompt: "Begonalar to'la xonada birinchi bo'lib o'zingizni tanishtirasiz." },
   },
   p47: {
     ru: { prompt: "Групповые мозговые штурмы заряжают вас, а не истощают." },
@@ -1788,7 +1788,7 @@ export const QUESTION_TRANSLATIONS: Record<string, QT> = {
       options: ["соучастнику", "другу", "помощнику", "товарищу"],
     },
     uz: {
-      prompt: "Hamkor sheriкga qanday bog'liq bo'lsa, hamkorchi shunday bog'liq:",
+      prompt: "Hamkor sherikga qanday bog'liq bo'lsa, hamkorchi shunday bog'liq:",
       options: ["sherikchi", "do'st", "yordamchi", "hamroh"],
     },
   },
