@@ -186,6 +186,7 @@ const translations = {
       ai: "AI-Powered",
       sat: "SAT Prep",
       ielts: "IELTS Ready",
+      caption: "Universities you can explore in Abilitio",
     },
     nav: {
       home: "Home",
@@ -948,6 +949,7 @@ const translations = {
       ai: "На базе ИИ",
       sat: "Подготовка к SAT",
       ielts: "Подготовка к IELTS",
+      caption: "Университеты, доступные для поиска в Abilitio",
     },
     nav: {
       home: "Главная",
@@ -1718,6 +1720,7 @@ const translations = {
       ai: "AI asosida",
       sat: "SAT tayyorlov",
       ielts: "IELTS tayyorlov",
+      caption: "Abilitio'da qidirishingiz mumkin bo'lgan universitetlar",
     },
     nav: {
       home: "Bosh sahifa",
