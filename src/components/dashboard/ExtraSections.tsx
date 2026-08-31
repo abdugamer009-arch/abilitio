@@ -179,7 +179,10 @@ export function WeeklyReportSection({ mbti }: { mbti?: string | null }) {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <div className="rounded-2xl border border-border/60 bg-secondary/30 p-5">
-            <div className="text-sm font-semibold">Skill movement</div>
+            <div className="text-sm font-semibold">Projected skill focus</div>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Estimated from your assessment history — not week-by-week measurement.
+            </p>
             <div className="mt-4 h-44">
               <ResponsiveContainer>
                 <BarChart data={report.improvements}>
