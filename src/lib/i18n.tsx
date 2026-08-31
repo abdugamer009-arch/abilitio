@@ -217,7 +217,10 @@ const translations = {
       title: "Three steps to clarity",
       step: "Step",
       items: [
-        { title: "Take the Assessment", desc: "A short, science-backed quiz that adapts to you." },
+        {
+          title: "Take the Assessment",
+          desc: "30 questions on reasoning, personality, and interests — about 5 minutes.",
+        },
         {
           title: "AI Analyzes You",
           desc: "Our model maps cognitive, social, and creative strengths.",
@@ -344,12 +347,12 @@ const translations = {
       grow: "Grow",
       items: {
         adaptive: {
-          title: "Adaptive Assessment",
-          desc: "Questions that evolve with your answers.",
+          title: "Fresh Every Sitting",
+          desc: "Drawn at random from a 500+ question bank, so no two attempts match.",
         },
         dimensions: {
-          title: "24 Talent Dimensions",
-          desc: "From abstract reasoning to emotional intelligence.",
+          title: "18 Interest Fields",
+          desc: "From technology and design to law and psychology.",
         },
         personality: { title: "Personality Insights", desc: "Understand your inner motivations." },
         dashboards: { title: "Live Dashboards", desc: "Visualize strengths in real time." },
@@ -984,7 +987,7 @@ const translations = {
       items: [
         {
           title: "Пройдите оценку",
-          desc: "Короткий научно обоснованный тест, который подстраивается под вас.",
+          desc: "30 вопросов: логика, личность и интересы — около 5 минут.",
         },
         {
           title: "ИИ анализирует вас",
@@ -1109,12 +1112,12 @@ const translations = {
       grow: "Расти",
       items: {
         adaptive: {
-          title: "Адаптивная оценка",
-          desc: "Вопросы развиваются вместе с вашими ответами.",
+          title: "Каждый раз новые вопросы",
+          desc: "Случайная выборка из банка на 500+ вопросов — две попытки не совпадают.",
         },
         dimensions: {
-          title: "24 измерения таланта",
-          desc: "От абстрактного мышления до эмоционального интеллекта.",
+          title: "18 областей интересов",
+          desc: "От технологий и дизайна до права и психологии.",
         },
         personality: { title: "Инсайты личности", desc: "Поймите свои внутренние мотивы." },
         dashboards: {
@@ -1755,7 +1758,10 @@ const translations = {
       title: "Aniqlikka uch qadam",
       step: "Qadam",
       items: [
-        { title: "Testdan o'ting", desc: "Sizga moslashadigan qisqa va ilmiy asoslangan test." },
+        {
+          title: "Testdan o'ting",
+          desc: "30 ta savol: mantiq, shaxsiyat va qiziqishlar — taxminan 5 daqiqa.",
+        },
         {
           title: "AI sizni tahlil qiladi",
           desc: "Modelimiz kognitiv, ijtimoiy va ijodiy kuchli tomonlarni xaritalaydi.",
@@ -1881,12 +1887,12 @@ const translations = {
       grow: "O'sish",
       items: {
         adaptive: {
-          title: "Moslashuvchan baholash",
-          desc: "Javoblaringizga qarab rivojlanadigan savollar.",
+          title: "Har safar yangi savollar",
+          desc: "500+ savol bankidan tasodifiy tanlanadi — ikki urinish bir xil bo'lmaydi.",
         },
         dimensions: {
-          title: "24 iste'dod o'lchovi",
-          desc: "Abstrakt fikrlashdan emotsional intellektgacha.",
+          title: "18 ta qiziqish sohasi",
+          desc: "Texnologiya va dizayndan huquq va psixologiyagacha.",
         },
         personality: { title: "Shaxsiyat haqida", desc: "Ichki motivlaringizni tushuning." },
         dashboards: {
