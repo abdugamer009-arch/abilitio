@@ -208,7 +208,10 @@ function AboutPage() {
           noValidate
         >
           {status === "success" ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center animate-fade-up">
+            <div
+              role="status"
+              className="flex flex-col items-center justify-center py-8 text-center animate-fade-up"
+            >
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent glow-purple">
                 <Check className="h-6 w-6 text-primary-foreground" />
               </div>
@@ -284,7 +287,10 @@ function AboutPage() {
                 />
               </div>
               {status === "error" && (
-                <div className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                <div
+                  role="alert"
+                  className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+                >
                   {errorMsg || t.contact.errors.generic}
                 </div>
               )}
