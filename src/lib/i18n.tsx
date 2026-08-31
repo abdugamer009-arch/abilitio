@@ -198,6 +198,7 @@ const translations = {
       community: "Community",
       universities: "Universities",
       forSchools: "Schools",
+      skipToContent: "Skip to content",
     },
     hero: {
       badge: "Now powered by next-gen talent AI",
@@ -959,6 +960,7 @@ const translations = {
       community: "Сообщество",
       universities: "Университеты",
       forSchools: "Школам",
+      skipToContent: "Перейти к содержимому",
     },
     hero: {
       badge: "Работает на ИИ нового поколения",
@@ -1728,6 +1730,7 @@ const translations = {
       community: "Hamjamiyat",
       universities: "Universitetlar",
       forSchools: "Maktablar",
+      skipToContent: "Asosiy qismga o'tish",
     },
     hero: {
       badge: "Yangi avlod iste'dod sun'iy intellekti bilan",
