@@ -33,6 +33,8 @@ import {
   FileText,
   Loader2,
   RefreshCw,
+  BarChart3,
+  Wand2,
 } from "lucide-react";
 import { useT } from "@/lib/i18n";
 
@@ -151,12 +153,29 @@ function PrincipalDashboard() {
                 <span className="capitalize text-foreground">{data.school.plan}</span>
               </p>
             </div>
-            <Link
-              to="/school/report"
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/40 px-4 py-2 text-sm hover:bg-secondary"
-            >
-              <FileText className="h-4 w-4" /> {t.school.schoolReport}
-            </Link>
+            {/* The analytics and class-builder tools are otherwise unreachable
+                from here — a principal landing on this page had no way to find
+                them short of typing the URL. */}
+            <div className="flex flex-wrap gap-2">
+              <Link
+                to="/school/analytics"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/40 px-4 py-2 text-sm hover:bg-secondary"
+              >
+                <BarChart3 className="h-4 w-4" /> {t.school.talentIntelligence}
+              </Link>
+              <Link
+                to="/school/class-builder"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/40 px-4 py-2 text-sm hover:bg-secondary"
+              >
+                <Wand2 className="h-4 w-4" /> {t.school.aiClassBuilder}
+              </Link>
+              <Link
+                to="/school/report"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/40 px-4 py-2 text-sm hover:bg-secondary"
+              >
+                <FileText className="h-4 w-4" /> {t.school.schoolReport}
+              </Link>
+            </div>
           </header>
 
           {/* Stat cards */}
