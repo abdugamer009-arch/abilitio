@@ -174,7 +174,7 @@ function AboutPage() {
         <div className="mx-auto grid max-w-3xl gap-5 sm:grid-cols-2">
           <a
             href={`tel:${CONTACT_PHONE_TEL}`}
-            className="glass group flex items-center gap-4 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_-12px_var(--glow)]"
+            className="glass group flex min-w-0 items-center gap-4 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_-12px_var(--glow)]"
           >
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_4px_14px_-4px_var(--glow)] transition-transform duration-300 group-hover:scale-105">
               <Phone className="h-4.5 w-4.5" />
@@ -188,7 +188,7 @@ function AboutPage() {
           </a>
           <a
             href={`mailto:${CONTACT_EMAIL}`}
-            className="glass group flex items-center gap-4 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_-12px_var(--glow)]"
+            className="glass group flex min-w-0 items-center gap-4 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_-12px_var(--glow)]"
           >
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_4px_14px_-4px_var(--glow)] transition-transform duration-300 group-hover:scale-105">
               <Mail className="h-4.5 w-4.5" />
@@ -197,7 +197,7 @@ function AboutPage() {
               <div className="text-[11px] uppercase tracking-widest text-muted-foreground">
                 {t.contact.email}
               </div>
-              <div className="mt-0.5 truncate text-sm font-medium">{CONTACT_EMAIL}</div>
+              <div className="mt-0.5 text-sm font-medium break-all">{CONTACT_EMAIL}</div>
             </div>
           </a>
         </div>
