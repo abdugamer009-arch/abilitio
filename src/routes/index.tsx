@@ -41,11 +41,15 @@ function LandingPage() {
 
   return (
     <PageShell>
-      {/* Hero */}
-      <section className="relative px-6 pt-24 pb-28 text-center sm:pt-32 sm:pb-36 lg:pt-40 lg:pb-48">
+      {/* Hero — asymmetric split rather than a centred stack: the copy reads as
+          one left-aligned column and the product sits beside it, so a visitor
+          sees what Abilitio actually produces above the fold instead of having
+          to scroll to a screenshot. */}
+      <section className="relative px-6 pt-24 pb-28 sm:pt-32 sm:pb-36 lg:pt-40 lg:pb-44">
         <div aria-hidden className="bg-grid pointer-events-none absolute inset-0 z-0" />
         <ParticleConstellation />
-        <div key={t.hero.titleA} className="relative z-10 mx-auto max-w-5xl animate-fade-up">
+        <div className="relative z-10 mx-auto grid max-w-[1200px] items-center gap-14 lg:grid-cols-2 lg:gap-16">
+        <div key={t.hero.titleA} className="animate-fade-up">
           <div className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/8 px-5 py-2 text-sm text-primary/90 backdrop-blur shadow-[0_0_20px_-8px_var(--glow)]">
             <span className="relative flex h-2 w-2 shrink-0">
               <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-60" />
@@ -53,13 +57,13 @@ function LandingPage() {
             </span>
             {t.hero.badge}
           </div>
-          <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl md:text-7xl lg:text-[88px] lg:leading-[1.05]">
+          <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-[72px] lg:leading-[1.05]">
             {t.hero.titleA} <span className="gradient-text">{t.hero.titleB}</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-3xl text-lg text-muted-foreground sm:mt-8 sm:text-xl md:text-2xl lg:text-[22px] lg:leading-relaxed">
+          <p className="mt-6 max-w-xl text-lg text-muted-foreground sm:mt-7 sm:text-xl lg:text-[21px] lg:leading-relaxed">
             {t.hero.subtitle}
           </p>
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-10 flex flex-wrap items-center gap-4">
             <Link
               to="/assessment"
               className="cta-sheen group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-9 py-4 text-base font-medium text-primary-foreground shadow-[0_10px_36px_-10px_var(--glow)] transition-all hover:-translate-y-0.5 lg:px-10 lg:py-5 lg:text-lg"
@@ -76,7 +80,7 @@ function LandingPage() {
           </div>
 
           {/* Honest trust signals */}
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
+          <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
               <Star className="h-3.5 w-3.5 fill-accent text-accent" /> {t.common.freeToStart}
             </span>
@@ -90,24 +94,13 @@ function LandingPage() {
             </span>
           </div>
 
-          {/* Scroll indicator */}
-          <div
-            className="mt-16 flex flex-col items-center gap-1.5 opacity-40 animate-fade-in"
-            style={{ animationDelay: "1.4s" }}
-          >
-            <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-              Scroll
-            </span>
-            <div className="flex flex-col items-center gap-0.5">
-              <ChevronDown
-                className="h-3.5 w-3.5 text-muted-foreground animate-bounce"
-                style={{ animationDuration: "1.4s" }}
-              />
-              <ChevronDown
-                className="h-3.5 w-3.5 text-muted-foreground animate-bounce opacity-50"
-                style={{ animationDuration: "1.4s", animationDelay: "0.15s" }}
-              />
-            </div>
+        </div>
+
+          {/* The product, beside the pitch rather than three screens below it.
+              A scroll cue used to sit here; on a split hero the second column
+              already signals there is more page, so it was just height. */}
+          <div className="animate-fade-up lg:pl-4" style={{ animationDelay: "0.15s" }}>
+            <AnalyticsPreview />
           </div>
         </div>
       </section>
@@ -177,24 +170,10 @@ function LandingPage() {
           dimensions" where the hero strip on this same page says 3. The
           dedicated /features page carries this content instead. */}
 
-      {/* AI Analytics Preview */}
-      <Section eyebrow={t.analytics.eyebrow} title={t.analytics.title}>
-        <div className="glass rounded-3xl p-8 md:p-12">
-          <div className="grid gap-8 md:grid-cols-2 md:items-center">
-            <div>
-              <h3 className="text-2xl font-semibold">{t.analytics.heading}</h3>
-              <p className="mt-3 text-muted-foreground">{t.analytics.desc}</p>
-              <Link
-                to="/dashboard"
-                className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-accent hover:underline"
-              >
-                {t.analytics.cta} <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <AnalyticsPreview />
-          </div>
-        </div>
-      </Section>
+      {/* The standalone "Analytics" section stood here purely to show the
+          talent-profile card. That card is now in the hero, where it does the
+          same job three screens earlier, so the section had nothing left to
+          say that the hero doesn't. */}
 
       {/* Career paths */}
       <Section eyebrow={t.careersSec.eyebrow} title={t.careersSec.title}>
@@ -369,15 +348,18 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section id={id} className="px-6 py-24 lg:py-28">
-      <div className="mx-auto max-w-[1400px]">
-        <Reveal className="mb-14 text-center">
+    <section id={id} className="px-6 py-20 lg:py-24">
+      {/* Left-aligned section heads. Centring every block made each section
+          read as its own poster; a single left edge running down the page
+          gives the sections one shared spine instead. */}
+      <div className="mx-auto max-w-[1200px]">
+        <Reveal className="mb-12">
           <div className="text-xs uppercase tracking-widest text-accent">{eyebrow}</div>
           <div
             aria-hidden
-            className="mx-auto mt-2 h-px w-8 rounded-full bg-gradient-to-r from-transparent via-accent/60 to-transparent"
+            className="mt-2 h-px w-8 rounded-full bg-gradient-to-r from-accent/60 to-transparent"
           />
-          <h2 className="mt-4 text-3xl font-bold md:text-4xl lg:text-5xl">{title}</h2>
+          <h2 className="mt-4 text-3xl font-bold md:text-4xl lg:text-[44px]">{title}</h2>
         </Reveal>
         <Reveal delay={120}>{children}</Reveal>
       </div>
