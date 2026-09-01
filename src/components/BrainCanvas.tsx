@@ -25,13 +25,44 @@ const POINTS_DESKTOP = 4600;
 const POINTS_SMALL = 3500;
 
 /** Neon cyan through electric blue into deep purple. */
-const COLOR_NEAR = new THREE.Color("#22d3ee"); // cyan, catches the near surface
-const COLOR_MID = new THREE.Color("#4f46e5"); // electric blue
-const COLOR_FAR = new THREE.Color("#7c3aed"); // deep purple, recedes
+/**
+ * Scattered palette rather than a depth ramp. The reference gets its character
+ * from individually coloured glyphs — mostly warm gold with teal, violet and
+ * white mixed through — so colour is assigned per particle instead of by
+ * distance from camera. Gold is weighted heaviest because it carries the
+ * silhouette in the reference.
+ */
+const PALETTE = [
+  new THREE.Color("#f5b62c"), // gold
+  new THREE.Color("#f5b62c"),
+  new THREE.Color("#e8912a"), // amber
+  new THREE.Color("#e8912a"),
+  new THREE.Color("#facc15"), // bright yellow
+  new THREE.Color("#2dd4bf"), // teal
+  new THREE.Color("#22d3ee"), // cyan
+  new THREE.Color("#a855f7"), // violet
+  new THREE.Color("#7c3aed"), // deep purple
+  new THREE.Color("#f8fafc"), // white
+  new THREE.Color("#cbd5e1"), // light grey
+];
 
 /** Synapses: how close two points must be to be wired together. */
 const LINK_RADIUS = 0.13;
 const MAX_LINKS = 900;
+
+/**
+ * Yaw that puts the camera on the side of the brain. The lobes are modelled
+ * with +x lateral, so looking down x gives the profile — frontal lobe, temporal
+ * lobe, cerebellum and brainstem all in view. Any other angle reads as an ovoid.
+ */
+const LATERAL_YAW = Math.PI / 2;
+
+/**
+ * Sit in the right-hand side of the frame, clear of the hero copy. Tuned so
+ * the occipital end still clears the viewport edge — pushed much further and
+ * the back of the head clips off-screen.
+ */
+const RIGHT_OFFSET = 0.95;
 
 // ---------------------------------------------------------------------------
 // Math generators
@@ -228,19 +259,59 @@ function generateBrainPoints(total: number): Float32Array {
   return new Float32Array(pts);
 }
 
-/** Depth-mixed colour: cyan at the front, through electric blue, to purple behind. */
-function tintByDepth(positions: Float32Array): Float32Array {
+/**
+ * Assign a palette colour per particle, dimming the ones furthest from camera
+ * so the far wall of the cloud recedes and the silhouette still reads.
+ */
+function tintScattered(positions: Float32Array, seed: number): Float32Array {
   const colors = new Float32Array(positions.length);
+  const rnd = makeRandom(seed);
   const c = new THREE.Color();
   for (let i = 0; i < positions.length / 3; i++) {
-    const t = THREE.MathUtils.clamp((positions[i * 3 + 2] + 0.9) / 1.8, 0, 1);
-    if (t < 0.5) c.copy(COLOR_FAR).lerp(COLOR_MID, t * 2);
-    else c.copy(COLOR_MID).lerp(COLOR_NEAR, (t - 0.5) * 2);
+    c.copy(PALETTE[Math.floor(rnd() * PALETTE.length)]);
+    const depth = THREE.MathUtils.clamp((positions[i * 3 + 2] + 0.9) / 1.8, 0, 1);
+    c.multiplyScalar(0.45 + depth * 0.55);
     colors[i * 3] = c.r;
     colors[i * 3 + 1] = c.g;
     colors[i * 3 + 2] = c.b;
   }
   return colors;
+}
+
+/**
+ * Triangle sprite for the points.
+ *
+ * Drawn once to a small canvas and reused as the material's map — a texture is
+ * far cheaper than swapping the whole point cloud for instanced geometry, and
+ * at this size the glyph only needs to read as a triangle, not be crisp.
+ */
+function makeTriangleTexture(): THREE.Texture {
+  const size = 64;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+
+  ctx.clearRect(0, 0, size, size);
+  ctx.beginPath();
+  ctx.moveTo(size / 2, size * 0.12);
+  ctx.lineTo(size * 0.9, size * 0.85);
+  ctx.lineTo(size * 0.1, size * 0.85);
+  ctx.closePath();
+
+  // Outlined rather than solid: the reference glyphs read as little wireframe
+  // triangles, and an outline keeps the cloud from turning into a solid mass
+  // once additive blending stacks thousands of them.
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = size * 0.11;
+  ctx.lineJoin = "round";
+  ctx.stroke();
+  ctx.fillStyle = "rgba(255,255,255,0.35)";
+  ctx.fill();
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.needsUpdate = true;
+  return tex;
 }
 
 /**
@@ -311,19 +382,19 @@ function buildSynapses(positions: Float32Array, radius: number, maxLinks: number
 function Brain({ pointCount, reduceMotion }: { pointCount: number; reduceMotion: boolean }) {
   const group = useRef<THREE.Group>(null);
 
-  const { pointGeometry, lineGeometry } = useMemo(() => {
+  const { pointGeometry, lineGeometry, sprite } = useMemo(() => {
     const positions = generateBrainPoints(pointCount);
 
     const pg = new THREE.BufferGeometry();
     pg.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    pg.setAttribute("color", new THREE.BufferAttribute(tintByDepth(positions), 3));
+    pg.setAttribute("color", new THREE.BufferAttribute(tintScattered(positions, 4242), 3));
 
     const segments = buildSynapses(positions, LINK_RADIUS, MAX_LINKS);
     const lg = new THREE.BufferGeometry();
     lg.setAttribute("position", new THREE.BufferAttribute(segments, 3));
-    lg.setAttribute("color", new THREE.BufferAttribute(tintByDepth(segments), 3));
+    lg.setAttribute("color", new THREE.BufferAttribute(tintScattered(segments, 909), 3));
 
-    return { pointGeometry: pg, lineGeometry: lg };
+    return { pointGeometry: pg, lineGeometry: lg, sprite: makeTriangleTexture() };
   }, [pointCount]);
 
   // React unmounting the component does not free GPU memory; release it here.
@@ -331,8 +402,9 @@ function Brain({ pointCount, reduceMotion }: { pointCount: number; reduceMotion:
     () => () => {
       pointGeometry.dispose();
       lineGeometry.dispose();
+      sprite.dispose();
     },
-    [pointGeometry, lineGeometry],
+    [pointGeometry, lineGeometry, sprite],
   );
 
   // --- Input --------------------------------------------------------------
@@ -369,8 +441,15 @@ function Brain({ pointCount, reduceMotion }: { pointCount: number; reduceMotion:
 
     // Scroll is the primary driver: a little over a full turn top to bottom,
     // with a tilt so the brain presents a different face as sections pass.
-    const targetY = s * Math.PI * 2.2 + pointer.current.x * 0.35 + t * 0.05;
-    const targetX = -Math.PI * 0.38 + s * 0.7 - pointer.current.y * 0.2;
+    // Base is the lateral pose — a brain only reads as a brain side-on, so the
+    // rotation starts and returns there rather than at an arbitrary angle.
+    // The idle term oscillates instead of accumulating. A constant `t * 0.05`
+    // drift eventually carries the brain to an arbitrary angle and parks it
+    // edge-on, where it reads as an ovoid; swinging around the lateral pose
+    // keeps it alive without ever losing the profile.
+    const idle = Math.sin(t * 0.12) * 0.16;
+    const targetY = LATERAL_YAW + s * Math.PI * 2.2 + pointer.current.x * 0.3 + idle;
+    const targetX = s * 0.45 - pointer.current.y * 0.18 + Math.sin(t * 0.21) * 0.05;
 
     // Ease toward the target rather than snapping, so a fast scroll reads as
     // momentum instead of a jump. Frame-rate independent.
@@ -386,13 +465,15 @@ function Brain({ pointCount, reduceMotion }: { pointCount: number; reduceMotion:
   });
 
   return (
-    <group ref={group} rotation={[-Math.PI * 0.38, 0, 0.05]}>
+    <group ref={group} rotation={[0, LATERAL_YAW, 0]} position={[RIGHT_OFFSET, 0, 0]}>
       <points geometry={pointGeometry}>
         <pointsMaterial
-          size={0.019}
+          map={sprite}
+          alphaTest={0.02}
+          size={0.08}
           vertexColors
           transparent
-          opacity={0.9}
+          opacity={0.95}
           sizeAttenuation
           depthWrite={false}
           blending={THREE.AdditiveBlending}
