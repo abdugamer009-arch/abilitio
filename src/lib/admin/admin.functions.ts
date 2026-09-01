@@ -121,6 +121,27 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
       supabaseAdmin.from("community_messages").select("community_id, user_id, created_at"),
     ]);
 
+    // Surface a failed read instead of rendering it as real data. Every query
+    // below falls back to `[]`, so without this check a bad service-role key
+    // (or any outage) produces a dashboard confidently reporting zero users,
+    // zero assessments and no activity — which reads as "the product is dead"
+    // rather than "the query failed".
+    const failed = [
+      ["profiles", profiles.error],
+      ["career_assessment_results", results.error],
+      ["user_roles", adminRoles.error],
+      ["communities", communities.error],
+      ["community_messages", messages.error],
+    ].filter(([, err]) => err) as [string, { message: string }][];
+
+    if (failed.length) {
+      const detail = failed.map(([table, err]) => `${table}: ${err.message}`).join("; ");
+      console.error("[admin] analytics read failed —", detail);
+      throw new Error(
+        `Could not load analytics. The server could not read from the database (${detail}). Check SUPABASE_SERVICE_ROLE_KEY.`,
+      );
+    }
+
     const adminIds = new Set<string>(
       (adminRoles.data ?? []).map((r) => (r as { user_id: string }).user_id),
     );
@@ -230,6 +251,23 @@ export const getAdminUsers = createServerFn({ method: "GET" })
       supabaseAdmin.from("career_assessment_results").select("user_id"),
       supabaseAdmin.auth.admin.listUsers({ perPage: ADMIN_USER_PAGE_SIZE }),
     ]);
+
+    // Same reasoning as getAdminAnalytics: an unreported failure here renders
+    // as "No users found", which looks like an empty product rather than a
+    // broken connection.
+    const failed = [
+      ["profiles", profiles.error],
+      ["career_assessment_results", results.error],
+      ["auth.users", authRes.error],
+    ].filter(([, err]) => err) as [string, { message: string }][];
+
+    if (failed.length) {
+      const detail = failed.map(([source, err]) => `${source}: ${err.message}`).join("; ");
+      console.error("[admin] user list read failed —", detail);
+      throw new Error(
+        `Could not load users. The server could not read from the database (${detail}). Check SUPABASE_SERVICE_ROLE_KEY.`,
+      );
+    }
 
     const emailMap = new Map<string, string>();
     for (const u of authRes.data?.users ?? []) {
