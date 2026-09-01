@@ -18,14 +18,8 @@ import { GlowBlob } from "@/components/GlowBlob";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { CountUp } from "@/components/CountUp";
-import {
-  BoltSticker,
-  HeartSticker,
-  StarSticker,
-  GhostSticker,
-  HandArrow,
-} from "@/components/Stickers";
-import { BrainVisual } from "@/components/BrainVisual";
+import { GhostSticker } from "@/components/Stickers";
+import { BrainScene } from "@/components/BrainScene";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
@@ -49,10 +43,14 @@ function LandingPage() {
 
   return (
     <PageShell>
-      {/* Hero — asymmetric split rather than a centred stack: the copy reads as
-          one left-aligned column and the product sits beside it, so a visitor
-          sees what Abilitio actually produces above the fold instead of having
-          to scroll to a screenshot. */}
+      {/* The brain is a fixed layer behind the whole page, not a hero element,
+          so it keeps turning as the page is read. It mounts client-side only
+          and skips itself entirely on touch/narrow/reduced-motion. */}
+      <BrainScene />
+
+      {/* Hero — one left-aligned column. The right side is deliberately empty:
+          that is where the brain shows through, so the copy and the artwork
+          share the fold without competing for the same space. */}
       <section className="relative px-6 pt-24 pb-28 sm:pt-32 sm:pb-36 lg:pt-40 lg:pb-44">
         <div aria-hidden className="bg-grid pointer-events-none absolute inset-0 z-0" />
         <ParticleConstellation />
@@ -106,39 +104,6 @@ function LandingPage() {
 
         </div>
 
-          {/* A mock "talent profile" card used to sit here, showing invented
-              scores (91/88/76) as the first thing a visitor sees — which reads
-              as real results. The brain says "we map how you think" without
-              asserting any number.
-
-              Stickers and the annotation are decoration: rotated off-grid,
-              aria-hidden and pointer-events-none. The caption + arrow only
-              appear from lg up, where there is room to point at something
-              without crowding it. */}
-          <div
-            className="relative animate-fade-up lg:pl-4"
-            style={{ animationDelay: "0.15s" }}
-          >
-            <div className="pointer-events-none absolute -left-2 top-0 z-20 hidden w-[176px] lg:block">
-              <p className="text-[15px] leading-snug text-accent [transform:rotate(-4deg)]">
-                30 questions in, a map of how you think
-              </p>
-              <HandArrow
-                className="left-24 top-8 h-[62px] w-[92px] text-accent/70"
-                color="currentColor"
-              />
-            </div>
-
-            {/* Stickers are positioned against this box rather than the grid
-                column, so they stay pinned to the artwork at every width
-                instead of drifting out into the column's gutters. */}
-            <div className="relative mx-auto w-[74%] max-w-[300px] lg:w-full lg:max-w-[440px]">
-              <BoltSticker className="-top-4 -right-3 z-20" rotate={-12} size={46} />
-              <HeartSticker className="-bottom-3 -left-4 z-20" rotate={11} size={40} />
-              <StarSticker className="top-1/3 -right-6 z-20 hidden lg:block" rotate={9} size={30} />
-              <BrainVisual className="w-full" />
-            </div>
-          </div>
         </div>
       </section>
 
