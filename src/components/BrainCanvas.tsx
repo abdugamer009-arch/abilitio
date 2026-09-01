@@ -21,35 +21,6 @@ import * as THREE from "three";
 // Tunables
 // ---------------------------------------------------------------------------
 
-const POINTS_DESKTOP = 4600;
-const POINTS_SMALL = 3500;
-
-/** Neon cyan through electric blue into deep purple. */
-/**
- * Scattered palette rather than a depth ramp. The reference gets its character
- * from individually coloured glyphs — mostly warm gold with teal, violet and
- * white mixed through — so colour is assigned per particle instead of by
- * distance from camera. Gold is weighted heaviest because it carries the
- * silhouette in the reference.
- */
-const PALETTE = [
-  new THREE.Color("#f5b62c"), // gold
-  new THREE.Color("#f5b62c"),
-  new THREE.Color("#e8912a"), // amber
-  new THREE.Color("#e8912a"),
-  new THREE.Color("#facc15"), // bright yellow
-  new THREE.Color("#2dd4bf"), // teal
-  new THREE.Color("#22d3ee"), // cyan
-  new THREE.Color("#a855f7"), // violet
-  new THREE.Color("#7c3aed"), // deep purple
-  new THREE.Color("#f8fafc"), // white
-  new THREE.Color("#cbd5e1"), // light grey
-];
-
-/** Synapses: how close two points must be to be wired together. */
-const LINK_RADIUS = 0.13;
-const MAX_LINKS = 900;
-
 /**
  * Yaw that puts the camera on the side of the brain. The lobes are modelled
  * with +x lateral, so looking down x gives the profile — frontal lobe, temporal
@@ -259,153 +230,206 @@ function generateBrainPoints(total: number): Float32Array {
   return new Float32Array(pts);
 }
 
+// ---------------------------------------------------------------------------
+// Purple palette
+// ---------------------------------------------------------------------------
+
 /**
- * Assign a palette colour per particle, dimming the ones furthest from camera
- * so the far wall of the cloud recedes and the silhouette still reads.
+ * Strictly purple, ordered inner -> outer. The core sits in near-black violet
+ * so the interior reads as depth rather than a solid mass; the rim climbs
+ * through electric purple into magenta and lavender, which is what produces
+ * the fresnel-style edge without a custom shader — brightness is driven by how
+ * far a particle sits from the centroid, so the outer shell always glows and
+ * the interior always recedes.
  */
-function tintScattered(positions: Float32Array, seed: number): Float32Array {
-  const colors = new Float32Array(positions.length);
+const CORE_COLORS = [
+  new THREE.Color("#2e1065"),
+  new THREE.Color("#3b0764"),
+  new THREE.Color("#4c1d95"),
+  new THREE.Color("#5b21b6"),
+];
+
+const RIM_COLORS = [
+  new THREE.Color("#7c3aed"), // violet
+  new THREE.Color("#8b5cf6"),
+  new THREE.Color("#a855f7"), // electric neon purple
+  new THREE.Color("#c026d3"), // magenta
+  new THREE.Color("#e879f9"), // bright magenta highlight
+  new THREE.Color("#ddd6fe"), // lavender glow
+];
+
+/** How far from the brain's centre a particle sits, normalised to roughly 0..1. */
+const CENTROID = new THREE.Vector3(0, -0.05, -0.05);
+
+// ---------------------------------------------------------------------------
+// Instance building
+// ---------------------------------------------------------------------------
+
+type InstanceSet = {
+  positions: Float32Array;
+  colors: Float32Array;
+  scales: Float32Array;
+  rotations: Float32Array;
+};
+
+/** Random orientation + size per particle, so the triangles never look tiled. */
+function decorate(positions: Float32Array, seed: number, opts: {
+  palette: THREE.Color[];
+  minScale: number;
+  maxScale: number;
+  /** Brighten particles further from the centroid; drives the rim glow. */
+  rimBias: boolean;
+}): InstanceSet {
+  const n = positions.length / 3;
   const rnd = makeRandom(seed);
+  const colors = new Float32Array(n * 3);
+  const scales = new Float32Array(n);
+  const rotations = new Float32Array(n * 3);
+  const p = new THREE.Vector3();
   const c = new THREE.Color();
-  for (let i = 0; i < positions.length / 3; i++) {
-    c.copy(PALETTE[Math.floor(rnd() * PALETTE.length)]);
-    const depth = THREE.MathUtils.clamp((positions[i * 3 + 2] + 0.9) / 1.8, 0, 1);
-    c.multiplyScalar(0.45 + depth * 0.55);
+
+  for (let i = 0; i < n; i++) {
+    p.set(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]);
+    const dist = p.distanceTo(CENTROID);
+
+    c.copy(opts.palette[Math.floor(rnd() * opts.palette.length)]);
+    if (opts.rimBias) {
+      // Outer shell burns brighter, interior falls away. This is the cheap
+      // stand-in for a fresnel term and it survives any rotation, unlike a
+      // view-dependent effect baked into the geometry.
+      // Kept under 1.0 at the low end. Additive blending stacks every
+      // overlapping wireframe, so multipliers above ~1.2 drive the middle of
+      // the cloud to white and the purple disappears.
+      const glow = THREE.MathUtils.clamp((dist - 0.45) / 0.5, 0, 1);
+      c.multiplyScalar(0.28 + glow * 0.85);
+    }
     colors[i * 3] = c.r;
     colors[i * 3 + 1] = c.g;
     colors[i * 3 + 2] = c.b;
+
+    scales[i] = opts.minScale + rnd() * (opts.maxScale - opts.minScale);
+    rotations[i * 3] = rnd() * Math.PI * 2;
+    rotations[i * 3 + 1] = rnd() * Math.PI * 2;
+    rotations[i * 3 + 2] = rnd() * Math.PI * 2;
   }
-  return colors;
+
+  return { positions, colors, scales, rotations };
 }
 
 /**
- * Triangle sprite for the points.
- *
- * Drawn once to a small canvas and reused as the material's map — a texture is
- * far cheaper than swapping the whole point cloud for instanced geometry, and
- * at this size the glyph only needs to read as a triangle, not be crisp.
+ * Fill the lobe volumes rather than their surfaces, for the dense inner core.
+ * Biased inward so the interior is packed and does not compete with the rim.
  */
-function makeTriangleTexture(): THREE.Texture {
-  const size = 64;
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d")!;
+function generateCorePoints(count: number, seed: number): Float32Array {
+  const rnd = makeRandom(seed);
+  const out: number[] = [];
+  let guard = 0;
 
-  ctx.clearRect(0, 0, size, size);
-  ctx.beginPath();
-  ctx.moveTo(size / 2, size * 0.12);
-  ctx.lineTo(size * 0.9, size * 0.85);
-  ctx.lineTo(size * 0.1, size * 0.85);
-  ctx.closePath();
+  while (out.length / 3 < count && guard < count * 40) {
+    guard++;
+    const lobe = LOBES[Math.floor(rnd() * LOBES.length)];
+    // cube-root keeps the distribution even through the volume instead of
+    // clustering everything against the shell.
+    const rad = Math.cbrt(rnd()) * 0.86;
+    const theta = 2 * Math.PI * rnd();
+    const phi = Math.acos(2 * rnd() - 1);
+    const sp = Math.sin(phi);
 
-  // Outlined rather than solid: the reference glyphs read as little wireframe
-  // triangles, and an outline keeps the cloud from turning into a solid mass
-  // once additive blending stacks thousands of them.
-  ctx.strokeStyle = "#ffffff";
-  ctx.lineWidth = size * 0.11;
-  ctx.lineJoin = "round";
-  ctx.stroke();
-  ctx.fillStyle = "rgba(255,255,255,0.35)";
-  ctx.fill();
+    const x = lobe.c[0] + sp * Math.cos(theta) * lobe.r[0] * rad;
+    const y = lobe.c[1] + Math.cos(phi) * lobe.r[1] * rad;
+    const z = lobe.c[2] + sp * Math.sin(theta) * lobe.r[2] * rad;
+    if (x < 0.085) continue; // keep the longitudinal fissure open
 
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.needsUpdate = true;
-  return tex;
+    out.push(x * (rnd() < 0.5 ? 1 : -1), y, z);
+  }
+  return new Float32Array(out);
 }
 
-/**
- * Wire nearby points together as synapses.
- *
- * Uses a uniform spatial hash rather than comparing every pair — at ~4,600
- * points a brute-force search is ~21M distance tests, which stalls the main
- * thread on mount. The grid only ever tests the 27 cells around a point.
- */
-function buildSynapses(positions: Float32Array, radius: number, maxLinks: number): Float32Array {
-  const count = positions.length / 3;
-  const cell = radius;
-  const grid = new Map<string, number[]>();
-  const key = (x: number, y: number, z: number) =>
-    `${Math.floor(x / cell)},${Math.floor(y / cell)},${Math.floor(z / cell)}`;
-
+/** Larger hollow triangles drifting in the space around the brain. */
+function generateAmbientPoints(count: number, seed: number): Float32Array {
+  const rnd = makeRandom(seed);
+  const out = new Float32Array(count * 3);
   for (let i = 0; i < count; i++) {
-    const k = key(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]);
-    const bucket = grid.get(k);
-    if (bucket) bucket.push(i);
-    else grid.set(k, [i]);
+    // Shell around the brain, never inside it.
+    const r = 1.5 + rnd() * 1.6;
+    const theta = 2 * Math.PI * rnd();
+    const phi = Math.acos(2 * rnd() - 1);
+    const sp = Math.sin(phi);
+    out[i * 3] = sp * Math.cos(theta) * r;
+    out[i * 3 + 1] = Math.cos(phi) * r * 0.7;
+    out[i * 3 + 2] = sp * Math.sin(theta) * r;
   }
+  return out;
+}
 
-  const segs: number[] = [];
-  const r2 = radius * radius;
-  const rnd = makeRandom(77003311);
+/**
+ * Push an InstanceSet into an InstancedMesh.
+ *
+ * Done in an effect rather than during render: setMatrixAt writes into a GPU
+ * buffer, and doing that in the render body would repeat the work on every
+ * React re-render for no benefit.
+ */
+function applyInstances(mesh: THREE.InstancedMesh | null, set: InstanceSet) {
+  if (!mesh) return;
+  const dummy = new THREE.Object3D();
+  const color = new THREE.Color();
+  const n = set.scales.length;
 
-  for (let i = 0; i < count && segs.length / 6 < maxLinks; i++) {
-    // Only a fraction of points sprout a synapse, so the mesh stays readable
-    // rather than becoming a solid web.
-    if (rnd() > 0.14) continue;
-
-    const x = positions[i * 3];
-    const y = positions[i * 3 + 1];
-    const z = positions[i * 3 + 2];
-    const cx = Math.floor(x / cell);
-    const cy = Math.floor(y / cell);
-    const cz = Math.floor(z / cell);
-
-    let linked = 0;
-    for (let ox = -1; ox <= 1 && linked < 2; ox++) {
-      for (let oy = -1; oy <= 1 && linked < 2; oy++) {
-        for (let oz = -1; oz <= 1 && linked < 2; oz++) {
-          const bucket = grid.get(`${cx + ox},${cy + oy},${cz + oz}`);
-          if (!bucket) continue;
-          for (const j of bucket) {
-            if (j <= i) continue; // each pair once
-            const dx = positions[j * 3] - x;
-            const dy = positions[j * 3 + 1] - y;
-            const dz = positions[j * 3 + 2] - z;
-            const d2 = dx * dx + dy * dy + dz * dz;
-            if (d2 > r2 || d2 === 0) continue;
-            segs.push(x, y, z, positions[j * 3], positions[j * 3 + 1], positions[j * 3 + 2]);
-            if (++linked >= 2) break;
-          }
-        }
-      }
-    }
+  for (let i = 0; i < n; i++) {
+    dummy.position.set(set.positions[i * 3], set.positions[i * 3 + 1], set.positions[i * 3 + 2]);
+    dummy.rotation.set(set.rotations[i * 3], set.rotations[i * 3 + 1], set.rotations[i * 3 + 2]);
+    dummy.scale.setScalar(set.scales[i]);
+    dummy.updateMatrix();
+    mesh.setMatrixAt(i, dummy.matrix);
+    color.setRGB(set.colors[i * 3], set.colors[i * 3 + 1], set.colors[i * 3 + 2]);
+    mesh.setColorAt(i, color);
   }
-
-  return new Float32Array(segs);
+  mesh.instanceMatrix.needsUpdate = true;
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  mesh.computeBoundingSphere();
 }
 
 // ---------------------------------------------------------------------------
 // Scene
 // ---------------------------------------------------------------------------
 
-function Brain({ pointCount, reduceMotion }: { pointCount: number; reduceMotion: boolean }) {
+function Brain({ quality, reduceMotion }: { quality: number; reduceMotion: boolean }) {
   const group = useRef<THREE.Group>(null);
+  const rimRef = useRef<THREE.InstancedMesh>(null);
+  const coreRef = useRef<THREE.InstancedMesh>(null);
+  const ambientRef = useRef<THREE.InstancedMesh>(null);
+  const rimMat = useRef<THREE.MeshBasicMaterial>(null);
+  const coreMat = useRef<THREE.MeshBasicMaterial>(null);
 
-  const { pointGeometry, lineGeometry, sprite } = useMemo(() => {
-    const positions = generateBrainPoints(pointCount);
+  const { rim, core, ambient } = useMemo(() => {
+    const rimCount = Math.round(2600 * quality);
+    const coreCount = Math.round(1900 * quality);
 
-    const pg = new THREE.BufferGeometry();
-    pg.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    pg.setAttribute("color", new THREE.BufferAttribute(tintScattered(positions, 4242), 3));
+    return {
+      rim: decorate(generateBrainPoints(rimCount), 4242, {
+        palette: RIM_COLORS,
+        minScale: 0.012,
+        maxScale: 0.026,
+        rimBias: true,
+      }),
+      core: decorate(generateCorePoints(coreCount, 8080), 1717, {
+        palette: CORE_COLORS,
+        minScale: 0.009,
+        maxScale: 0.018,
+        rimBias: false,
+      }),
+      ambient: decorate(generateAmbientPoints(110, 5150), 3030, {
+        palette: RIM_COLORS,
+        minScale: 0.05,
+        maxScale: 0.11,
+        rimBias: false,
+      }),
+    };
+  }, [quality]);
 
-    const segments = buildSynapses(positions, LINK_RADIUS, MAX_LINKS);
-    const lg = new THREE.BufferGeometry();
-    lg.setAttribute("position", new THREE.BufferAttribute(segments, 3));
-    lg.setAttribute("color", new THREE.BufferAttribute(tintScattered(segments, 909), 3));
-
-    return { pointGeometry: pg, lineGeometry: lg, sprite: makeTriangleTexture() };
-  }, [pointCount]);
-
-  // React unmounting the component does not free GPU memory; release it here.
-  useEffect(
-    () => () => {
-      pointGeometry.dispose();
-      lineGeometry.dispose();
-      sprite.dispose();
-    },
-    [pointGeometry, lineGeometry, sprite],
-  );
+  useEffect(() => applyInstances(rimRef.current, rim), [rim]);
+  useEffect(() => applyInstances(coreRef.current, core), [core]);
+  useEffect(() => applyInstances(ambientRef.current, ambient), [ambient]);
 
   // --- Input --------------------------------------------------------------
   // The canvas has pointer-events disabled so the UI above stays clickable,
@@ -434,61 +458,95 @@ function Brain({ pointCount, reduceMotion }: { pointCount: number; reduceMotion:
 
   useFrame((state, delta) => {
     const g = group.current;
-    if (!g || reduceMotion) return;
-
+    if (!g) return;
     const t = state.clock.elapsedTime;
     const s = scroll.current;
 
-    // Scroll is the primary driver: a little over a full turn top to bottom,
-    // with a tilt so the brain presents a different face as sections pass.
-    // Base is the lateral pose — a brain only reads as a brain side-on, so the
-    // rotation starts and returns there rather than at an arbitrary angle.
-    // The idle term oscillates instead of accumulating. A constant `t * 0.05`
-    // drift eventually carries the brain to an arbitrary angle and parks it
-    // edge-on, where it reads as an ovoid; swinging around the lateral pose
-    // keeps it alive without ever losing the profile.
-    const idle = Math.sin(t * 0.12) * 0.16;
-    const targetY = LATERAL_YAW + s * Math.PI * 2.2 + pointer.current.x * 0.3 + idle;
-    const targetX = s * 0.45 - pointer.current.y * 0.18 + Math.sin(t * 0.21) * 0.05;
+    if (!reduceMotion) {
+      // The idle term oscillates instead of accumulating. A constant drift
+      // eventually carries the brain to an arbitrary angle and parks it
+      // edge-on, where it reads as an ovoid; swinging around the lateral pose
+      // keeps it alive without ever losing the profile.
+      const idle = Math.sin(t * 0.12) * 0.16;
+      const targetY = LATERAL_YAW + s * Math.PI * 2.2 + pointer.current.x * 0.3 + idle;
+      const targetX = s * 0.45 - pointer.current.y * 0.18 + Math.sin(t * 0.21) * 0.05;
 
-    // Ease toward the target rather than snapping, so a fast scroll reads as
-    // momentum instead of a jump. Frame-rate independent.
-    const k = 1 - Math.pow(0.0015, delta);
-    g.rotation.y += (targetY - g.rotation.y) * k;
-    g.rotation.x += (targetX - g.rotation.x) * k;
+      // Ease toward the target rather than snapping, so a fast scroll reads as
+      // momentum instead of a jump. Frame-rate independent.
+      const k = 1 - Math.pow(0.0015, delta);
+      g.rotation.y += (targetY - g.rotation.y) * k;
+      g.rotation.x += (targetX - g.rotation.x) * k;
 
-    // Idle float, plus a slow breathing pulse.
-    g.position.y = Math.sin(t * 0.45) * 0.05 - s * 0.25;
-    const breathe = 1 + Math.sin(t * 0.8) * 0.022;
-    const shrink = 1 - s * 0.12; // recede a little as the page is read
-    g.scale.setScalar(breathe * shrink);
+      g.position.y = Math.sin(t * 0.45) * 0.05 - s * 0.25;
+      const breathe = 1 + Math.sin(t * 0.8) * 0.022;
+      g.scale.setScalar(breathe * (1 - s * 0.12));
+
+      // Ambient field turns on its own axis, slower than the brain, so the
+      // two never lock together and look welded.
+      if (ambientRef.current) {
+        ambientRef.current.rotation.y = t * 0.03;
+        ambientRef.current.rotation.x = Math.sin(t * 0.07) * 0.2;
+      }
+    }
+
+    // Shimmer: rim and core pulse out of phase, so brightness travels between
+    // the glowing edge and the dark interior rather than the whole cloud
+    // flashing at once.
+    if (rimMat.current) rimMat.current.opacity = 0.46 + Math.sin(t * 1.15) * 0.1;
+    if (coreMat.current) coreMat.current.opacity = 0.16 + Math.sin(t * 1.15 + Math.PI) * 0.06;
   });
 
   return (
     <group ref={group} rotation={[0, LATERAL_YAW, 0]} position={[RIGHT_OFFSET, 0, 0]}>
-      <points geometry={pointGeometry}>
-        <pointsMaterial
-          map={sprite}
-          alphaTest={0.02}
-          size={0.08}
-          vertexColors
+      {/* Dense, dark interior. Drawn first so the rim reads on top of it. */}
+      <instancedMesh
+        ref={coreRef}
+        args={[undefined, undefined, core.scales.length]}
+        frustumCulled={false}
+      >
+        <tetrahedronGeometry args={[1, 0]} />
+        <meshBasicMaterial
+          ref={coreMat}
+          wireframe
           transparent
-          opacity={0.95}
-          sizeAttenuation
+          opacity={0.16}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
         />
-      </points>
+      </instancedMesh>
 
-      <lineSegments geometry={lineGeometry}>
-        <lineBasicMaterial
-          vertexColors
+      {/* Outer shell and brainstem: the glowing edge. */}
+      <instancedMesh
+        ref={rimRef}
+        args={[undefined, undefined, rim.scales.length]}
+        frustumCulled={false}
+      >
+        <tetrahedronGeometry args={[1, 0]} />
+        <meshBasicMaterial
+          ref={rimMat}
+          wireframe
           transparent
-          opacity={0.22}
+          opacity={0.46}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
         />
-      </lineSegments>
+      </instancedMesh>
+
+      {/* Larger hollow triangles drifting in the surrounding space. */}
+      <instancedMesh
+        ref={ambientRef}
+        args={[undefined, undefined, ambient.scales.length]}
+        frustumCulled={false}
+      >
+        <tetrahedronGeometry args={[1, 0]} />
+        <meshBasicMaterial
+          wireframe
+          transparent
+          opacity={0.16}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </instancedMesh>
     </group>
   );
 }
@@ -497,18 +555,18 @@ function Brain({ pointCount, reduceMotion }: { pointCount: number; reduceMotion:
  * Default-exported so BrainScene can reach it through React.lazy.
  *
  * This module must never be imported eagerly. Pulling @react-three/fiber into
- * the server bundle breaks SSR: its react-reconciler dependency has no working
- * React internals in that runtime and throws "Cannot read properties of null
- * (reading 'useMemo')" inside CanvasImpl, which takes the whole page down to an
- * error boundary. Lazy-loading keeps R3F strictly client-side.
+ * the server bundle throws "Cannot read properties of null (reading 'useMemo')"
+ * inside CanvasImpl — its react-reconciler has no React internals in the SSR
+ * runtime — which drops the whole page to an error boundary rather than just
+ * losing the decoration.
  */
 export default function BrainCanvas() {
   // Safe to read directly: this component only ever mounts on the client.
-  const pointCount = window.innerWidth < 1024 ? POINTS_SMALL : POINTS_DESKTOP;
+  const quality = window.innerWidth < 1280 ? 0.6 : 1;
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
+    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 bg-black">
       <Canvas
         camera={{ position: [0, 0, 3.2], fov: 42 }}
         dpr={[1, 1.6]}
@@ -516,7 +574,7 @@ export default function BrainCanvas() {
       >
         {/* Drops resolution if the frame budget slips, rather than dropping frames. */}
         <AdaptiveDpr pixelated />
-        <Brain pointCount={pointCount} reduceMotion={reduceMotion} />
+        <Brain quality={quality} reduceMotion={reduceMotion} />
       </Canvas>
     </div>
   );
