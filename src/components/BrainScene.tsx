@@ -39,142 +39,139 @@ function makeRandom(seed: number) {
 }
 
 // ---------------------------------------------------------------------------
-// Noise. Cortical folds are not periodic, so sine bands read as a decorative
-// ripple rather than a brain. Fractal value noise gives non-repeating gyri,
-// and ridging it (1 - |2n-1|) produces rounded crowns with sharp creases
-// between them — which is what a sulcus actually looks like.
+// The brain is assembled from anatomical lobes rather than deformed from a
+// sphere. Noise-displaced ellipsoids gave a bean: the silhouette of a brain
+// comes from distinct lobes meeting at angles, not from a smooth body with
+// bumps on it. Each lobe is an ellipsoid; points are sampled on their surfaces
+// and any point that falls inside a neighbouring lobe is discarded, so what
+// survives is the outer hull of the union.
 // ---------------------------------------------------------------------------
 
-function hash3(x: number, y: number, z: number): number {
-  let h = (x * 374761393 + y * 668265263 + z * 1274126177) | 0;
-  h = (Math.imul(h ^ (h >>> 13), 1274126177) | 0) >>> 0;
-  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+type Lobe = {
+  /** Centre, in a right-hemisphere frame: +x lateral, +y superior, +z anterior. */
+  c: [number, number, number];
+  /** Semi-axes. */
+  r: [number, number, number];
+  /** Relative share of sampled points. */
+  w: number;
+};
+
+/** Right hemisphere. The left is this mirrored through x. */
+const LOBES: Lobe[] = [
+  // Frontal — tall and rounded, carries the front of the silhouette.
+  { c: [0.34, 0.1, 0.5], r: [0.3, 0.33, 0.4], w: 1.05 },
+  // Parietal — the crown, and the widest part of the brain seen from above.
+  { c: [0.35, 0.26, -0.06], r: [0.33, 0.31, 0.36], w: 1.1 },
+  // Occipital — shorter and lower, tapering to the back.
+  { c: [0.3, 0.02, -0.58], r: [0.28, 0.26, 0.3], w: 0.75 },
+  // Temporal — slung low and lateral, the lobe that stops it reading as an egg.
+  { c: [0.44, -0.3, 0.1], r: [0.21, 0.19, 0.42], w: 0.85 },
+];
+
+const CEREBELLUM: Lobe = { c: [0, -0.36, -0.6], r: [0.44, 0.21, 0.29], w: 1 };
+
+function insideLobe(
+  x: number,
+  y: number,
+  z: number,
+  l: Lobe,
+  margin = 1,
+): boolean {
+  const dx = (x - l.c[0]) / (l.r[0] * margin);
+  const dy = (y - l.c[1]) / (l.r[1] * margin);
+  const dz = (z - l.c[2]) / (l.r[2] * margin);
+  return dx * dx + dy * dy + dz * dz < 1;
 }
 
-const smoothStep = (t: number) => t * t * (3 - 2 * t);
-const mix = (a: number, b: number, t: number) => a + (b - a) * t;
-
-function valueNoise3(x: number, y: number, z: number): number {
-  const xi = Math.floor(x);
-  const yi = Math.floor(y);
-  const zi = Math.floor(z);
-  const u = smoothStep(x - xi);
-  const v = smoothStep(y - yi);
-  const w = smoothStep(z - zi);
-  return mix(
-    mix(
-      mix(hash3(xi, yi, zi), hash3(xi + 1, yi, zi), u),
-      mix(hash3(xi, yi + 1, zi), hash3(xi + 1, yi + 1, zi), u),
-      v,
-    ),
-    mix(
-      mix(hash3(xi, yi, zi + 1), hash3(xi + 1, yi, zi + 1), u),
-      mix(hash3(xi, yi + 1, zi + 1), hash3(xi + 1, yi + 1, zi + 1), u),
-      v,
-    ),
-    w,
+/**
+ * Gyri. Shallow, high-frequency ripples applied along the surface — enough to
+ * read as folding without eating the lobe boundaries that carry the shape.
+ */
+function gyralOffset(x: number, y: number, z: number): number {
+  return (
+    0.016 * Math.sin(15.5 * x + 9.1 * z) +
+    0.014 * Math.sin(13.2 * y - 11.4 * x) +
+    0.011 * Math.sin(17.1 * z + 7.3 * y)
   );
 }
 
-/** Fractal sum. Frequencies step by 2.03 so octaves never phase-align. */
-function fbm(x: number, y: number, z: number, octaves = 4): number {
-  let amp = 0.5;
-  let freq = 1;
-  let sum = 0;
-  let norm = 0;
-  for (let i = 0; i < octaves; i++) {
-    sum += amp * valueNoise3(x * freq, y * freq, z * freq);
-    norm += amp;
-    amp *= 0.5;
-    freq *= 2.03;
-  }
-  return sum / norm;
-}
-
 /**
- * Radial displacement standing in for the cortex surface.
+ * Sample the outer hull of the lobe union for one hemisphere.
  *
- * Two ridged layers: a coarse one for the major gyri, a finer one for the
- * secondary folding on top of them. Returned roughly in [-0.5, 0.5] so the
- * caller can scale it.
- */
-function cortexFold(x: number, y: number, z: number): number {
-  const coarse = 1 - Math.abs(2 * fbm(x * 3.1, y * 3.1, z * 3.1, 4) - 1);
-  const fine = 1 - Math.abs(2 * fbm(x * 7.4 + 11, y * 7.4 + 11, z * 7.4 + 11, 3) - 1);
-  return (coarse - 0.5) * 0.78 + (fine - 0.5) * 0.3;
-}
-
-/**
- * One cerebral hemisphere.
- *
- * Built as a sphere pushed through three shaping stages:
- *   1. an anatomical profile — a brain is widest around the parietal region,
- *      tapering to a narrower frontal pole and a shorter occipital one, which
- *      a plain ellipsoid does not capture;
- *   2. a temporal-lobe bulge low on the lateral side, separated by a crease
- *      standing in for the lateral sulcus — the single most recognisable
- *      landmark in a brain silhouette;
- *   3. ridged fractal folds for the gyri.
- *
- * The medial face is then flattened and offset so the two halves face each
- * other across a real longitudinal fissure instead of interpenetrating.
+ * Rejection is what does the work: a surface point that sits inside another
+ * lobe is interior to the union and would show up as a seam through the
+ * middle of the brain, so it is dropped and re-drawn.
  */
 function hemispherePoints(count: number, side: 1 | -1, seed: number): Float32Array {
   const out = new Float32Array(count * 3);
   const rnd = makeRandom(seed);
 
-  for (let i = 0; i < count; i++) {
+  const totalW = LOBES.reduce((s, l) => s + l.w, 0);
+  let written = 0;
+  let guard = 0;
+
+  while (written < count && guard < count * 60) {
+    guard++;
+
+    // Pick a lobe, weighted.
+    let pick = rnd() * totalW;
+    let lobe = LOBES[0];
+    for (const l of LOBES) {
+      pick -= l.w;
+      if (pick <= 0) {
+        lobe = l;
+        break;
+      }
+    }
+
+    // Point on that lobe's surface.
     const theta = 2 * Math.PI * rnd();
-    const phi = Math.acos(2 * rnd() - 1); // even over the sphere, not over angle
+    const phi = Math.acos(2 * rnd() - 1);
     const sp = Math.sin(phi);
-    let x = sp * Math.cos(theta);
-    let y = Math.cos(phi);
-    let z = sp * Math.sin(theta);
+    const nx = sp * Math.cos(theta);
+    const ny = Math.cos(phi);
+    const nz = sp * Math.sin(theta);
 
-    // 1. Anatomical profile. z+ is anterior (front), z- posterior.
-    const front = Math.max(0, z);
-    const back = Math.max(0, -z);
-    const widthProfile = 1 - 0.34 * front * front - 0.14 * back * back;
-    const heightProfile = 1 - 0.3 * front * front - 0.26 * back * back;
+    let x = lobe.c[0] + nx * lobe.r[0];
+    let y = lobe.c[1] + ny * lobe.r[1];
+    let z = lobe.c[2] + nz * lobe.r[2];
 
-    // 2. Temporal lobe: a bulge low, lateral and slightly forward.
-    const dTemporal = Math.hypot(x * 0.9, (y + 0.62) * 1.25, (z - 0.22) * 0.8);
-    const temporal = Math.max(0, 1 - dTemporal / 0.85) ** 1.4;
+    // Drop it if another lobe swallows it — that keeps only the outer hull.
+    // The margin shrinks the test slightly so lobes still visibly meet
+    // instead of leaving a gap at every junction.
+    let buried = false;
+    for (const other of LOBES) {
+      if (other === lobe) continue;
+      if (insideLobe(x, y, z, other, 0.97)) {
+        buried = true;
+        break;
+      }
+    }
+    if (!buried && insideLobe(x, y, z, CEREBELLUM, 0.97)) buried = true;
+    if (buried) continue;
 
-    // Lateral sulcus: the crease separating that lobe from the rest.
-    const sulcus = Math.exp(-(((y + 0.2) * 3.4) ** 2)) * Math.max(0, 1 - Math.abs(z - 0.1)) * 0.06;
+    // Folds, then a little scatter so the shell has thickness.
+    const g = gyralOffset(x, y, z);
+    x += nx * g + 0.006 * (rnd() - 0.5);
+    y += ny * g + 0.006 * (rnd() - 0.5);
+    z += nz * g + 0.006 * (rnd() - 0.5);
 
-    // 3. Gyri. Deep enough to survive additive blending — at shallower
-    // amplitudes thousands of overlapping points wash the relief into haze.
-    const fold = cortexFold(x, y, z) * 0.2;
+    // Hold the medial wall off the midline so the fissure stays open.
+    if (x < 0.075) x = 0.075 + (0.075 - x) * 0.25;
 
-    const r = 1 + fold + temporal * 0.2 - sulcus + 0.012 * (rnd() - 0.5);
-
-    // Real proportions: a brain is markedly wider than it is tall, and longer
-    // front-to-back than either. Getting this wrong is what makes a point
-    // cloud read as an egg standing on end.
-    x *= r * 0.8 * widthProfile;
-    y *= r * 0.5 * heightProfile;
-    z *= r * 0.86;
-
-    // Flatten the medial face and push the halves apart. This gap is the
-    // longitudinal fissure and it is the single most identifying feature of
-    // the silhouette — with a narrow one the hemispheres read as a single
-    // ovoid no matter how good the folding is. It has to be wide enough to
-    // survive additive blending from points on the far wall.
-    x = (Math.abs(x) * 0.6 + 0.16) * side;
-
-    out[i * 3] = x;
-    out[i * 3 + 1] = y;
-    out[i * 3 + 2] = z;
+    out[written * 3] = x * side;
+    out[written * 3 + 1] = y;
+    out[written * 3 + 2] = z;
+    written++;
   }
-  return out;
+
+  return out.subarray(0, written * 3) as Float32Array;
 }
 
 /**
  * Cerebellum. Its folia are far finer and more regular than cortical gyri, so
- * it gets tight parallel banding rather than the fractal treatment — that
- * contrast is a large part of why it reads as a separate structure.
+ * it gets tight parallel banding — that textural contrast is much of why it
+ * reads as a separate structure rather than more cortex.
  */
 function cerebellumPoints(count: number, seed: number): Float32Array {
   const out = new Float32Array(count * 3);
@@ -183,16 +180,13 @@ function cerebellumPoints(count: number, seed: number): Float32Array {
     const theta = 2 * Math.PI * rnd();
     const phi = Math.acos(2 * rnd() - 1);
     const sp = Math.sin(phi);
-    const x = sp * Math.cos(theta);
-    const y = Math.cos(phi);
-    const z = sp * Math.sin(theta);
-
-    const folia = 0.035 * Math.sin(26 * y) + 0.012 * Math.sin(15 * theta);
-    const r = 0.36 + folia + 0.01 * (rnd() - 0.5);
-
-    out[i * 3] = x * r * 1.28;
-    out[i * 3 + 1] = y * r * 0.6 - 0.44;
-    out[i * 3 + 2] = z * r * 0.92 - 0.52;
+    const nx = sp * Math.cos(theta);
+    const ny = Math.cos(phi);
+    const nz = sp * Math.sin(theta);
+    const folia = 0.022 * Math.sin(30 * nz) + 0.008 * Math.sin(18 * theta);
+    out[i * 3] = CEREBELLUM.c[0] + nx * (CEREBELLUM.r[0] + folia);
+    out[i * 3 + 1] = CEREBELLUM.c[1] + ny * (CEREBELLUM.r[1] + folia);
+    out[i * 3 + 2] = CEREBELLUM.c[2] + nz * (CEREBELLUM.r[2] + folia);
   }
   return out;
 }
@@ -204,36 +198,38 @@ function brainstemPoints(count: number, seed: number): Float32Array {
   for (let i = 0; i < count; i++) {
     const t = rnd();
     const a = 2 * Math.PI * rnd();
-    const radius = (0.115 - 0.055 * t) * (1 + 0.05 * Math.sin(9 * a));
+    const radius = (0.115 - 0.05 * t) * (1 + 0.05 * Math.sin(9 * a));
     out[i * 3] = Math.cos(a) * radius;
-    out[i * 3 + 1] = -0.42 - t * 0.42;
-    out[i * 3 + 2] = Math.sin(a) * radius - 0.3 + t * 0.12;
+    out[i * 3 + 1] = -0.42 - t * 0.4;
+    out[i * 3 + 2] = Math.sin(a) * radius - 0.34 + t * 0.16;
   }
   return out;
 }
 
 /**
- * Sparse bright points threaded through the interior, standing in for neural
- * activity. Kept as its own buffer so they can be drawn larger and hotter than
- * the cortex without needing a per-point size attribute and a custom shader.
+ * Sparse bright points threaded through the cerebrum, standing in for neural
+ * activity. Kept in their own buffer so they can be drawn larger and hotter
+ * than the cortex without a per-point size attribute and a custom shader.
  */
 function synapsePoints(count: number, seed: number): Float32Array {
   const out = new Float32Array(count * 3);
   const rnd = makeRandom(seed);
   let written = 0;
   let guard = 0;
-  while (written < count && guard < count * 40) {
+  while (written < count && guard < count * 60) {
     guard++;
-    // Rejection-sample inside the cerebrum so they sit within the volume
-    // rather than floating around it.
-    const x = (rnd() * 2 - 1) * 0.62;
-    const y = (rnd() * 2 - 1) * 0.52;
-    const z = (rnd() * 2 - 1) * 0.8;
-    const inside = (x / 0.6) ** 2 + (y / 0.5) ** 2 + (z / 0.82) ** 2;
-    if (inside > 1) continue;
-    // Bias toward the cortical shell, where the synapses actually are.
-    if (rnd() > 0.25 + inside * 0.75) continue;
-    out[written * 3] = x;
+    const side: 1 | -1 = rnd() < 0.5 ? 1 : -1;
+    const lobe = LOBES[Math.floor(rnd() * LOBES.length)];
+    // Somewhere inside the lobe, biased outward toward the cortical shell.
+    const rad = 0.45 + 0.5 * rnd();
+    const theta = 2 * Math.PI * rnd();
+    const phi = Math.acos(2 * rnd() - 1);
+    const sp = Math.sin(phi);
+    const x = lobe.c[0] + sp * Math.cos(theta) * lobe.r[0] * rad;
+    const y = lobe.c[1] + Math.cos(phi) * lobe.r[1] * rad;
+    const z = lobe.c[2] + sp * Math.sin(theta) * lobe.r[2] * rad;
+    if (x < 0.09) continue; // keep the fissure clear
+    out[written * 3] = x * side;
     out[written * 3 + 1] = y;
     out[written * 3 + 2] = z;
     written++;
@@ -260,7 +256,7 @@ function tintByDepth(positions: Float32Array, nearHex: string, farHex: string): 
 function buildGeometry(perSide: number): THREE.BufferGeometry {
   const left = hemispherePoints(perSide, -1, 20260901);
   const right = hemispherePoints(perSide, 1, 77003311);
-  const cere = cerebellumPoints(Math.round(perSide * 0.3), 19470012);
+  const cere = cerebellumPoints(Math.round(perSide * 0.34), 19470012);
   const stem = brainstemPoints(Math.round(perSide * 0.06), 55512347);
 
   const positions = new Float32Array(
@@ -285,6 +281,7 @@ function buildSynapseGeometry(perSide: number): THREE.BufferGeometry {
   g.setAttribute("color", new THREE.BufferAttribute(tintByDepth(positions, "#ffffff", "#a78bfa"), 3));
   return g;
 }
+
 
 
 export function BrainScene() {
