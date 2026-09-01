@@ -13,6 +13,7 @@ import {
   BookOpen,
   ChevronRight,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { getMyGrowthState } from "@/lib/assessment/growth.functions";
 import {
   deriveSkillSnapshots,
@@ -229,7 +230,7 @@ function Metric({
   label,
   value,
 }: {
-  icon: React.ElementType;
+  icon: LucideIcon;
   label: string;
   value: string;
 }) {

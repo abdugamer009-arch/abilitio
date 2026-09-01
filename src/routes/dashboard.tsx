@@ -32,6 +32,7 @@ import {
   Mail,
   Swords,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { MBTI_DESCRIPTIONS } from "@/lib/assessment/mbti-descriptions";
@@ -393,7 +394,7 @@ function ProfileHeader({
 /* TAB BAR                                                       */
 /* ============================================================ */
 function TabBar({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
-  const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
+  const tabs: { key: TabKey; label: string; icon: LucideIcon }[] = [
     { key: "results", label: "Results", icon: Brain },
     { key: "stats", label: "Stats", icon: BarChart3 },
     { key: "skills", label: "Skills", icon: Trophy },
@@ -707,7 +708,7 @@ function MetricRing({
   value: number;
   max: number;
   hint: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
 }) {
   const pct = Math.min(100, (value / max) * 100);
   const circumference = 2 * Math.PI * 30;
@@ -774,7 +775,7 @@ function MetricCard({
   label: string;
   value: string;
   hint: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
 }) {
   return (
     <GlassCard className="p-5 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]">
@@ -813,7 +814,7 @@ function BarRow({ label, value }: { label: string; value: number }) {
 const STAT_FIELDS: {
   key: keyof Stats;
   label: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   unit?: string;
   max?: number;
 }[] = [
@@ -1426,7 +1427,7 @@ function PrefRow({
   hint,
   children,
 }: {
-  icon: React.ElementType;
+  icon: LucideIcon;
   label: string;
   hint: string;
   children: React.ReactNode;
@@ -1471,7 +1472,7 @@ function SectionTitle({
   icon: Icon,
   children,
 }: {
-  icon: React.ElementType;
+  icon: LucideIcon;
   children: React.ReactNode;
 }) {
   return (

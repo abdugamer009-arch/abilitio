@@ -8,6 +8,7 @@ import {
   TrendingUp,
   User as UserIcon,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { FloatingShapes } from "@/components/FloatingShapes";
@@ -185,7 +186,7 @@ function Row({
   value,
   bar,
 }: {
-  icon: React.ElementType;
+  icon: LucideIcon;
   label: string;
   value: string;
   bar?: number;

@@ -1,6 +1,7 @@
 import { PageShell } from "@/components/PageShell";
 import { FloatingShapes } from "@/components/FloatingShapes";
 import { ShieldCheck } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { LEGAL_LAST_UPDATED } from "@/lib/constants";
 
 /**
@@ -18,7 +19,7 @@ export function LegalPage({
   title: string;
   intro: string;
   eyebrow?: string;
-  icon?: React.ElementType;
+  icon?: LucideIcon;
   showUpdated?: boolean;
   children: React.ReactNode;
 }) {

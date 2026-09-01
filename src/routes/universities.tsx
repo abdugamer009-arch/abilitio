@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useT } from "@/lib/i18n";
 import { useEffect, useMemo, useState } from "react";
 import { GraduationCap, MapPin, Award, Sparkles, Search, Filter } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { GlowBlob } from "@/components/GlowBlob";
@@ -197,7 +198,7 @@ function FilterField({
   children,
 }: {
   label: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   children: React.ReactNode;
 }) {
   return (
