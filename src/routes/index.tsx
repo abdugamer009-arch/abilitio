@@ -18,6 +18,13 @@ import { GlowBlob } from "@/components/GlowBlob";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { CountUp } from "@/components/CountUp";
+import {
+  BoltSticker,
+  HeartSticker,
+  StarSticker,
+  GhostSticker,
+  HandArrow,
+} from "@/components/Stickers";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
@@ -57,7 +64,9 @@ function LandingPage() {
             </span>
             {t.hero.badge}
           </div>
-          <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-[72px] lg:leading-[1.05]">
+          {/* Lowercase via CSS rather than in the copy, so all three languages
+              get it and screen readers still receive the original casing. */}
+          <h1 className="text-balance lowercase text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-[76px] lg:leading-[1.06]">
             {t.hero.titleA} <span className="gradient-text">{t.hero.titleB}</span>
           </h1>
           <p className="mt-6 max-w-xl text-lg text-muted-foreground sm:mt-7 sm:text-xl lg:text-[21px] lg:leading-relaxed">
@@ -98,8 +107,31 @@ function LandingPage() {
 
           {/* The product, beside the pitch rather than three screens below it.
               A scroll cue used to sit here; on a split hero the second column
-              already signals there is more page, so it was just height. */}
-          <div className="animate-fade-up lg:pl-4" style={{ animationDelay: "0.15s" }}>
+              already signals there is more page, so it was just height.
+
+              The stickers and the annotation are decoration: rotated off-grid,
+              aria-hidden, and pointer-events-none so they never intercept a
+              click on the card underneath. The caption + arrow only appear
+              from lg up, where there is room for them to point at something
+              without crowding it. */}
+          <div
+            className="relative animate-fade-up lg:pl-4"
+            style={{ animationDelay: "0.15s" }}
+          >
+            <BoltSticker className="-top-7 right-4 z-20 lg:-top-9 lg:right-2" rotate={-12} size={46} />
+            <HeartSticker className="-bottom-6 -left-3 z-20 lg:-bottom-8" rotate={11} size={40} />
+            <StarSticker className="top-1/3 -right-5 z-20 hidden lg:block" rotate={9} size={30} />
+
+            <div className="pointer-events-none absolute -left-6 -top-16 hidden w-[190px] lg:block">
+              <p className="text-[15px] leading-snug text-accent [transform:rotate(-4deg)]">
+                your actual results, not a stock chart
+              </p>
+              <HandArrow
+                className="left-24 top-8 h-[62px] w-[92px] text-accent/70"
+                color="currentColor"
+              />
+            </div>
+
             <AnalyticsPreview />
           </div>
         </div>
@@ -315,12 +347,17 @@ function LandingPage() {
         </div>
         <Reveal className="mx-auto max-w-4xl">
           <div
-            className="glass relative overflow-hidden rounded-3xl p-12 text-center"
+            className="glass relative rounded-3xl p-12 text-center"
             style={{ boxShadow: "0 0 80px -20px oklch(0.6 0.22 295 / 0.4)" }}
           >
-            <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
+            <div
+              aria-hidden
+              className="bg-grid pointer-events-none absolute inset-0 overflow-hidden rounded-3xl"
+            />
+            {/* One last sticker peeling off the closing card. */}
+            <GhostSticker className="-top-6 -right-4 z-20" rotate={13} size={44} />
             <div className="relative">
-              <h2 className="text-3xl font-bold md:text-5xl">{t.finalCta.title}</h2>
+              <h2 className="lowercase text-3xl font-bold md:text-5xl">{t.finalCta.title}</h2>
               <p className="mx-auto mt-4 max-w-xl text-muted-foreground">{t.finalCta.desc}</p>
               <Link
                 to="/assessment"
@@ -359,7 +396,7 @@ function Section({
             aria-hidden
             className="mt-2 h-px w-8 rounded-full bg-gradient-to-r from-accent/60 to-transparent"
           />
-          <h2 className="mt-4 text-3xl font-bold md:text-4xl lg:text-[44px]">{title}</h2>
+          <h2 className="mt-4 lowercase text-3xl font-bold md:text-4xl lg:text-[44px]">{title}</h2>
         </Reveal>
         <Reveal delay={120}>{children}</Reveal>
       </div>
