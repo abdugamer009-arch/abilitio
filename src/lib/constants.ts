@@ -1,8 +1,3 @@
-// Max AI-backed ABBI replies per user per day. Beyond this, the endpoint
-// falls back to the free template engine, protecting the Anthropic budget
-// from a single account looping the free chat.
-export const ABBI_DAILY_AI_LIMIT = 40;
-
 // Company / contact details — single source of truth used across legal,
 // contact, and footer surfaces.
 export const SITE_NAME = "Abilitio";

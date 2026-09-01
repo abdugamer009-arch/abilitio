@@ -8,11 +8,11 @@ import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/abbi")({
   head: () => ({
     meta: [
-      { title: "ABBI AI — Your Premium AI Career Mentor | Abilitio" },
+      { title: "ABBI — Career Guide | Abilitio" },
       {
         name: "description",
         content:
-          "ABBI AI is Abilitio's premium AI career mentor. Personalized advice on careers, universities, SAT/IELTS, and self-growth based on your assessment.",
+          "ABBI answers questions on careers, universities, SAT/IELTS prep and growth, personalised against your Abilitio assessment results. Free, no limits.",
       },
     ],
   }),

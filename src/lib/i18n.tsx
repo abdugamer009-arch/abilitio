@@ -120,9 +120,9 @@ const translations = {
       ],
     },
     abbiChat: {
-      tagline: "Your free AI career mentor — careers, universities, SAT/IELTS & growth.",
+      tagline: "Your free career guide — careers, universities, SAT/IELTS & growth.",
       suggested: "Suggested prompts",
-      placeholder: "Ask ABBI anything about careers, universities, SAT/IELTS…",
+      placeholder: "Ask ABBI about careers, universities, SAT/IELTS…",
       inputAria: "Message ABBI",
       clear: "Clear history",
       thinking: "ABBI is thinking",
@@ -889,7 +889,7 @@ const translations = {
       ],
     },
     abbiChat: {
-      tagline: "Ваш бесплатный ИИ-наставник: профессии, университеты, SAT/IELTS и развитие.",
+      tagline: "Ваш бесплатный гид: профессии, университеты, SAT/IELTS и развитие.",
       suggested: "Примеры вопросов",
       placeholder: "Спросите ABBI о профессиях, университетах, SAT/IELTS…",
       inputAria: "Сообщение для ABBI",
@@ -1665,7 +1665,7 @@ const translations = {
       ],
     },
     abbiChat: {
-      tagline: "Bepul AI-murabbiyingiz: kasblar, universitetlar, SAT/IELTS va rivojlanish.",
+      tagline: "Bepul yo'lboshchingiz: kasblar, universitetlar, SAT/IELTS va rivojlanish.",
       suggested: "Namuna savollar",
       placeholder: "ABBI'dan kasblar, universitetlar, SAT/IELTS haqida so'rang…",
       inputAria: "ABBI'ga xabar",

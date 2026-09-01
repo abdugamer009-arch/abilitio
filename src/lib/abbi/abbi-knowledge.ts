@@ -368,25 +368,68 @@ export function findCareer(query: string): CareerInfo | null {
   for (const c of CAREERS) {
     if (q.includes(c.name.toLowerCase())) return c;
   }
-  // common aliases
+  // Common aliases. Students rarely type the exact job title — they ask about
+  // the *field* ("data science", "medicine", "law") or use everyday words
+  // ("coder", "shrink"). Every near-miss here falls through to the generic
+  // "here's how I can help" reply, which reads as the bot being broken, so
+  // this list is deliberately generous. Longest keys are matched first so
+  // "computer science" can't be swallowed by a shorter overlapping key.
   const aliases: Record<string, string> = {
+    // software
     coder: "Software Engineer",
     programmer: "Software Engineer",
     developer: "Software Engineer",
+    "software development": "Software Engineer",
+    "computer science": "Software Engineer",
+    coding: "Software Engineer",
+    // data
+    "data science": "Data Scientist",
     "data scientist": "Data Scientist",
+    "machine learning": "Data Scientist",
+    "data analysis": "Data Analyst",
+    analytics: "Data Analyst",
+    // design
     designer: "UX / UI Designer",
+    design: "UX / UI Designer",
     ux: "UX / UI Designer",
     ui: "UX / UI Designer",
+    // business
     marketing: "Marketing Specialist",
     pr: "Public Relations Manager",
-    physician: "Doctor",
-    md: "Doctor",
+    "public relations": "Public Relations Manager",
     ceo: "Entrepreneur",
     founder: "Entrepreneur",
+    startup: "Entrepreneur",
+    business: "Business Analyst",
+    accounting: "Accountant",
+    finance: "Accountant",
+    // health & people
+    physician: "Doctor",
+    md: "Doctor",
+    medicine: "Doctor",
+    doctor: "Doctor",
+    psychology: "Psychologist",
+    therapist: "Psychologist",
+    // law & media
     attorney: "Lawyer",
+    law: "Lawyer",
+    lawyer: "Lawyer",
+    journalism: "Journalist",
+    reporter: "Journalist",
+    // education & security
+    teaching: "Teacher",
+    teacher: "Teacher",
+    cybersecurity: "Cybersecurity Specialist",
+    security: "Cybersecurity Specialist",
+    "product management": "Product Manager",
   };
-  for (const [k, v] of Object.entries(aliases)) {
-    if (q.includes(k)) return CAREER_INDEX.get(v.toLowerCase()) ?? null;
+  // Match on whole words, not substrings: "what's my biggest flaw" must not
+  // resolve to Lawyer via "law", and "cmd"/"amd" must not resolve to Doctor
+  // via "md".
+  const byLongestFirst = Object.entries(aliases).sort((a, b) => b[0].length - a[0].length);
+  for (const [k, v] of byLongestFirst) {
+    const pattern = new RegExp(`\\b${k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`);
+    if (pattern.test(q)) return CAREER_INDEX.get(v.toLowerCase()) ?? null;
   }
   return null;
 }
@@ -643,9 +686,12 @@ function skillsToLearn(ctx: AbbiContext): string {
   return base.join("\n");
 }
 
+// Set expectations honestly: this is a curated career knowledge base, not a
+// language model, so the greeting names the topics it actually covers rather
+// than inviting "ask me anything".
 const GREETING = [
-  "👋 Hi! I'm **ABBI**, your AI career mentor. Ask me about any career, university or skill — I've got you.",
-  "Welcome 👋 I'm **ABBI**. Ask me anything about careers, education, SAT/IELTS prep or growth — let's build your future.",
+  "👋 Hi! I'm **ABBI**. Ask me about a career, a university path, SAT/IELTS prep, or what to work on next.",
+  "Welcome 👋 I'm **ABBI**. I can walk you through careers, universities, SAT/IELTS prep and your growth areas — where shall we start?",
 ];
 
 export function abbiGreeting(): string {
