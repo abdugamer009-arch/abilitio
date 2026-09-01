@@ -25,6 +25,7 @@ import {
   GhostSticker,
   HandArrow,
 } from "@/components/Stickers";
+import { BrainVisual } from "@/components/BrainVisual";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
@@ -105,26 +106,22 @@ function LandingPage() {
 
         </div>
 
-          {/* The product, beside the pitch rather than three screens below it.
-              A scroll cue used to sit here; on a split hero the second column
-              already signals there is more page, so it was just height.
+          {/* A mock "talent profile" card used to sit here, showing invented
+              scores (91/88/76) as the first thing a visitor sees — which reads
+              as real results. The brain says "we map how you think" without
+              asserting any number.
 
-              The stickers and the annotation are decoration: rotated off-grid,
-              aria-hidden, and pointer-events-none so they never intercept a
-              click on the card underneath. The caption + arrow only appear
-              from lg up, where there is room for them to point at something
+              Stickers and the annotation are decoration: rotated off-grid,
+              aria-hidden and pointer-events-none. The caption + arrow only
+              appear from lg up, where there is room to point at something
               without crowding it. */}
           <div
             className="relative animate-fade-up lg:pl-4"
             style={{ animationDelay: "0.15s" }}
           >
-            <BoltSticker className="-top-7 right-4 z-20 lg:-top-9 lg:right-2" rotate={-12} size={46} />
-            <HeartSticker className="-bottom-6 -left-3 z-20 lg:-bottom-8" rotate={11} size={40} />
-            <StarSticker className="top-1/3 -right-5 z-20 hidden lg:block" rotate={9} size={30} />
-
-            <div className="pointer-events-none absolute -left-6 -top-16 hidden w-[190px] lg:block">
+            <div className="pointer-events-none absolute -left-2 top-0 z-20 hidden w-[176px] lg:block">
               <p className="text-[15px] leading-snug text-accent [transform:rotate(-4deg)]">
-                your actual results, not a stock chart
+                30 questions in, a map of how you think
               </p>
               <HandArrow
                 className="left-24 top-8 h-[62px] w-[92px] text-accent/70"
@@ -132,7 +129,15 @@ function LandingPage() {
               />
             </div>
 
-            <AnalyticsPreview />
+            {/* Stickers are positioned against this box rather than the grid
+                column, so they stay pinned to the artwork at every width
+                instead of drifting out into the column's gutters. */}
+            <div className="relative mx-auto w-[74%] max-w-[300px] lg:w-full lg:max-w-[440px]">
+              <BoltSticker className="-top-4 -right-3 z-20" rotate={-12} size={46} />
+              <HeartSticker className="-bottom-3 -left-4 z-20" rotate={11} size={40} />
+              <StarSticker className="top-1/3 -right-6 z-20 hidden lg:block" rotate={9} size={30} />
+              <BrainVisual className="w-full" />
+            </div>
           </div>
         </div>
       </section>
@@ -401,50 +406,5 @@ function Section({
         <Reveal delay={120}>{children}</Reveal>
       </div>
     </section>
-  );
-}
-
-function AnalyticsPreview() {
-  const t = useT();
-  const bars = [82, 68, 91, 54, 76, 88];
-  return (
-    <div className="glass rounded-2xl p-6">
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>{t.analytics.talentProfile}</span>
-        <span className="text-accent">{t.analytics.live}</span>
-      </div>
-      <div className="mt-6 flex h-40 items-end justify-between gap-3">
-        {bars.map((b, i) => (
-          <div
-            key={i}
-            className="relative flex-1 rounded-t-lg bg-gradient-to-t from-primary/60 to-accent/80 transition-all duration-700"
-            style={{
-              height: `${b}%`,
-              transitionDelay: `${i * 60}ms`,
-              boxShadow: "0 -4px 16px oklch(0.65 0.22 295 / 0.3)",
-            }}
-          >
-            <div className="absolute inset-x-0 top-0 h-px rounded-full bg-white/40" />
-          </div>
-        ))}
-      </div>
-      <div className="mt-6 grid grid-cols-3 gap-3 text-center text-xs">
-        {[
-          { l: t.analytics.cognitive, v: 91 },
-          { l: t.analytics.creative, v: 88 },
-          { l: t.analytics.social, v: 76 },
-        ].map((s) => (
-          <div
-            key={s.l}
-            className="rounded-xl border border-primary/15 bg-gradient-to-br from-primary/10 to-secondary/40 py-3 transition-all hover:-translate-y-0.5"
-          >
-            <div className="text-base font-semibold gradient-text">
-              <CountUp value={s.v} duration={1600} />
-            </div>
-            <div className="text-muted-foreground">{s.l}</div>
-          </div>
-        ))}
-      </div>
-    </div>
   );
 }
