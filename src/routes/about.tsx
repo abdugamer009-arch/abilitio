@@ -1,16 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
-import { Heart, Lightbulb, Globe, User, Phone, Mail, Send, Loader2, Check } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { Heart, Lightbulb, Globe, User, Phone, Mail, Send } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { CONTACT_EMAIL, CONTACT_PHONE } from "@/lib/constants";
 
 const CONTACT_PHONE_TEL = CONTACT_PHONE.replace(/\s+/g, "");
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/mqejjovw";
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-type Status = "idle" | "sending" | "success" | "error";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -30,63 +26,6 @@ const valueIcons = [Heart, Lightbulb, Globe];
 
 function AboutPage() {
   const t = useT();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [website, setWebsite] = useState("");
-  const [startedAt] = useState(() => Date.now());
-  const [status, setStatus] = useState<Status>("idle");
-  const [errorMsg, setErrorMsg] = useState("");
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setErrorMsg("");
-    if (website.trim() !== "") return;
-    if (Date.now() - startedAt < 1500) {
-      setStatus("error");
-      setErrorMsg(t.contact.errors.generic);
-      return;
-    }
-    const n = name.trim(),
-      em = email.trim(),
-      m = message.trim();
-    if (n.length < 2 || n.length > 100) {
-      setStatus("error");
-      setErrorMsg(t.contact.errors.name);
-      return;
-    }
-    if (!EMAIL_RE.test(em) || em.length > 200) {
-      setStatus("error");
-      setErrorMsg(t.contact.errors.email);
-      return;
-    }
-    if (m.length < 5 || m.length > 2000) {
-      setStatus("error");
-      setErrorMsg(t.contact.errors.msg);
-      return;
-    }
-    setStatus("sending");
-    try {
-      const res = await fetch(FORMSPREE_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          name: n,
-          email: em,
-          message: m,
-          _subject: `New Abilitio contact from ${n}`,
-        }),
-      });
-      if (!res.ok) throw new Error("fail");
-      setStatus("success");
-      setName("");
-      setEmail("");
-      setMessage("");
-    } catch {
-      setStatus("error");
-      setErrorMsg(t.contact.errors.generic);
-    }
-  };
 
   return (
     <PageShell>
@@ -202,116 +141,18 @@ function AboutPage() {
           </a>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="glass mx-auto mt-8 max-w-3xl rounded-3xl p-8"
-          noValidate
-        >
-          {status === "success" ? (
-            <div
-              role="status"
-              className="flex flex-col items-center justify-center py-8 text-center animate-fade-up"
-            >
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent glow-purple">
-                <Check className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <h3 className="mt-6 text-2xl font-semibold">{t.contact.successTitle}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{t.contact.successBody}</p>
-              <button
-                type="button"
-                onClick={() => setStatus("idle")}
-                className="mt-6 rounded-full border border-primary/20 bg-primary/5 px-5 py-2 text-xs text-muted-foreground transition-all hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
-              >
-                {t.contact.sendAnother}
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-5">
-              <div className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
-                <label htmlFor="website">Website</label>
-                <input
-                  id="website"
-                  name="website"
-                  type="text"
-                  tabIndex={-1}
-                  autoComplete="off"
-                  value={website}
-                  onChange={(e) => setWebsite(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-5 md:grid-cols-2">
-                <div>
-                  <label htmlFor="name" className="text-xs text-muted-foreground">
-                    {t.contact.name}
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder={t.contact.placeholderName}
-                    maxLength={100}
-                    className="mt-2 w-full rounded-2xl border border-border bg-secondary/40 px-4 py-3 text-sm outline-none transition-all duration-300 focus:border-primary focus:shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_18%,transparent)]"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="email" className="text-xs text-muted-foreground">
-                    {t.contact.emailLabel}
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder={t.contact.placeholderEmail}
-                    maxLength={200}
-                    className="mt-2 w-full rounded-2xl border border-border bg-secondary/40 px-4 py-3 text-sm outline-none transition-all duration-300 focus:border-primary focus:shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_18%,transparent)]"
-                  />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="msg" className="text-xs text-muted-foreground">
-                  {t.contact.message}
-                </label>
-                <textarea
-                  id="msg"
-                  required
-                  rows={5}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder={t.contact.placeholderMsg}
-                  maxLength={2000}
-                  className="mt-2 w-full rounded-2xl border border-border bg-secondary/40 px-4 py-3 text-sm outline-none transition-all duration-300 focus:border-primary focus:shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_18%,transparent)]"
-                />
-              </div>
-              {status === "error" && (
-                <div
-                  role="alert"
-                  className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-                >
-                  {errorMsg || t.contact.errors.generic}
-                </div>
-              )}
-              <button
-                type="submit"
-                disabled={status === "sending"}
-                className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-3 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0"
-              >
-                {status === "sending" ? (
-                  <>
-                    {t.contact.sending} <Loader2 className="h-4 w-4 animate-spin" />
-                  </>
-                ) : (
-                  <>
-                    {t.contact.send} <Send className="h-4 w-4" />
-                  </>
-                )}
-              </button>
-            </div>
-          )}
-        </form>
+        {/* A full second copy of the /contact form lived here — same fields,
+            same Formspree endpoint, same validation, two places to keep in
+            sync, and 26% of this page's height. Linking to the real one
+            instead. */}
+        <div className="mt-8 text-center">
+          <Link
+            to="/contact"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/40 px-5 py-2.5 text-sm transition-colors hover:bg-secondary"
+          >
+            {t.contact.send} <Send className="h-4 w-4" />
+          </Link>
+        </div>
       </section>
     </PageShell>
   );
