@@ -29,11 +29,18 @@ import * as THREE from "three";
 const LATERAL_YAW = Math.PI / 2;
 
 /**
- * Sit in the right-hand side of the frame, clear of the hero copy. Tuned so
- * the occipital end still clears the viewport edge — pushed much further and
- * the back of the head clips off-screen.
+ * Horizontal placement, as a fraction of the *visible* width rather than a
+ * fixed world offset.
+ *
+ * A constant offset only looks right at one aspect ratio: as the viewport
+ * narrows the visible world width shrinks, the brain drifts back toward the
+ * middle, and it ends up sitting on top of the hero copy. Deriving it from the
+ * camera frustum keeps it pinned to the right-hand side at every width.
  */
-const RIGHT_OFFSET = 0.95;
+const RIGHT_FRACTION = 0.24;
+
+/** Below this the layout is single-column and there is no "right side" to sit in. */
+const MIN_WIDTH = 1024;
 
 // ---------------------------------------------------------------------------
 // Math generators
@@ -350,8 +357,10 @@ function generateAmbientPoints(count: number, seed: number): Float32Array {
   const rnd = makeRandom(seed);
   const out = new Float32Array(count * 3);
   for (let i = 0; i < count; i++) {
-    // Shell around the brain, never inside it.
-    const r = 1.5 + rnd() * 1.6;
+    // Shell hugging the brain. A wider spread scattered triangles across the
+    // whole viewport, including on top of the hero copy, which is exactly what
+    // the right-hand placement exists to avoid.
+    const r = 1.25 + rnd() * 0.85;
     const theta = 2 * Math.PI * rnd();
     const phi = Math.acos(2 * rnd() - 1);
     const sp = Math.sin(phi);
@@ -462,6 +471,13 @@ function Brain({ quality, reduceMotion }: { quality: number; reduceMotion: boole
     const t = state.clock.elapsedTime;
     const s = scroll.current;
 
+    // Pin to the right-hand side of whatever the camera can actually see, and
+    // size against it too. Both are recomputed per frame so a window resize is
+    // handled without a listener.
+    const vw = state.viewport.width;
+    g.position.x = vw * RIGHT_FRACTION;
+    const fit = THREE.MathUtils.clamp(vw / 5.6, 0.62, 1);
+
     if (!reduceMotion) {
       // The idle term oscillates instead of accumulating. A constant drift
       // eventually carries the brain to an arbitrary angle and parks it
@@ -479,7 +495,7 @@ function Brain({ quality, reduceMotion }: { quality: number; reduceMotion: boole
 
       g.position.y = Math.sin(t * 0.45) * 0.05 - s * 0.25;
       const breathe = 1 + Math.sin(t * 0.8) * 0.022;
-      g.scale.setScalar(breathe * (1 - s * 0.12));
+      g.scale.setScalar(fit * breathe * (1 - s * 0.12));
 
       // Ambient field turns on its own axis, slower than the brain, so the
       // two never lock together and look welded.
@@ -487,6 +503,11 @@ function Brain({ quality, reduceMotion }: { quality: number; reduceMotion: boole
         ambientRef.current.rotation.y = t * 0.03;
         ambientRef.current.rotation.x = Math.sin(t * 0.07) * 0.2;
       }
+    } else {
+      // Still needs placing and sizing when motion is off — it just holds
+      // the lateral pose instead of moving.
+      g.rotation.set(0, LATERAL_YAW, 0);
+      g.scale.setScalar(fit);
     }
 
     // Shimmer: rim and core pulse out of phase, so brightness travels between
@@ -497,7 +518,7 @@ function Brain({ quality, reduceMotion }: { quality: number; reduceMotion: boole
   });
 
   return (
-    <group ref={group} rotation={[0, LATERAL_YAW, 0]} position={[RIGHT_OFFSET, 0, 0]}>
+    <group ref={group} rotation={[0, LATERAL_YAW, 0]}>
       {/* Dense, dark interior. Drawn first so the rim reads on top of it. */}
       <instancedMesh
         ref={coreRef}
@@ -562,6 +583,14 @@ function Brain({ quality, reduceMotion }: { quality: number; reduceMotion: boole
  */
 export default function BrainCanvas() {
   // Safe to read directly: this component only ever mounts on the client.
+  //
+  // Below MIN_WIDTH the layout is a single column, so there is no right-hand
+  // side to sit in — the brain lands on top of the hero copy instead of beside
+  // it, which is the one thing the placement is supposed to prevent. Skipping
+  // outright also avoids paying for a WebGL context and thousands of instanced
+  // wireframes on a phone, for decoration that would be mostly off-screen.
+  if (window.innerWidth < MIN_WIDTH) return null;
+
   const quality = window.innerWidth < 1280 ? 0.6 : 1;
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
