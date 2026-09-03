@@ -552,8 +552,19 @@ function Brain({
     // Shimmer: rim and core pulse out of phase, so brightness travels between
     // the glowing edge and the dark interior rather than the whole cloud
     // flashing at once.
-    if (rimMat.current) rimMat.current.opacity = 0.46 + Math.sin(t * 1.15) * 0.1;
-    if (coreMat.current) coreMat.current.opacity = 0.16 + Math.sin(t * 1.15 + Math.PI) * 0.06;
+    //
+    // Light mode runs far fainter. Additive purple on a dark page reads as a
+    // glow behind the content, but the same mass drawn normally on a pale page
+    // shows straight through the translucent glass cards and muddies whatever
+    // is sitting on top of it. At these levels it reads as a watermark.
+    const rimBase = isDark ? 0.46 : 0.17;
+    const rimSwing = isDark ? 0.1 : 0.035;
+    const coreBase = isDark ? 0.16 : 0.06;
+    const coreSwing = isDark ? 0.06 : 0.02;
+
+    if (rimMat.current) rimMat.current.opacity = rimBase + Math.sin(t * 1.15) * rimSwing;
+    if (coreMat.current)
+      coreMat.current.opacity = coreBase + Math.sin(t * 1.15 + Math.PI) * coreSwing;
   });
 
   return (
@@ -605,7 +616,10 @@ function Brain({
           wireframe
           side={THREE.DoubleSide}
           transparent
-          opacity={0.16}
+          // Faint in dark, fainter still in light — drawn normally on a pale
+          // page these scattered triangles otherwise read as specks of dirt
+          // across the copy rather than atmosphere.
+          opacity={isDark ? 0.16 : 0.07}
           depthWrite={false}
           blending={isDark ? THREE.AdditiveBlending : THREE.NormalBlending}
         />
