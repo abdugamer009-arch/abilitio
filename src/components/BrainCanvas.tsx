@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { AdaptiveDpr } from "@react-three/drei";
 import * as THREE from "three";
@@ -42,6 +42,22 @@ const RIGHT_FRACTION = 0.24;
 /** Below this the layout is single-column and there is no "right side" to sit in. */
 const MIN_WIDTH = 1024;
 
+/**
+ * Fraction of the cloud drawn in light mode.
+ *
+ * Density is free under additive blending: the page is black, so stacking more
+ * particles only adds glow. Under normal blending it is not. Overlapping alpha
+ * compounds as 1 - (1 - a)^n, so a few dozen layers reach full opacity however
+ * small `a` is, and the core turns into a flat purple blob that shows straight
+ * through the translucent glass cards.
+ *
+ * Thinning the cloud is therefore the only lever that actually works — lowering
+ * opacity alone just moves the depth at which it saturates. These fractions are
+ * applied through InstancedMesh.count, which draws a prefix of the buffer, so
+ * switching theme costs nothing: no geometry is rebuilt.
+ */
+const LIGHT_DENSITY = { rim: 0.55, core: 0.14, ambient: 0.55 };
+
 // ---------------------------------------------------------------------------
 // Math generators
 // ---------------------------------------------------------------------------
@@ -53,6 +69,28 @@ function makeRandom(seed: number) {
     s = (s * 1664525 + 1013904223) % 4294967296;
     return s / 4294967296;
   };
+}
+
+/**
+ * Fisher-Yates over whole xyz triples.
+ *
+ * Points leave the generators grouped by structure — all of the cortex, then
+ * the cerebellum, then the brainstem — so drawing a prefix of the buffer would
+ * amputate whole anatomy rather than thin the brain evenly. One shuffle makes
+ * InstancedMesh.count a clean density dial instead. At full count it is a
+ * visual no-op, so dark mode renders exactly as before.
+ */
+function shuffleTriples(a: Float32Array, seed: number): Float32Array {
+  const rnd = makeRandom(seed);
+  for (let i = a.length / 3 - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    for (let k = 0; k < 3; k++) {
+      const tmp = a[i * 3 + k];
+      a[i * 3 + k] = a[j * 3 + k];
+      a[j * 3 + k] = tmp;
+    }
+  }
+  return a;
 }
 
 function hash3(x: number, y: number, z: number): number {
@@ -243,7 +281,7 @@ function generateBrainPoints(total: number): Float32Array {
     pts.push(Math.cos(a) * radius, -0.42 - t * 0.4, Math.sin(a) * radius - 0.34 + t * 0.16);
   }
 
-  return new Float32Array(pts);
+  return shuffleTriples(new Float32Array(pts), 90210);
 }
 
 // ---------------------------------------------------------------------------
@@ -279,22 +317,27 @@ const RIM_COLORS = [
  *
  * Additive blending only ever *adds* light, so on a pale background the whole
  * cloud washes out to white. Light mode therefore draws with normal blending,
- * which means the colours have to be dark enough to sit against the page
- * rather than glow off it — the inverse of the dark-mode ramp.
+ * and normal blending converges on the particle's own colour rather than on
+ * white — so whatever goes in here is exactly what the denser passages will
+ * look like. Mid-violets keep those passages reading as purple; the near-black
+ * violets used before turned them into an ink blot.
  */
 const CORE_COLORS_LIGHT = [
-  new THREE.Color("#4c1d95"),
-  new THREE.Color("#5b21b6"),
-  new THREE.Color("#6d28d9"),
+  new THREE.Color("#8b5cf6"),
+  new THREE.Color("#a78bfa"),
+  new THREE.Color("#7c3aed"),
 ];
 
 const RIM_COLORS_LIGHT = [
-  new THREE.Color("#2e1065"),
-  new THREE.Color("#4c1d95"),
-  new THREE.Color("#6d28d9"),
   new THREE.Color("#7c3aed"),
   new THREE.Color("#8b5cf6"),
+  new THREE.Color("#a855f7"),
+  new THREE.Color("#6d28d9"),
+  new THREE.Color("#c084fc"),
 ];
+
+/** Target the light-mode interior fades toward — the page, not black. */
+const PAGE_WHITE = new THREE.Color("#ffffff");
 
 /** How far from the brain's centre a particle sits, normalised to roughly 0..1. */
 const CENTROID = new THREE.Vector3(0, -0.05, -0.05);
@@ -303,26 +346,59 @@ const CENTROID = new THREE.Vector3(0, -0.05, -0.05);
 // Instance building
 // ---------------------------------------------------------------------------
 
-type InstanceSet = {
+type Layout = {
   positions: Float32Array;
-  colors: Float32Array;
   scales: Float32Array;
   rotations: Float32Array;
 };
 
-/** Random orientation + size per particle, so the triangles never look tiled. */
-function decorate(positions: Float32Array, seed: number, opts: {
-  palette: THREE.Color[];
-  minScale: number;
-  maxScale: number;
-  /** Brighten particles further from the centroid; drives the rim glow. */
-  rimBias: boolean;
-}): InstanceSet {
+/**
+ * Size and orientation per particle, so the triangles never look tiled.
+ *
+ * Deliberately split from the colour pass: rebuilding a brain means rejection
+ * sampling tens of thousands of candidate points through three octaves of
+ * noise, and none of that depends on the theme. Toggling day mode used to redo
+ * all of it — visibly stalling the switch — when the only thing that actually
+ * changes is which purple each particle is tinted.
+ *
+ * Both passes walk one shared PRNG stream in the same order, so they stay in
+ * lockstep with the single pass they replaced and dark mode renders unchanged.
+ */
+function buildLayout(
+  positions: Float32Array,
+  seed: number,
+  opts: { minScale: number; maxScale: number },
+): Layout {
+  const n = positions.length / 3;
+  const rnd = makeRandom(seed);
+  const scales = new Float32Array(n);
+  const rotations = new Float32Array(n * 3);
+
+  for (let i = 0; i < n; i++) {
+    rnd(); // the palette pick, drawn by buildColors — skipped to hold alignment
+    scales[i] = opts.minScale + rnd() * (opts.maxScale - opts.minScale);
+    rotations[i * 3] = rnd() * Math.PI * 2;
+    rotations[i * 3 + 1] = rnd() * Math.PI * 2;
+    rotations[i * 3 + 2] = rnd() * Math.PI * 2;
+  }
+
+  return { positions, scales, rotations };
+}
+
+/** Per-particle tint. The only part of a particle that depends on the theme. */
+function buildColors(
+  positions: Float32Array,
+  seed: number,
+  opts: {
+    palette: THREE.Color[];
+    /** Push particles near the centroid into the background; drives the rim. */
+    rimBias: boolean;
+    isDark: boolean;
+  },
+): Float32Array {
   const n = positions.length / 3;
   const rnd = makeRandom(seed);
   const colors = new Float32Array(n * 3);
-  const scales = new Float32Array(n);
-  const rotations = new Float32Array(n * 3);
   const p = new THREE.Vector3();
   const c = new THREE.Color();
 
@@ -332,26 +408,34 @@ function decorate(positions: Float32Array, seed: number, opts: {
 
     c.copy(opts.palette[Math.floor(rnd() * opts.palette.length)]);
     if (opts.rimBias) {
-      // Outer shell burns brighter, interior falls away. This is the cheap
+      // Outer shell reads strongest, interior falls away. This is the cheap
       // stand-in for a fresnel term and it survives any rotation, unlike a
       // view-dependent effect baked into the geometry.
-      // Kept under 1.0 at the low end. Additive blending stacks every
-      // overlapping wireframe, so multipliers above ~1.2 drive the middle of
-      // the cloud to white and the purple disappears.
       const glow = THREE.MathUtils.clamp((dist - 0.45) / 0.5, 0, 1);
-      c.multiplyScalar(0.28 + glow * 0.85);
+      if (opts.isDark) {
+        // Toward black, which under additive blending means "contributes less".
+        // Kept under 1.0 at the low end: additive stacks every overlapping
+        // wireframe, and multipliers above ~1.2 drive the middle of the cloud
+        // to white and the purple disappears.
+        c.multiplyScalar(0.28 + glow * 0.85);
+      } else {
+        // The same trick inverted. On a pale page darkening a particle makes it
+        // *more* prominent, not less, so receding means fading toward the page.
+        c.lerp(PAGE_WHITE, (1 - glow) * 0.58);
+      }
     }
     colors[i * 3] = c.r;
     colors[i * 3 + 1] = c.g;
     colors[i * 3 + 2] = c.b;
 
-    scales[i] = opts.minScale + rnd() * (opts.maxScale - opts.minScale);
-    rotations[i * 3] = rnd() * Math.PI * 2;
-    rotations[i * 3 + 1] = rnd() * Math.PI * 2;
-    rotations[i * 3 + 2] = rnd() * Math.PI * 2;
+    // Consume the four values buildLayout takes, keeping the streams aligned.
+    rnd();
+    rnd();
+    rnd();
+    rnd();
   }
 
-  return { positions, colors, scales, rotations };
+  return colors;
 }
 
 /**
@@ -380,7 +464,7 @@ function generateCorePoints(count: number, seed: number): Float32Array {
 
     out.push(x * (rnd() < 0.5 ? 1 : -1), y, z);
   }
-  return new Float32Array(out);
+  return shuffleTriples(new Float32Array(out), 90211);
 }
 
 /** Larger hollow triangles drifting in the space around the brain. */
@@ -399,7 +483,7 @@ function generateAmbientPoints(count: number, seed: number): Float32Array {
     out[i * 3 + 1] = Math.cos(phi) * r * 0.7;
     out[i * 3 + 2] = sp * Math.sin(theta) * r;
   }
-  return out;
+  return shuffleTriples(out, 90212);
 }
 
 /**
@@ -409,10 +493,9 @@ function generateAmbientPoints(count: number, seed: number): Float32Array {
  * buffer, and doing that in the render body would repeat the work on every
  * React re-render for no benefit.
  */
-function applyInstances(mesh: THREE.InstancedMesh | null, set: InstanceSet) {
+function applyLayout(mesh: THREE.InstancedMesh | null, set: Layout) {
   if (!mesh) return;
   const dummy = new THREE.Object3D();
-  const color = new THREE.Color();
   const n = set.scales.length;
 
   for (let i = 0; i < n; i++) {
@@ -421,12 +504,20 @@ function applyInstances(mesh: THREE.InstancedMesh | null, set: InstanceSet) {
     dummy.scale.setScalar(set.scales[i]);
     dummy.updateMatrix();
     mesh.setMatrixAt(i, dummy.matrix);
-    color.setRGB(set.colors[i * 3], set.colors[i * 3 + 1], set.colors[i * 3 + 2]);
-    mesh.setColorAt(i, color);
   }
   mesh.instanceMatrix.needsUpdate = true;
-  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
   mesh.computeBoundingSphere();
+}
+
+/** Re-tint an existing mesh without touching a single matrix. */
+function applyColors(mesh: THREE.InstancedMesh | null, colors: Float32Array) {
+  if (!mesh) return;
+  const color = new THREE.Color();
+  for (let i = 0; i < colors.length / 3; i++) {
+    color.setRGB(colors[i * 3], colors[i * 3 + 1], colors[i * 3 + 2]);
+    mesh.setColorAt(i, color);
+  }
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
 }
 
 // ---------------------------------------------------------------------------
@@ -449,35 +540,74 @@ function Brain({
   const rimMat = useRef<THREE.MeshBasicMaterial>(null);
   const coreMat = useRef<THREE.MeshBasicMaterial>(null);
 
+  // Geometry: expensive, and independent of the theme. Built once per quality
+  // tier and then left alone, so switching day/night never rebuilds a brain.
   const { rim, core, ambient } = useMemo(() => {
     const rimCount = Math.round(9000 * quality);
     const coreCount = Math.round(3600 * quality);
 
     return {
-      rim: decorate(generateBrainPoints(rimCount), 4242, {
-        palette: isDark ? RIM_COLORS : RIM_COLORS_LIGHT,
+      rim: buildLayout(generateBrainPoints(rimCount), 4242, {
         minScale: 0.012,
         maxScale: 0.026,
-        rimBias: true,
       }),
-      core: decorate(generateCorePoints(coreCount, 8080), 1717, {
-        palette: isDark ? CORE_COLORS : CORE_COLORS_LIGHT,
+      core: buildLayout(generateCorePoints(coreCount, 8080), 1717, {
         minScale: 0.009,
         maxScale: 0.018,
-        rimBias: false,
       }),
-      ambient: decorate(generateAmbientPoints(110, 5150), 3030, {
-        palette: isDark ? RIM_COLORS : RIM_COLORS_LIGHT,
+      ambient: buildLayout(generateAmbientPoints(110, 5150), 3030, {
         minScale: 0.05,
         maxScale: 0.11,
-        rimBias: false,
       }),
     };
-  }, [quality, isDark]);
+  }, [quality]);
 
-  useEffect(() => applyInstances(rimRef.current, rim), [rim]);
-  useEffect(() => applyInstances(coreRef.current, core), [core]);
-  useEffect(() => applyInstances(ambientRef.current, ambient), [ambient]);
+  // Colour: cheap, and the only thing the theme actually changes.
+  const tints = useMemo(
+    () => ({
+      rim: buildColors(rim.positions, 4242, {
+        palette: isDark ? RIM_COLORS : RIM_COLORS_LIGHT,
+        rimBias: true,
+        isDark,
+      }),
+      core: buildColors(core.positions, 1717, {
+        palette: isDark ? CORE_COLORS : CORE_COLORS_LIGHT,
+        rimBias: false,
+        isDark,
+      }),
+      ambient: buildColors(ambient.positions, 3030, {
+        palette: isDark ? RIM_COLORS : RIM_COLORS_LIGHT,
+        rimBias: false,
+        isDark,
+      }),
+    }),
+    [rim, core, ambient, isDark],
+  );
+
+  // useLayoutEffect, not useEffect: a fresh InstancedMesh starts with every
+  // instance on an identity matrix, which draws all of them stacked at the
+  // origin as one screen-filling white triangle. useEffect fires after the
+  // browser has already painted, so that triangle got a frame or two on screen
+  // before the real geometry landed — a white flash across the hero on load.
+  useLayoutEffect(() => applyLayout(rimRef.current, rim), [rim]);
+  useLayoutEffect(() => applyLayout(coreRef.current, core), [core]);
+  useLayoutEffect(() => applyLayout(ambientRef.current, ambient), [ambient]);
+
+  useLayoutEffect(() => applyColors(rimRef.current, tints.rim), [tints]);
+  useLayoutEffect(() => applyColors(coreRef.current, tints.core), [tints]);
+  useLayoutEffect(() => applyColors(ambientRef.current, tints.ambient), [tints]);
+
+  // Density dial. `count` renders a prefix of the instance buffer, and the
+  // points were shuffled at generation, so a prefix thins the whole brain
+  // evenly rather than lopping off the cerebellum and brainstem.
+  useLayoutEffect(() => {
+    const draw = (mesh: THREE.InstancedMesh | null, total: number, fraction: number) => {
+      if (mesh) mesh.count = Math.round(total * fraction);
+    };
+    draw(rimRef.current, rim.scales.length, isDark ? 1 : LIGHT_DENSITY.rim);
+    draw(coreRef.current, core.scales.length, isDark ? 1 : LIGHT_DENSITY.core);
+    draw(ambientRef.current, ambient.scales.length, isDark ? 1 : LIGHT_DENSITY.ambient);
+  }, [rim, core, ambient, isDark]);
 
   // --- Input --------------------------------------------------------------
   // The canvas has pointer-events disabled so the UI above stays clickable,
@@ -553,14 +683,14 @@ function Brain({
     // the glowing edge and the dark interior rather than the whole cloud
     // flashing at once.
     //
-    // Light mode runs far fainter. Additive purple on a dark page reads as a
-    // glow behind the content, but the same mass drawn normally on a pale page
-    // shows straight through the translucent glass cards and muddies whatever
-    // is sitting on top of it. At these levels it reads as a watermark.
-    const rimBase = isDark ? 0.46 : 0.17;
-    const rimSwing = isDark ? 0.1 : 0.035;
-    const coreBase = isDark ? 0.16 : 0.06;
-    const coreSwing = isDark ? 0.06 : 0.02;
+    // Light mode is thinned by LIGHT_DENSITY rather than dimmed, so each
+    // surviving particle can carry a little more alpha than in dark mode and
+    // still read as a sketch instead of a mass — with far fewer layers stacked,
+    // alpha no longer compounds its way to a solid blob.
+    const rimBase = isDark ? 0.46 : 0.26;
+    const rimSwing = isDark ? 0.1 : 0.05;
+    const coreBase = isDark ? 0.16 : 0.1;
+    const coreSwing = isDark ? 0.06 : 0.035;
 
     if (rimMat.current) rimMat.current.opacity = rimBase + Math.sin(t * 1.15) * rimSwing;
     if (coreMat.current)
@@ -667,13 +797,15 @@ export default function BrainCanvas() {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   return (
-    // The black wash is dark-mode only. Painting it unconditionally put a hard
+    // The black wash is dark-mode only — painted unconditionally it put a hard
     // black box behind the hero on a white page and dropped the headline to
     // dark-on-black.
-    <div
-      aria-hidden
-      className={`pointer-events-none fixed inset-0 -z-10 ${isDark ? "bg-black" : ""}`}
-    >
+    //
+    // It is driven by the `dark` variant rather than by `isDark`, so it repaints
+    // in the same frame as the class lands on <html>. Routed through React it
+    // trailed the rest of the page by a commit or two, which is exactly long
+    // enough to see the backdrop stay black for a beat after switching to day.
+    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 dark:bg-black">
       <Canvas
         camera={{ position: [0, 0, 3.2], fov: 42 }}
         dpr={[1, 1.6]}
