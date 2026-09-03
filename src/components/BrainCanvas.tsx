@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { AdaptiveDpr } from "@react-three/drei";
 import * as THREE from "three";
@@ -199,9 +199,18 @@ function generateBrainPoints(total: number): Float32Array {
     if (buried || insideLobe(x, y, z, CEREBELLUM, 0.97)) continue;
 
     const fold = corticalFold(x, y, z);
-    x += nx * fold + 0.005 * (rnd() - 0.5);
-    y += ny * fold + 0.005 * (rnd() - 0.5);
-    z += nz * fold + 0.005 * (rnd() - 0.5);
+
+    // Carve the sulci by thinning density inside them, rather than only
+    // displacing the surface. Displacement alone is invisible once the cloud
+    // is dense — every fold fills in and the brain reads as a smooth mass.
+    // Removing particles from the creases leaves dark channels, and those
+    // channels are what the eye reads as gyri.
+    const foldNorm = THREE.MathUtils.clamp((fold + 0.05) / 0.1, 0, 1);
+    if (rnd() > 0.18 + foldNorm * 0.82) continue;
+
+    x += nx * fold + 0.004 * (rnd() - 0.5);
+    y += ny * fold + 0.004 * (rnd() - 0.5);
+    z += nz * fold + 0.004 * (rnd() - 0.5);
 
     // Hold the medial wall off the midline so the fissure stays open.
     if (x < 0.075) x = 0.075 + (0.075 - x) * 0.25;
@@ -263,6 +272,28 @@ const RIM_COLORS = [
   new THREE.Color("#c026d3"), // magenta
   new THREE.Color("#e879f9"), // bright magenta highlight
   new THREE.Color("#ddd6fe"), // lavender glow
+];
+
+/**
+ * Light-mode palettes.
+ *
+ * Additive blending only ever *adds* light, so on a pale background the whole
+ * cloud washes out to white. Light mode therefore draws with normal blending,
+ * which means the colours have to be dark enough to sit against the page
+ * rather than glow off it — the inverse of the dark-mode ramp.
+ */
+const CORE_COLORS_LIGHT = [
+  new THREE.Color("#4c1d95"),
+  new THREE.Color("#5b21b6"),
+  new THREE.Color("#6d28d9"),
+];
+
+const RIM_COLORS_LIGHT = [
+  new THREE.Color("#2e1065"),
+  new THREE.Color("#4c1d95"),
+  new THREE.Color("#6d28d9"),
+  new THREE.Color("#7c3aed"),
+  new THREE.Color("#8b5cf6"),
 ];
 
 /** How far from the brain's centre a particle sits, normalised to roughly 0..1. */
@@ -402,7 +433,15 @@ function applyInstances(mesh: THREE.InstancedMesh | null, set: InstanceSet) {
 // Scene
 // ---------------------------------------------------------------------------
 
-function Brain({ quality, reduceMotion }: { quality: number; reduceMotion: boolean }) {
+function Brain({
+  quality,
+  reduceMotion,
+  isDark,
+}: {
+  quality: number;
+  reduceMotion: boolean;
+  isDark: boolean;
+}) {
   const group = useRef<THREE.Group>(null);
   const rimRef = useRef<THREE.InstancedMesh>(null);
   const coreRef = useRef<THREE.InstancedMesh>(null);
@@ -411,30 +450,30 @@ function Brain({ quality, reduceMotion }: { quality: number; reduceMotion: boole
   const coreMat = useRef<THREE.MeshBasicMaterial>(null);
 
   const { rim, core, ambient } = useMemo(() => {
-    const rimCount = Math.round(2600 * quality);
-    const coreCount = Math.round(1900 * quality);
+    const rimCount = Math.round(9000 * quality);
+    const coreCount = Math.round(3600 * quality);
 
     return {
       rim: decorate(generateBrainPoints(rimCount), 4242, {
-        palette: RIM_COLORS,
+        palette: isDark ? RIM_COLORS : RIM_COLORS_LIGHT,
         minScale: 0.012,
         maxScale: 0.026,
         rimBias: true,
       }),
       core: decorate(generateCorePoints(coreCount, 8080), 1717, {
-        palette: CORE_COLORS,
+        palette: isDark ? CORE_COLORS : CORE_COLORS_LIGHT,
         minScale: 0.009,
         maxScale: 0.018,
         rimBias: false,
       }),
       ambient: decorate(generateAmbientPoints(110, 5150), 3030, {
-        palette: RIM_COLORS,
+        palette: isDark ? RIM_COLORS : RIM_COLORS_LIGHT,
         minScale: 0.05,
         maxScale: 0.11,
         rimBias: false,
       }),
     };
-  }, [quality]);
+  }, [quality, isDark]);
 
   useEffect(() => applyInstances(rimRef.current, rim), [rim]);
   useEffect(() => applyInstances(coreRef.current, core), [core]);
@@ -525,14 +564,15 @@ function Brain({ quality, reduceMotion }: { quality: number; reduceMotion: boole
         args={[undefined, undefined, core.scales.length]}
         frustumCulled={false}
       >
-        <tetrahedronGeometry args={[1, 0]} />
+        <circleGeometry args={[1, 3]} />
         <meshBasicMaterial
           ref={coreMat}
           wireframe
+          side={THREE.DoubleSide}
           transparent
           opacity={0.16}
           depthWrite={false}
-          blending={THREE.AdditiveBlending}
+          blending={isDark ? THREE.AdditiveBlending : THREE.NormalBlending}
         />
       </instancedMesh>
 
@@ -542,14 +582,15 @@ function Brain({ quality, reduceMotion }: { quality: number; reduceMotion: boole
         args={[undefined, undefined, rim.scales.length]}
         frustumCulled={false}
       >
-        <tetrahedronGeometry args={[1, 0]} />
+        <circleGeometry args={[1, 3]} />
         <meshBasicMaterial
           ref={rimMat}
           wireframe
+          side={THREE.DoubleSide}
           transparent
           opacity={0.46}
           depthWrite={false}
-          blending={THREE.AdditiveBlending}
+          blending={isDark ? THREE.AdditiveBlending : THREE.NormalBlending}
         />
       </instancedMesh>
 
@@ -559,13 +600,14 @@ function Brain({ quality, reduceMotion }: { quality: number; reduceMotion: boole
         args={[undefined, undefined, ambient.scales.length]}
         frustumCulled={false}
       >
-        <tetrahedronGeometry args={[1, 0]} />
+        <circleGeometry args={[1, 3]} />
         <meshBasicMaterial
           wireframe
+          side={THREE.DoubleSide}
           transparent
           opacity={0.16}
           depthWrite={false}
-          blending={THREE.AdditiveBlending}
+          blending={isDark ? THREE.AdditiveBlending : THREE.NormalBlending}
         />
       </instancedMesh>
     </group>
@@ -582,6 +624,22 @@ function Brain({ quality, reduceMotion }: { quality: number; reduceMotion: boole
  * losing the decoration.
  */
 export default function BrainCanvas() {
+  // Track the theme so the scene can swap blending and palette. The site
+  // toggles a `dark` class on <html>, so observe that rather than the OS
+  // preference — the user's in-app choice has to win.
+  const [isDark, setIsDark] = useState(
+    () => document.documentElement.classList.contains("dark"),
+  );
+
+  useEffect(() => {
+    const el = document.documentElement;
+    const sync = () => setIsDark(el.classList.contains("dark"));
+    const obs = new MutationObserver(sync);
+    obs.observe(el, { attributes: true, attributeFilter: ["class"] });
+    sync();
+    return () => obs.disconnect();
+  }, []);
+
   // Safe to read directly: this component only ever mounts on the client.
   //
   // Below MIN_WIDTH the layout is a single column, so there is no right-hand
@@ -595,7 +653,13 @@ export default function BrainCanvas() {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 bg-black">
+    // The black wash is dark-mode only. Painting it unconditionally put a hard
+    // black box behind the hero on a white page and dropped the headline to
+    // dark-on-black.
+    <div
+      aria-hidden
+      className={`pointer-events-none fixed inset-0 -z-10 ${isDark ? "bg-black" : ""}`}
+    >
       <Canvas
         camera={{ position: [0, 0, 3.2], fov: 42 }}
         dpr={[1, 1.6]}
@@ -603,7 +667,7 @@ export default function BrainCanvas() {
       >
         {/* Drops resolution if the frame budget slips, rather than dropping frames. */}
         <AdaptiveDpr pixelated />
-        <Brain quality={quality} reduceMotion={reduceMotion} />
+        <Brain quality={quality} reduceMotion={reduceMotion} isDark={isDark} />
       </Canvas>
     </div>
   );
