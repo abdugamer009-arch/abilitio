@@ -6,12 +6,18 @@ import * as THREE from "three";
 /**
  * Interactive 3D particle brain, rendered as a fixed background layer.
  *
- * Shape: the brain is assembled as the union of anatomically-placed lobes
- * rather than a deformed sphere. That distinction matters — a noise-displaced
- * ellipsoid reads as a bean, because a brain's silhouette comes from distinct
- * lobes meeting at angles, not from a smooth body with bumps on it. Surface
- * points that fall inside a neighbouring lobe are discarded, so what survives
- * is the outer hull of the union.
+ * Shape: the brain is one implicit surface — a signed distance field in which
+ * anatomically-placed lobes, the cerebellum and the brainstem are fused with a
+ * smooth minimum, then a midline fissure is subtracted from the crown. Points
+ * are sampled against that single field.
+ *
+ * Both halves of that sentence matter. A noise-displaced ellipsoid reads as a
+ * bean, because a brain's silhouette comes from distinct lobes meeting at
+ * angles rather than from a smooth body with bumps on it — hence the lobes. But
+ * sampling each lobe's own surface and discarding whatever lands inside a
+ * neighbour leaves a visible seam wherever two shells cross, and two separate
+ * balls wherever they merely touch — hence one field rather than a union of
+ * parts. Fusing them in the field means separate masses are not representable.
  *
  * The canvas sits behind everything with pointer-events disabled, so text and
  * icons on top stay sharp and clickable.
@@ -157,86 +163,206 @@ type Lobe = {
   c: [number, number, number];
   /** Semi-axes. */
   r: [number, number, number];
-  /** Relative share of sampled points. */
-  w: number;
 };
 
 /** Right hemisphere; the left is this mirrored through x. */
 const LOBES: Lobe[] = [
   // Frontal — tall and rounded, carries the front of the silhouette.
-  { c: [0.34, 0.1, 0.5], r: [0.3, 0.33, 0.4], w: 1.05 },
+  { c: [0.34, 0.1, 0.5], r: [0.3, 0.33, 0.4] },
   // Parietal — the crown, widest part of the brain seen from above.
-  { c: [0.35, 0.26, -0.06], r: [0.33, 0.31, 0.36], w: 1.1 },
+  { c: [0.35, 0.26, -0.06], r: [0.33, 0.31, 0.36] },
   // Occipital — shorter and lower, tapering to the back.
-  { c: [0.3, 0.02, -0.58], r: [0.28, 0.26, 0.3], w: 0.75 },
+  { c: [0.3, 0.02, -0.58], r: [0.28, 0.26, 0.3] },
   // Temporal — slung low and lateral; the lobe that stops it reading as an egg.
-  { c: [0.44, -0.3, 0.1], r: [0.21, 0.19, 0.42], w: 0.85 },
+  { c: [0.44, -0.3, 0.1], r: [0.21, 0.19, 0.42] },
 ];
 
-const CEREBELLUM: Lobe = { c: [0, -0.36, -0.6], r: [0.44, 0.21, 0.29], w: 1 };
+const CEREBELLUM: Lobe = { c: [0, -0.36, -0.6], r: [0.44, 0.21, 0.29] };
 
-function insideLobe(x: number, y: number, z: number, l: Lobe, margin = 1): boolean {
-  const dx = (x - l.c[0]) / (l.r[0] * margin);
-  const dy = (y - l.c[1]) / (l.r[1] * margin);
-  const dz = (z - l.c[2]) / (l.r[2] * margin);
-  return dx * dx + dy * dy + dz * dz < 1;
+/** Brainstem axis, descending from under the thalamus toward the cord. */
+const STEM_TOP: [number, number, number] = [0, -0.34, -0.3];
+const STEM_BOTTOM: [number, number, number] = [0, -0.86, -0.16];
+
+// ---------------------------------------------------------------------------
+// One brain, as a single implicit surface
+// ---------------------------------------------------------------------------
+//
+// The parts used to be sampled independently — each lobe got points on its own
+// complete ellipsoid, and a point was dropped only if it fell strictly inside a
+// neighbour. Wherever two lobes only partly overlapped you therefore saw two
+// whole shells crossing, and wherever they merely touched you saw two separate
+// balls. The result read as a heap of six or seven blobs rather than one organ.
+//
+// Everything below instead describes the brain as one signed distance field:
+// negative inside, zero on the surface. Parts are combined with a smooth
+// minimum, which fuses them into a single continuous body with a fillet at
+// every joint instead of an intersection seam. Sampling then happens against
+// that one surface, so separate masses are not merely avoided — they are not
+// representable.
+
+/**
+ * Ellipsoid distance. A closed-form exact SDF for an ellipsoid needs iteration;
+ * this scaled-sphere approximation is smooth, monotonic and correctly signed,
+ * which is all the blend and the surface projection require.
+ */
+function sdEllipsoid(
+  px: number,
+  py: number,
+  pz: number,
+  c: [number, number, number],
+  r: [number, number, number],
+): number {
+  const dx = (px - c[0]) / r[0];
+  const dy = (py - c[1]) / r[1];
+  const dz = (pz - c[2]) / r[2];
+  return (Math.hypot(dx, dy, dz) - 1) * Math.min(r[0], r[1], r[2]);
+}
+
+/** Capsule distance, for the brainstem. */
+function sdCapsule(
+  px: number,
+  py: number,
+  pz: number,
+  a: [number, number, number],
+  b: [number, number, number],
+  radius: number,
+): number {
+  const bax = b[0] - a[0];
+  const bay = b[1] - a[1];
+  const baz = b[2] - a[2];
+  const pax = px - a[0];
+  const pay = py - a[1];
+  const paz = pz - a[2];
+  const len2 = bax * bax + bay * bay + baz * baz;
+  const h = THREE.MathUtils.clamp((pax * bax + pay * bay + paz * baz) / len2, 0, 1);
+  return Math.hypot(pax - bax * h, pay - bay * h, paz - baz * h) - radius;
 }
 
 /**
- * Generate the full point cloud: both hemispheres, cerebellum and brainstem.
+ * Polynomial smooth minimum.
  *
- * `side` mirroring plus the medial-wall clamp is what opens the longitudinal
- * fissure — without a real gap the two halves merge into a single ovoid no
- * matter how good the folding is.
+ * This one function is what turns the parts into a brain. A plain Math.min
+ * unions two shapes but leaves a crease exactly where their surfaces cross —
+ * the seam that made the old cloud look assembled from spheres. Blending over a
+ * band of width `k` replaces that crease with a fillet, the way real cortex
+ * runs continuously from one lobe into the next.
+ */
+function smin(a: number, b: number, k: number): number {
+  const h = THREE.MathUtils.clamp(0.5 + (0.5 * (b - a)) / k, 0, 1);
+  return b * (1 - h) + a * h - k * h * (1 - h);
+}
+
+/** Smooth maximum, used to subtract the midline fissure without a razor edge. */
+function smax(a: number, b: number, k: number): number {
+  return -smin(-a, -b, k);
+}
+
+/** How wide a band each joint is filleted over. Larger reads as one mass. */
+const LOBE_BLEND = 0.14;
+
+/**
+ * Signed distance to the whole brain. Negative inside.
+ *
+ * Lobes are evaluated at |x| so both hemispheres come from a single definition
+ * and are guaranteed to match. The cerebellum and brainstem join the same
+ * blend rather than sitting alongside it, so they are part of one body instead
+ * of two satellites parked next to it.
+ */
+function brainField(x: number, y: number, z: number): number {
+  const ax = Math.abs(x);
+
+  let d = sdEllipsoid(ax, y, z, LOBES[0].c, LOBES[0].r);
+  for (let i = 1; i < LOBES.length; i++) {
+    d = smin(d, sdEllipsoid(ax, y, z, LOBES[i].c, LOBES[i].r), LOBE_BLEND);
+  }
+
+  // Cerebellum straddles the midline, so it is evaluated on real x. Tighter
+  // blend: it should read as tucked under the occipital lobe, not melted into it.
+  d = smin(d, sdEllipsoid(x, y, z, CEREBELLUM.c, CEREBELLUM.r), 0.075);
+  d = smin(d, sdCapsule(x, y, z, STEM_TOP, STEM_BOTTOM, 0.098), 0.07);
+
+  // Longitudinal fissure. Carved as a thin midline slab that stops short of
+  // the base, so the hemispheres separate at the crown but stay joined
+  // underneath, as they are through the corpus callosum. Cutting the full
+  // depth would genuinely split the brain into two objects — which is the
+  // failure this whole rewrite exists to remove.
+  const fissure = sdBox(x, y, z, 0, 0.62, 0, 0.05, 0.72, 1.15);
+  return smax(d, -fissure, 0.045);
+}
+
+/** Box distance; exact outside, the usual cheap interior approximation. */
+function sdBox(
+  px: number,
+  py: number,
+  pz: number,
+  cx: number,
+  cy: number,
+  cz: number,
+  hx: number,
+  hy: number,
+  hz: number,
+): number {
+  const dx = Math.abs(px - cx) - hx;
+  const dy = Math.abs(py - cy) - hy;
+  const dz = Math.abs(pz - cz) - hz;
+  const ox = Math.max(dx, 0);
+  const oy = Math.max(dy, 0);
+  const oz = Math.max(dz, 0);
+  return Math.hypot(ox, oy, oz) + Math.min(Math.max(dx, dy, dz), 0);
+}
+
+/** Sampling volume, sized to contain the field with room for the blend. */
+const BOUNDS = { x: 0.82, yMin: -1.02, yMax: 0.68, z: 1.0 };
+
+/** Surface normal of the field, by central difference. */
+function fieldNormal(x: number, y: number, z: number): [number, number, number] {
+  const e = 0.004;
+  const gx = brainField(x + e, y, z) - brainField(x - e, y, z);
+  const gy = brainField(x, y + e, z) - brainField(x, y - e, z);
+  const gz = brainField(x, y, z + e) - brainField(x, y, z - e);
+  const len = Math.hypot(gx, gy, gz) || 1;
+  return [gx / len, gy / len, gz / len];
+}
+
+/**
+ * Sample the brain's surface — the whole thing, in one pass.
+ *
+ * Candidates are thrown into the bounding volume and kept when they land in a
+ * thin shell around f = 0, then projected exactly onto the surface along the
+ * gradient. There is no per-part loop and no notion of which lobe a point
+ * "belongs" to, so cortex, cerebellum and brainstem come out as one continuous
+ * skin with fillets at the joints.
+ *
+ * Rejection sampling is the right tool here despite the waste: it finds
+ * undercuts — under the temporal lobe, beneath the cerebellum — that ray
+ * marching outward from a centre point cannot reach.
  */
 function generateBrainPoints(total: number): Float32Array {
   const rnd = makeRandom(20260901);
   const pts: number[] = [];
 
-  const cortexTarget = Math.round(total * 0.86);
-  const cerebellumTarget = Math.round(total * 0.1);
-  const stemTarget = total - cortexTarget - cerebellumTarget;
-
-  const totalW = LOBES.reduce((s, l) => s + l.w, 0);
+  // Wide enough to keep the hit rate workable, thin enough that a single
+  // Newton step lands on the surface rather than near it.
+  const SHELL = 0.028;
+  const spanY = BOUNDS.yMax - BOUNDS.yMin;
   let guard = 0;
 
-  // --- Cerebral cortex, both hemispheres -----------------------------------
-  while (pts.length / 3 < cortexTarget && guard < cortexTarget * 60) {
+  while (pts.length / 3 < total && guard < total * 400) {
     guard++;
 
-    let pick = rnd() * totalW;
-    let lobe = LOBES[0];
-    for (const l of LOBES) {
-      pick -= l.w;
-      if (pick <= 0) {
-        lobe = l;
-        break;
-      }
-    }
+    const px = (rnd() * 2 - 1) * BOUNDS.x;
+    const py = BOUNDS.yMin + rnd() * spanY;
+    const pz = (rnd() * 2 - 1) * BOUNDS.z;
 
-    const theta = 2 * Math.PI * rnd();
-    const phi = Math.acos(2 * rnd() - 1); // even over the sphere, not over angle
-    const sp = Math.sin(phi);
-    const nx = sp * Math.cos(theta);
-    const ny = Math.cos(phi);
-    const nz = sp * Math.sin(theta);
+    const d = brainField(px, py, pz);
+    if (d < -SHELL || d > SHELL) continue;
 
-    let x = lobe.c[0] + nx * lobe.r[0];
-    let y = lobe.c[1] + ny * lobe.r[1];
-    let z = lobe.c[2] + nz * lobe.r[2];
+    const [nx, ny, nz] = fieldNormal(px, py, pz);
+    const sx = px - d * nx;
+    const sy = py - d * ny;
+    const sz = pz - d * nz;
 
-    // Discard anything buried inside a neighbour: that keeps only the outer
-    // hull, instead of seams running through the middle of the brain.
-    let buried = false;
-    for (const other of LOBES) {
-      if (other !== lobe && insideLobe(x, y, z, other, 0.97)) {
-        buried = true;
-        break;
-      }
-    }
-    if (buried || insideLobe(x, y, z, CEREBELLUM, 0.97)) continue;
-
-    const fold = corticalFold(x, y, z);
+    const fold = corticalFold(sx, sy, sz);
 
     // Carve the sulci by thinning density inside them, rather than only
     // displacing the surface. Displacement alone is invisible once the cloud
@@ -246,39 +372,15 @@ function generateBrainPoints(total: number): Float32Array {
     const foldNorm = THREE.MathUtils.clamp((fold + 0.05) / 0.1, 0, 1);
     if (rnd() > 0.18 + foldNorm * 0.82) continue;
 
-    x += nx * fold + 0.004 * (rnd() - 0.5);
-    y += ny * fold + 0.004 * (rnd() - 0.5);
-    z += nz * fold + 0.004 * (rnd() - 0.5);
-
-    // Hold the medial wall off the midline so the fissure stays open.
-    if (x < 0.075) x = 0.075 + (0.075 - x) * 0.25;
-
-    const side = rnd() < 0.5 ? 1 : -1;
-    pts.push(x * side, y, z);
-  }
-
-  // --- Cerebellum: fine parallel folia, not fractal folds -------------------
-  for (let i = 0; i < cerebellumTarget; i++) {
-    const theta = 2 * Math.PI * rnd();
-    const phi = Math.acos(2 * rnd() - 1);
-    const sp = Math.sin(phi);
-    const nx = sp * Math.cos(theta);
-    const ny = Math.cos(phi);
-    const nz = sp * Math.sin(theta);
-    const folia = 0.022 * Math.sin(30 * nz) + 0.008 * Math.sin(18 * theta);
+    // Displace along the field's own normal, so folds sit perpendicular to the
+    // surface everywhere — including the undercuts, where the old per-lobe
+    // radial normal pointed into the body instead of out of it.
+    const j = 0.004;
     pts.push(
-      CEREBELLUM.c[0] + nx * (CEREBELLUM.r[0] + folia),
-      CEREBELLUM.c[1] + ny * (CEREBELLUM.r[1] + folia),
-      CEREBELLUM.c[2] + nz * (CEREBELLUM.r[2] + folia),
+      sx + nx * fold + j * (rnd() - 0.5),
+      sy + ny * fold + j * (rnd() - 0.5),
+      sz + nz * fold + j * (rnd() - 0.5),
     );
-  }
-
-  // --- Brainstem ------------------------------------------------------------
-  for (let i = 0; i < stemTarget; i++) {
-    const t = rnd();
-    const a = 2 * Math.PI * rnd();
-    const radius = (0.115 - 0.05 * t) * (1 + 0.05 * Math.sin(9 * a));
-    pts.push(Math.cos(a) * radius, -0.42 - t * 0.4, Math.sin(a) * radius - 0.34 + t * 0.16);
   }
 
   return shuffleTriples(new Float32Array(pts), 90210);
@@ -439,30 +541,28 @@ function buildColors(
 }
 
 /**
- * Fill the lobe volumes rather than their surfaces, for the dense inner core.
- * Biased inward so the interior is packed and does not compete with the rim.
+ * Fill the volume behind that same surface, for the dense inner core.
+ *
+ * Tested against the one field rather than against each lobe separately, so
+ * the interior is the inside of the brain the rim describes. Filling the lobes
+ * individually used to deposit a second set of overlapping ellipsoid clouds,
+ * which is a large part of why the silhouette read as several masses even
+ * where the outer shell had merged.
  */
 function generateCorePoints(count: number, seed: number): Float32Array {
   const rnd = makeRandom(seed);
   const out: number[] = [];
+  const spanY = BOUNDS.yMax - BOUNDS.yMin;
   let guard = 0;
 
-  while (out.length / 3 < count && guard < count * 40) {
+  while (out.length / 3 < count && guard < count * 200) {
     guard++;
-    const lobe = LOBES[Math.floor(rnd() * LOBES.length)];
-    // cube-root keeps the distribution even through the volume instead of
-    // clustering everything against the shell.
-    const rad = Math.cbrt(rnd()) * 0.86;
-    const theta = 2 * Math.PI * rnd();
-    const phi = Math.acos(2 * rnd() - 1);
-    const sp = Math.sin(phi);
-
-    const x = lobe.c[0] + sp * Math.cos(theta) * lobe.r[0] * rad;
-    const y = lobe.c[1] + Math.cos(phi) * lobe.r[1] * rad;
-    const z = lobe.c[2] + sp * Math.sin(theta) * lobe.r[2] * rad;
-    if (x < 0.085) continue; // keep the longitudinal fissure open
-
-    out.push(x * (rnd() < 0.5 ? 1 : -1), y, z);
+    const x = (rnd() * 2 - 1) * BOUNDS.x;
+    const y = BOUNDS.yMin + rnd() * spanY;
+    const z = (rnd() * 2 - 1) * BOUNDS.z;
+    // Comfortably inside, so the core never pokes through the rim it sits behind.
+    if (brainField(x, y, z) > -0.05) continue;
+    out.push(x, y, z);
   }
   return shuffleTriples(new Float32Array(out), 90211);
 }
@@ -653,8 +753,16 @@ function Brain({
       // edge-on, where it reads as an ovoid; swinging around the lateral pose
       // keeps it alive without ever losing the profile.
       const idle = Math.sin(t * 0.12) * 0.16;
-      const targetY = LATERAL_YAW + s * Math.PI * 2.2 + pointer.current.x * 0.3 + idle;
-      const targetX = s * 0.45 - pointer.current.y * 0.18 + Math.sin(t * 0.21) * 0.05;
+      // Scroll swings the brain through a bounded arc instead of spinning it.
+      // A full 2.2 turns down the page looked lively but spent most of its time
+      // at angles where a brain simply stops being recognisable — head-on, the
+      // two frontal lobes are just a pair of spheres. Staying inside roughly
+      // ±45° of the lateral pose keeps it in side-to-three-quarter profile,
+      // which is the range that actually reads as a brain, and still gives the
+      // scroll something to drive.
+      const swing = (s - 0.5) * 0.85;
+      const targetY = LATERAL_YAW + swing + pointer.current.x * 0.22 + idle;
+      const targetX = s * 0.3 - pointer.current.y * 0.18 + Math.sin(t * 0.21) * 0.05;
 
       // Ease toward the target rather than snapping, so a fast scroll reads as
       // momentum instead of a jump. Frame-rate independent.
