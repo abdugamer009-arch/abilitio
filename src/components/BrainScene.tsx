@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 
 /**
- * Client-only mount point for the 3D brain background.
+ * Client-only mount point for the 3D neural sculpture.
  *
  * The scene itself lives in BrainCanvas and is reached through React.lazy, so
  * @react-three/fiber is never pulled into the server bundle. That matters:

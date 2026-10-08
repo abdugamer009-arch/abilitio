@@ -43,67 +43,64 @@ function LandingPage() {
 
   return (
     <PageShell>
-      {/* The brain is a fixed layer behind the whole page, not a hero element,
-          so it keeps turning as the page is read. It mounts client-side only
-          and skips itself entirely on touch/narrow/reduced-motion. */}
-      <BrainScene />
-
-      {/* Hero — one left-aligned column. The right side is deliberately empty:
-          that is where the brain shows through, so the copy and the artwork
-          share the fold without competing for the same space. */}
-      <section className="relative px-6 pt-24 pb-28 sm:pt-32 sm:pb-36 lg:pt-40 lg:pb-44">
+      {/* The client-only neural sculpture stays beside the copy on desktop,
+          and becomes a compact second row on phones. */}
+      <section
+        id="brain-hero"
+        className="relative px-6 pt-24 pb-28 sm:pt-32 sm:pb-36 lg:pt-40 lg:pb-44"
+      >
         <div aria-hidden className="bg-grid pointer-events-none absolute inset-0 z-0" />
         <ParticleConstellation />
         <div className="relative z-10 mx-auto grid max-w-[1200px] items-center gap-14 lg:grid-cols-2 lg:gap-16">
-        <div key={t.hero.titleA} className="animate-fade-up">
-          <div className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/8 px-5 py-2 text-sm text-primary/90 backdrop-blur shadow-[0_0_20px_-8px_var(--glow)]">
-            <span className="relative flex h-2 w-2 shrink-0">
-              <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-60" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-gradient-to-br from-primary to-accent" />
-            </span>
-            {t.hero.badge}
-          </div>
-          {/* Lowercase via CSS rather than in the copy, so all three languages
+          <div key={t.hero.titleA} className="animate-fade-up">
+            <div className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/8 px-5 py-2 text-sm text-primary/90 backdrop-blur shadow-[0_0_20px_-8px_var(--glow)]">
+              <span className="relative flex h-2 w-2 shrink-0">
+                <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-gradient-to-br from-primary to-accent" />
+              </span>
+              {t.hero.badge}
+            </div>
+            {/* Lowercase via CSS rather than in the copy, so all three languages
               get it and screen readers still receive the original casing. */}
-          <h1 className="text-balance lowercase text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-[76px] lg:leading-[1.06]">
-            {t.hero.titleA} <span className="gradient-text">{t.hero.titleB}</span>
-          </h1>
-          <p className="mt-6 max-w-xl text-lg text-muted-foreground sm:mt-7 sm:text-xl lg:text-[21px] lg:leading-relaxed">
-            {t.hero.subtitle}
-          </p>
-          <div className="mt-10 flex flex-wrap items-center gap-4">
-            <Link
-              to="/assessment"
-              className="cta-sheen group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-9 py-4 text-base font-medium text-primary-foreground shadow-[0_10px_36px_-10px_var(--glow)] transition-all hover:-translate-y-0.5 lg:px-10 lg:py-5 lg:text-lg"
-            >
-              {t.hero.cta}
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-            <Link
-              to="/features"
-              className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-9 py-4 text-base font-medium text-primary backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)] lg:px-10 lg:py-5 lg:text-lg"
-            >
-              {t.hero.learnMore}
-            </Link>
+            <h1 className="text-balance lowercase text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-[76px] lg:leading-[1.06]">
+              {t.hero.titleA} <span className="gradient-text">{t.hero.titleB}</span>
+            </h1>
+            <p className="mt-6 max-w-xl text-lg text-muted-foreground sm:mt-7 sm:text-xl lg:text-[21px] lg:leading-relaxed">
+              {t.hero.subtitle}
+            </p>
+            <div className="mt-10 flex flex-wrap items-center gap-4">
+              <Link
+                to="/assessment"
+                className="cta-sheen group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-9 py-4 text-base font-medium text-primary-foreground shadow-[0_10px_36px_-10px_var(--glow)] transition-all hover:-translate-y-0.5 lg:px-10 lg:py-5 lg:text-lg"
+              >
+                {t.hero.cta}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+              <Link
+                to="/features"
+                className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-9 py-4 text-base font-medium text-primary backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)] lg:px-10 lg:py-5 lg:text-lg"
+              >
+                {t.hero.learnMore}
+              </Link>
+            </div>
+
+            {/* Honest trust signals */}
+            <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5">
+                <Star className="h-3.5 w-3.5 fill-accent text-accent" /> {t.common.freeToStart}
+              </span>
+              <span className="hidden h-3 w-px bg-border sm:block" aria-hidden />
+              <span className="inline-flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5 text-accent" /> {t.common.noCreditCard}
+              </span>
+              <span className="hidden h-3 w-px bg-border sm:block" aria-hidden />
+              <span className="inline-flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-accent" /> 30-question AI assessment
+              </span>
+            </div>
           </div>
 
-          {/* Honest trust signals */}
-          <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5">
-              <Star className="h-3.5 w-3.5 fill-accent text-accent" /> {t.common.freeToStart}
-            </span>
-            <span className="hidden h-3 w-px bg-border sm:block" aria-hidden />
-            <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-accent" /> {t.common.noCreditCard}
-            </span>
-            <span className="hidden h-3 w-px bg-border sm:block" aria-hidden />
-            <span className="inline-flex items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5 text-accent" /> 30-question AI assessment
-            </span>
-          </div>
-
-        </div>
-
+          <BrainScene />
         </div>
       </section>
 

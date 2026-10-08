@@ -1,928 +1,886 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { AdaptiveDpr } from "@react-three/drei";
+import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-/**
- * Interactive 3D particle brain, rendered as a fixed background layer.
- *
- * Shape: the brain is one implicit surface — a signed distance field in which
- * anatomically-placed lobes, the cerebellum and the brainstem are fused with a
- * smooth minimum, then a midline fissure is subtracted from the crown. Points
- * are sampled against that single field.
- *
- * Both halves of that sentence matter. A noise-displaced ellipsoid reads as a
- * bean, because a brain's silhouette comes from distinct lobes meeting at
- * angles rather than from a smooth body with bumps on it — hence the lobes. But
- * sampling each lobe's own surface and discarding whatever lands inside a
- * neighbour leaves a visible seam wherever two shells cross, and two separate
- * balls wherever they merely touch — hence one field rather than a union of
- * parts. Fusing them in the field means separate masses are not representable.
- *
- * The canvas sits behind everything with pointer-events disabled, so text and
- * icons on top stay sharp and clickable.
- */
+// Art direction / performance controls. All geometry is generated once per tier.
+export const BRAIN_SETTINGS = {
+  desktopParticles: 18000,
+  mobileParticles: 8000,
+  desktopNodes: 1100,
+  mobileNodes: 480,
+  connectionRadius: 0.24,
+  maxConnections: 3,
+  colors: ["#6d4aff", "#a897ff", "#d4caff"],
+  pulseSpeed: 0.28,
+  introSeconds: 2.2,
+  bloomStrength: 0.38,
+  bloomThreshold: 0.72,
+  pixelRatioCap: 1.5,
+  mobilePixelRatioCap: 1.25,
+  scrollDistance: 1000,
+} as const;
 
-// ---------------------------------------------------------------------------
-// Tunables
-// ---------------------------------------------------------------------------
+const TAU = Math.PI * 2;
+const clamp = THREE.MathUtils.clamp;
 
-/**
- * Yaw that puts the camera on the side of the brain. The lobes are modelled
- * with +x lateral, so looking down x gives the profile — frontal lobe, temporal
- * lobe, cerebellum and brainstem all in view. Any other angle reads as an ovoid.
- */
-const LATERAL_YAW = Math.PI / 2;
-
-/**
- * Horizontal placement, as a fraction of the *visible* width rather than a
- * fixed world offset.
- *
- * A constant offset only looks right at one aspect ratio: as the viewport
- * narrows the visible world width shrinks, the brain drifts back toward the
- * middle, and it ends up sitting on top of the hero copy. Deriving it from the
- * camera frustum keeps it pinned to the right-hand side at every width.
- */
-const RIGHT_FRACTION = 0.24;
-
-/** Below this the layout is single-column and there is no "right side" to sit in. */
-const MIN_WIDTH = 1024;
-
-/**
- * Fraction of the cloud drawn in light mode.
- *
- * Density is free under additive blending: the page is black, so stacking more
- * particles only adds glow. Under normal blending it is not. Overlapping alpha
- * compounds as 1 - (1 - a)^n, so a few dozen layers reach full opacity however
- * small `a` is, and the core turns into a flat purple blob that shows straight
- * through the translucent glass cards.
- *
- * Thinning the cloud is therefore the only lever that actually works — lowering
- * opacity alone just moves the depth at which it saturates. These fractions are
- * applied through InstancedMesh.count, which draws a prefix of the buffer, so
- * switching theme costs nothing: no geometry is rebuilt.
- */
-const LIGHT_DENSITY = { rim: 0.55, core: 0.14, ambient: 0.55 };
-
-// ---------------------------------------------------------------------------
-// Math generators
-// ---------------------------------------------------------------------------
-
-/** Deterministic PRNG, so the brain is identical on every load. */
-function makeRandom(seed: number) {
-  let s = seed;
+function randomGenerator(seed: number) {
+  let value = seed >>> 0;
   return () => {
-    s = (s * 1664525 + 1013904223) % 4294967296;
-    return s / 4294967296;
+    value = (Math.imul(value, 1664525) + 1013904223) >>> 0;
+    return value / 4294967296;
   };
 }
 
-/**
- * Fisher-Yates over whole xyz triples.
- *
- * Points leave the generators grouped by structure — all of the cortex, then
- * the cerebellum, then the brainstem — so drawing a prefix of the buffer would
- * amputate whole anatomy rather than thin the brain evenly. One shuffle makes
- * InstancedMesh.count a clean density dial instead. At full count it is a
- * visual no-op, so dark mode renders exactly as before.
- */
-function shuffleTriples(a: Float32Array, seed: number): Float32Array {
-  const rnd = makeRandom(seed);
-  for (let i = a.length / 3 - 1; i > 0; i--) {
-    const j = Math.floor(rnd() * (i + 1));
-    for (let k = 0; k < 3; k++) {
-      const tmp = a[i * 3 + k];
-      a[i * 3 + k] = a[j * 3 + k];
-      a[j * 3 + k] = tmp;
-    }
-  }
-  return a;
+/** Winding, domain-warped sulci, rather than independent spherical lobes.
+ * Narrow troughs alternate with broad rounded gyri. The same field builds the
+ * actual skin geometry and its shadow/particle-density attributes. */
+function corticalGroove(x: number, y: number, z: number) {
+  const warp = 1.8 * Math.sin(z * 4.1 + x * 2.2) + 0.85 * Math.sin(x * 7.3 - z * 3.2);
+  const phase = y * 14.5 + warp + 1.3 * Math.sin(z * 8.2 + y * 2.6);
+  const channel = Math.exp(-Math.pow(Math.sin(phase) / 0.25, 2));
+  const branch = Math.exp(-Math.pow(Math.sin(z * 12 + x * 5 + Math.sin(y * 6)) / 0.16, 2));
+  return Math.max(channel, branch * (0.4 + 0.4 * Math.sin(y * 3 + z * 2)));
 }
 
-function hash3(x: number, y: number, z: number): number {
-  let h = (x * 374761393 + y * 668265263 + z * 1274126177) | 0;
-  h = (Math.imul(h ^ (h >>> 13), 1274126177) | 0) >>> 0;
-  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+/** One continuous half-cortex, mirrored at the midline. The inferior surface
+ * tucks inward; the front/back contours have different radii. */
+function cortexPoint(theta: number, phi: number, side: number): [number, number, number, number] {
+  const dx = Math.sin(theta) * Math.cos(phi);
+  const dy = Math.cos(theta);
+  const dz = Math.sin(theta) * Math.sin(phi);
+  const groove = corticalGroove(dx, dy, dz);
+  const fold = 1 - groove * 0.085 + Math.sin(dz * 5 + dy * 3) * 0.012;
+  const lower = Math.max(0, -dy);
+  const x = side * (0.045 + dx * 0.72 * fold * (1 - lower * 0.18));
+  const y = 0.12 + dy * 0.76 * fold;
+  const z = dz * (dz > 0 ? 1.02 : 0.94) * fold - 0.035 + lower * 0.1;
+  return [x, y, z, groove];
 }
 
-const fade = (t: number) => t * t * (3 - 2 * t);
-const mix = (a: number, b: number, t: number) => a + (b - a) * t;
+function buildSkin(mobile: boolean) {
+  const positions: number[] = [];
+  const grooves: number[] = [];
+  const hemispheres: number[] = [];
+  const indices: number[] = [];
+  const rings = mobile ? 48 : 72;
+  const columns = mobile ? 64 : 96;
 
-/** Trilinear value noise — the Perlin stand-in used for the folds. */
-function valueNoise3(x: number, y: number, z: number): number {
-  const xi = Math.floor(x);
-  const yi = Math.floor(y);
-  const zi = Math.floor(z);
-  const u = fade(x - xi);
-  const v = fade(y - yi);
-  const w = fade(z - zi);
-  return mix(
-    mix(
-      mix(hash3(xi, yi, zi), hash3(xi + 1, yi, zi), u),
-      mix(hash3(xi, yi + 1, zi), hash3(xi + 1, yi + 1, zi), u),
-      v,
-    ),
-    mix(
-      mix(hash3(xi, yi, zi + 1), hash3(xi + 1, yi, zi + 1), u),
-      mix(hash3(xi, yi + 1, zi + 1), hash3(xi + 1, yi + 1, zi + 1), u),
-      v,
-    ),
-    w,
-  );
-}
-
-/** Fractal sum. Frequencies step by 2.03 so octaves never phase-align. */
-function fbm(x: number, y: number, z: number, octaves = 3): number {
-  let amp = 0.5;
-  let freq = 1;
-  let sum = 0;
-  let norm = 0;
-  for (let i = 0; i < octaves; i++) {
-    sum += amp * valueNoise3(x * freq, y * freq, z * freq);
-    norm += amp;
-    amp *= 0.5;
-    freq *= 2.03;
-  }
-  return sum / norm;
-}
-
-/**
- * Sulci and gyri. Ridged noise (1 - |2n-1|) gives rounded crowns separated by
- * sharp creases, which is the shape of cortical folding; plain noise just
- * gives lumps. Kept shallow so it never eats the lobe boundaries that carry
- * the silhouette.
- */
-function corticalFold(x: number, y: number, z: number): number {
-  const ridged = 1 - Math.abs(2 * fbm(x * 4.4, y * 4.4, z * 4.4, 3) - 1);
-  const detail = Math.sin(14.5 * x + 8.2 * z) * Math.sin(11.7 * y - 9.4 * x);
-  return (ridged - 0.5) * 0.05 + detail * 0.012;
-}
-
-type Lobe = {
-  /** Centre in a right-hemisphere frame: +x lateral, +y superior, +z anterior. */
-  c: [number, number, number];
-  /** Semi-axes. */
-  r: [number, number, number];
-};
-
-/** Right hemisphere; the left is this mirrored through x. */
-const LOBES: Lobe[] = [
-  // Frontal — tall and rounded, carries the front of the silhouette.
-  { c: [0.34, 0.1, 0.5], r: [0.3, 0.33, 0.4] },
-  // Parietal — the crown, widest part of the brain seen from above.
-  { c: [0.35, 0.26, -0.06], r: [0.33, 0.31, 0.36] },
-  // Occipital — shorter and lower, tapering to the back.
-  { c: [0.3, 0.02, -0.58], r: [0.28, 0.26, 0.3] },
-  // Temporal — slung low and lateral; the lobe that stops it reading as an egg.
-  { c: [0.44, -0.3, 0.1], r: [0.21, 0.19, 0.42] },
-];
-
-const CEREBELLUM: Lobe = { c: [0, -0.36, -0.6], r: [0.44, 0.21, 0.29] };
-
-/** Brainstem axis, descending from under the thalamus toward the cord. */
-const STEM_TOP: [number, number, number] = [0, -0.34, -0.3];
-const STEM_BOTTOM: [number, number, number] = [0, -0.86, -0.16];
-
-// ---------------------------------------------------------------------------
-// One brain, as a single implicit surface
-// ---------------------------------------------------------------------------
-//
-// The parts used to be sampled independently — each lobe got points on its own
-// complete ellipsoid, and a point was dropped only if it fell strictly inside a
-// neighbour. Wherever two lobes only partly overlapped you therefore saw two
-// whole shells crossing, and wherever they merely touched you saw two separate
-// balls. The result read as a heap of six or seven blobs rather than one organ.
-//
-// Everything below instead describes the brain as one signed distance field:
-// negative inside, zero on the surface. Parts are combined with a smooth
-// minimum, which fuses them into a single continuous body with a fillet at
-// every joint instead of an intersection seam. Sampling then happens against
-// that one surface, so separate masses are not merely avoided — they are not
-// representable.
-
-/**
- * Ellipsoid distance. A closed-form exact SDF for an ellipsoid needs iteration;
- * this scaled-sphere approximation is smooth, monotonic and correctly signed,
- * which is all the blend and the surface projection require.
- */
-function sdEllipsoid(
-  px: number,
-  py: number,
-  pz: number,
-  c: [number, number, number],
-  r: [number, number, number],
-): number {
-  const dx = (px - c[0]) / r[0];
-  const dy = (py - c[1]) / r[1];
-  const dz = (pz - c[2]) / r[2];
-  return (Math.hypot(dx, dy, dz) - 1) * Math.min(r[0], r[1], r[2]);
-}
-
-/** Capsule distance, for the brainstem. */
-function sdCapsule(
-  px: number,
-  py: number,
-  pz: number,
-  a: [number, number, number],
-  b: [number, number, number],
-  radius: number,
-): number {
-  const bax = b[0] - a[0];
-  const bay = b[1] - a[1];
-  const baz = b[2] - a[2];
-  const pax = px - a[0];
-  const pay = py - a[1];
-  const paz = pz - a[2];
-  const len2 = bax * bax + bay * bay + baz * baz;
-  const h = THREE.MathUtils.clamp((pax * bax + pay * bay + paz * baz) / len2, 0, 1);
-  return Math.hypot(pax - bax * h, pay - bay * h, paz - baz * h) - radius;
-}
-
-/**
- * Polynomial smooth minimum.
- *
- * This one function is what turns the parts into a brain. A plain Math.min
- * unions two shapes but leaves a crease exactly where their surfaces cross —
- * the seam that made the old cloud look assembled from spheres. Blending over a
- * band of width `k` replaces that crease with a fillet, the way real cortex
- * runs continuously from one lobe into the next.
- */
-function smin(a: number, b: number, k: number): number {
-  const h = THREE.MathUtils.clamp(0.5 + (0.5 * (b - a)) / k, 0, 1);
-  return b * (1 - h) + a * h - k * h * (1 - h);
-}
-
-/** Smooth maximum, used to subtract the midline fissure without a razor edge. */
-function smax(a: number, b: number, k: number): number {
-  return -smin(-a, -b, k);
-}
-
-/** How wide a band each joint is filleted over. Larger reads as one mass. */
-const LOBE_BLEND = 0.14;
-
-/**
- * Signed distance to the whole brain. Negative inside.
- *
- * Lobes are evaluated at |x| so both hemispheres come from a single definition
- * and are guaranteed to match. The cerebellum and brainstem join the same
- * blend rather than sitting alongside it, so they are part of one body instead
- * of two satellites parked next to it.
- */
-function brainField(x: number, y: number, z: number): number {
-  const ax = Math.abs(x);
-
-  let d = sdEllipsoid(ax, y, z, LOBES[0].c, LOBES[0].r);
-  for (let i = 1; i < LOBES.length; i++) {
-    d = smin(d, sdEllipsoid(ax, y, z, LOBES[i].c, LOBES[i].r), LOBE_BLEND);
-  }
-
-  // Cerebellum straddles the midline, so it is evaluated on real x. Tighter
-  // blend: it should read as tucked under the occipital lobe, not melted into it.
-  d = smin(d, sdEllipsoid(x, y, z, CEREBELLUM.c, CEREBELLUM.r), 0.075);
-  d = smin(d, sdCapsule(x, y, z, STEM_TOP, STEM_BOTTOM, 0.098), 0.07);
-
-  // Longitudinal fissure. Carved as a thin midline slab that stops short of
-  // the base, so the hemispheres separate at the crown but stay joined
-  // underneath, as they are through the corpus callosum. Cutting the full
-  // depth would genuinely split the brain into two objects — which is the
-  // failure this whole rewrite exists to remove.
-  const fissure = sdBox(x, y, z, 0, 0.62, 0, 0.05, 0.72, 1.15);
-  return smax(d, -fissure, 0.045);
-}
-
-/** Box distance; exact outside, the usual cheap interior approximation. */
-function sdBox(
-  px: number,
-  py: number,
-  pz: number,
-  cx: number,
-  cy: number,
-  cz: number,
-  hx: number,
-  hy: number,
-  hz: number,
-): number {
-  const dx = Math.abs(px - cx) - hx;
-  const dy = Math.abs(py - cy) - hy;
-  const dz = Math.abs(pz - cz) - hz;
-  const ox = Math.max(dx, 0);
-  const oy = Math.max(dy, 0);
-  const oz = Math.max(dz, 0);
-  return Math.hypot(ox, oy, oz) + Math.min(Math.max(dx, dy, dz), 0);
-}
-
-/** Sampling volume, sized to contain the field with room for the blend. */
-const BOUNDS = { x: 0.82, yMin: -1.02, yMax: 0.68, z: 1.0 };
-
-/** Surface normal of the field, by central difference. */
-function fieldNormal(x: number, y: number, z: number): [number, number, number] {
-  const e = 0.004;
-  const gx = brainField(x + e, y, z) - brainField(x - e, y, z);
-  const gy = brainField(x, y + e, z) - brainField(x, y - e, z);
-  const gz = brainField(x, y, z + e) - brainField(x, y, z - e);
-  const len = Math.hypot(gx, gy, gz) || 1;
-  return [gx / len, gy / len, gz / len];
-}
-
-/**
- * Sample the brain's surface — the whole thing, in one pass.
- *
- * Candidates are thrown into the bounding volume and kept when they land in a
- * thin shell around f = 0, then projected exactly onto the surface along the
- * gradient. There is no per-part loop and no notion of which lobe a point
- * "belongs" to, so cortex, cerebellum and brainstem come out as one continuous
- * skin with fillets at the joints.
- *
- * Rejection sampling is the right tool here despite the waste: it finds
- * undercuts — under the temporal lobe, beneath the cerebellum — that ray
- * marching outward from a centre point cannot reach.
- */
-function generateBrainPoints(total: number): Float32Array {
-  const rnd = makeRandom(20260901);
-  const pts: number[] = [];
-
-  // Wide enough to keep the hit rate workable, thin enough that a single
-  // Newton step lands on the surface rather than near it.
-  const SHELL = 0.028;
-  const spanY = BOUNDS.yMax - BOUNDS.yMin;
-  let guard = 0;
-
-  while (pts.length / 3 < total && guard < total * 400) {
-    guard++;
-
-    const px = (rnd() * 2 - 1) * BOUNDS.x;
-    const py = BOUNDS.yMin + rnd() * spanY;
-    const pz = (rnd() * 2 - 1) * BOUNDS.z;
-
-    const d = brainField(px, py, pz);
-    if (d < -SHELL || d > SHELL) continue;
-
-    const [nx, ny, nz] = fieldNormal(px, py, pz);
-    const sx = px - d * nx;
-    const sy = py - d * ny;
-    const sz = pz - d * nz;
-
-    const fold = corticalFold(sx, sy, sz);
-
-    // Carve the sulci by thinning density inside them, rather than only
-    // displacing the surface. Displacement alone is invisible once the cloud
-    // is dense — every fold fills in and the brain reads as a smooth mass.
-    // Removing particles from the creases leaves dark channels, and those
-    // channels are what the eye reads as gyri.
-    const foldNorm = THREE.MathUtils.clamp((fold + 0.05) / 0.1, 0, 1);
-    if (rnd() > 0.18 + foldNorm * 0.82) continue;
-
-    // Displace along the field's own normal, so folds sit perpendicular to the
-    // surface everywhere — including the undercuts, where the old per-lobe
-    // radial normal pointed into the body instead of out of it.
-    const j = 0.004;
-    pts.push(
-      sx + nx * fold + j * (rnd() - 0.5),
-      sy + ny * fold + j * (rnd() - 0.5),
-      sz + nz * fold + j * (rnd() - 0.5),
-    );
-  }
-
-  return shuffleTriples(new Float32Array(pts), 90210);
-}
-
-// ---------------------------------------------------------------------------
-// Purple palette
-// ---------------------------------------------------------------------------
-
-/**
- * Strictly purple, ordered inner -> outer. The core sits in near-black violet
- * so the interior reads as depth rather than a solid mass; the rim climbs
- * through electric purple into magenta and lavender, which is what produces
- * the fresnel-style edge without a custom shader — brightness is driven by how
- * far a particle sits from the centroid, so the outer shell always glows and
- * the interior always recedes.
- */
-const CORE_COLORS = [
-  new THREE.Color("#2e1065"),
-  new THREE.Color("#3b0764"),
-  new THREE.Color("#4c1d95"),
-  new THREE.Color("#5b21b6"),
-];
-
-const RIM_COLORS = [
-  new THREE.Color("#7c3aed"), // violet
-  new THREE.Color("#8b5cf6"),
-  new THREE.Color("#a855f7"), // electric neon purple
-  new THREE.Color("#c026d3"), // magenta
-  new THREE.Color("#e879f9"), // bright magenta highlight
-  new THREE.Color("#ddd6fe"), // lavender glow
-];
-
-/**
- * Light-mode palettes.
- *
- * Additive blending only ever *adds* light, so on a pale background the whole
- * cloud washes out to white. Light mode therefore draws with normal blending,
- * and normal blending converges on the particle's own colour rather than on
- * white — so whatever goes in here is exactly what the denser passages will
- * look like. Mid-violets keep those passages reading as purple; the near-black
- * violets used before turned them into an ink blot.
- */
-const CORE_COLORS_LIGHT = [
-  new THREE.Color("#8b5cf6"),
-  new THREE.Color("#a78bfa"),
-  new THREE.Color("#7c3aed"),
-];
-
-const RIM_COLORS_LIGHT = [
-  new THREE.Color("#7c3aed"),
-  new THREE.Color("#8b5cf6"),
-  new THREE.Color("#a855f7"),
-  new THREE.Color("#6d28d9"),
-  new THREE.Color("#c084fc"),
-];
-
-/** Target the light-mode interior fades toward — the page, not black. */
-const PAGE_WHITE = new THREE.Color("#ffffff");
-
-/** How far from the brain's centre a particle sits, normalised to roughly 0..1. */
-const CENTROID = new THREE.Vector3(0, -0.05, -0.05);
-
-// ---------------------------------------------------------------------------
-// Instance building
-// ---------------------------------------------------------------------------
-
-type Layout = {
-  positions: Float32Array;
-  scales: Float32Array;
-  rotations: Float32Array;
-};
-
-/**
- * Size and orientation per particle, so the triangles never look tiled.
- *
- * Deliberately split from the colour pass: rebuilding a brain means rejection
- * sampling tens of thousands of candidate points through three octaves of
- * noise, and none of that depends on the theme. Toggling day mode used to redo
- * all of it — visibly stalling the switch — when the only thing that actually
- * changes is which purple each particle is tinted.
- *
- * Both passes walk one shared PRNG stream in the same order, so they stay in
- * lockstep with the single pass they replaced and dark mode renders unchanged.
- */
-function buildLayout(
-  positions: Float32Array,
-  seed: number,
-  opts: { minScale: number; maxScale: number },
-): Layout {
-  const n = positions.length / 3;
-  const rnd = makeRandom(seed);
-  const scales = new Float32Array(n);
-  const rotations = new Float32Array(n * 3);
-
-  for (let i = 0; i < n; i++) {
-    rnd(); // the palette pick, drawn by buildColors — skipped to hold alignment
-    scales[i] = opts.minScale + rnd() * (opts.maxScale - opts.minScale);
-    rotations[i * 3] = rnd() * Math.PI * 2;
-    rotations[i * 3 + 1] = rnd() * Math.PI * 2;
-    rotations[i * 3 + 2] = rnd() * Math.PI * 2;
-  }
-
-  return { positions, scales, rotations };
-}
-
-/** Per-particle tint. The only part of a particle that depends on the theme. */
-function buildColors(
-  positions: Float32Array,
-  seed: number,
-  opts: {
-    palette: THREE.Color[];
-    /** Push particles near the centroid into the background; drives the rim. */
-    rimBias: boolean;
-    isDark: boolean;
-  },
-): Float32Array {
-  const n = positions.length / 3;
-  const rnd = makeRandom(seed);
-  const colors = new Float32Array(n * 3);
-  const p = new THREE.Vector3();
-  const c = new THREE.Color();
-
-  for (let i = 0; i < n; i++) {
-    p.set(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]);
-    const dist = p.distanceTo(CENTROID);
-
-    c.copy(opts.palette[Math.floor(rnd() * opts.palette.length)]);
-    if (opts.rimBias) {
-      // Outer shell reads strongest, interior falls away. This is the cheap
-      // stand-in for a fresnel term and it survives any rotation, unlike a
-      // view-dependent effect baked into the geometry.
-      const glow = THREE.MathUtils.clamp((dist - 0.45) / 0.5, 0, 1);
-      if (opts.isDark) {
-        // Toward black, which under additive blending means "contributes less".
-        // Kept under 1.0 at the low end: additive stacks every overlapping
-        // wireframe, and multipliers above ~1.2 drive the middle of the cloud
-        // to white and the purple disappears.
-        c.multiplyScalar(0.28 + glow * 0.85);
-      } else {
-        // The same trick inverted. On a pale page darkening a particle makes it
-        // *more* prominent, not less, so receding means fading toward the page.
-        c.lerp(PAGE_WHITE, (1 - glow) * 0.58);
+  // Triangulated continuous hemispheres. No lobe spheres, downloaded model,
+  // texture, or runtime asset request. Normals come from the folded geometry.
+  for (const side of [-1, 1]) {
+    const offset = positions.length / 3;
+    for (let r = 0; r <= rings; r++) {
+      for (let c = 0; c <= columns; c++) {
+        const [x, y, z, groove] = cortexPoint(
+          (r / rings) * Math.PI,
+          (c / columns - 0.5) * Math.PI,
+          side,
+        );
+        positions.push(x, y, z);
+        grooves.push(groove);
+        hemispheres.push(side);
       }
     }
-    colors[i * 3] = c.r;
-    colors[i * 3 + 1] = c.g;
-    colors[i * 3 + 2] = c.b;
-
-    // Consume the four values buildLayout takes, keeping the streams aligned.
-    rnd();
-    rnd();
-    rnd();
-    rnd();
+    for (let r = 0; r < rings; r++) {
+      for (let c = 0; c < columns; c++) {
+        const a = offset + r * (columns + 1) + c;
+        const b = a + columns + 1;
+        if (side === 1) indices.push(a, a + 1, b, b, a + 1, b + 1);
+        else indices.push(a, b, a + 1, b, b + 1, a + 1);
+      }
+    }
   }
 
-  return colors;
+  // Cerebellum: a tucked-under, transversely folded skirt. Stem: a narrowing
+  // curved column. Both are sampled as part of the same skin/point system.
+  const addSurface = (rows: number, cols: number, point: (u: number, v: number) => number[]) => {
+    const offset = positions.length / 3;
+    for (let r = 0; r <= rows; r++) {
+      for (let c = 0; c <= cols; c++) {
+        const p = point(r / rows, c / cols);
+        positions.push(p[0], p[1], p[2]);
+        grooves.push(p[3]);
+        hemispheres.push(0);
+      }
+    }
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const a = offset + r * (cols + 1) + c;
+        const b = a + cols + 1;
+        indices.push(a, a + 1, b, b, a + 1, b + 1);
+      }
+    }
+  };
+  addSurface(28, 48, (u, v) => {
+    const theta = u * Math.PI;
+    const phi = v * TAU;
+    const groove = 0.5 + 0.5 * Math.sin(theta * 48);
+    const fold = 1 - groove * 0.045;
+    return [
+      Math.sin(theta) * Math.cos(phi) * 0.45 * fold,
+      -0.56 + Math.cos(theta) * 0.23,
+      -0.52 + Math.sin(theta) * Math.sin(phi) * 0.4 * fold,
+      groove,
+    ];
+  });
+  addSurface(20, 20, (u, v) => {
+    const radius = 0.11 * (1 - u * 0.62);
+    return [
+      Math.cos(v * TAU) * radius,
+      -0.61 - u * 0.48,
+      -0.18 + u * 0.13 + Math.sin(v * TAU) * radius,
+      0.2,
+    ];
+  });
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("aGroove", new THREE.Float32BufferAttribute(grooves, 1));
+  geometry.setAttribute("aHemisphere", new THREE.Float32BufferAttribute(hemispheres, 1));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  return geometry;
 }
 
-/**
- * Fill the volume behind that same surface, for the dense inner core.
- *
- * Tested against the one field rather than against each lobe separately, so
- * the interior is the inside of the brain the rim describes. Filling the lobes
- * individually used to deposit a second set of overlapping ellipsoid clouds,
- * which is a large part of why the silhouette read as several masses even
- * where the outer shell had merged.
- */
-function generateCorePoints(count: number, seed: number): Float32Array {
-  const rnd = makeRandom(seed);
-  const out: number[] = [];
-  const spanY = BOUNDS.yMax - BOUNDS.yMin;
-  let guard = 0;
+type BrainBuffers = {
+  skin: THREE.BufferGeometry;
+  particles: THREE.BufferGeometry;
+  lines: THREE.BufferGeometry;
+};
 
-  while (out.length / 3 < count && guard < count * 200) {
-    guard++;
-    const x = (rnd() * 2 - 1) * BOUNDS.x;
-    const y = BOUNDS.yMin + rnd() * spanY;
-    const z = (rnd() * 2 - 1) * BOUNDS.z;
-    // Comfortably inside, so the core never pokes through the rim it sits behind.
-    if (brainField(x, y, z) > -0.05) continue;
-    out.push(x, y, z);
+/** Area-weighted surface sampling avoids a dense pole / sparse equator. A
+ * spatial grid builds the network once; no O(n²) search or CPU particle work
+ * happens in the animation loop. */
+function buildBrain(mobile: boolean): BrainBuffers {
+  const skin = buildSkin(mobile);
+  const source = skin.getAttribute("position");
+  const normals = skin.getAttribute("normal");
+  const groove = skin.getAttribute("aGroove");
+  const hemisphere = skin.getAttribute("aHemisphere");
+  const index = skin.index!;
+  const triangleCount = index.count / 3;
+  const areas = new Float32Array(triangleCount);
+  const a = new THREE.Vector3(),
+    b = new THREE.Vector3(),
+    c = new THREE.Vector3();
+  let area = 0;
+  for (let t = 0; t < triangleCount; t++) {
+    a.fromBufferAttribute(source, index.getX(t * 3));
+    b.fromBufferAttribute(source, index.getX(t * 3 + 1));
+    c.fromBufferAttribute(source, index.getX(t * 3 + 2));
+    b.sub(a);
+    c.sub(a);
+    area += b.cross(c).length() * 0.5;
+    areas[t] = area;
   }
-  return shuffleTriples(new Float32Array(out), 90211);
-}
-
-/** Larger hollow triangles drifting in the space around the brain. */
-function generateAmbientPoints(count: number, seed: number): Float32Array {
-  const rnd = makeRandom(seed);
-  const out = new Float32Array(count * 3);
+  const count = mobile ? BRAIN_SETTINGS.mobileParticles : BRAIN_SETTINGS.desktopParticles;
+  const nodeCount = mobile ? BRAIN_SETTINGS.mobileNodes : BRAIN_SETTINGS.desktopNodes;
+  const positions = new Float32Array(count * 3);
+  const normal = new Float32Array(count * 3);
+  const scatter = new Float32Array(count * 3);
+  const seeds = new Float32Array(count);
+  const folds = new Float32Array(count);
+  const sides = new Float32Array(count);
+  const rng = randomGenerator(871203);
   for (let i = 0; i < count; i++) {
-    // Shell hugging the brain. A wider spread scattered triangles across the
-    // whole viewport, including on top of the hero copy, which is exactly what
-    // the right-hand placement exists to avoid.
-    const r = 1.25 + rnd() * 0.85;
-    const theta = 2 * Math.PI * rnd();
-    const phi = Math.acos(2 * rnd() - 1);
-    const sp = Math.sin(phi);
-    out[i * 3] = sp * Math.cos(theta) * r;
-    out[i * 3 + 1] = Math.cos(phi) * r * 0.7;
-    out[i * 3 + 2] = sp * Math.sin(theta) * r;
+    let t = 0,
+      u = 0,
+      v = 0,
+      w = 0,
+      fold = 0;
+    // Keep some particles just inside troughs, while leaving visible sulci.
+    for (let attempt = 0; attempt < 8; attempt++) {
+      const target = rng() * area;
+      let lo = 0,
+        hi = triangleCount - 1;
+      while (lo < hi) {
+        const mid = (lo + hi) >>> 1;
+        if (areas[mid] < target) lo = mid + 1;
+        else hi = mid;
+      }
+      t = lo;
+      u = Math.sqrt(rng());
+      v = rng();
+      w = 1 - u;
+      u *= 1 - v;
+      v = 1 - w - u;
+      fold =
+        groove.getX(index.getX(t * 3)) * w +
+        groove.getX(index.getX(t * 3 + 1)) * u +
+        groove.getX(index.getX(t * 3 + 2)) * v;
+      if (rng() > fold * 0.78) break;
+    }
+    const ia = index.getX(t * 3),
+      ib = index.getX(t * 3 + 1),
+      ic = index.getX(t * 3 + 2);
+    a.fromBufferAttribute(normals, ia).multiplyScalar(w);
+    b.fromBufferAttribute(normals, ib).multiplyScalar(u);
+    c.fromBufferAttribute(normals, ic).multiplyScalar(v);
+    a.add(b).add(c).normalize();
+    const inset = i % 7 === 0 ? -0.012 : 0.008;
+    for (let d = 0; d < 3; d++) {
+      const coord = d === 0 ? "getX" : d === 1 ? "getY" : "getZ";
+      positions[i * 3 + d] =
+        source[coord](ia) * w +
+        source[coord](ib) * u +
+        source[coord](ic) * v +
+        a.getComponent(d) * inset;
+      normal[i * 3 + d] = a.getComponent(d);
+      scatter[i * 3 + d] = (rng() - 0.5) * 5.5;
+    }
+    seeds[i] = rng();
+    folds[i] = fold;
+    sides[i] = hemisphere.getX(ia);
   }
-  return shuffleTriples(out, 90212);
+  const particles = new THREE.BufferGeometry();
+  particles.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  particles.setAttribute("normal", new THREE.BufferAttribute(normal, 3));
+  particles.setAttribute("aScatter", new THREE.BufferAttribute(scatter, 3));
+  particles.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 1));
+  particles.setAttribute("aGroove", new THREE.BufferAttribute(folds, 1));
+  particles.setAttribute("aHemisphere", new THREE.BufferAttribute(sides, 1));
+
+  const radius = BRAIN_SETTINGS.connectionRadius;
+  const cells = new Map<string, number[]>();
+  const key = (x: number, y: number, z: number) => `${x},${y},${z}`;
+  for (let i = 0; i < nodeCount; i++) {
+    const k = key(
+      Math.floor(positions[i * 3] / radius),
+      Math.floor(positions[i * 3 + 1] / radius),
+      Math.floor(positions[i * 3 + 2] / radius),
+    );
+    const bucket = cells.get(k) ?? [];
+    bucket.push(i);
+    cells.set(k, bucket);
+  }
+  const linePosition: number[] = [],
+    lineNormal: number[] = [],
+    lineScatter: number[] = [];
+  const lineSeed: number[] = [],
+    lineSide: number[] = [],
+    lineProgress: number[] = [],
+    linePhase: number[] = [];
+  const pairs = new Set<string>();
+  for (let i = 0; i < nodeCount; i++) {
+    const x = positions[i * 3],
+      y = positions[i * 3 + 1],
+      z = positions[i * 3 + 2];
+    const cx = Math.floor(x / radius),
+      cy = Math.floor(y / radius),
+      cz = Math.floor(z / radius);
+    const nearby: { j: number; distance: number }[] = [];
+    for (let dx = -1; dx <= 1; dx++)
+      for (let dy = -1; dy <= 1; dy++)
+        for (let dz = -1; dz <= 1; dz++) {
+          for (const j of cells.get(key(cx + dx, cy + dy, cz + dz)) ?? []) {
+            if (i === j) continue;
+            const distance = Math.hypot(
+              x - positions[j * 3],
+              y - positions[j * 3 + 1],
+              z - positions[j * 3 + 2],
+            );
+            if (distance > 0.055 && distance < radius) nearby.push({ j, distance });
+          }
+        }
+    nearby.sort((a, b) => a.distance - b.distance);
+    for (const { j } of nearby.slice(0, BRAIN_SETTINGS.maxConnections)) {
+      const pair = `${Math.min(i, j)}:${Math.max(i, j)}`;
+      if (pairs.has(pair)) continue;
+      pairs.add(pair);
+      const phase = rng();
+      for (const [end, n] of [
+        [i, 0],
+        [j, 1],
+      ]) {
+        linePosition.push(...positions.subarray(end * 3, end * 3 + 3));
+        lineNormal.push(...normal.subarray(end * 3, end * 3 + 3));
+        lineScatter.push(...scatter.subarray(end * 3, end * 3 + 3));
+        lineSeed.push(seeds[end]);
+        lineSide.push(sides[end]);
+        lineProgress.push(n);
+        linePhase.push(phase);
+      }
+    }
+  }
+  const lines = new THREE.BufferGeometry();
+  for (const [name, data, size] of [
+    ["position", linePosition, 3],
+    ["normal", lineNormal, 3],
+    ["aScatter", lineScatter, 3],
+    ["aSeed", lineSeed, 1],
+    ["aHemisphere", lineSide, 1],
+    ["aProgress", lineProgress, 1],
+    ["aPhase", linePhase, 1],
+  ] as [string, number[], number][])
+    lines.setAttribute(name, new THREE.Float32BufferAttribute(data, size));
+  return { skin, particles, lines };
 }
 
-/**
- * Push an InstanceSet into an InstancedMesh.
- *
- * Done in an effect rather than during render: setMatrixAt writes into a GPU
- * buffer, and doing that in the render body would repeat the work on every
- * React re-render for no benefit.
- */
-function applyLayout(mesh: THREE.InstancedMesh | null, set: Layout) {
-  if (!mesh) return;
-  const dummy = new THREE.Object3D();
-  const n = set.scales.length;
+/* GLSL 3D simplex noise: Ashima Arts / Ian McEwan, MIT license.
+ * Copyright (C) 2011 Ashima Arts. All rights reserved.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE. */
+// https://github.com/ashima/webgl-noise (copyright 2011 Ashima Arts).
+const SIMPLEX = `
+vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
+vec4 mod289(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}
+vec4 permute(vec4 x){return mod289(((x*34.0)+10.0)*x);}
+vec4 invSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}
+float snoise(vec3 v){
+ const vec2 C=vec2(1.0/6.0,1.0/3.0); const vec4 D=vec4(0.0,0.5,1.0,2.0);
+ vec3 i=floor(v+dot(v,C.yyy)); vec3 x0=v-i+dot(i,C.xxx);
+ vec3 g=step(x0.yzx,x0.xyz); vec3 l=1.0-g;
+ vec3 i1=min(g.xyz,l.zxy),i2=max(g.xyz,l.zxy);
+ vec3 x1=x0-i1+C.xxx,x2=x0-i2+C.yyy,x3=x0-D.yyy;
+ i=mod289(i); vec4 p=permute(permute(permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));
+ float n_=0.142857142857; vec3 ns=n_*D.wyz-D.xzx;
+ vec4 j=p-49.0*floor(p*ns.z*ns.z); vec4 x_=floor(j*ns.z),y_=floor(j-7.0*x_);
+ vec4 x=x_*ns.x+ns.yyyy,y=y_*ns.x+ns.yyyy,h=1.0-abs(x)-abs(y);
+ vec4 b0=vec4(x.xy,y.xy),b1=vec4(x.zw,y.zw);
+ vec4 s0=floor(b0)*2.0+1.0,s1=floor(b1)*2.0+1.0,sh=-step(h,vec4(0.0));
+ vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy,a1=b1.xzyw+s1.xzyw*sh.zzww;
+ vec3 p0=vec3(a0.xy,h.x),p1=vec3(a0.zw,h.y),p2=vec3(a1.xy,h.z),p3=vec3(a1.zw,h.w);
+ vec4 norm=invSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+ p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
+ vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0);
+ m=m*m;return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+}`;
 
-  for (let i = 0; i < n; i++) {
-    dummy.position.set(set.positions[i * 3], set.positions[i * 3 + 1], set.positions[i * 3 + 2]);
-    dummy.rotation.set(set.rotations[i * 3], set.rotations[i * 3 + 1], set.rotations[i * 3 + 2]);
-    dummy.scale.setScalar(set.scales[i]);
-    dummy.updateMatrix();
-    mesh.setMatrixAt(i, dummy.matrix);
-  }
-  mesh.instanceMatrix.needsUpdate = true;
-  mesh.computeBoundingSphere();
+const UNIFORMS = `
+uniform float uTime,uAssemble,uOpen,uMotion,uOpacity;
+uniform vec3 uColorA,uColorB,uColorC;
+uniform vec2 uPointer;
+uniform float uPointerActive;
+attribute float aHemisphere;
+${SIMPLEX}
+vec3 deform(vec3 p,vec3 n){
+ p.x+=aHemisphere*uOpen*0.32;
+ float breath=sin(uTime*0.72)*0.009*uMotion;
+ float noise=snoise(p*2.8+vec3(uTime*0.12))*0.012*uMotion;
+ return p*(1.0+breath)+n*noise;
 }
+vec3 palette(vec3 p){
+ float gradient=clamp(p.y*0.38+p.z*0.16+0.48,0.0,1.0);
+ return mix(uColorA,uColorB,gradient);
+}`;
 
-/** Re-tint an existing mesh without touching a single matrix. */
-function applyColors(mesh: THREE.InstancedMesh | null, colors: Float32Array) {
-  if (!mesh) return;
-  const color = new THREE.Color();
-  for (let i = 0; i < colors.length / 3; i++) {
-    color.setRGB(colors[i * 3], colors[i * 3 + 1], colors[i * 3 + 2]);
-    mesh.setColorAt(i, color);
-  }
-  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-}
+const PARTICLE_VERTEX = `
+${UNIFORMS}
+uniform float uPixelRatio;
+attribute vec3 aScatter;
+attribute float aSeed,aGroove;
+varying vec3 vColor;
+varying float vAlpha,vActivation;
+void main(){
+ vec3 p=mix(aScatter,deform(position,normal),uAssemble);
+ vec4 mv=modelViewMatrix*vec4(p,1.0);
+ vec4 clip=projectionMatrix*mv;
+ vec2 screen=clip.xy/clip.w;
+ float local=exp(-dot(screen-uPointer,screen-uPointer)*12.0)*uPointerActive*uMotion;
+ // Local activation preserves alignment between nodes and their connections.
+ mv=modelViewMatrix*vec4(p,1.0); gl_Position=projectionMatrix*mv;
+ vec3 n=(normalMatrix*normal)*inversesqrt(max(dot(normalMatrix*normal,normalMatrix*normal),0.000001));
+ float fresnel=pow(clamp(1.0-abs(dot(n,normalize(-mv.xyz))),0.0,1.0),2.0);
+ float light=max(0.0,dot(n,normalize(vec3(-0.4,0.7,1.0))));
+ float regional=pow(max(0.0,sin(position.z*3.0+position.y*2.0-uTime*0.65)),12.0)*uMotion;
+ vActivation=regional+local*0.65;
+ vColor=mix(palette(position),uColorC,fresnel*0.5+vActivation*0.26);
+ vAlpha=(0.32+light*0.34+fresnel*0.32)*(1.0-aGroove*0.72);
+ vAlpha*=(1.0-smoothstep(2.5,6.5,-mv.z))*uAssemble*uOpacity;
+ gl_PointSize=clamp((1.3+aSeed*1.4+fresnel*0.45+vActivation*0.65)*uPixelRatio*4.4/max(1.0,-mv.z),1.0,6.0*uPixelRatio);
+}`;
+const PARTICLE_FRAGMENT = `
+varying vec3 vColor; varying float vAlpha,vActivation;
+void main(){
+ float r=length(gl_PointCoord-0.5)*2.0;if(r>1.0)discard;
+ float glow=exp(-r*r*4.5);float core=exp(-r*r*25.0);
+ gl_FragColor=vec4(vColor*(0.8+core*0.55+vActivation*0.55),glow*vAlpha);
+}`;
+const SKIN_VERTEX = `
+${UNIFORMS}
+attribute float aGroove;
+varying vec3 vNormal,vView,vPosition;
+varying float vGroove;
+void main(){
+ vec3 p=deform(position,normal);
+ vec4 mv=modelViewMatrix*vec4(p,1.0);
+ vNormal=(normalMatrix*normal)*inversesqrt(max(dot(normalMatrix*normal,normalMatrix*normal),0.000001));vView=-mv.xyz;vPosition=position;vGroove=aGroove;
+ gl_Position=projectionMatrix*mv;
+}`;
+const SKIN_FRAGMENT = `
+uniform float uAssemble,uOpen,uOpacity;
+uniform vec3 uColorA,uColorB,uColorC;
+varying vec3 vNormal,vView,vPosition;
+varying float vGroove;
+void main(){
+ vec3 n=vNormal*inversesqrt(max(dot(vNormal,vNormal),0.000001)),view=normalize(vView);
+ float diffuse=max(0.0,dot(n,normalize(vec3(-0.7,0.9,1.2))));
+ float fresnel=pow(clamp(1.0-abs(dot(n,view)),0.0,1.0),3.0);
+ float spec=pow(max(0.0,dot(reflect(-normalize(vec3(-0.7,0.9,1.2)),n),view)),22.0);
+ vec3 color=mix(uColorA,uColorB,clamp(vPosition.y*0.3+0.5,0.0,1.0));
+ color*=0.028+diffuse*0.09+fresnel*0.13+spec*0.045;
+ color*=1.0-vGroove*0.8;
+ float alpha=smoothstep(0.5,1.0,uAssemble)*(1.0-uOpen*0.82)*uOpacity;
+ if(alpha<0.001)discard;
+ gl_FragColor=vec4(color,alpha);
+}`;
+const LINE_VERTEX = `
+${UNIFORMS}
+attribute vec3 aScatter;
+attribute float aProgress,aPhase;
+varying float vProgress,vPhase,vDepth;
+varying vec3 vColor;
+void main(){
+ vec3 p=mix(aScatter,deform(position,normal),uAssemble);
+ vec4 mv=modelViewMatrix*vec4(p,1.0);
+ gl_Position=projectionMatrix*mv;vProgress=aProgress;vPhase=aPhase;vDepth=(1.0-smoothstep(2.5,6.5,-mv.z));
+ vColor=palette(position);
+}`;
+const LINE_FRAGMENT = `
+uniform float uTime,uSpeed,uOpen,uAssemble,uMotion,uOpacity;
+uniform vec3 uColorC;
+varying float vProgress,vPhase,vDepth;varying vec3 vColor;
+void main(){
+ float cycle=fract(uTime*uSpeed*(0.7+vPhase*0.6)+vPhase*9.0);
+ float head=cycle*2.0-0.3;
+ float distance=head-vProgress;
+ float pulse=exp(-distance*distance*240.0);
+ float trail=exp(-max(distance,0.0)*10.0)*step(0.0,distance)*step(distance,0.38);
+ float firingGate=smoothstep(0.5,0.85,sin(vPhase*123.0+floor(uTime*0.15+vPhase)));
+ float firing=(pulse+trail*0.3)*firingGate*uMotion;
+ float alpha=(0.045+uOpen*0.11+firing*0.7)*vDepth*smoothstep(0.65,1.0,uAssemble)*uOpacity;
+ gl_FragColor=vec4(mix(vColor,uColorC,clamp(firing,0.0,1.0))*(0.6+firing*1.7),alpha);
+}`;
 
-// ---------------------------------------------------------------------------
-// Scene
-// ---------------------------------------------------------------------------
+const FINISH_SHADER = {
+  uniforms: { tDiffuse: { value: null }, uResolution: { value: new THREE.Vector2(1, 1) } },
+  vertexShader: `varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+  fragmentShader: `
+   uniform sampler2D tDiffuse;uniform vec2 uResolution;varying vec2 vUv;
+   void main(){
+    vec2 p=vUv-0.5;vec2 offset=p*dot(p,p)*1.1/uResolution;
+    vec4 color=texture2D(tDiffuse,vUv);
+    color.r=texture2D(tDiffuse,vUv+offset).r;color.b=texture2D(tDiffuse,vUv-offset).b;
+    float vignette=1.0-smoothstep(0.22,0.7,length(p))*0.52;
+    gl_FragColor=vec4(color.rgb*vignette,color.a);
+   }`,
+};
 
-function Brain({
-  quality,
-  reduceMotion,
-  isDark,
+type Motion = {
+  assemble: number;
+  yaw: number;
+  pitch: number;
+  cameraZ: number;
+  open: number;
+  opacity: number;
+};
+
+function NeuralBrain({
+  mobile,
+  reduced,
+  active,
+  onContextLost,
 }: {
-  quality: number;
-  reduceMotion: boolean;
-  isDark: boolean;
+  mobile: boolean;
+  reduced: boolean;
+  active: boolean;
+  onContextLost: (lost: boolean) => void;
 }) {
+  const { gl, scene, camera, size, invalidate } = useThree();
+  useEffect(() => {
+    const lost = () => onContextLost(true);
+    gl.domElement.addEventListener("webglcontextlost", lost);
+    // R3F intentionally releases its context during a breakpoint remount.
+    // Remove this listener first so that teardown cannot trigger the fallback.
+    return () => gl.domElement.removeEventListener("webglcontextlost", lost);
+  }, [gl, onContextLost]);
   const group = useRef<THREE.Group>(null);
-  const rimRef = useRef<THREE.InstancedMesh>(null);
-  const coreRef = useRef<THREE.InstancedMesh>(null);
-  const ambientRef = useRef<THREE.InstancedMesh>(null);
-  const rimMat = useRef<THREE.MeshBasicMaterial>(null);
-  const coreMat = useRef<THREE.MeshBasicMaterial>(null);
-
-  // Geometry: expensive, and independent of the theme. Built once per quality
-  // tier and then left alone, so switching day/night never rebuilds a brain.
-  const { rim, core, ambient } = useMemo(() => {
-    const rimCount = Math.round(9000 * quality);
-    const coreCount = Math.round(3600 * quality);
-
-    return {
-      rim: buildLayout(generateBrainPoints(rimCount), 4242, {
-        minScale: 0.012,
-        maxScale: 0.026,
-      }),
-      core: buildLayout(generateCorePoints(coreCount, 8080), 1717, {
-        minScale: 0.009,
-        maxScale: 0.018,
-      }),
-      ambient: buildLayout(generateAmbientPoints(110, 5150), 3030, {
-        minScale: 0.05,
-        maxScale: 0.11,
-      }),
-    };
-  }, [quality]);
-
-  // Colour: cheap, and the only thing the theme actually changes.
-  const tints = useMemo(
+  const time = useRef(0);
+  const idleAngle = useRef(0);
+  const pointer = useRef(new THREE.Vector2());
+  const targetPointer = useRef(new THREE.Vector2());
+  const pointerActive = useRef(0);
+  const stage = useRef<HTMLElement | null>(null);
+  const lastOpacity = useRef(-1);
+  const intro = useRef<gsap.core.Tween | null>(null);
+  const motion = useRef<Motion>({
+    assemble: reduced ? 1 : 0,
+    yaw: 0.32,
+    pitch: 0.32,
+    cameraZ: mobile ? 4.7 : 4.4,
+    open: 0,
+    opacity: 1,
+  });
+  const buffers = useMemo(() => buildBrain(mobile), [mobile]);
+  const uniforms = useMemo(
     () => ({
-      rim: buildColors(rim.positions, 4242, {
-        palette: isDark ? RIM_COLORS : RIM_COLORS_LIGHT,
-        rimBias: true,
-        isDark,
+      uTime: { value: 0 },
+      uAssemble: { value: reduced ? 1 : 0 },
+      uOpen: { value: 0 },
+      uMotion: { value: reduced ? 0 : 1 },
+      uOpacity: { value: 1 },
+      uColorA: { value: new THREE.Color(BRAIN_SETTINGS.colors[0]) },
+      uColorB: { value: new THREE.Color(BRAIN_SETTINGS.colors[1]) },
+      uColorC: { value: new THREE.Color(BRAIN_SETTINGS.colors[2]) },
+      uPointer: { value: new THREE.Vector2() },
+      uPointerActive: { value: 0 },
+      uPixelRatio: { value: gl.getPixelRatio() },
+      uSpeed: { value: BRAIN_SETTINGS.pulseSpeed },
+    }),
+    [gl, reduced],
+  );
+  const materials = useMemo(
+    () => ({
+      skin: new THREE.ShaderMaterial({
+        uniforms,
+        vertexShader: SKIN_VERTEX,
+        fragmentShader: SKIN_FRAGMENT,
+        transparent: true,
+        depthWrite: true,
+        side: THREE.DoubleSide,
       }),
-      core: buildColors(core.positions, 1717, {
-        palette: isDark ? CORE_COLORS : CORE_COLORS_LIGHT,
-        rimBias: false,
-        isDark,
+      particles: new THREE.ShaderMaterial({
+        uniforms,
+        vertexShader: PARTICLE_VERTEX,
+        fragmentShader: PARTICLE_FRAGMENT,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
       }),
-      ambient: buildColors(ambient.positions, 3030, {
-        palette: isDark ? RIM_COLORS : RIM_COLORS_LIGHT,
-        rimBias: false,
-        isDark,
+      lines: new THREE.ShaderMaterial({
+        uniforms,
+        vertexShader: LINE_VERTEX,
+        fragmentShader: LINE_FRAGMENT,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
       }),
     }),
-    [rim, core, ambient, isDark],
+    [uniforms],
   );
-
-  // useLayoutEffect, not useEffect: a fresh InstancedMesh starts with every
-  // instance on an identity matrix, which draws all of them stacked at the
-  // origin as one screen-filling white triangle. useEffect fires after the
-  // browser has already painted, so that triangle got a frame or two on screen
-  // before the real geometry landed — a white flash across the hero on load.
-  useLayoutEffect(() => applyLayout(rimRef.current, rim), [rim]);
-  useLayoutEffect(() => applyLayout(coreRef.current, core), [core]);
-  useLayoutEffect(() => applyLayout(ambientRef.current, ambient), [ambient]);
-
-  useLayoutEffect(() => applyColors(rimRef.current, tints.rim), [tints]);
-  useLayoutEffect(() => applyColors(coreRef.current, tints.core), [tints]);
-  useLayoutEffect(() => applyColors(ambientRef.current, tints.ambient), [tints]);
-
-  // Density dial. `count` renders a prefix of the instance buffer, and the
-  // points were shuffled at generation, so a prefix thins the whole brain
-  // evenly rather than lopping off the cerebellum and brainstem.
-  useLayoutEffect(() => {
-    const draw = (mesh: THREE.InstancedMesh | null, total: number, fraction: number) => {
-      if (mesh) mesh.count = Math.round(total * fraction);
-    };
-    draw(rimRef.current, rim.scales.length, isDark ? 1 : LIGHT_DENSITY.rim);
-    draw(coreRef.current, core.scales.length, isDark ? 1 : LIGHT_DENSITY.core);
-    draw(ambientRef.current, ambient.scales.length, isDark ? 1 : LIGHT_DENSITY.ambient);
-  }, [rim, core, ambient, isDark]);
-
-  // --- Input --------------------------------------------------------------
-  // The canvas has pointer-events disabled so the UI above stays clickable,
-  // which also means R3F never receives pointer events. Read them from the
-  // window instead.
-  const scroll = useRef(0);
-  const pointer = useRef({ x: 0, y: 0 });
+  const pipeline = useMemo(() => {
+    const composer = new EffectComposer(gl);
+    const render = new RenderPass(scene, camera);
+    const bloom = new UnrealBloomPass(
+      new THREE.Vector2(1, 1),
+      BRAIN_SETTINGS.bloomStrength,
+      0.45,
+      BRAIN_SETTINGS.bloomThreshold,
+    );
+    const finish = new ShaderPass(FINISH_SHADER);
+    const output = new OutputPass();
+    composer.addPass(render);
+    composer.addPass(bloom);
+    composer.addPass(finish);
+    composer.addPass(output);
+    return { composer, bloom, finish, render, output };
+  }, [gl, scene, camera]);
 
   useEffect(() => {
-    const onScroll = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      scroll.current = max > 0 ? window.scrollY / max : 0;
-    };
-    const onPointer = (e: PointerEvent) => {
-      pointer.current.x = (e.clientX / window.innerWidth) * 2 - 1;
-      pointer.current.y = (e.clientY / window.innerHeight) * 2 - 1;
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("pointermove", onPointer, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("pointermove", onPointer);
-    };
-  }, []);
+    stage.current = gl.domElement.closest("[data-brain-scene]");
+    const dpr = Math.min(
+      window.devicePixelRatio || 1,
+      mobile ? BRAIN_SETTINGS.mobilePixelRatioCap : BRAIN_SETTINGS.pixelRatioCap,
+    );
+    gl.setPixelRatio(dpr);
+    pipeline.composer.setPixelRatio(dpr);
+    pipeline.composer.setSize(size.width, size.height);
+    pipeline.finish.uniforms.uResolution.value.set(size.width * dpr, size.height * dpr);
+    uniforms.uPixelRatio.value = dpr;
+    invalidate();
+  }, [size.width, size.height, mobile, gl, pipeline, uniforms, invalidate]);
 
-  useFrame((state, delta) => {
-    const g = group.current;
-    if (!g) return;
-    const t = state.clock.elapsedTime;
-    const s = scroll.current;
-
-    // Pin to the right-hand side of whatever the camera can actually see, and
-    // size against it too. Both are recomputed per frame so a window resize is
-    // handled without a listener.
-    const vw = state.viewport.width;
-    g.position.x = vw * RIGHT_FRACTION;
-    const fit = THREE.MathUtils.clamp(vw / 5.6, 0.62, 1);
-
-    if (!reduceMotion) {
-      // The idle term oscillates instead of accumulating. A constant drift
-      // eventually carries the brain to an arbitrary angle and parks it
-      // edge-on, where it reads as an ovoid; swinging around the lateral pose
-      // keeps it alive without ever losing the profile.
-      const idle = Math.sin(t * 0.12) * 0.16;
-      // Scroll swings the brain through a bounded arc instead of spinning it.
-      // A full 2.2 turns down the page looked lively but spent most of its time
-      // at angles where a brain simply stops being recognisable — head-on, the
-      // two frontal lobes are just a pair of spheres. Staying inside roughly
-      // ±45° of the lateral pose keeps it in side-to-three-quarter profile,
-      // which is the range that actually reads as a brain, and still gives the
-      // scroll something to drive.
-      const swing = (s - 0.5) * 0.85;
-      const targetY = LATERAL_YAW + swing + pointer.current.x * 0.22 + idle;
-      const targetX = s * 0.3 - pointer.current.y * 0.18 + Math.sin(t * 0.21) * 0.05;
-
-      // Ease toward the target rather than snapping, so a fast scroll reads as
-      // momentum instead of a jump. Frame-rate independent.
-      const k = 1 - Math.pow(0.0015, delta);
-      g.rotation.y += (targetY - g.rotation.y) * k;
-      g.rotation.x += (targetX - g.rotation.x) * k;
-
-      g.position.y = Math.sin(t * 0.45) * 0.05 - s * 0.25;
-      const breathe = 1 + Math.sin(t * 0.8) * 0.022;
-      g.scale.setScalar(fit * breathe * (1 - s * 0.12));
-
-      // Ambient field turns on its own axis, slower than the brain, so the
-      // two never lock together and look welded.
-      if (ambientRef.current) {
-        ambientRef.current.rotation.y = t * 0.03;
-        ambientRef.current.rotation.x = Math.sin(t * 0.07) * 0.2;
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+    const context = gsap.context(() => {
+      const state = motion.current;
+      if (reduced) {
+        Object.assign(state, {
+          assemble: 1,
+          yaw: 0.32,
+          pitch: 0.32,
+          cameraZ: mobile ? 4.7 : 4.4,
+          open: 0,
+          opacity: 1,
+        });
+        invalidate();
+        return;
       }
-    } else {
-      // Still needs placing and sizing when motion is off — it just holds
-      // the lateral pose instead of moving.
-      g.rotation.set(0, LATERAL_YAW, 0);
-      g.scale.setScalar(fit);
+      intro.current = gsap.fromTo(
+        state,
+        { assemble: 0 },
+        { assemble: 1, duration: BRAIN_SETTINGS.introSeconds, ease: "power3.out" },
+      );
+      const timeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: "#brain-hero",
+          start: "top top",
+          end: mobile ? "bottom top" : `+=${BRAIN_SETTINGS.scrollDistance}`,
+          scrub: 0.9,
+          invalidateOnRefresh: true,
+        },
+      });
+      timeline
+        .to(
+          state,
+          {
+            yaw: 0.18,
+            pitch: 0.4,
+            cameraZ: mobile ? 4.25 : 3.8,
+            duration: 0.2,
+            ease: "power2.inOut",
+          },
+          0,
+        )
+        .to(
+          state,
+          {
+            open: 0.85,
+            yaw: -0.35,
+            cameraZ: mobile ? 4.65 : 4.15,
+            duration: 0.65,
+            ease: "power2.inOut",
+          },
+          0.2,
+        );
+      if (!mobile) timeline.to(state, { opacity: 0, duration: 0.25, ease: "power2.inOut" }, 0.75);
+    });
+    return () => {
+      context.revert();
+      intro.current = null;
+    };
+  }, [mobile, reduced, invalidate]);
+
+  useEffect(() => {
+    if (active) intro.current?.resume();
+    else intro.current?.pause();
+    if (active) invalidate();
+  }, [active, reduced, invalidate]);
+
+  useEffect(() => {
+    const onPointer = (e: PointerEvent) => {
+      if (e.pointerType === "touch" || reduced) return;
+      const rect = gl.domElement.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      targetPointer.current.set(clamp(x, -1, 1), clamp(y, -1, 1));
+      pointerActive.current = Math.abs(x) <= 1 && Math.abs(y) <= 1 ? 1 : 0;
+    };
+    const reset = () => {
+      targetPointer.current.set(0, 0);
+      pointerActive.current = 0;
+    };
+    window.addEventListener("pointermove", onPointer, { passive: true });
+    window.addEventListener("blur", reset);
+    document.addEventListener("pointerleave", reset);
+    return () => {
+      window.removeEventListener("pointermove", onPointer);
+      window.removeEventListener("blur", reset);
+      document.removeEventListener("pointerleave", reset);
+    };
+  }, [gl, reduced]);
+
+  useEffect(
+    () => () => {
+      for (const geometry of Object.values(buffers)) geometry.dispose();
+    },
+    [buffers],
+  );
+  useEffect(
+    () => () => {
+      for (const material of Object.values(materials)) material.dispose();
+    },
+    [materials],
+  );
+  useEffect(
+    () => () => {
+      pipeline.bloom.dispose();
+      pipeline.finish.dispose();
+      pipeline.output.dispose();
+      pipeline.render.dispose();
+      pipeline.composer.dispose();
+    },
+    [pipeline],
+  );
+
+  // Positive priority takes ownership of rendering: one composer frame, never
+  // a second R3F render. No vectors, geometries or materials allocated per frame.
+  useFrame((_, delta) => {
+    if (!active) return;
+    const dt = Math.min(delta, 0.05);
+    if (!reduced) time.current += dt;
+    const t = time.current;
+    const state = motion.current;
+    const ease = 1 - Math.exp(-dt * 5);
+    pointer.current.lerp(targetPointer.current, ease);
+    uniforms.uTime.value = t;
+    uniforms.uAssemble.value = state.assemble;
+    uniforms.uOpen.value = state.open;
+    uniforms.uOpacity.value = 1;
+    if (stage.current && Math.abs(lastOpacity.current - state.opacity) > 0.001) {
+      stage.current.style.opacity = String(state.opacity);
+      lastOpacity.current = state.opacity;
     }
-
-    // Shimmer: rim and core pulse out of phase, so brightness travels between
-    // the glowing edge and the dark interior rather than the whole cloud
-    // flashing at once.
-    //
-    // Light mode is thinned by LIGHT_DENSITY rather than dimmed, so each
-    // surviving particle can carry a little more alpha than in dark mode and
-    // still read as a sketch instead of a mass — with far fewer layers stacked,
-    // alpha no longer compounds its way to a solid blob.
-    const rimBase = isDark ? 0.46 : 0.26;
-    const rimSwing = isDark ? 0.1 : 0.05;
-    const coreBase = isDark ? 0.16 : 0.1;
-    const coreSwing = isDark ? 0.06 : 0.035;
-
-    if (rimMat.current) rimMat.current.opacity = rimBase + Math.sin(t * 1.15) * rimSwing;
-    if (coreMat.current)
-      coreMat.current.opacity = coreBase + Math.sin(t * 1.15 + Math.PI) * coreSwing;
-  });
+    uniforms.uMotion.value = reduced ? 0 : 1;
+    uniforms.uPointer.value.copy(pointer.current);
+    uniforms.uPointerActive.value += (pointerActive.current - uniforms.uPointerActive.value) * ease;
+    if (!reduced && state.open < 0.01) {
+      idleAngle.current += dt * 0.018 * (1 - uniforms.uPointerActive.value);
+    }
+    if (group.current) {
+      group.current.rotation.set(
+        state.pitch + (reduced ? 0 : pointer.current.y * 0.08 + Math.sin(t * 0.17) * 0.035),
+        state.yaw + (reduced ? 0 : pointer.current.x * 0.12 + idleAngle.current),
+        -0.08,
+      );
+      group.current.position.y = 0.06 + (reduced ? 0 : Math.sin(t * 0.4) * 0.025);
+    }
+    camera.position.z = state.cameraZ;
+    camera.position.x = reduced ? 0 : pointer.current.x * 0.045;
+    camera.lookAt(0, 0, 0);
+    materials.skin.depthWrite = state.open < 0.2;
+    pipeline.composer.render(dt);
+  }, 1);
 
   return (
-    <group ref={group} rotation={[0, LATERAL_YAW, 0]}>
-      {/* Dense, dark interior. Drawn first so the rim reads on top of it. */}
-      <instancedMesh
-        ref={coreRef}
-        args={[undefined, undefined, core.scales.length]}
-        frustumCulled={false}
-      >
-        <circleGeometry args={[1, 3]} />
-        <meshBasicMaterial
-          ref={coreMat}
-          wireframe
-          side={THREE.DoubleSide}
-          transparent
-          opacity={0.16}
-          depthWrite={false}
-          blending={isDark ? THREE.AdditiveBlending : THREE.NormalBlending}
-        />
-      </instancedMesh>
-
-      {/* Outer shell and brainstem: the glowing edge. */}
-      <instancedMesh
-        ref={rimRef}
-        args={[undefined, undefined, rim.scales.length]}
-        frustumCulled={false}
-      >
-        <circleGeometry args={[1, 3]} />
-        <meshBasicMaterial
-          ref={rimMat}
-          wireframe
-          side={THREE.DoubleSide}
-          transparent
-          opacity={0.46}
-          depthWrite={false}
-          blending={isDark ? THREE.AdditiveBlending : THREE.NormalBlending}
-        />
-      </instancedMesh>
-
-      {/* Larger hollow triangles drifting in the surrounding space. */}
-      <instancedMesh
-        ref={ambientRef}
-        args={[undefined, undefined, ambient.scales.length]}
-        frustumCulled={false}
-      >
-        <circleGeometry args={[1, 3]} />
-        <meshBasicMaterial
-          wireframe
-          side={THREE.DoubleSide}
-          transparent
-          // Faint in dark, fainter still in light — drawn normally on a pale
-          // page these scattered triangles otherwise read as specks of dirt
-          // across the copy rather than atmosphere.
-          opacity={isDark ? 0.16 : 0.07}
-          depthWrite={false}
-          blending={isDark ? THREE.AdditiveBlending : THREE.NormalBlending}
-        />
-      </instancedMesh>
+    <group ref={group} dispose={null}>
+      <mesh geometry={buffers.skin} material={materials.skin} frustumCulled={false} />
+      <points geometry={buffers.particles} material={materials.particles} frustumCulled={false} />
+      <lineSegments geometry={buffers.lines} material={materials.lines} frustumCulled={false} />
     </group>
   );
 }
 
-/**
- * Default-exported so BrainScene can reach it through React.lazy.
- *
- * This module must never be imported eagerly. Pulling @react-three/fiber into
- * the server bundle throws "Cannot read properties of null (reading 'useMemo')"
- * inside CanvasImpl — its react-reconciler has no React internals in the SSR
- * runtime — which drops the whole page to an error boundary rather than just
- * losing the decoration.
- */
-export default function BrainCanvas() {
-  // Track the theme so the scene can swap blending and palette. The site
-  // toggles a `dark` class on <html>, so observe that rather than the OS
-  // preference — the user's in-app choice has to win.
-  const [isDark, setIsDark] = useState(
-    () => document.documentElement.classList.contains("dark"),
-  );
+class BrainBoundary extends Component<
+  { children: ReactNode; fallback: ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch(error: Error) {
+    console.error("[Brain] WebGL unavailable:", error);
+  }
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
+}
 
-  useEffect(() => {
-    const el = document.documentElement;
-    const sync = () => setIsDark(el.classList.contains("dark"));
-    const obs = new MutationObserver(sync);
-    obs.observe(el, { attributes: true, attributeFilter: ["class"] });
-    sync();
-    return () => obs.disconnect();
-  }, []);
-
-  // Safe to read directly: this component only ever mounts on the client.
-  //
-  // Below MIN_WIDTH the layout is a single column, so there is no right-hand
-  // side to sit in — the brain lands on top of the hero copy instead of beside
-  // it, which is the one thing the placement is supposed to prevent. Skipping
-  // outright also avoids paying for a WebGL context and thousands of instanced
-  // wireframes on a phone, for decoration that would be mostly off-screen.
-  if (window.innerWidth < MIN_WIDTH) return null;
-
-  const quality = window.innerWidth < 1280 ? 0.6 : 1;
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
+/** A quiet, brand-matched fallback for unavailable/lost WebGL contexts. */
+function BrainFallback() {
   return (
-    // The black wash is dark-mode only — painted unconditionally it put a hard
-    // black box behind the hero on a white page and dropped the headline to
-    // dark-on-black.
-    //
-    // It is driven by the `dark` variant rather than by `isDark`, so it repaints
-    // in the same frame as the class lands on <html>. Routed through React it
-    // trailed the rest of the page by a commit or two, which is exactly long
-    // enough to see the backdrop stay black for a beat after switching to day.
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 dark:bg-black">
-      <Canvas
-        camera={{ position: [0, 0, 3.2], fov: 42 }}
-        dpr={[1, 1.6]}
-        gl={{ antialias: false, powerPreference: "low-power" }}
+    <svg viewBox="0 0 300 300" className="h-full w-full opacity-60" fill="none" aria-hidden>
+      <g stroke="#a897ff" strokeWidth="1.4">
+        <path d="M144 57C109 38 61 58 48 93C18 130 43 189 83 202C103 226 127 215 143 207M156 57C191 38 239 58 252 93C282 130 257 189 217 202C197 226 173 215 157 207M149 63V204M151 213L165 249L181 246L172 209" />
+        <path d="M126 67C86 59 66 79 75 99C104 117 119 92 121 82M69 111C48 132 67 157 87 146C107 137 92 120 113 113M56 164C77 159 90 168 83 186M124 132C101 149 106 176 128 184M174 67C214 59 234 79 225 99C196 117 181 92 179 82M231 111C252 132 233 157 213 146C193 137 208 120 187 113M244 164C223 159 210 168 217 186M176 132C199 149 194 176 172 184" />
+      </g>
+    </svg>
+  );
+}
+
+export default function BrainCanvas() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [mobile, setMobile] = useState(() => window.innerWidth < 1024);
+  const [reduced, setReduced] = useState(
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+  const [active, setActive] = useState(!document.hidden);
+  const [lost, setLost] = useState(false);
+  useEffect(() => {
+    const small = window.matchMedia("(max-width: 1023px)");
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const resize = () => setMobile(small.matches);
+    const motion = () => setReduced(reduce.matches);
+    small.addEventListener("change", resize);
+    reduce.addEventListener("change", motion);
+    let inView = true;
+    const sync = () =>
+      setActive(
+        inView &&
+          !document.hidden &&
+          (small.matches || window.scrollY < BRAIN_SETTINGS.scrollDistance + window.innerHeight),
+      );
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        inView = entry.isIntersecting;
+        sync();
+      },
+      { rootMargin: "100px" },
+    );
+    if (ref.current) observer.observe(ref.current);
+    document.addEventListener("visibilitychange", sync);
+    window.addEventListener("scroll", sync, { passive: true });
+    return () => {
+      small.removeEventListener("change", resize);
+      reduce.removeEventListener("change", motion);
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", sync);
+      window.removeEventListener("scroll", sync);
+    };
+  }, []);
+  return (
+    <div
+      ref={ref}
+      aria-hidden
+      data-brain-scene
+      className="brain-stage pointer-events-none relative h-[350px] w-full sm:h-[450px] lg:fixed lg:right-[2vw] lg:top-[120px] lg:z-0 lg:h-[min(74vh,720px)] lg:w-[49vw]"
+    >
+      <div className="brain-stage-halo absolute inset-0" />
+      <div
+        className="absolute inset-0"
+        style={{
+          maskImage: "radial-gradient(ellipse at center,black 40%,transparent 74%)",
+          WebkitMaskImage: "radial-gradient(ellipse at center,black 40%,transparent 74%)",
+        }}
       >
-        {/* Drops resolution if the frame budget slips, rather than dropping frames. */}
-        <AdaptiveDpr pixelated />
-        <Brain quality={quality} reduceMotion={reduceMotion} isDark={isDark} />
-      </Canvas>
+        <BrainBoundary fallback={<BrainFallback />}>
+          {lost ? (
+            <BrainFallback />
+          ) : (
+            <Canvas
+              key={mobile ? "mobile" : "desktop"}
+              frameloop={!active ? "never" : reduced ? "demand" : "always"}
+              camera={{ position: [0, 0, mobile ? 4.7 : 4.4], fov: 38, near: 0.1, far: 30 }}
+              dpr={[1, mobile ? BRAIN_SETTINGS.mobilePixelRatioCap : BRAIN_SETTINGS.pixelRatioCap]}
+              gl={{ alpha: false, antialias: false, powerPreference: "high-performance" }}
+              fallback={<BrainFallback />}
+              onCreated={({ gl, scene }) => {
+                gl.setClearColor("#0d0b18", 1);
+                gl.toneMapping = THREE.ACESFilmicToneMapping;
+                gl.toneMappingExposure = 1.1;
+                scene.background = new THREE.Color("#0d0b18");
+              }}
+            >
+              <NeuralBrain
+                mobile={mobile}
+                reduced={reduced}
+                active={active}
+                onContextLost={setLost}
+              />
+            </Canvas>
+          )}
+        </BrainBoundary>
+      </div>
     </div>
   );
 }
