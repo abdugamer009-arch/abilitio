@@ -63,9 +63,91 @@ const records = [
     url: "https://nus.edu.sg/oam/",
     funding: "https://nus.edu.sg/oam/financial-aid",
   },
+  {
+    name: "Yale University",
+    country: "USA",
+    url: "https://admissions.yale.edu/",
+    funding: "https://finaid.yale.edu/",
+  },
+  {
+    name: "Princeton University",
+    country: "USA",
+    url: "https://admission.princeton.edu/",
+    funding: "https://admission.princeton.edu/cost-aid",
+  },
+  {
+    name: "Dartmouth College",
+    country: "USA",
+    url: "https://admissions.dartmouth.edu/",
+    funding: "https://financialaid.dartmouth.edu/",
+  },
+  {
+    name: "Amherst College",
+    country: "USA",
+    url: "https://www.amherst.edu/admission",
+    funding: "https://www.amherst.edu/offices/financialaid",
+  },
+  {
+    name: "Bowdoin College",
+    country: "USA",
+    url: "https://www.bowdoin.edu/admissions/",
+    funding: "https://www.bowdoin.edu/student-aid/",
+  },
+  {
+    name: "Macalester College",
+    country: "USA",
+    url: "https://www.macalester.edu/admissions/",
+    funding: "https://www.macalester.edu/financial-aid/",
+  },
+  {
+    name: "Williams College",
+    country: "USA",
+    url: "https://www.williams.edu/admission-aid/how-to-apply/",
+    funding: "https://www.williams.edu/admission-aid/tuition-aid/",
+  },
+  {
+    name: "Nanyang Technological University",
+    country: "Singapore",
+    url: "https://www.ntu.edu.sg/admissions/undergraduate",
+    funding: "https://www.ntu.edu.sg/admissions/undergraduate/scholarships-and-awards",
+  },
+  {
+    name: "KAIST",
+    country: "South Korea",
+    url: "https://admission.kaist.ac.kr/intl-undergraduate/",
+    funding: "https://admission.kaist.ac.kr/intl-undergraduate/support/coa",
+  },
+  {
+    name: "Hong Kong University of Science and Technology",
+    country: "Hong Kong",
+    url: "https://join.hkust.edu.hk/",
+    funding: "https://join.hkust.edu.hk/fees-and-scholarships",
+  },
+  {
+    name: "Westminster International University in Tashkent",
+    country: "Uzbekistan",
+    url: "https://www.wiut.uz/apply",
+    funding: "https://www.wiut.uz/scholarship",
+  },
+  {
+    name: "McGill University",
+    country: "Canada",
+    url: "https://www.mcgill.ca/undergraduate-admissions/",
+    funding: "https://www.mcgill.ca/studentaid/",
+  },
 ];
 function Universities() {
   const w = useWords();
+  const countryName = (country: string) =>
+    ({
+      USA: w("USA", "AQSH", "США"),
+      UK: w("UK", "Buyuk Britaniya", "Великобритания"),
+      Canada: w("Canada", "Kanada", "Канада"),
+      Singapore: w("Singapore", "Singapur", "Сингапур"),
+      "South Korea": w("South Korea", "Janubiy Koreya", "Южная Корея"),
+      "Hong Kong": w("Hong Kong", "Gonkong", "Гонконг"),
+      Uzbekistan: w("Uzbekistan", "O‘zbekiston", "Узбекистан"),
+    })[country] ?? country;
   const [country, setCountry] = useState("");
   const [query, setQuery] = useState("");
   const [saved, setSaved] = useState<string[]>([]);
@@ -136,7 +218,9 @@ function Universities() {
             >
               <option value="">{w("All countries", "Barcha davlatlar", "Все страны")}</option>
               {[...new Set(records.map((r) => r.country))].map((c) => (
-                <option key={c}>{c}</option>
+                <option key={c} value={c}>
+                  {countryName(c)}
+                </option>
               ))}
             </select>
           </label>
@@ -155,7 +239,7 @@ function Universities() {
               <div>
                 <h2 className="text-2xl">{r.name}</h2>
                 <p className="micro mt-4">
-                  {r.country} · {w("Undergraduate", "Bakalavr", "Бакалавриат")}
+                  {countryName(r.country)} · {w("Undergraduate", "Bakalavr", "Бакалавриат")}
                 </p>
               </div>
               <div className="flex flex-wrap items-start gap-6">
@@ -198,7 +282,7 @@ function Universities() {
           {w(
             "Before applying, verify testing policies and funding terms directly with the institution. These links identify source pages, not verified eligibility for your circumstances.",
             "Arizadan oldin test va yordam shartlarini muassasa bilan tekshiring. Havolalar manbalarni ko‘rsatadi, sizning holatingizga moslik tasdig‘i emas.",
-            "Перед подачей уточните тесты и финансирование в университете. Ссылки — источники, не подтверждение вашей eligibility.",
+            "Перед подачей уточните тесты и финансирование в университете. Ссылки — источники, не подтверждение вашего соответствия условиям.",
           )}
         </div>
       </div>
