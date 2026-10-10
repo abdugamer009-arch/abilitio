@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { Loader2, Sparkles, Eye, EyeOff, MailCheck } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
@@ -66,6 +66,7 @@ function AuthPage() {
   const [err, setErr] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const pending = useRef(false);
   const [confirmEmailSent, setConfirmEmailSent] = useState<string | null>(null);
 
   useEffect(() => {
@@ -74,6 +75,7 @@ function AuthPage() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (pending.current) return;
     setErr(null);
     setInfo(null);
     const ep = emailSchema.safeParse(email.trim());
@@ -88,6 +90,7 @@ function AuthPage() {
         ),
       );
 
+    pending.current = true;
     setLoading(true);
     try {
       if (!isSupabaseConfigured)
@@ -131,6 +134,7 @@ function AuthPage() {
       const msg = e instanceof Error ? e.message : t.auth.errGeneric;
       setErr(localizeAuthError(msg, t.auth));
     } finally {
+      pending.current = false;
       setLoading(false);
     }
   }
@@ -143,10 +147,12 @@ function AuthPage() {
     return () => data.subscription.unsubscribe();
   }, []);
   async function forgot() {
+    if (pending.current) return;
     setErr(null);
     setInfo(null);
     const ep = emailSchema.safeParse(email.trim());
     if (!ep.success) return setErr(t.auth.errEmailFirst);
+    pending.current = true;
     setLoading(true);
     try {
       if (!isSupabaseConfigured)
@@ -165,16 +171,19 @@ function AuthPage() {
     } catch (e) {
       setErr(e instanceof Error ? e.message : t.auth.errGeneric);
     } finally {
+      pending.current = false;
       setLoading(false);
     }
   }
   async function updatePassword(e: React.FormEvent) {
     e.preventDefault();
+    if (pending.current) return;
     setErr(null);
     const p = passSchema.safeParse(password);
     if (!p.success) return setErr(t.auth.errWeakPassword);
     if (password !== confirmation)
       return setErr(w("Passwords do not match.", "Parollar mos emas.", "Пароли не совпадают."));
+    pending.current = true;
     setLoading(true);
     try {
       if (!user)
@@ -195,6 +204,7 @@ function AuthPage() {
     } catch (e) {
       setErr(e instanceof Error ? e.message : t.auth.errGeneric);
     } finally {
+      pending.current = false;
       setLoading(false);
     }
   }

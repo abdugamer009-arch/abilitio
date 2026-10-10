@@ -1195,16 +1195,18 @@ function AchievementsBlock({
                     </>
                   )}
                 </div>
-                <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
                   {isEditing ? (
                     <>
                       <button
+                        aria-label={w("Save", "Saqlash", "Сохранить")}
                         onClick={() => saveEdit(a.id)}
                         className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/20 text-primary hover:bg-primary/30"
                       >
                         <Check className="h-3.5 w-3.5" />
                       </button>
                       <button
+                        aria-label={w("Cancel", "Bekor qilish", "Отмена")}
                         onClick={() => setEditingId(null)}
                         className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-muted-foreground hover:bg-secondary/80"
                       >
@@ -1214,6 +1216,7 @@ function AchievementsBlock({
                   ) : (
                     <>
                       <button
+                        aria-label={w("Edit", "Tahrirlash", "Изменить")}
                         onClick={() => {
                           setEditingId(a.id);
                           setDraft({ title: a.title, description: a.description ?? "" });
@@ -1223,6 +1226,7 @@ function AchievementsBlock({
                         <Pencil className="h-3.5 w-3.5" />
                       </button>
                       <button
+                        aria-label={w("Delete", "O‘chirish", "Удалить")}
                         onClick={() => removeOne(a.id)}
                         className="flex h-7 w-7 items-center justify-center rounded-full bg-destructive/10 text-destructive hover:bg-destructive/20"
                       >
@@ -1270,6 +1274,8 @@ function SettingsSection({
 }) {
   const tr = useUiText();
 
+  const profilePending = useRef(false);
+  const resetPending = useRef(false);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<Profile>({
     name: profile?.name ?? "",
@@ -1290,23 +1296,39 @@ function SettingsSection({
   }, [userId]);
 
   async function saveProfile() {
-    const { error } = await supabase
-      .from("profiles")
-      .update({ name: draft.name, surname: draft.surname })
-      .eq("id", userId);
-    if (!error) {
-      onProfileUpdate(draft);
+    if (profilePending.current) return;
+    if (!draft.name.trim() || !draft.surname.trim()) {
+      toast.error(t.auth.errNameRequired);
+      return;
+    }
+    profilePending.current = true;
+    try {
+      const updated = { name: draft.name.trim(), surname: draft.surname.trim() };
+      const { error } = await supabase.from("profiles").update(updated).eq("id", userId);
+      if (error) throw error;
+      onProfileUpdate(updated);
       setEditing(false);
+    } catch {
+      toast.error(t.auth.errGeneric);
+    } finally {
+      profilePending.current = false;
     }
   }
-
   async function changePassword() {
+    if (resetPending.current) return;
+    resetPending.current = true;
     setMsg(null);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + "/auth?mode=recovery",
-    });
-    if (error) setMsg(error.message);
-    else setMsg(tr("Password reset link sent to your email."));
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + "/auth?mode=recovery",
+      });
+      if (error) throw error;
+      setMsg(tr("Password reset link sent to your email."));
+    } catch {
+      setMsg(t.auth.errGeneric);
+    } finally {
+      resetPending.current = false;
+    }
   }
 
   return (
