@@ -12,6 +12,7 @@ dist
 
 # Secrets - never commit real env values, .env.example is the template
 .env
+.env.migration*
 dist-ssr
 .output
 .vercel/
