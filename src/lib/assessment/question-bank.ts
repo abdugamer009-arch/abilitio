@@ -1,6 +1,6 @@
 import { SAMPLE_QUESTIONS } from "./sample-questions";
 // Question Bank — master pool for all assessment questions.
-// Expandable: add more questions to each array; the session picker selects 10 from each.
+// Expandable: add more questions to each array; the server session picker selects 12 personality, 9 reasoning and 9 interest items.
 
 import type { PersonalityQ, CognitiveQ, InterestQ, RiasecDim } from "./career-assessment";
 import { QUESTION_TRANSLATIONS } from "./question-translations";
@@ -4861,9 +4861,9 @@ export const INTEREST_BANK: InterestQ[] = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Session picker — called client-side on each assessment load
-// Returns 10 personality + 10 IQ + 10 interest questions (30 total)
-// Personality selection guarantees ≥2 questions per MBTI axis
+// Session picker — called server-side on each assessment start
+// Returns 12 personality + 9 reasoning + 9 interest questions (30 total)
+// Personality selection guarantees 3 questions per MBTI axis
 // ─────────────────────────────────────────────────────────────────────────────
 export type SessionQuestions = {
   personality: PersonalityQ[];

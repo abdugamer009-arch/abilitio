@@ -6,6 +6,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Database } from "@/integrations/supabase/types";
 import { communitySlugForCareer } from "../assessment/career-engine";
 import { resolveAdminStatus, ensureNotBanned, type AuthContext } from "../admin/admin.functions";
+import { readAll, requireData } from "../db-read";
 
 export type CommunityDTO = {
   id: string;
@@ -33,9 +34,7 @@ export type AuthorDTO = {
   is_admin: boolean;
 };
 
-// Single source of truth for admin status (email allow-list first, DB role as
-// fallback) — the same rule the admin dashboard uses. A DB-role-only check here
-// would show the moderation UI to allow-list admins and then fail their actions.
+// Database roles govern moderation, RLS and badges.
 async function isAdmin(context: AuthContext): Promise<boolean> {
   const { isAdmin: admin } = await resolveAdminStatus(context);
   return admin;
@@ -47,17 +46,16 @@ export const getMyCommunities = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const admin = await isAdmin(context);
     if (admin) {
-      // Service-role read: allow-list admins may lack the DB role RLS expects.
-      const { data } = await supabaseAdmin.from("communities").select("*").order("name");
+      // Admin-only directory read.
+      const data = requireData(await supabaseAdmin.from("communities").select("*").order("name"));
       return { communities: (data ?? []) as CommunityDTO[], isAdmin: true };
     }
-    const { data: memberships } = await supabase
-      .from("community_members")
-      .select("community_id")
-      .eq("user_id", userId);
+    const memberships = requireData(
+      await supabase.from("community_members").select("community_id").eq("user_id", userId),
+    );
     const ids = (memberships ?? []).map((m) => m.community_id);
     if (ids.length) {
-      const { data } = await supabase.from("communities").select("*").in("id", ids);
+      const data = requireData(await supabase.from("communities").select("*").in("id", ids));
       return { communities: (data ?? []) as CommunityDTO[], isAdmin: false };
     }
     // No membership yet — self-heal for users who assessed before auto-join
@@ -72,26 +70,32 @@ async function ensureCommunityFromLatestResult(
   supabase: SupabaseClient<Database>,
   userId: string,
 ): Promise<CommunityDTO | null> {
-  const { data: latest } = await supabase
-    .from("career_assessment_results")
-    .select("career_matches")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const latest = requireData(
+    await supabase
+      .from("career_assessment_results")
+      .select("career_matches")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  );
   const top = (
     latest?.career_matches as { key?: string; category?: string; name?: string }[] | null
   )?.[0];
   if (!top) return null;
-  const { data: cid } = await supabase.rpc("assign_user_to_community_by_slug", {
-    _slug: communitySlugForCareer(top),
-  });
+  const cid = requireData(
+    await supabase.rpc("assign_user_to_community_by_slug", {
+      _slug: communitySlugForCareer(top),
+    }),
+  );
   if (!cid) return null;
-  const { data } = await supabase
-    .from("communities")
-    .select("*")
-    .eq("id", cid as string)
-    .maybeSingle();
+  const data = requireData(
+    await supabase
+      .from("communities")
+      .select("*")
+      .eq("id", cid as string)
+      .maybeSingle(),
+  );
   return (data as CommunityDTO) ?? null;
 }
 
@@ -101,7 +105,8 @@ export const getCommunityMessages = createServerFn({ method: "GET" })
     z
       .object({
         communityId: z.string().uuid(),
-        limit: z.number().int().min(1).max(200).optional(),
+        limit: z.number().int().min(1).max(100).optional(),
+        before: z.object({ createdAt: z.string().datetime(), id: z.string().uuid() }).optional(),
       })
       .parse(input),
   )
@@ -109,20 +114,32 @@ export const getCommunityMessages = createServerFn({ method: "GET" })
     async ({
       data,
       context,
-    }): Promise<{ messages: CommunityMessageDTO[]; authors: AuthorDTO[] }> => {
+    }): Promise<{
+      messages: CommunityMessageDTO[];
+      authors: AuthorDTO[];
+      nextCursor: { createdAt: string; id: string } | null;
+    }> => {
       const { supabase } = context;
-      const limit = Math.min(Math.max(data.limit ?? 100, 1), 200);
-      const { data: rows, error } = await supabase
+      const limit = data.limit ?? 100;
+      let query = supabase
         .from("community_messages")
         .select("*")
         .eq("community_id", data.communityId)
         .order("created_at", { ascending: false })
-        .limit(limit);
+        .order("id", { ascending: false });
+      if (data.before)
+        query = query.or(
+          `created_at.lt.${data.before.createdAt},and(created_at.eq.${data.before.createdAt},id.lt.${data.before.id})`,
+        );
+      const { data: rows, error } = await query.limit(limit);
       if (error) throw new Error(error.message);
-      const messages = (rows ?? []).reverse() as CommunityMessageDTO[];
+      const last = rows?.[rows.length - 1];
+      const nextCursor =
+        rows?.length === limit && last ? { createdAt: last.created_at, id: last.id } : null;
+      const messages = [...(rows ?? [])].reverse() as CommunityMessageDTO[];
       const ids = Array.from(new Set(messages.map((m) => m.user_id)));
       const authors = await fetchAuthors(ids);
-      return { messages, authors };
+      return { messages, authors, nextCursor };
     },
   );
 
@@ -133,10 +150,25 @@ export const fetchMessageAuthors = createServerFn({ method: "POST" })
   // profile lookup. UUID-only plus a hard cap keeps it scoped to its real job
   // (resolving authors of messages already visible to the caller).
   .inputValidator((input) =>
-    z.object({ userIds: z.array(z.string().uuid()).max(100) }).parse(input),
+    z
+      .object({ communityId: z.string().uuid(), userIds: z.array(z.string().uuid()).max(100) })
+      .parse(input),
   )
-  .handler(async ({ data }): Promise<AuthorDTO[]> => {
-    return fetchAuthors(data.userIds);
+  .handler(async ({ data, context }): Promise<AuthorDTO[]> => {
+    if (!data.userIds.length) return [];
+    // RLS establishes message visibility before the service-role profile read.
+    const rows = await readAll((from, to) =>
+      context.supabase
+        .from("community_messages")
+        .select("user_id")
+        .eq("community_id", data.communityId)
+        .in("user_id", data.userIds)
+        .order("id")
+        .range(from, to),
+    );
+    const visibleIds = new Set((rows ?? []).map((row) => row.user_id));
+    if (data.userIds.some((id) => !visibleIds.has(id))) throw new Error("forbidden");
+    return fetchAuthors([...visibleIds]);
   });
 
 type ProfileNameRow = { id: string; name: string | null; surname: string | null };
@@ -154,12 +186,23 @@ async function fetchAuthors(userIds: string[]): Promise<AuthorDTO[]> {
   const adminSet = new Set<string>(
     ((roles.data ?? []) as { user_id: string }[]).map((r) => r.user_id),
   );
-  return ((profiles.data ?? []) as ProfileNameRow[]).map((p) => ({
-    user_id: p.id,
-    name: `${p.name ?? ""} ${p.surname ?? ""}`.trim() || "Explorer",
-    avatar_url: sMap.get(p.id) ?? null,
-    is_admin: adminSet.has(p.id),
-  }));
+  for (const result of [profiles, stats, roles])
+    if (result.error) throw new Error("Could not load message authors");
+  return Promise.all(
+    ((profiles.data ?? []) as ProfileNameRow[]).map(async (p) => {
+      const path = sMap.get(p.id);
+      // Sign only after the caller's message visibility has been established.
+      const avatar = path?.startsWith(`${p.id}/`)
+        ? await supabaseAdmin.storage.from("avatars").createSignedUrl(path, 3600)
+        : null;
+      return {
+        user_id: p.id,
+        name: `${p.name ?? ""} ${p.surname ?? ""}`.trim() || "Explorer",
+        avatar_url: path?.startsWith("https://") ? path : (avatar?.data?.signedUrl ?? null),
+        is_admin: adminSet.has(p.id),
+      };
+    }),
+  );
 }
 
 export const sendCommunityMessage = createServerFn({ method: "POST" })

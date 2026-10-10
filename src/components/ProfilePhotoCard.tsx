@@ -11,7 +11,7 @@ const ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
 export async function resolveAvatarUrl(path: string | null): Promise<string | null> {
   if (!path) return null;
   if (path.startsWith("http")) return path;
-  const { data } = await supabase.storage.from("avatars").createSignedUrl(path, 60 * 60 * 24 * 365);
+  const { data } = await supabase.storage.from("avatars").createSignedUrl(path, 60 * 60);
   return data?.signedUrl ?? null;
 }
 

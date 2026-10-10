@@ -1,3 +1,5 @@
+import { readAllResult, requireData } from "../db-read";
+import { schoolBucket, SCHOOL_STRENGTHS } from "./school-model";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -35,27 +37,15 @@ export type SchoolContextDTO = {
   class: ClassDTO | null;
 };
 
-const careerBuckets: Record<string, string> = {
-  "Software Engineer": "technology",
-  "Data Analyst": "technology",
-  "Research Scientist": "research",
-  "UX / Product Designer": "creative",
-  "Graphic Designer": "creative",
-  Journalist: "communication",
-  "Marketing Manager": "business",
-  "Public Relations Specialist": "communication",
-  "Entrepreneur / Startup Founder": "leadership",
-  "Product Manager": "leadership",
-  "Teacher / Educator": "communication",
-  Psychologist: "medical",
-  "Content Creator": "creative",
-  "Civil Engineer / Architect": "engineering",
-  "Financial Analyst": "business",
-  "Doctor / Healthcare Professional": "medical",
-  Lawyer: "communication",
-  "Operations Manager": "leadership",
-};
 export const BUCKET_LABELS: Record<string, string> = {
+  sports: "Sports",
+  hospitality: "Hospitality",
+  "social-impact": "Social Impact",
+  "public-safety": "Public Safety",
+  trades: "Trades",
+  aviation: "Aviation",
+  transport: "Transport",
+  agriculture: "Agriculture",
   engineering: "Engineering",
   business: "Business",
   medical: "Medical",
@@ -65,9 +55,6 @@ export const BUCKET_LABELS: Record<string, string> = {
   technology: "Technology",
   leadership: "Leadership",
 };
-function bucketOf(careerName: string): string {
-  return careerBuckets[careerName] ?? "research";
-}
 
 export const registerSchool = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -137,24 +124,28 @@ export const getMySchoolContext = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<SchoolContextDTO> => {
     const { supabase, userId } = context;
-    const { data: membership } = await supabase
-      .from("school_members")
-      .select("role, class_id, school_id")
-      .eq("user_id", userId)
-      .maybeSingle();
+    const membership = requireData(
+      await supabase
+        .from("school_members")
+        .select("role, class_id, school_id")
+        .eq("user_id", userId)
+        .order("joined_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    );
     if (!membership) return { role: null, school: null, class: null };
-    const { data: school } = await supabase
-      .from("schools")
-      .select("*")
-      .eq("id", membership.school_id)
-      .maybeSingle();
+    const school = requireData(
+      await supabase.from("schools").select("*").eq("id", membership.school_id).maybeSingle(),
+    );
     let klass: ClassDTO | null = null;
     if (membership.class_id) {
-      const { data: c } = await supabase
-        .from("school_classes")
-        .select("id, name, grade")
-        .eq("id", membership.class_id)
-        .maybeSingle();
+      const c = requireData(
+        await supabase
+          .from("school_classes")
+          .select("id, name, grade")
+          .eq("id", membership.class_id)
+          .maybeSingle(),
+      );
       klass = (c as ClassDTO) ?? null;
     }
     return {
@@ -178,11 +169,15 @@ type StudentRow = {
 };
 
 async function loadPrincipalSchool(supabase: DbClient, userId: string) {
-  const { data: school } = await supabase
-    .from("schools")
-    .select("*")
-    .eq("owner_user_id", userId)
-    .maybeSingle();
+  const school = requireData(
+    await supabase
+      .from("schools")
+      .select("*")
+      .eq("owner_user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  );
   if (!school) throw new Error("not_principal");
   return school as SchoolDTO;
 }
@@ -192,30 +187,49 @@ async function loadStudentsForSchool(school: SchoolDTO): Promise<{
   students: StudentRow[];
 }> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: classes } = await supabaseAdmin
-    .from("school_classes")
-    .select("id, name, grade")
-    .eq("school_id", school.id)
-    .order("name");
-  const { data: members } = await supabaseAdmin
-    .from("school_members")
-    .select("user_id, class_id")
-    .eq("school_id", school.id)
-    .eq("role", "student");
+  const { data: classes } = await readAllResult((from, to) =>
+    supabaseAdmin
+      .from("school_classes")
+      .select("id, name, grade")
+      .eq("school_id", school.id)
+      .order("name")
+      .order("id")
+      .range(from, to),
+  );
+  const { data: members } = await readAllResult((from, to) =>
+    supabaseAdmin
+      .from("school_members")
+      .select("user_id, class_id")
+      .eq("school_id", school.id)
+      .eq("role", "student")
+      .order("id")
+      .range(from, to),
+  );
   const studentIds = (members ?? []).map((m) => m.user_id);
   const classMap = new Map<string, ClassDTO>((classes ?? []).map((c) => [c.id, c as ClassDTO]));
   if (!studentIds.length) return { classes: (classes ?? []) as ClassDTO[], students: [] };
   const [{ data: profiles }, { data: results }] = await Promise.all([
-    supabaseAdmin.from("profiles").select("id, name, surname").in("id", studentIds),
-    supabaseAdmin
-      .from("career_assessment_results")
-      .select("user_id, career_matches, personality_type, cognitive_score, strengths, created_at")
-      .in("user_id", studentIds),
+    readAllResult((from, to) =>
+      supabaseAdmin
+        .from("profiles")
+        .select("id, name, surname")
+        .in("id", studentIds)
+        .order("id")
+        .range(from, to),
+    ),
+    readAllResult((from, to) =>
+      supabaseAdmin
+        .from("career_assessment_results")
+        .select("user_id, career_matches, personality_type, cognitive_score, strengths, created_at")
+        .in("user_id", studentIds)
+        .order("id")
+        .range(from, to),
+    ),
   ]);
   type ProfileRow = { id: string; name: string | null; surname: string | null };
   type ResultRow = {
     user_id: string;
-    career_matches: { name?: string }[] | null;
+    career_matches: { name?: string; category?: string }[] | null;
     personality_type: string | null;
     cognitive_score: number | null;
     strengths: string[] | null;
@@ -241,9 +255,9 @@ async function loadStudentsForSchool(school: SchoolDTO): Promise<{
       class_id: m.class_id,
       class_name: klass?.name ?? null,
       top_career: topCareer,
-      bucket: topCareer ? bucketOf(topCareer) : null,
+      bucket: schoolBucket(r?.career_matches?.[0]),
       mbti: r?.personality_type ?? null,
-      // Raw 0-10 aptitude score. Deliberately NOT rescaled into an IQ-looking
+      // Raw 0-9 aptitude score. Deliberately NOT rescaled into an IQ-looking
       // number: this is a 9-question screener, not a clinical IQ test, and the
       // student-facing copy says so too.
       cognitive: r?.cognitive_score ?? null,
@@ -314,20 +328,20 @@ export const getPrincipalDashboard = createServerFn({ method: "GET" })
           score: s[key],
         }));
     };
-    const topByStrength = (label: string): { user_id: string; name: string; score: number }[] => {
-      const matches = students.filter((s) => s.strengths.includes(label));
+    const topByStrength = (
+      labels: string[],
+    ): { user_id: string; name: string; score: number }[] => {
+      const matches = students.filter((s) => labels.some((label) => s.strengths.includes(label)));
       return matches
         .slice(0, 5)
         .map((s) => ({ user_id: s.user_id, name: `${s.name} ${s.surname}`.trim(), score: 1 }));
     };
     const topTalents = [
       { dimension: "Top Analytical Thinkers", students: dim("cognitive") },
-      { dimension: "Top Leaders", students: topByStrength("leadership") },
-      { dimension: "Top Communicators", students: topByStrength("communication") },
-      { dimension: "Top Creatives", students: topByStrength("creativity") },
-      { dimension: "Top Problem Solvers", students: topByStrength("analytical") },
-      { dimension: "Top Researchers", students: topByStrength("curiosity") },
-      { dimension: "Top Entrepreneurs", students: topByStrength("business") },
+      ...SCHOOL_STRENGTHS.map(({ dimension, labels }) => ({
+        dimension,
+        students: topByStrength(labels),
+      })),
     ];
 
     // Insights
@@ -381,22 +395,21 @@ export const generateSpecializedClasses = createServerFn({ method: "POST" })
       if (!s.bucket) continue;
       (groups[s.bucket] ??= []).push(s);
     }
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.from("school_specialized_classes").delete().eq("school_id", school.id);
+
     const inserts = Object.entries(groups)
       .filter(([, list]) => list.length >= 3)
       .map(([bucket, list]) => ({
-        school_id: school.id,
         title: `${BUCKET_LABELS[bucket]} Class`,
         focus: bucket,
         reason: reasonFor(bucket),
-        student_user_ids: list.slice(0, 30).map((s) => s.user_id),
-        created_by: context.userId,
+        students: list.slice(0, 30).map((s) => s.user_id),
       }));
-    if (inserts.length) {
-      await supabaseAdmin.from("school_specialized_classes").insert(inserts);
-    }
-    return { created: inserts.length };
+    const { data: created, error } = await context.supabase.rpc(
+      "replace_school_specialized_classes",
+      { _school: school.id, _classes: inserts },
+    );
+    if (error) throw new Error("Class suggestions were not saved. Please retry.");
+    return { created: created ?? 0 };
   });
 
 function reasonFor(bucket: string): string {
@@ -418,7 +431,7 @@ function reasonFor(bucket: string): string {
     case "leadership":
       return "Decision-making, vision, ability to mobilize teams.";
     default:
-      return "Strong alignment across multiple dimensions.";
+      return "Students whose latest suggestions share this career area; a starting point for exploration.";
   }
 }
 
@@ -435,11 +448,15 @@ export const listSpecializedClasses = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<{ classes: SpecializedClassDTO[] }> => {
     const school = await loadPrincipalSchool(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: rows } = await supabaseAdmin
-      .from("school_specialized_classes")
-      .select("*")
-      .eq("school_id", school.id)
-      .order("focus");
+    const { data: rows } = await readAllResult((from, to) =>
+      supabaseAdmin
+        .from("school_specialized_classes")
+        .select("*")
+        .eq("school_id", school.id)
+        .order("focus")
+        .order("id")
+        .range(from, to),
+    );
     type SpecClassRow = {
       id: string;
       title: string;
@@ -451,7 +468,14 @@ export const listSpecializedClasses = createServerFn({ method: "GET" })
     const classRows = (rows ?? []) as unknown as SpecClassRow[];
     const ids = Array.from(new Set(classRows.flatMap((r) => r.student_user_ids)));
     const { data: profiles } = ids.length
-      ? await supabaseAdmin.from("profiles").select("id, name, surname").in("id", ids)
+      ? await readAllResult((from, to) =>
+          supabaseAdmin
+            .from("profiles")
+            .select("id, name, surname")
+            .in("id", ids)
+            .order("id")
+            .range(from, to),
+        )
       : { data: [] as NameRow[] };
     const pmap = new Map<string, NameRow>(((profiles ?? []) as NameRow[]).map((p) => [p.id, p]));
     return {

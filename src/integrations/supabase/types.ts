@@ -298,6 +298,7 @@ export type Database = {
           team_style: string | null;
           university_matches: Json | null;
           session_nonce?: string | null;
+          scoring_version?: string;
           user_id: string;
           work_style: string | null;
         };
@@ -317,6 +318,7 @@ export type Database = {
           team_style?: string | null;
           university_matches?: Json | null;
           session_nonce?: string | null;
+          scoring_version?: string;
           user_id: string;
           work_style?: string | null;
         };
@@ -336,6 +338,7 @@ export type Database = {
           team_style?: string | null;
           university_matches?: Json | null;
           session_nonce?: string | null;
+          scoring_version?: string;
           user_id?: string;
           work_style?: string | null;
         };
@@ -1053,6 +1056,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      replace_school_specialized_classes: {
+        Args: { _school: string; _classes: Json };
+        Returns: number;
+      };
       admin_adjust_aura: {
         Args: { _amount: number; _reason: string; _target: string };
         Returns: {

@@ -1,6 +1,12 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 const localSecret = randomBytes(32).toString("hex");
 function key() {
+  if (
+    process.env.NODE_ENV === "production" &&
+    !process.env.ASSESSMENT_SIGNING_SECRET &&
+    !process.env.SUPABASE_SERVICE_ROLE_KEY
+  )
+    throw new Error("Assessment signing is not configured");
   return (
     process.env.ASSESSMENT_SIGNING_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || localSecret
   );

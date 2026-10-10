@@ -37,7 +37,7 @@ export type PersonalityScore = {
 };
 
 export type CognitiveScore = {
-  score: number; // 0..10
+  score: number; // Correct answers out of nine; never a clinical IQ score.
   tier: "Exceptional" | "Advanced" | "Competent" | "Developing" | "Basic";
   profile: "Analytical" | "Strategic" | "Practical" | "Research" | "Innovative";
 };
@@ -47,9 +47,11 @@ export type Match = { key: string; name: string; category: string; score: number
 // ---------- Personality ----------
 export function scorePersonality(answers: number[], questions: PersonalityQ[]): PersonalityScore {
   const sums = { EI: 0, SN: 0, TF: 0, JP: 0 };
+  const capacity = { EI: 0, SN: 0, TF: 0, JP: 0 };
   questions.forEach((q, i) => {
     const v = (answers[i] ?? 3) - 3; // -2..+2
     sums[q.axis] += v * q.direction;
+    capacity[q.axis] += 2;
   });
   const mbti =
     (sums.EI > 0 ? "E" : "I") +
@@ -59,11 +61,10 @@ export function scorePersonality(answers: number[], questions: PersonalityQ[]): 
 
   const letters: Record<string, number> = {};
   for (const k of ["EI", "SN", "TF", "JP"] as const) {
-    const v = Math.max(-8, Math.min(8, sums[k]));
-    const conf = Math.abs(v) / 8;
+    const evidence = capacity[k] ? Math.max(-1, Math.min(1, sums[k] / capacity[k])) : 0;
     const [a, b] = k.split("") as [string, string];
-    letters[v > 0 ? a : b] = conf;
-    letters[v > 0 ? b : a] = 1 - conf;
+    letters[a] = (1 + evidence) / 2;
+    letters[b] = 1 - letters[a];
   }
 
   return {
@@ -269,7 +270,7 @@ export function matchCareers(
       const pFit = pCount ? pSum / pCount : 0.5;
 
       // cognitive fit
-      const cogNorm = cognitive.score / 10;
+      const cogNorm = cognitive.score / 9;
       const profileMatch = c.required_profile?.includes(cognitive.profile) ? 1 : 0.5;
       const cFit = cogNorm * 0.6 + profileMatch * 0.4;
 
@@ -337,7 +338,7 @@ export function matchMajors(
         pCount += weight ?? 1;
       }
       const pFit = pCount ? pSum / pCount : 0.5;
-      const cogNorm = cognitive.score / 10;
+      const cogNorm = cognitive.score / 9;
       const profileMatch = m.required_profile?.includes(cognitive.profile) ? 1 : 0.5;
       const cFit = cogNorm * 0.6 + profileMatch * 0.4;
       const req = m.required_interests ?? [];

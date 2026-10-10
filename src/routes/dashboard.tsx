@@ -1,3 +1,4 @@
+import { readAllResult } from "@/lib/db-read";
 import { useUiText } from "@/lib/ui-text";
 import { toast } from "sonner";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -103,6 +104,8 @@ function DashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [busy, setBusy] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [reload, setReload] = useState(0);
   const [tab, setTab] = useState<TabKey>("results");
 
   useEffect(() => {
@@ -111,21 +114,39 @@ function DashboardPage() {
       navigate({ to: "/auth", search: { mode: "login", next: "/dashboard" } });
       return;
     }
+    let cancelled = false;
+    setBusy(true);
+    setLoadError(false);
+    setProfile(null);
+    setResults([]);
+    setStats(null);
+    setAchievements([]);
     (async () => {
-      const [{ data: p }, { data: r }, { data: s }, { data: a }] = await Promise.all([
+      const responses = await Promise.all([
         supabase.from("profiles").select("name, surname").eq("id", user.id).maybeSingle(),
-        supabase
-          .from("career_assessment_results")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false }),
+        readAllResult((from, to) =>
+          supabase
+            .from("career_assessment_results")
+            .select("*")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false })
+            .order("id")
+            .range(from, to),
+        ),
         supabase.from("user_stats").select("*").eq("user_id", user.id).maybeSingle(),
-        supabase
-          .from("user_achievements")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false }),
+        readAllResult((from, to) =>
+          supabase
+            .from("user_achievements")
+            .select("*")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false })
+            .order("id")
+            .range(from, to),
+        ),
       ]);
+      if (cancelled) return;
+      if (responses.some((r) => r.error)) throw new Error("Dashboard unavailable");
+      const [{ data: p }, { data: r }, { data: s }, { data: a }] = responses;
       setProfile(p ?? null);
       const mapped: Result[] = ((r as unknown as Array<Record<string, unknown>>) ?? []).map(
         (row) => {
@@ -156,8 +177,16 @@ function DashboardPage() {
       setStats((s as unknown as Stats) ?? null);
       setAchievements((a as unknown as Achievement[]) ?? []);
       setBusy(false);
-    })();
-  }, [user, loading, navigate]);
+    })().catch(() => {
+      if (!cancelled) {
+        setLoadError(true);
+        setBusy(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, loading, navigate, reload]);
 
   const latest = results[0];
   const fullName =
@@ -206,6 +235,21 @@ function DashboardPage() {
       </PageShell>
     );
   }
+
+  if (loadError)
+    return (
+      <PageShell>
+        <div className="mx-auto max-w-xl p-10" role="alert">
+          <p>Could not load your dashboard.</p>
+          <button
+            onClick={() => setReload((n) => n + 1)}
+            className="mt-4 rounded-xl bg-primary px-4 py-2 text-primary-foreground"
+          >
+            Retry
+          </button>
+        </div>
+      </PageShell>
+    );
 
   return (
     <PageShell>
@@ -719,7 +763,7 @@ function CareerCard({
       <div className="relative mt-4 h-1.5 overflow-hidden rounded-full bg-secondary/60">
         <div
           className="h-full rounded-full bg-primary transition-all duration-1000"
-          style={{ width: `${career.match}/100` }}
+          style={{ width: `${Math.max(0, Math.min(100, career.match))}%` }}
         />
       </div>
     </div>
@@ -1440,7 +1484,7 @@ function SettingsSection({
             <PrefRow icon={Moon} label={tr("Appearance")} hint={tr("Light or dark theme")}>
               <ThemeToggle />
             </PrefRow>
-            <WeeklyEmailToggle userId={userId} />
+            <WeeklyEmailNotice />
           </div>
         </GlassCard>
 
@@ -1476,35 +1520,15 @@ function SettingsSection({
   );
 }
 
-function WeeklyEmailToggle({ userId }: { userId: string }) {
+function WeeklyEmailNotice() {
   const tr = useUiText();
-
-  const key = `pref_weekly_email_${userId}`;
-  const [enabled, setEnabled] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return localStorage.getItem(key) === "true";
-  });
-  function toggle() {
-    const next = !enabled;
-    setEnabled(next);
-    if (typeof window !== "undefined") localStorage.setItem(key, String(next));
-  }
   return (
     <PrefRow
       icon={Mail}
       label={tr("Weekly digest email")}
-      hint={tr("Saved on this device; email delivery is not connected.")}
+      hint={tr("Email delivery is not connected.")}
     >
-      <button
-        onClick={toggle}
-        aria-label={tr("Weekly digest email")}
-        aria-pressed={enabled}
-        className={`cartoon-switch relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-all duration-300 focus-visible:outline-none ${enabled ? "bg-primary" : "bg-secondary"}`}
-      >
-        <span
-          className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-lg ring-0 transition-transform ${enabled ? "translate-x-4" : "translate-x-0"}`}
-        />
-      </button>
+      <span className="text-xs text-muted-foreground">Unavailable</span>
     </PrefRow>
   );
 }

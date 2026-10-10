@@ -1,61 +1,42 @@
 # Abilitio
 
-Career exploration for students and schools. React, TanStack Start, TypeScript and Supabase; the flagship public experience uses a decision-workshop identity with midnight/paper, chartreuse, steel blue and coral, self-hosted Syne/IBM Plex Sans, and a procedural Three.js brain.
+Career exploration for students and schools, built with React 19, TanStack Start, TypeScript and Supabase. The current interface uses illustrated SVG scenes, Tailwind, GSAP and Lenis. Assessment scores and suggestions are exploratory, not clinical or admission predictions.
 
-## Run locally
+## Development
 
-Use Node 22 or later. npm is the canonical package manager; `package-lock.json` is the reproducible lockfile. The obsolete Bun lockfile was removed after the dependency refresh.
+Use Node 22 or later and the npm lockfile:
 
-```bash
+```sh
 npm ci --legacy-peer-deps
 npm run dev
 ```
 
-Open http://localhost:8080. Public pages and the anonymous assessment can run without backend credentials. Account actions report that the service is unavailable until configured; saving a completed assessment requires an account and the migration below.
+Open http://localhost:8080. Copy `.env.example` to `.env` to configure Supabase. Public pages and anonymous assessment questions work without account credentials; saving results requires authentication and the owner-run schema migration.
 
-For the Node production build:
-
-```bash
+```sh
+npm run lint
+npx tsc --noEmit
+npm test
 NITRO_PRESET=node-server npm run build
 PORT=8090 node .output/server/index.mjs
 ```
 
-Vercel retains the existing `vercel.json` install/build workflow. Its `VERCEL=1` environment selects Nitro's Vercel preset. Do not deploy a Node `.output` folder as a static-only site: the application needs its server actions.
+Vercel uses `vercel.json` and the `VERCEL=1` Nitro preset. Keep `SUPABASE_SERVICE_ROLE_KEY` and `ASSESSMENT_SIGNING_SECRET` server-only. Production requires a stable signing key or the service-role key; ephemeral development signing keys expire after a server restart. The active app and service-role credentials must reference the same Supabase project.
 
-## Backend configuration and release gate
+## Release and database handoff
 
-Copy `.env.example` to `.env` and replace the placeholders. Client `VITE_SUPABASE_*` values must exist at build time; server Supabase URL/key and `SUPABASE_SERVICE_ROLE_KEY` must exist at runtime. Keep the service-role key and `ASSESSMENT_SIGNING_SECRET` server-only. Use a stable random signing secret of at least 32 bytes; without one or a service-role key, local development uses an ephemeral key and assessment drafts expire after a server restart.
+See [OWNER_MIGRATIONS.md](OWNER_MIGRATIONS.md) before enabling result saves, moderation or class generation. The repository contains migrations; pushing code does not apply them to Supabase. New installations require the entire migration chain. Existing projects need the unapplied migrations, with the release repair providing repeatable result-storage and task-journal setup.
 
-Before enabling scored saves and cloud task history, review and apply **`supabase/migrations/20261009000000_assessment_integrity_and_task_journal.sql` in staging**. It adds replay protection, removes client writes to scored results, protects moderation fields, and introduces owner-scoped task events. It has not been applied to a remote database during this implementation. Apply the existing migration chain to a new project first. Confirm service-role writes and normal-user reads, then attempt fabricated direct inserts/moderation updates with a staging user. Deploy server code and schema together.
+Assessments select 12 personality, nine reasoning and nine interest questions. Reasoning is displayed as correct answers out of nine. New results use scoring version `v2`; historical scores are preserved as `v1`. Signed attempts expire after 24 hours and repeated submission returns the original result.
 
-Configure Supabase's allowed site/redirect URLs, then test a real recovery email and confirmed new-password flow. Test two user accounts, school analytics, avatar upload failure, community history and offline task reconciliation. Guest browser checks cannot establish those live-account behaviors.
+Admin access comes from `user_roles`, matching database policies and community badges. Provision additional administrators in the database; the previous `ADMIN_EMAILS` application allowlist is no longer used.
 
-The contact form uses the project's existing Formspree endpoint. Its success and failure UI were tested with intercepted responses; no real email was sent. Verify endpoint ownership, origin permissions and actual recipient delivery before launch.
+## Behavior and limits
 
-Analytics remain opt-in through `VITE_PLAUSIBLE_DOMAIN`. They cover home CTA, assessment stages, auth return, result save, first task, scene fallback and CLS/INP/LCP. Payloads exclude answers and account identifiers. Review your analytics configuration before enabling it.
+- Account loaders surface failed reads instead of treating them as empty histories. Admin/catalog/school reads retrieve every page; community history uses a cursor.
+- Roadmap task journals use per-account local queues and cloud storage, with retry and online reconciliation. University research bookmarks persist on this browser.
+- ABBI is a curated English-language guide. Localized notices explain its language limitation. Match scores describe exploratory fit, not success probability.
+- Weekly digest delivery is unavailable until an email integration is implemented. No enabled switch promises delivery.
+- Fonts currently load through Google Fonts. Supabase recovery and confirmation URLs must allow the deployed origin.
 
-## Design and behavior
-
-- `src/styles.css`: shared palette, typography, spacing, grid, surface and motion tokens. Syne supplies the display voice and IBM Plex Sans supplies legible body text and Cyrillic headings. Fonts are self-hosted; licenses are in `public/fonts`.
-- `src/components/BrainCanvas.tsx`: grouped quality settings, folded hemispheres/fissure/cerebellum, custom GLSL particles and synapses, assembly, pointer/scroll signals and adaptive rendering. Bloom/chromatic/vignette processing is reserved for capable desktop GPUs; mobile/software renderers use lower budgets.
-- `src/components/BrainScene.tsx`: an immediate SVG study, actual module/first-frame readiness milestones, context-loss fallback and retry. The intro is nonblocking. Motion off, OS reduced motion and `?static=1` use the illustrated equivalent.
-- The account SDK loads separately from public rendering. When Supabase is configured it restores the session through the same client; server-function calls still attach its bearer token.
-- Roadmap task IDs include the career path. Older unscoped completion marks are retained in the original local keys (and remote rows), excluded from current progress, and flagged for review; new local journals use v2 keys.
-- `src/components/MotionProvider.tsx`: one Lenis/GSAP clock, route cleanup, masked reveals, sticky question index, contextual cursor and magnetic controls. Touch retains native scrolling.
-- Public editorial routes, the four-question workshop, school inquiry flow and source-backed university gateway are complete in English, Uzbek and Russian. Legal text remains English with an explicit localized notice.
-- `src/components/CareerWorkshop.tsx`: four authoritative questions, three illustrated solution steps each, a true local record, self-selected work preferences, and product-roadmap tasks with track-scoped persistence. Signal → Vector → Trajectory changes the live workbench without signup.
-- Career suggestions are exploratory. Reasoning is reported on its original 0–10 scale, never as clinical IQ. University links point to official undergraduate sources; no invented eligibility, scholarships or fit percentages.
-- The proof section explains method and publication standards. Real pilot stories need consented source material; no testimonial or school outcome was fabricated.
-
-The existing server-backed product cannot be delivered faithfully as a single HTML file. Authentication, signed assessment submission, ownership policies and dashboards require the retained application/server structure. The delivery includes complete source and a production build instead.
-
-## Verification and handoff
-
-```bash
-npm run lint
-npx tsc --noEmit
-npm test
-npm audit
-```
-
-`PLAN.md` maps all 44 audit findings and records scope decisions and staging/hardware checks. The sibling `abilitio-rebuild-delivery` folder contains `REPORT.md`, raw Lighthouse/Playwright evidence, a before/after gallery, source archive and production build. Local automated checks do not constitute Safari, Firefox or physical GPU/device validation. No code was pushed, site deployed, remote schema changed or credentials embedded.
+GitHub Actions runs lint, TypeScript, unit/database migration tests and the Node build. Local migration tests simulate Supabase-owned schemas with PGlite; they do not establish production schema state, real email delivery or live multi-account behavior.

@@ -62,6 +62,15 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
       throw new Error("Unauthorized: No user ID found in token");
     }
 
+    const profile = await supabase
+      .from("profiles")
+      .select("is_banned")
+      .eq("id", data.claims.sub)
+      .maybeSingle();
+    if (profile.error || !profile.data)
+      throw new Error("Account status is unavailable. Please retry.");
+    if (profile.data.is_banned) throw new Error("account_banned");
+
     return next({
       context: {
         supabase,

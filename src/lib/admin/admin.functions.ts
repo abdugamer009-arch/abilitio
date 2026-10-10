@@ -1,3 +1,4 @@
+import { readAllResult } from "../db-read";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -7,59 +8,20 @@ import type { Database } from "@/integrations/supabase/types";
 
 type DbClient = SupabaseClient<Database>;
 
-// Admin access is decided by this email allow-list in application code, NOT by a
-// database `user_roles` row. This keeps admin access reliable even when the DB
-// role was never provisioned. Override/extend at deploy time with a
-// comma-separated ADMIN_EMAILS env var; the built-in founders are always admins.
-const BUILTIN_ADMIN_EMAILS = ["abdugamer009@gmail.com", "umaraxmedov0175@gmail.com"];
-
-function adminEmailSet(): Set<string> {
-  const fromEnv = (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
-  return new Set([...BUILTIN_ADMIN_EMAILS, ...fromEnv]);
-}
-
 export type AuthContext = { supabase: DbClient; userId: string; claims?: { email?: string } };
 
-// Admin status plus the email the server resolved for this user, so the client
-// can show exactly which account was evaluated. Email allow-list is
-// authoritative; a legacy `user_roles` admin row is honored as a fallback.
-// Exported so every server function (community moderation, admin dashboard)
-// answers "is this user an admin?" identically — a DB-role-only check would
-// wrongly deny allow-list admins.
+/** Database roles are authoritative across actions, RLS, badges and Realtime. */
 export async function resolveAdminStatus(
   context: AuthContext,
 ): Promise<{ isAdmin: boolean; email: string | null }> {
-  const admins = adminEmailSet();
-
-  // Prefer the email from the verified JWT claims; fall back to a server-side
-  // lookup in case this project's tokens don't carry the email claim. The
-  // fallback must never crash the check (e.g. missing service-role key).
-  let email = context.claims?.email?.toLowerCase() ?? null;
-  if (!email) {
-    try {
-      const { data } = await supabaseAdmin.auth.admin.getUserById(context.userId);
-      email = data.user?.email?.toLowerCase() ?? null;
-    } catch (e) {
-      console.error("[admin] service-role email lookup failed:", e);
-    }
-  }
-  if (email && admins.has(email)) return { isAdmin: true, email };
-
-  try {
-    const { data } = await context.supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", context.userId)
-      .eq("role", "admin")
-      .maybeSingle();
-    return { isAdmin: !!data, email };
-  } catch (e) {
-    console.error("[admin] user_roles fallback lookup failed:", e);
-    return { isAdmin: false, email };
-  }
+  const { data, error } = await context.supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", context.userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (error) throw new Error("Could not verify administrator access");
+  return { isAdmin: Boolean(data), email: context.claims?.email ?? null };
 }
 
 export async function ensureAdmin(context: AuthContext) {
@@ -67,22 +29,15 @@ export async function ensureAdmin(context: AuthContext) {
   if (!isAdmin) throw new Error("forbidden");
 }
 
-/** Throw if the user's profile is flagged banned. Used on write paths (chat,
- *  assessment submit, AI chat) so a ban actually revokes participation instead
- *  of only being a row in the admin table. Fails open on lookup error — a DB
- *  hiccup must not lock out every legitimate user. */
+/** Protected writes require a successful moderation lookup. */
 export async function ensureNotBanned(userId: string): Promise<void> {
-  try {
-    const { data } = await supabaseAdmin
-      .from("profiles")
-      .select("is_banned")
-      .eq("id", userId)
-      .maybeSingle();
-    if (data?.is_banned) throw new Error("account_banned");
-  } catch (e) {
-    if (e instanceof Error && e.message === "account_banned") throw e;
-    console.error("[admin] ban lookup failed, allowing:", e);
-  }
+  const { data, error } = await supabaseAdmin
+    .from("profiles")
+    .select("is_banned")
+    .eq("id", userId)
+    .maybeSingle();
+  if (error || !data) throw new Error("Account status is unavailable. Please retry.");
+  if (data.is_banned) throw new Error("account_banned");
 }
 
 export type AdminAnalytics = {
@@ -109,16 +64,40 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
     const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-    // Read via the service-role client so analytics work regardless of whether
-    // this admin has a `user_roles` DB row (access is decided in app code above).
+    // Resolve the DB admin role first, then read complete paginated datasets.
     const [profiles, results, adminRoles, communities, messages] = await Promise.all([
-      supabaseAdmin.from("profiles").select("id, created_at, updated_at"),
-      supabaseAdmin
-        .from("career_assessment_results")
-        .select("id, user_id, personality_type, career_matches, created_at"),
-      supabaseAdmin.from("user_roles").select("user_id").eq("role", "admin"),
-      supabaseAdmin.from("communities").select("id, name"),
-      supabaseAdmin.from("community_messages").select("community_id, user_id, created_at"),
+      readAllResult((from, to) =>
+        supabaseAdmin
+          .from("profiles")
+          .select("id, created_at, updated_at")
+          .order("id")
+          .range(from, to),
+      ),
+      readAllResult((from, to) =>
+        supabaseAdmin
+          .from("career_assessment_results")
+          .select("id, user_id, personality_type, career_matches, created_at")
+          .order("id")
+          .range(from, to),
+      ),
+      readAllResult((from, to) =>
+        supabaseAdmin
+          .from("user_roles")
+          .select("user_id")
+          .eq("role", "admin")
+          .order("id")
+          .range(from, to),
+      ),
+      readAllResult((from, to) =>
+        supabaseAdmin.from("communities").select("id, name").order("id").range(from, to),
+      ),
+      readAllResult((from, to) =>
+        supabaseAdmin
+          .from("community_messages")
+          .select("community_id, user_id, created_at")
+          .order("id")
+          .range(from, to),
+      ),
     ]);
 
     // Surface a failed read instead of rendering it as real data. Every query
@@ -241,15 +220,40 @@ export type AdminUserRow = {
 
 const ADMIN_USER_PAGE_SIZE = 500;
 
+async function listAllAuthUsers() {
+  const users = [];
+  for (let page = 1; ; page++) {
+    const result = await supabaseAdmin.auth.admin.listUsers({
+      page,
+      perPage: ADMIN_USER_PAGE_SIZE,
+    });
+    if (result.error) throw new Error("Could not load account emails");
+    users.push(...result.data.users);
+    if (result.data.users.length < ADMIN_USER_PAGE_SIZE) return { data: { users }, error: null };
+  }
+}
+
 export const getAdminUsers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminUserRow[]> => {
     await ensureAdmin(context);
 
     const [profiles, results, authRes] = await Promise.all([
-      supabaseAdmin.from("profiles").select("id, name, surname, age_group, is_banned, created_at"),
-      supabaseAdmin.from("career_assessment_results").select("user_id"),
-      supabaseAdmin.auth.admin.listUsers({ perPage: ADMIN_USER_PAGE_SIZE }),
+      readAllResult((from, to) =>
+        supabaseAdmin
+          .from("profiles")
+          .select("id, name, surname, age_group, is_banned, created_at")
+          .order("id")
+          .range(from, to),
+      ),
+      readAllResult((from, to) =>
+        supabaseAdmin
+          .from("career_assessment_results")
+          .select("user_id")
+          .order("id")
+          .range(from, to),
+      ),
+      listAllAuthUsers(),
     ]);
 
     // Same reasoning as getAdminAnalytics: an unreported failure here renders
@@ -310,8 +314,7 @@ export const adminSetBan = createServerFn({ method: "POST" })
   .inputValidator((input) => setBanSchema.parse(input))
   .handler(async ({ context, data }) => {
     await ensureAdmin(context);
-    // Update directly via service role so ban works for app-code admins too
-    // (the admin_set_ban RPC gates on a `user_roles` DB row, which they may lack).
+    // The verified DB administrator may update moderation through the service role.
     const { error } = await supabaseAdmin
       .from("profiles")
       .update({ is_banned: data.banned, updated_at: new Date().toISOString() })

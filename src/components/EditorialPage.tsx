@@ -180,9 +180,9 @@ export function EditorialPage({ kind }: { kind: Kind }) {
       [
         w("9 reasoning questions", "9 mantiqiy savol", "9 вопросов на мышление"),
         w(
-          "Correct answers contribute to a 0–10 aptitude scale used by the recommendation engine. Language, prior practice and familiarity affect performance. We do not convert it into IQ.",
-          "To‘g‘ri javoblar tavsiya tizimidagi 0–10 qobiliyat shkalasiga hissa qo‘shadi. Til, mashq va tanishlik ta’sir qiladi. IQga aylantirmaymiz.",
-          "Правильные ответы формируют шкалу способностей 0–10. Влияют язык, практика и знакомство с задачами. В IQ она не переводится.",
+          "Correct answers contribute to a 0–9 aptitude scale used by the recommendation engine. Language, prior practice and familiarity affect performance. We do not convert it into IQ.",
+          "To‘g‘ri javoblar tavsiya tizimidagi 0–9 qobiliyat shkalasiga hissa qo‘shadi. Til, mashq va tanishlik ta’sir qiladi. IQga aylantirmaymiz.",
+          "Правильные ответы формируют шкалу способностей 0–9. Влияют язык, практика и знакомство с задачами. В IQ она не переводится.",
         ),
       ],
       [

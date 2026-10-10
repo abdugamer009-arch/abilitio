@@ -160,7 +160,7 @@ function CareerResultsPage() {
     ctx.font = `500 28px ${bodyFont}`;
     ctx.fillStyle = color("--body-text");
     ctx.fillText(
-      `${r.cognitive_tier} · ${r.cognitive_profile} Thinker · Cognitive Score ${r.cognitive_score}/10`,
+      `${r.cognitive_tier} · ${r.cognitive_profile} Thinker · Cognitive Score ${r.cognitive_score}/9`,
       80,
       250,
     );
@@ -306,7 +306,7 @@ function CareerResultsPage() {
                   value={r.cognitive_score ?? 0}
                   decimals={(r.cognitive_score ?? 0) % 1 === 0 ? 0 : 1}
                 />
-                /10
+                /9
               </div>
               <div className="mt-2 text-sm font-medium">{r.cognitive_tier}</div>
               <div className="text-xs text-muted-foreground">
@@ -509,7 +509,7 @@ function CareerResultsPage() {
                     <div
                       className="h-full rounded-full bg-primary"
                       style={{
-                        width: `${m.score}/100`,
+                        width: `${Math.max(0, Math.min(100, m.score))}%`,
                         boxShadow: "4px 4px 0 var(--ink)",
                       }}
                     />
