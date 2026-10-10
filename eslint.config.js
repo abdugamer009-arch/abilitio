@@ -32,7 +32,22 @@ export default tseslint.config(
           ],
         },
       ],
-      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      "react-refresh/only-export-components": [
+        "warn",
+        {
+          allowConstantExport: true,
+          allowExportNames: [
+            "useAuth",
+            "useI18n",
+            "useT",
+            "getStaticDict",
+            "LANGS",
+            "resolveAvatarUrl",
+            "useMotion",
+            "BRAIN_SETTINGS",
+          ],
+        },
+      ],
       "@typescript-eslint/no-unused-vars": "off",
     },
   },

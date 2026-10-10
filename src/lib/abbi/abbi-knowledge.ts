@@ -93,7 +93,11 @@ export const CAREERS: CareerInfo[] = [
     educationPath: "Bachelor's → optional Master's/PhD → analyst or ML engineer → data scientist.",
     salaryRange: "$95k – $200k+ (US)",
     outlook: "High demand, especially in AI-driven companies.",
-    advantages: ["Cutting-edge work", "High pay", "Strong impact on product"],
+    advantages: [
+      "Research and experimentation",
+      "Work with data and models",
+      "Strong impact on product",
+    ],
     challenges: [
       "Steep math/stats requirement",
       "Models often fail in production",
@@ -123,7 +127,7 @@ export const CAREERS: CareerInfo[] = [
       "Bachelor's + certifications → SOC analyst → security engineer → specialist or architect.",
     salaryRange: "$80k – $180k (US)",
     outlook: "Critical and growing — every company needs security.",
-    advantages: ["Mission-driven", "High pay", "Always evolving"],
+    advantages: ["Mission-driven", "Work with data and models", "Always evolving"],
     challenges: ["High-pressure incidents", "On-call rotations", "Constant learning"],
     fitsMbti: ["ISTJ", "INTJ", "ISTP"],
     interestKeys: ["analytical", "technical"],
@@ -354,7 +358,7 @@ export const CAREERS: CareerInfo[] = [
     educationPath: "Bachelor's → LSAT → 3-year JD → bar exam → associate → partner.",
     salaryRange: "$70k – $300k+ (US, depends on firm/specialty)",
     outlook: "Competitive at top end; strong in corporate, tech, IP law.",
-    advantages: ["Prestige", "Intellectual challenge", "High pay in BigLaw"],
+    advantages: ["Prestige", "Intellectual challenge", "Work with data and models in BigLaw"],
     challenges: ["Long hours", "High debt", "Stress + ethical weight"],
     fitsMbti: ["ENTJ", "INTJ", "ESTJ", "ENTP"],
     interestKeys: ["analytical", "communication"],
@@ -457,7 +461,7 @@ function personalizeFor(career: CareerInfo, ctx: AbbiContext): string | null {
   if (overlap.length) reasons.push(`your standout abilities in ${overlap.join(" & ")}`);
   if (
     ctx.iqScore &&
-    ctx.iqScore >= 115 &&
+    ctx.iqScore > 1000 &&
     (career.interestKeys?.includes("analytical") || career.interestKeys?.includes("technical"))
   ) {
     reasons.push(`your above-average cognitive score (${ctx.iqScore})`);
@@ -494,8 +498,8 @@ function md(career: CareerInfo): string {
     `**Key skills**: ${career.skills.join(", ")}`,
     `**Recommended majors**: ${career.majors.join(", ")}`,
     `**Education path**: ${career.educationPath}`,
-    `**Salary range**: ${career.salaryRange}`,
-    `**Outlook**: ${career.outlook}`,
+    "**Pay**: varies by location, seniority and year. Check local official labor data.",
+    "**Outlook**: research current local demand; this guide does not forecast it.",
     "",
     `**Advantages**`,
     ...career.advantages.map((a) => `- ${a}`),
@@ -506,50 +510,8 @@ function md(career: CareerInfo): string {
 }
 
 function universitiesFor(query: string): string | null {
-  const q = query.toLowerCase();
-  if (q.includes("computer science") || q.includes("software") || q.includes("cs")) {
-    return [
-      "### Top universities for Computer Science",
-      "- **MIT** — Cambridge, USA",
-      "- **Stanford University** — California, USA",
-      "- **Carnegie Mellon University** — Pittsburgh, USA",
-      "- **ETH Zürich** — Switzerland",
-      "- **University of Cambridge** — UK",
-      "- **National University of Singapore** — Singapore",
-      "",
-      "Most accept strong SAT (1450+), top math grades, and a portfolio or olympiad results.",
-    ].join("\n");
-  }
-  if (q.includes("business") || q.includes("mba")) {
-    return [
-      "### Top universities for Business",
-      "- **Harvard Business School**",
-      "- **Wharton (UPenn)**",
-      "- **Stanford GSB**",
-      "- **London Business School**",
-      "- **INSEAD** — France/Singapore",
-    ].join("\n");
-  }
-  if (q.includes("medicine") || q.includes("medical") || q.includes("doctor")) {
-    return [
-      "### Top universities for Medicine",
-      "- **Johns Hopkins** — USA",
-      "- **Harvard Medical School**",
-      "- **University of Oxford** — UK",
-      "- **Karolinska Institutet** — Sweden",
-      "- **UCLA** — USA",
-    ].join("\n");
-  }
-  if (q.includes("design")) {
-    return [
-      "### Top universities for Design",
-      "- **Rhode Island School of Design (RISD)**",
-      "- **Parsons School of Design**",
-      "- **Royal College of Art** — London",
-      "- **Aalto University** — Helsinki",
-    ].join("\n");
-  }
-  return null;
+  if (!query.trim()) return null;
+  return "### University research\nUse the [university notebook](/universities) for official undergraduate admissions and funding sources. Choose a degree level, check citizenship eligibility, annual costs and deadlines. A SAT/IELTS score alone cannot establish admission or funding. No university ranking is implied.";
 }
 
 function satGuide(): string {
@@ -776,7 +738,7 @@ export function generateAbbiReply(message: string, ctx: AbbiContext): string {
           ),
         "",
         ctx.mbtiType
-          ? `These reflect your **${ctx.mbtiType}** personality${ctx.iqScore ? `, IQ ${ctx.iqScore}` : ""}${ctx.topStrengths?.length ? ` and standout strengths in ${ctx.topStrengths.slice(0, 2).join(" & ")}` : ""}.`
+          ? `These reflect your **${ctx.mbtiType}** personality${ctx.topStrengths?.length ? ` and standout strengths in ${ctx.topStrengths.slice(0, 2).join(" & ")}` : ""}.`
           : "",
         ctx.ageGroup === "adult"
           ? "Want me to break down salaries, growth, and next steps for any of these?"

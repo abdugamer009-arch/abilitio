@@ -1,3 +1,7 @@
+import { useWords } from "@/lib/editorial";
+import { isSupabaseConfigured } from "@/integrations/supabase/config";
+import { ChoiceOptions } from "@/components/ChoiceOptions";
+import { pageMeta } from "@/lib/seo";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { GlowBlob } from "@/components/GlowBlob";
@@ -27,16 +31,12 @@ import { track, AnalyticsEvent } from "@/lib/analytics";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/career-assessment")({
-  head: () => ({
-    meta: [
-      { title: "Career Intelligence Assessment — Abilitio" },
-      {
-        name: "description",
-        content:
-          "30-question AI-powered career assessment measuring personality, cognitive ability, and interests.",
-      },
-    ],
-  }),
+  head: () =>
+    pageMeta(
+      "/career-assessment",
+      "Explore your career profile",
+      "Thirty questions about reasoning, work preferences and interests. An exploratory profile, not a diagnosis.",
+    ),
   component: CareerAssessmentPage,
 });
 
@@ -71,6 +71,7 @@ type Lang = "en" | "ru" | "uz";
 
 function CareerAssessmentPage() {
   const t = useT();
+  const w = useWords();
   const { lang } = useI18n();
   const l = lang as Lang;
   const { user, loading } = useAuth();
@@ -118,11 +119,73 @@ function CareerAssessmentPage() {
       const saved = JSON.parse(raw) as SavedProgress;
       const s = saved?.session;
       const ok =
+        typeof s?.sessionToken === "string" &&
         s?.personality?.length === P_COUNT &&
         s?.iq?.length === IQ_COUNT &&
         s?.interest?.length === INT_COUNT &&
-        typeof s.personality[0]?.prompt?.en === "string";
-      if (ok) {
+        s.personality.every(
+          (q) =>
+            typeof q?.id === "string" &&
+            q?.prompt &&
+            [q.prompt.en, q.prompt.uz, q.prompt.ru].every((v) => typeof v === "string"),
+        ) &&
+        s.iq.every(
+          (q) =>
+            typeof q?.id === "string" &&
+            q?.prompt &&
+            [q.prompt.en, q.prompt.uz, q.prompt.ru].every((v) => typeof v === "string") &&
+            q.options &&
+            [q.options.en, q.options.uz, q.options.ru].every(
+              (v) => Array.isArray(v) && v.length === 4 && v.every((o) => typeof o === "string"),
+            ),
+        ) &&
+        s.interest.every(
+          (q) =>
+            typeof q?.id === "string" &&
+            q?.prompt &&
+            [q.prompt.en, q.prompt.uz, q.prompt.ru].every((v) => typeof v === "string") &&
+            Array.isArray(q.options) &&
+            q.options.every(
+              (o) =>
+                typeof o?.id === "string" &&
+                o.visual &&
+                (o.visual.kind === "icon"
+                  ? typeof o.visual.icon === "string"
+                  : o.visual.kind === "swatch" &&
+                    Array.isArray(o.visual.colors) &&
+                    o.visual.colors.length === 2 &&
+                    o.visual.colors.every((c) => typeof c === "string")),
+            ) &&
+            q.labels &&
+            [q.labels.en, q.labels.uz, q.labels.ru].every(
+              (v) =>
+                Array.isArray(v) &&
+                v.length === q.options.length &&
+                v.every((o) => typeof o === "string"),
+            ),
+        );
+      const a = saved?.answers;
+      const validAnswers =
+        a &&
+        Array.isArray(a.personality) &&
+        a.personality.length === P_COUNT &&
+        a.personality.every(
+          (v: unknown) =>
+            v === null || (Number.isInteger(v) && typeof v === "number" && v >= 1 && v <= 5),
+        ) &&
+        Array.isArray(a.iq) &&
+        a.iq.length === IQ_COUNT &&
+        a.iq.every(
+          (v: unknown) =>
+            v === null || (Number.isInteger(v) && typeof v === "number" && v >= -1 && v <= 3),
+        ) &&
+        Array.isArray(a.interest) &&
+        a.interest.length === INT_COUNT &&
+        a.interest.every(
+          (v: unknown) =>
+            Array.isArray(v) && v.length <= 1 && v.every((id: unknown) => typeof id === "string"),
+        );
+      if (ok && validAnswers) {
         setSession(s);
         setStep(typeof saved.step === "number" ? Math.min(Math.max(saved.step, 0), TOTAL - 1) : 0);
         if (saved.answers) setAnswers(saved.answers);
@@ -138,6 +201,13 @@ function CareerAssessmentPage() {
     if (!session) return;
     const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+  }, [session, step]);
+
+  useEffect(() => {
+    if (session && [0, 9, 21].includes(step))
+      track(AnalyticsEvent.AssessmentStage, {
+        stage: step < 9 ? "reasoning" : step < 21 ? "personality" : "interests",
+      });
   }, [session, step]);
 
   // Persist after every answer / step change while an attempt is in progress.
@@ -233,7 +303,7 @@ function CareerAssessmentPage() {
 
   const finish = useCallback(async () => {
     if (!user) {
-      navigate({ to: "/auth", search: { mode: "login", next: "/career-assessment" } });
+      navigate({ to: "/auth", search: { mode: "signup", next: "/career-assessment" } });
       return;
     }
     if (!session) return;
@@ -241,6 +311,7 @@ function CareerAssessmentPage() {
     try {
       const result = await submit({
         data: {
+          sessionToken: session.sessionToken,
           personalityQIds: session.personality.map((q) => q.id),
           personalityAnswers: answers.personality.map((v) => v ?? 3),
           iqQIds: session.iq.map((q) => q.id),
@@ -256,6 +327,7 @@ function CareerAssessmentPage() {
         /* non-fatal */
       }
       track(AnalyticsEvent.AssessmentCompleted);
+      track(AnalyticsEvent.ResultSaved);
       // The system placed them in a community during submit — say so, so
       // nobody thinks another test is needed to join one.
       if (result.joined_community) {
@@ -322,6 +394,21 @@ function CareerAssessmentPage() {
       </PageShell>
     );
 
+  const accountNotice = !user && (
+    <p className="assessment-account-note" role="note">
+      {isSupabaseConfigured
+        ? w(
+            "A free account is required to view and save results. Your answers stay in this browser during sign-up.",
+            "Natijani ko‘rish va saqlash uchun bepul hisob kerak. Ro‘yxatdan o‘tishda javoblar shu brauzerda qoladi.",
+            "Для просмотра и сохранения результатов нужен бесплатный аккаунт. Ответы остаются здесь при регистрации.",
+          )
+        : w(
+            "This local site can run the questions, but account saving and full results are unavailable until the account service is connected. Practice answers remain in this browser.",
+            "Mahalliy sayt savollarni ko‘rsatadi, lekin hisob xizmati ulanmaguncha to‘liq natija va hisobga saqlash ishlamaydi. Mashq javoblari shu brauzerda qoladi.",
+            "Локальный сайт показывает вопросы, но полные результаты и сохранение недоступны до подключения аккаунтов. Ответы остаются в браузере.",
+          )}
+    </p>
+  );
   // ── Intro screen ──
   if (!session) {
     return (
@@ -329,20 +416,50 @@ function CareerAssessmentPage() {
         <section className="relative px-6 pt-16 pb-24">
           <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
           <div className="relative mx-auto max-w-3xl">
-            <div className="glass rounded-3xl p-10 text-center animate-fade-up">
-              <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-[0_12px_40px_-12px_var(--glow)]">
+            <div className="panel rounded-3xl p-10 text-center animate-fade-up">
+              <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-primary">
                 <Brain className="h-10 w-10 text-primary-foreground" />
                 <span
                   className="absolute -inset-1 -z-10 rounded-2xl opacity-50 blur-md"
                   style={{
-                    background:
-                      "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)",
+                    background: "var(--yellow)",
                   }}
                 />
               </div>
               <h1 className="mt-6 text-4xl font-bold gradient-text">{t.careerAssessment.title}</h1>
               <p className="mt-3 text-muted-foreground">{t.careerAssessment.subtitle}</p>
+              {accountNotice}
 
+              <div className="assessment-instructions mt-6 text-left text-sm">
+                <p>
+                  {w(
+                    "Set aside about 15 minutes as a planning estimate, not a measured completion time. Take longer if you need.",
+                    "Reja uchun taxminan 15 daqiqa ajrating; bu o‘lchangan tugatish vaqti emas. Kerak bo‘lsa ko‘proq vaqt oling.",
+                    "Для планирования выделите примерно 15 минут; это не измеренное время прохождения. При необходимости потратьте больше.",
+                  )}
+                </p>
+                <p>
+                  {w(
+                    "Answer reasoning questions, then work-style statements, then visual preferences. There are no right or wrong answers in the preference sections.",
+                    "Mantiq savollari, ish uslubi fikrlari va vizual afzalliklarga javob bering. Afzallik bo‘limlarida to‘g‘ri yoki noto‘g‘ri javob yo‘q.",
+                    "Ответьте на задачи, утверждения о стиле работы и визуальные предпочтения. В разделах предпочтений нет правильных или неправильных ответов.",
+                  )}
+                </p>
+                <p>
+                  {w(
+                    "There is no timer. You can pause and return in this browser. Results require a free account; your answers are kept here while you sign up or sign in. Cloud saving happens after submission, not while answering.",
+                    "Taymer yo‘q. Shu brauzerda tanaffus qilib qaytishingiz mumkin. Natija uchun bepul hisob kerak; ro‘yxatdan o‘tish yoki kirish paytida javoblar shu yerda qoladi. Bulutga saqlash yuborilgandan keyin bo‘ladi.",
+                    "Таймера нет. Можно сделать паузу и вернуться в этом браузере. Для результатов нужен бесплатный аккаунт; ответы остаются здесь во время регистрации или входа. В аккаунт они сохраняются после отправки.",
+                  )}
+                </p>
+                <p>
+                  {w(
+                    "You receive career ideas, suggested study subjects and activities to explore. University links are research starting points, not admission or scholarship eligibility decisions.",
+                    "Kasb g‘oyalari, o‘qish yo‘nalishlari va sinash faoliyatlari olasiz. Universitet havolalari izlanish boshlanishi, qabul yoki stipendiya qarori emas.",
+                    "Вы получите идеи профессий, учебных направлений и занятий. Ссылки вузов — начало исследования, не решение о приёме или стипендии.",
+                  )}
+                </p>
+              </div>
               <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
                 <Shuffle className="h-3 w-3" /> {t.careerAssessment.questionsRefresh}
               </div>
@@ -374,7 +491,7 @@ function CareerAssessmentPage() {
               <button
                 onClick={startSession}
                 disabled={starting}
-                className="cta-sheen relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 text-sm font-medium text-primary-foreground shadow-[0_8px_28px_-8px_var(--glow)] hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:hover:translate-y-0"
+                className="cta-sheen relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:hover:translate-y-0"
               >
                 {starting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 {t.careerAssessment.startBtn} {!starting && <ArrowRight className="h-4 w-4" />}
@@ -406,6 +523,20 @@ function CareerAssessmentPage() {
     <PageShell>
       <section className="px-6 pt-12 pb-24">
         <div className="mx-auto max-w-3xl">
+          {accountNotice}
+          <p className="text-xs text-muted-foreground mb-4">
+            {step >= IQ_COUNT
+              ? w(
+                  "Preference questions: choose what feels closest to you. There is no correct answer.",
+                  "Afzallik savollari: sizga eng yaqinini tanlang. To‘g‘ri javob yo‘q.",
+                  "Вопросы предпочтений: выбирайте близкий вам вариант. Правильного ответа нет.",
+                )
+              : w(
+                  "Reasoning practice: choose the answer you think is correct. Nine questions cannot measure your full ability.",
+                  "Mantiq: to‘g‘ri deb bilgan javobni tanlang. To‘qqiz savol to‘liq qobiliyatingizni o‘lchamaydi.",
+                  "Задачи: выберите верный, по вашему мнению, ответ. Девять вопросов не измеряют все способности.",
+                )}
+          </p>
           {/* Phase stepper */}
           <div className="mb-4 flex items-center gap-1.5">
             {phases.map((ph, i) => {
@@ -418,7 +549,7 @@ function CareerAssessmentPage() {
                     className={`flex items-center gap-2 rounded-full border px-2.5 py-1.5 transition-all ${active ? "border-primary/50 bg-primary/10 text-primary" : done ? "border-primary/25 text-primary/70" : "border-border text-muted-foreground"}`}
                   >
                     <span
-                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full transition-all ${active || done ? "bg-gradient-to-br from-primary to-accent text-primary-foreground" : "bg-secondary/60"}`}
+                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full transition-all ${active || done ? "bg-primary text-primary-foreground" : "bg-secondary/60"}`}
                     >
                       {done ? <Check className="h-3 w-3" /> : <Icon className="h-3 w-3" />}
                     </span>
@@ -440,14 +571,14 @@ function CareerAssessmentPage() {
               {step + 1} / {TOTAL}
             </span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-secondary/60">
+          <div className="assessment-progress w-full">
             <div
-              className="h-full bg-gradient-to-r from-primary to-accent transition-[width] duration-500 ease-out"
-              style={{ width: `${progress}%`, boxShadow: "0 0 8px oklch(0.65 0.22 295 / 0.5)" }}
+              className="h-full bg-primary transition-[width] duration-500 ease-out"
+              style={{ width: `${progress}%` }}
             />
           </div>
 
-          <div className="glass mt-6 rounded-3xl p-6 sm:p-8">
+          <div className="panel mt-6 rounded-3xl p-6 sm:p-8">
             {current && (
               <div key={step} className="animate-fade-up">
                 <h2 className="text-xl font-semibold leading-relaxed whitespace-pre-line">
@@ -456,7 +587,7 @@ function CareerAssessmentPage() {
 
                 <div className="mt-6">
                   {current.kind === "p" && (
-                    <div role="radiogroup" aria-label={sectionLabel} className="space-y-2">
+                    <div role="radiogroup" aria-label={sectionLabel} className="assessment-scale">
                       {LIKERT.map((label, i) => {
                         const v = i + 1;
                         const selected = value === v;
@@ -469,27 +600,8 @@ function CareerAssessmentPage() {
                               onChange={() => setValue(v)}
                               className="sr-only peer"
                             />
-                            <div
-                              className={`w-full rounded-xl border px-4 py-3 text-left transition-all duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-primary/70 ${selected ? "border-primary/50 bg-gradient-to-r from-primary/12 to-accent/8 shadow-[0_2px_12px_-4px_var(--glow)]" : "border-border hover:bg-secondary/40 hover:border-primary/20"}`}
-                            >
-                              <div className="flex items-center justify-between">
-                                <span className="flex items-center gap-3 text-sm">
-                                  <span
-                                    className={`hidden h-5 w-5 shrink-0 items-center justify-center rounded-md border text-[10px] font-bold sm:flex ${selected ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"}`}
-                                  >
-                                    {v}
-                                  </span>
-                                  {label}
-                                </span>
-                                <span
-                                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-all ${selected ? "border-primary bg-gradient-to-br from-primary to-accent" : "border-border"}`}
-                                >
-                                  {selected && (
-                                    <span className="h-1.5 w-1.5 rounded-full bg-white" />
-                                  )}
-                                </span>
-                              </div>
-                            </div>
+                            <span className="scale-choice">{v}</span>
+                            <span className="scale-label">{label}</span>
                           </label>
                         );
                       })}
@@ -497,34 +609,12 @@ function CareerAssessmentPage() {
                   )}
 
                   {current.kind === "c" && (
-                    <div role="radiogroup" aria-label={sectionLabel} className="space-y-2">
-                      {current.q.options[l].map((opt, i) => {
-                        const selected = value === i;
-                        return (
-                          <label key={i} className="block cursor-pointer">
-                            <input
-                              type="radio"
-                              name={`c-${current.q.id}`}
-                              checked={selected}
-                              onChange={() => setValue(i)}
-                              className="sr-only peer"
-                            />
-                            <div
-                              className={`w-full rounded-xl border px-4 py-3 text-left transition-all duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-primary/70 ${selected ? "border-primary/50 bg-gradient-to-r from-primary/12 to-accent/8 shadow-[0_2px_12px_-4px_var(--glow)]" : "border-border hover:bg-secondary/40 hover:border-primary/20"}`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <span
-                                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold transition-all ${selected ? "bg-gradient-to-br from-primary to-accent border-primary text-primary-foreground shadow-[0_2px_6px_-2px_var(--glow)]" : "border-border text-muted-foreground"}`}
-                                >
-                                  {String.fromCharCode(65 + i)}
-                                </span>
-                                <span className="text-sm">{opt}</span>
-                              </div>
-                            </div>
-                          </label>
-                        );
-                      })}
-                    </div>
+                    <ChoiceOptions
+                      options={current.q.options[l]}
+                      value={typeof value === "number" ? value : null}
+                      onChange={setValue}
+                      name={sectionLabel}
+                    />
                   )}
 
                   {current.kind === "i" && (
@@ -545,11 +635,12 @@ function CareerAssessmentPage() {
                               onChange={() => selectInterest(opt.id)}
                               className="sr-only peer"
                             />
-                            <div
-                              className={`flex h-full flex-col items-center gap-2.5 rounded-2xl border px-3 py-4 text-center transition-all duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-primary/70 ${selected ? "border-primary/60 bg-gradient-to-br from-primary/12 to-accent/8 text-primary shadow-[0_4px_16px_-6px_var(--glow)] -translate-y-0.5" : "border-border text-foreground/70 hover:-translate-y-0.5 hover:bg-secondary/40 hover:border-primary/25"}`}
-                            >
-                              <span className="flex h-14 w-14 items-center justify-center">
+                            <div className="visual-choice flex h-full flex-col items-center gap-2.5 px-3 py-4 text-center peer-focus-visible:ring-2 peer-focus-visible:ring-primary/70">
+                              <span className="interest-art-frame flex h-14 w-14 items-center justify-center">
                                 <InterestArt visual={opt.visual} />
+                              </span>
+                              <span className="visual-choice-check" aria-hidden="true">
+                                <Check size={16} />
                               </span>
                               <span className="text-xs font-medium text-foreground">
                                 {current.q.labels[l][optIdx]}
@@ -576,7 +667,7 @@ function CareerAssessmentPage() {
                 <button
                   onClick={goNext}
                   disabled={!canNext}
-                  className="cta-sheen relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
+                  className="cta-sheen relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-primary px-6 py-2 text-sm text-primary-foreground transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
                 >
                   {t.careerAssessment.next} <ArrowRight className="h-4 w-4" />
                 </button>
@@ -593,14 +684,20 @@ function CareerAssessmentPage() {
                       finish();
                     }}
                     disabled={!canNext || submitting}
-                    className="cta-sheen relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
+                    className="cta-sheen relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-primary px-6 py-2 text-sm text-primary-foreground transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
                   >
                     {submitting ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <Sparkles className="h-4 w-4" />
                     )}
-                    {t.careerAssessment.seeResults}
+                    {user
+                      ? t.careerAssessment.seeResults
+                      : w(
+                          "Create account to view results",
+                          "Natija uchun hisob yarating",
+                          "Создать аккаунт для результатов",
+                        )}
                   </button>
                 </div>
               )}
@@ -626,7 +723,7 @@ function InterestArt({ visual }: { visual: InterestVisual }) {
     return (
       <span
         aria-hidden
-        className="h-12 w-12 rounded-xl border border-foreground/10 shadow-[inset_0_1px_4px_rgba(0,0,0,0.15)]"
+        className="h-12 w-12 rounded-xl border border-foreground/10"
         style={{ background: `linear-gradient(135deg, ${a}, ${b})` }}
       />
     );
@@ -637,7 +734,7 @@ function InterestArt({ visual }: { visual: InterestVisual }) {
       viewBox="0 0 64 64"
       fill="none"
       stroke="currentColor"
-      strokeWidth={2.5}
+      strokeWidth={3}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden
@@ -657,13 +754,13 @@ function Section({
   caption: string;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]">
+    <div className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-primary/30">
       <GlowBlob
         className="-right-8 -top-8 h-20 w-20 opacity-20 blur-2xl transition-opacity group-hover:opacity-40"
         alpha={0.8}
       />
       <div className="relative flex items-center gap-2.5">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           {icon}
         </span>
         <span className="text-xs font-semibold">{title}</span>

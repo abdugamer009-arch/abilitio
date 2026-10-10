@@ -7,6 +7,8 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 const isVercel = process.env.VERCEL === "1";
+// The wrapper forwards Nitro options; its public type exposes only a subset.
+const nitroOptions = { compressPublicAssets: true, ...(isVercel ? { preset: "vercel" } : {}) };
 
 export default defineConfig({
   tanstackStart: {
@@ -14,7 +16,7 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
-  ...(isVercel ? { nitro: { preset: "vercel" } } : {}),
+  nitro: nitroOptions,
   vite: {
     server: {
       host: "0.0.0.0",

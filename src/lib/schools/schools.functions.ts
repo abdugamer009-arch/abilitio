@@ -355,7 +355,9 @@ export const getPrincipalDashboard = createServerFn({ method: "GET" })
       );
     }
     if (!insights.length)
-      insights.push("Invite students with your school code to unlock talent insights.");
+      insights.push(
+        "Invite students with your school code to see their completed assessment summaries.",
+      );
 
     return {
       school,

@@ -79,11 +79,14 @@ function ClassBuilderPage() {
             </p>
           </header>
 
-          <div className="glass rounded-3xl p-6">
+          <div className="panel rounded-3xl p-6">
             <div className="grid gap-4 md:grid-cols-3">
               <div>
-                <label className="text-xs text-muted-foreground">Focus area</label>
+                <label htmlFor="class-focus" className="text-xs text-muted-foreground">
+                  Focus area
+                </label>
                 <select
+                  id="class-focus"
                   value={focus}
                   onChange={(e) => setFocus(e.target.value)}
                   className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
@@ -94,8 +97,11 @@ function ClassBuilderPage() {
                 </select>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground">Class size</label>
+                <label htmlFor="class-size" className="text-xs text-muted-foreground">
+                  Class size
+                </label>
                 <input
+                  id="class-size"
                   type="number"
                   min={1}
                   max={60}
@@ -131,7 +137,7 @@ function ClassBuilderPage() {
           </div>
 
           {result && (
-            <div className="glass mt-6 rounded-3xl p-6">
+            <div className="panel mt-6 rounded-3xl p-6">
               <h3 className="text-sm font-semibold">Recommended students — {result.focus} Class</h3>
               <p className="text-xs text-muted-foreground">
                 Ranked by composite Personality + Cognitive + Interest fit.

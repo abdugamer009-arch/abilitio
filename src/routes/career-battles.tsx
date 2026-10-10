@@ -1,215 +1,141 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import {
-  Sparkles,
-  Swords,
-  DollarSign,
-  GraduationCap,
-  TrendingUp,
-  User as UserIcon,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
-import { Reveal } from "@/components/Reveal";
-import { FloatingShapes } from "@/components/FloatingShapes";
-import { CAREER_SPECS, CAREER_BATTLES, type CareerSpec } from "@/lib/abbi/abbi-extras";
-import { useT } from "@/lib/i18n";
-
+import { useWords } from "@/lib/editorial";
+import { pageMeta } from "@/lib/seo";
 export const Route = createFileRoute("/career-battles")({
-  head: () => ({
-    meta: [
-      { title: "Career Battles — Abilitio" },
-      {
-        name: "description",
-        content:
-          "Compare careers head-to-head and discover which paths fit your strengths in a fun, interactive challenge.",
-      },
-    ],
-  }),
-  component: CareerBattlesPage,
+  head: () =>
+    pageMeta(
+      "/career-battles",
+      "Compare the work",
+      "Compare career activities and small experiments without unsourced salary or demand rankings.",
+    ),
+  component: Compare,
 });
-
-function CareerBattlesPage() {
-  const t = useT();
-  const careerKeys = Object.keys(CAREER_SPECS);
-  const [a, setA] = useState(CAREER_BATTLES[0].a);
-  const [b, setB] = useState(CAREER_BATTLES[0].b);
-  const A = CAREER_SPECS[a];
-  const B = CAREER_SPECS[b];
-
+function Compare() {
+  const w = useWords();
+  const choices = [
+    {
+      name: w("Software engineering", "Dasturiy injiniring", "Разработка ПО"),
+      work: w(
+        "Build and maintain software; debug, review and test changes.",
+        "Dastur yaratish va yuritish; xatolarni topish, tekshirish va sinash.",
+        "Создание и поддержка ПО; отладка, ревью и тесты.",
+      ),
+      experiment: w(
+        "Make a small tool for a real problem and ask one person to use it.",
+        "Haqiqiy muammo uchun kichik vosita yarating va bir kishiga sinating.",
+        "Создайте инструмент для реальной задачи и дайте одному человеку попробовать.",
+      ),
+    },
+    {
+      name: w("Research", "Tadqiqot", "Исследование"),
+      work: w(
+        "Form a question, gather evidence, examine uncertainty and explain a finding.",
+        "Savol tuzish, dalil yig‘ish, noaniqlikni tekshirish va xulosani tushuntirish.",
+        "Вопрос, сбор доказательств, проверка неопределённости и объяснение вывода.",
+      ),
+      experiment: w(
+        "Investigate a public dataset and write one page about what it does not establish.",
+        "Ochiq ma’lumotni tahlil qiling va u nimani isbotlamasligi haqida bir sahifa yozing.",
+        "Исследуйте открытые данные и напишите страницу об их ограничениях.",
+      ),
+    },
+    {
+      name: w("Design", "Dizayn", "Дизайн"),
+      work: w(
+        "Understand a user's problem, explore alternatives and test a proposed solution.",
+        "Foydalanuvchi muammosini tushunish, variantlar yaratish va yechim sinash.",
+        "Понять задачу пользователя, исследовать варианты и проверить решение.",
+      ),
+      experiment: w(
+        "Observe someone using an everyday object, redesign one detail and test it.",
+        "Kundalik buyumdan foydalanishni kuzating, bir detalni o‘zgartiring va sinang.",
+        "Наблюдайте за использованием предмета, измените деталь и проверьте.",
+      ),
+    },
+    {
+      name: w("Education", "Ta’lim", "Образование"),
+      work: w(
+        "Explain difficult ideas, plan practice and respond to learners' needs.",
+        "Murakkab g‘oyalarni tushuntirish, mashq rejalash va o‘quvchi ehtiyojiga javob berish.",
+        "Объяснять сложные идеи, планировать практику и учитывать потребности учеников.",
+      ),
+      experiment: w(
+        "Teach a ten-minute lesson, ask for feedback and revise the explanation.",
+        "O‘n daqiqalik dars o‘ting, fikr so‘rang va tushuntirishni yangilang.",
+        "Проведите десятиминутный урок, соберите отзывы и улучшите объяснение.",
+      ),
+    },
+  ];
+  const [a, setA] = useState(0);
+  const [b, setB] = useState(1);
   return (
     <PageShell>
-      <section className="relative px-4 pt-16 pb-24 sm:px-6">
-        <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
-        <FloatingShapes />
-        <div className="relative mx-auto max-w-5xl">
-          <header className="mb-8 text-center animate-fade-up">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
-              <Sparkles className="h-3 w-3" /> {t.battles.badge}
-            </span>
-            <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-              {t.battles.title}
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">{t.battles.subtitle}</p>
-          </header>
-
-          {/* Quick presets */}
-          <div className="mb-6 flex flex-wrap justify-center gap-2">
-            {CAREER_BATTLES.map((bt) => {
-              const active = bt.a === a && bt.b === b;
-              return (
-                <button
-                  key={bt.a + bt.b}
-                  onClick={() => {
-                    setA(bt.a);
-                    setB(bt.b);
-                  }}
-                  className={`rounded-full border px-3 py-1 text-xs transition-all duration-200 hover:-translate-y-0.5 ${active ? "border-primary/40 bg-gradient-to-r from-primary/15 to-accent/10 text-primary shadow-[0_0_10px_-3px_var(--glow)]" : "border-border/60 bg-secondary/40 hover:border-primary/40 hover:bg-primary/10 hover:text-primary"}`}
-                >
-                  {bt.a} vs {bt.b}
-                </button>
-              );
-            })}
+      <div className="field-wrap">
+        <header className="field-intro">
+          <p className="micro section-number">
+            {w("CAREER COMPARISON", "KASB SOLISHTIRISH", "СРАВНЕНИЕ ПРОФЕССИЙ")}
+          </p>
+          <div>
+            <h1>{w("Compare the work.", "Ishni solishtiring.", "Сравните работу.")}</h1>
+            <p>
+              {w(
+                "Titles hide the daily activities. Choose two directions and a small experiment in each. These summaries are illustrative, not labor-market forecasts.",
+                "Lavozim nomi kundalik ishni yashiradi. Ikki yo‘nalish va har birida kichik tajriba tanlang. Bu izohlar namuna, bozor bashorati emas.",
+                "Названия скрывают ежедневные занятия. Выберите два направления и опыт для каждого. Это примеры, не прогноз рынка.",
+              )}
+            </p>
           </div>
-
-          {/* Pickers */}
-          <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
-            <Picker value={a} onChange={setA} options={careerKeys} />
-            <div className="flex items-center justify-center text-sm font-bold gradient-text">
-              <Swords className="mr-2 h-4 w-4" /> VS
-            </div>
-            <Picker value={b} onChange={setB} options={careerKeys} />
-          </div>
-
-          {/* Battle */}
-          <Reveal className="grid gap-5 md:grid-cols-2">
-            <CareerCard c={A} accent="left" winner={A.demand >= B.demand} />
-            <CareerCard c={B} accent="right" winner={B.demand > A.demand} />
-          </Reveal>
-        </div>
-      </section>
-    </PageShell>
-  );
-}
-
-function Picker({
-  value,
-  onChange,
-  options,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  options: string[];
-}) {
-  return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-2xl border border-border/60 bg-secondary/40 px-4 py-3 text-sm font-medium outline-none focus:border-primary/50"
-    >
-      {options.map((o) => (
-        <option key={o} value={o}>
-          {o}
-        </option>
-      ))}
-    </select>
-  );
-}
-
-function CareerCard({ c, winner }: { c: CareerSpec; accent: "left" | "right"; winner: boolean }) {
-  const t = useT();
-  return (
-    <div
-      className={`relative overflow-hidden rounded-3xl border p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 ${
-        winner
-          ? "border-primary/40 bg-gradient-to-br from-primary/15 to-accent/10"
-          : "border-border/60 bg-gradient-to-br from-secondary/40 to-background/40"
-      }`}
-      style={{
-        boxShadow: winner
-          ? "0 16px 40px -16px oklch(0.55 0.22 295 / 0.55)"
-          : "0 10px 30px -15px oklch(0.55 0.22 295 / 0.3)",
-      }}
-    >
-      <div
-        className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-30 blur-3xl"
-        style={{
-          background: `radial-gradient(circle, oklch(${winner ? "0.65 0.24 295" : "0.60 0.18 285"} / 0.6), transparent 70%)`,
-        }}
-      />
-      {winner && (
-        <div className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow">
-          <TrendingUp className="h-3 w-3" /> {t.battles.higherDemand}
-        </div>
-      )}
-      <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/10 ring-1 ring-primary/30 text-2xl shadow-[0_4px_16px_-6px_var(--glow)]">
-          {c.emoji}
-        </div>
-        <h3 className="text-xl font-bold">{c.name}</h3>
-      </div>
-
-      <div className="mt-5 space-y-3">
-        <Row icon={DollarSign} label={t.battles.salary} value={c.salary} />
-        <Row icon={GraduationCap} label={t.battles.education} value={c.education} />
-        <Row icon={UserIcon} label={t.battles.personalityFit} value={c.personality} />
-        <Row
-          icon={TrendingUp}
-          label={t.battles.futureDemand}
-          value={`${c.demand}/100`}
-          bar={c.demand}
-        />
-      </div>
-
-      <div className="mt-5">
-        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-          {t.battles.coreSkills}
-        </div>
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {c.skills.map((s) => (
-            <span
-              key={s}
-              className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[11px] text-primary"
-            >
-              {s}
-            </span>
+        </header>
+        <div className="form-row mb-8">
+          {[
+            [a, setA, w("First direction", "Birinchi yo‘nalish", "Первое направление")],
+            [b, setB, w("Compare with", "Solishtirish", "Сравнить с")],
+          ].map(([value, set, label], i) => (
+            <label className="text-sm" key={i} htmlFor={`career-${i}`}>
+              {label as string}
+              <select
+                id={`career-${i}`}
+                className="mt-2 w-full p-3"
+                value={value as number}
+                onChange={(e) => (set as (n: number) => void)(Number(e.target.value))}
+              >
+                {choices.map((c, j) => (
+                  <option key={j} value={j}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </label>
           ))}
         </div>
+        <section className="form-row field-section field-rule">
+          {[a, b].map((index, i) => (
+            <article key={i} className="sample-question">
+              <p className="micro section-number">
+                0{i + 1} / {w("DIRECTION", "YO‘NALISH", "НАПРАВЛЕНИЕ")}
+              </p>
+              <h2 className="text-4xl mt-6">{choices[index].name}</h2>
+              <p className="text-muted-foreground mt-6">{choices[index].work}</p>
+              <p className="micro text-accent mt-8">{w("TRY THIS", "BUNI SINANG", "ПОПРОБУЙТЕ")}</p>
+              <p className="mt-4">{choices[index].experiment}</p>
+            </article>
+          ))}
+        </section>
+        <p className="text-muted-foreground text-sm">
+          {w(
+            "Pay, qualifications and demand depend on the country, role and year. Research those with a local professional and official labor sources before deciding.",
+            "Daromad, malaka va talab davlat, rol va yilga bog‘liq. Qarordan oldin mahalliy mutaxassis va rasmiy manbalarda tekshiring.",
+            "Оплата, квалификация и спрос зависят от страны, роли и года. Уточните их у местного специалиста и официальных источников.",
+          )}
+        </p>
+        <Link className="field-button my-12" to="/career-assessment">
+          {w("Explore your profile", "Profilingizni o‘rganing", "Исследуйте свой профиль")}
+          <ArrowUpRight size={16} />
+        </Link>
       </div>
-    </div>
-  );
-}
-
-function Row({
-  icon: Icon,
-  label,
-  value,
-  bar,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string;
-  bar?: number;
-}) {
-  return (
-    <div className="rounded-xl border border-border/60 bg-secondary/30 p-3">
-      <div className="flex items-center justify-between text-xs">
-        <span className="flex items-center gap-1.5 text-muted-foreground">
-          <span className="flex h-4 w-4 items-center justify-center rounded bg-gradient-to-br from-primary to-accent text-primary-foreground">
-            <Icon className="h-2.5 w-2.5" />
-          </span>
-          {label}
-        </span>
-        <span className="font-semibold">{value}</span>
-      </div>
-      {typeof bar === "number" && (
-        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary/60">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
-            style={{ width: `${bar}%` }}
-          />
-        </div>
-      )}
-    </div>
+    </PageShell>
   );
 }

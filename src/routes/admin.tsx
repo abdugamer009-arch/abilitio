@@ -37,14 +37,14 @@ export const Route = createFileRoute("/admin")({
 });
 
 const PURPLE = [
-  "oklch(0.65 0.24 295)",
-  "oklch(0.75 0.18 320)",
-  "oklch(0.55 0.22 280)",
-  "oklch(0.70 0.20 310)",
-  "oklch(0.62 0.20 270)",
-  "oklch(0.78 0.14 300)",
-  "oklch(0.50 0.20 290)",
-  "oklch(0.68 0.22 330)",
+  "var(--mint)",
+  "var(--butter)",
+  "var(--pink)",
+  "var(--sky)",
+  "var(--yellow)",
+  "var(--mint-solid)",
+  "var(--butter-solid)",
+  "var(--pink-solid)",
 ];
 
 function AdminDashboardPage() {
@@ -136,7 +136,7 @@ function AdminDashboardPage() {
     return (
       <PageShell>
         <section className="px-6 pt-24 pb-24">
-          <div className="mx-auto max-w-md glass rounded-3xl p-10 text-center">
+          <div className="mx-auto max-w-md panel rounded-3xl p-10 text-center">
             <Shield className="mx-auto h-10 w-10 text-primary" />
             <h1 className="mt-4 text-2xl font-semibold">
               {forbidden ? "Admin only" : "Admin dashboard error"}
@@ -183,14 +183,14 @@ function AdminDashboardPage() {
         <div
           className="absolute left-1/2 top-[-200px] h-[700px] w-[1100px] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
           style={{
-            background: "radial-gradient(ellipse, oklch(0.55 0.22 295 / 0.35), transparent 60%)",
+            background: "var(--yellow)",
           }}
         />
       </div>
       <section className="px-4 pt-10 pb-24 sm:px-6">
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-wrap items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg">
               <Crown className="h-6 w-6" />
             </div>
             <div>
@@ -266,16 +266,16 @@ function AdminDashboardPage() {
                       <Tooltip
                         contentStyle={{
                           background: "var(--background)",
-                          border: "1px solid var(--border)",
+                          border: "3px solid var(--border)",
                           borderRadius: 12,
                         }}
                       />
                       <Line
                         type="monotone"
                         dataKey="count"
-                        stroke="oklch(0.65 0.24 295)"
+                        stroke="var(--mint-solid)"
                         strokeWidth={3}
-                        dot={{ fill: "oklch(0.65 0.24 295)" }}
+                        dot={{ fill: "var(--mint-solid)" }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -303,11 +303,11 @@ function AdminDashboardPage() {
                       <Tooltip
                         contentStyle={{
                           background: "var(--background)",
-                          border: "1px solid var(--border)",
+                          border: "3px solid var(--border)",
                           borderRadius: 12,
                         }}
                       />
-                      <Bar dataKey="count" fill="oklch(0.65 0.24 295)" radius={[0, 8, 8, 0]} />
+                      <Bar dataKey="count" fill="var(--mint)" radius={[0, 8, 8, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </GlassChart>
@@ -330,7 +330,7 @@ function AdminDashboardPage() {
                       <Tooltip
                         contentStyle={{
                           background: "var(--background)",
-                          border: "1px solid var(--border)",
+                          border: "3px solid var(--border)",
                           borderRadius: 12,
                         }}
                       />
@@ -350,7 +350,7 @@ function AdminDashboardPage() {
                     className="rounded-full border border-border/60 bg-secondary/30 px-4 py-2 text-sm outline-none focus:border-primary/40"
                   />
                 </div>
-                <div className="mt-4 overflow-x-auto rounded-3xl border border-border/60 bg-secondary/20 backdrop-blur-xl">
+                <div className="mt-4 overflow-x-auto rounded-3xl border border-border/60 bg-secondary/20 ">
                   <table className="w-full min-w-[800px] text-sm">
                     <thead className="border-b border-border/40 text-xs uppercase tracking-wider text-muted-foreground">
                       <tr>
@@ -439,13 +439,13 @@ function StatCard({
   const display = valueText ?? (typeof value === "number" ? value.toLocaleString() : "—");
   return (
     <div
-      className="relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-5 backdrop-blur-xl"
-      style={{ boxShadow: "0 10px 30px -15px oklch(0.55 0.22 295 / 0.4)" }}
+      className="relative overflow-hidden rounded-2xl border border-border/60 bg-card p-5 "
+      style={{ boxShadow: "4px 4px 0 var(--ink)" }}
     >
       <div
         className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-40 blur-2xl"
         style={{
-          background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.5), transparent 70%)",
+          background: "var(--yellow)",
         }}
       />
       <div className="relative">
@@ -468,8 +468,8 @@ function StatCard({
 function GlassChart({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div
-      className="rounded-3xl border border-border/60 bg-secondary/20 p-6 backdrop-blur-xl"
-      style={{ boxShadow: "0 10px 30px -15px oklch(0.55 0.22 295 / 0.3)" }}
+      className="rounded-3xl border border-border/60 bg-secondary/20 p-6 "
+      style={{ boxShadow: "4px 4px 0 var(--ink)" }}
     >
       <h3 className="text-sm font-semibold">{title}</h3>
       <div className="mt-4">{children}</div>

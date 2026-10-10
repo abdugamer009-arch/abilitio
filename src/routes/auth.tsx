@@ -3,13 +3,14 @@ import { PageShell } from "@/components/PageShell";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { Loader2, Sparkles, Eye, EyeOff, MailCheck } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { useT } from "@/lib/i18n";
+import { useWords } from "@/lib/editorial";
 import { track, AnalyticsEvent } from "@/lib/analytics";
 
 const searchSchema = z.object({
-  mode: z.enum(["login", "signup"]).optional().default("login"),
+  mode: z.enum(["login", "signup", "recovery"]).optional().default("login"),
   // Post-login destination. Restricted to same-site paths: "/x" but not "//x"
   // (protocol-relative) — anything else could bounce a fresh login to an
   // attacker-chosen site via a crafted link.
@@ -50,10 +51,13 @@ function localizeAuthError(message: string, a: AuthStrings): string {
 
 function AuthPage() {
   const t = useT();
+  const w = useWords();
   const { mode, next } = Route.useSearch();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [tab, setTab] = useState<"login" | "signup">(mode);
+  const [tab, setTab] = useState<"login" | "signup">(mode === "signup" ? "signup" : "login");
+  const [recovering, setRecovering] = useState(mode === "recovery");
+  const [confirmation, setConfirmation] = useState("");
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
   const [email, setEmail] = useState("");
@@ -65,8 +69,8 @@ function AuthPage() {
   const [confirmEmailSent, setConfirmEmailSent] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user) navigate({ to: next ?? "/dashboard" });
-  }, [user, next, navigate]);
+    if (user && !recovering) navigate({ to: next ?? "/dashboard" });
+  }, [user, next, navigate, recovering]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -79,6 +83,14 @@ function AuthPage() {
 
     setLoading(true);
     try {
+      if (!isSupabaseConfigured)
+        throw new Error(
+          w(
+            "Account service is not configured. Please contact the team.",
+            "Hisob xizmati sozlanmagan. Jamoaga yozing.",
+            "Сервис аккаунтов не настроен. Напишите команде.",
+          ),
+        );
       if (tab === "signup") {
         if (name.trim().length < 1 || surname.trim().length < 1) {
           setLoading(false);
@@ -107,6 +119,7 @@ function AuthPage() {
         });
         if (error) throw error;
       }
+      track(AnalyticsEvent.AuthReturned);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : t.auth.errGeneric;
       setErr(localizeAuthError(msg, t.auth));
@@ -115,25 +128,114 @@ function AuthPage() {
     }
   }
 
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") setRecovering(true);
+    });
+    return () => data.subscription.unsubscribe();
+  }, []);
   async function forgot() {
     setErr(null);
     setInfo(null);
     const ep = emailSchema.safeParse(email.trim());
     if (!ep.success) return setErr(t.auth.errEmailFirst);
-    await supabase.auth.resetPasswordForEmail(ep.data, {
-      redirectTo: window.location.origin + "/auth",
-    });
-    // Success, not an error — render it as a calm confirmation.
-    setInfo(t.auth.checkEmail);
+    setLoading(true);
+    try {
+      if (!isSupabaseConfigured)
+        throw new Error(
+          w(
+            "Account service is not configured. Please contact the team.",
+            "Hisob xizmati sozlanmagan. Jamoaga yozing.",
+            "Сервис аккаунтов не настроен. Напишите команде.",
+          ),
+        );
+      const { error } = await supabase.auth.resetPasswordForEmail(ep.data, {
+        redirectTo: window.location.origin + "/auth?mode=recovery",
+      });
+      if (error) throw error;
+      setInfo(t.auth.checkEmail);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : t.auth.errGeneric);
+    } finally {
+      setLoading(false);
+    }
+  }
+  async function updatePassword(e: React.FormEvent) {
+    e.preventDefault();
+    setErr(null);
+    const p = passSchema.safeParse(password);
+    if (!p.success) return setErr(t.auth.errWeakPassword);
+    if (password !== confirmation)
+      return setErr(w("Passwords do not match.", "Parollar mos emas.", "Пароли не совпадают."));
+    setLoading(true);
+    try {
+      if (!user)
+        throw new Error(
+          w(
+            "Open a valid recovery link from your email.",
+            "Pochtadagi haqiqiy tiklash havolasini oching.",
+            "Откройте действующую ссылку из письма.",
+          ),
+        );
+      const { error } = await supabase.auth.updateUser({ password: p.data });
+      if (error) throw error;
+      setRecovering(false);
+      setPassword("");
+      setConfirmation("");
+      setInfo(w("Password updated.", "Parol yangilandi.", "Пароль обновлён."));
+      navigate({ to: "/dashboard" });
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : t.auth.errGeneric);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <PageShell>
       <section className="px-6 pt-16 pb-24">
         <div className="mx-auto max-w-md">
-          {confirmEmailSent ? (
-            <div className="glass animate-fade-up rounded-3xl p-8 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent glow-purple">
+          {recovering ? (
+            <form onSubmit={updatePassword} className="panel p-8 space-y-6">
+              <h1 className="text-3xl">
+                {w("Choose a new password", "Yangi parol tanlang", "Новый пароль")}
+              </h1>
+              <label className="block text-sm">
+                {w("New password", "Yangi parol", "Новый пароль")}
+                <input
+                  className="mt-2 p-3 w-full"
+                  type="password"
+                  autoComplete="new-password"
+                  minLength={8}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </label>
+              <label className="block text-sm">
+                {w("Confirm password", "Parolni tasdiqlang", "Повторите пароль")}
+                <input
+                  className="mt-2 p-3 w-full"
+                  type="password"
+                  autoComplete="new-password"
+                  value={confirmation}
+                  onChange={(e) => setConfirmation(e.target.value)}
+                  required
+                />
+              </label>
+              {err && (
+                <p role="alert" className="field-error">
+                  {err}
+                </p>
+              )}
+              <button className="field-button" disabled={loading || !isSupabaseConfigured}>
+                {w("Save password", "Parolni saqlash", "Сохранить пароль")}
+              </button>
+            </form>
+          ) : confirmEmailSent ? (
+            <div className="panel animate-fade-up rounded-3xl p-8 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary glow-purple">
                 <MailCheck className="h-7 w-7 text-primary-foreground" />
               </div>
               <h1 className="mt-6 text-2xl font-bold gradient-text">{t.auth.checkInboxTitle}</h1>
@@ -158,7 +260,7 @@ function AuthPage() {
           ) : (
             <>
               <div className="text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent glow-purple">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary glow-purple">
                   <Sparkles className="h-5 w-5 text-primary-foreground" />
                 </div>
                 <h1 className="mt-6 text-3xl font-bold gradient-text">
@@ -169,23 +271,33 @@ function AuthPage() {
                 </p>
               </div>
 
-              <div className="glass mt-8 rounded-3xl p-7">
-                <div className="mb-6 grid grid-cols-2 gap-1 rounded-full bg-secondary/60 p-1">
+              <div className="panel mt-8 rounded-3xl p-7">
+                <div className="auth-tabs mb-6 grid grid-cols-2 gap-1 rounded-full p-1">
                   {(["login", "signup"] as const).map((m) => (
                     <button
                       key={m}
+                      aria-pressed={tab === m}
                       onClick={() => {
                         setTab(m);
                         setErr(null);
                         setInfo(null);
                       }}
-                      className={`rounded-full py-2 text-sm transition-all ${tab === m ? "bg-primary text-primary-foreground glow-purple" : "text-muted-foreground"}`}
+                      className="rounded-full py-2 text-sm transition-all"
                     >
                       {m === "login" ? t.auth.login : t.auth.signup}
                     </button>
                   ))}
                 </div>
 
+                {!isSupabaseConfigured && (
+                  <p role="status" className="mb-6 text-sm">
+                    {w(
+                      "Accounts are unavailable on this local site until the account service is connected. Your assessment answers remain in this browser. You do not need to enter your password here.",
+                      "Hisob xizmati ulanmaguncha mahalliy saytda hisoblar ishlamaydi. Baholash javoblari shu brauzerda qoladi. Bu yerda parol kiritish shart emas.",
+                      "Аккаунты на локальном сайте недоступны до подключения сервиса. Ответы остаются в браузере. Вводить пароль здесь не нужно.",
+                    )}
+                  </p>
+                )}
                 <form onSubmit={submit} className="space-y-3">
                   {tab === "signup" && (
                     <div className="grid grid-cols-2 gap-3">
@@ -243,7 +355,7 @@ function AuthPage() {
 
                   <button
                     type="submit"
-                    disabled={loading}
+                    disabled={loading || !isSupabaseConfigured}
                     className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-all hover:glow-purple disabled:opacity-60"
                   >
                     {loading && <Loader2 className="h-4 w-4 animate-spin" />}

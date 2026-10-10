@@ -27,8 +27,10 @@ export function CountUp({
   const ref = useRef<HTMLSpanElement | null>(null);
   const [display, setDisplay] = useState(0);
   const started = useRef(false);
+  const frame = useRef(0);
 
   useEffect(() => {
+    started.current = false;
     const el = ref.current;
     if (!el) return;
 
@@ -48,10 +50,10 @@ export function CountUp({
         const t = Math.min(1, (now - start) / duration);
         const eased = 1 - Math.pow(1 - t, 3);
         setDisplay(value * eased);
-        if (t < 1) requestAnimationFrame(tick);
+        if (t < 1) frame.current = requestAnimationFrame(tick);
         else setDisplay(value);
       };
-      requestAnimationFrame(tick);
+      frame.current = requestAnimationFrame(tick);
     };
 
     // Snap straight to the final value when the element is already behind us.
@@ -80,6 +82,7 @@ export function CountUp({
     window.addEventListener("scroll", settleIfPassed, { passive: true });
     return () => {
       obs.disconnect();
+      cancelAnimationFrame(frame.current);
       window.removeEventListener("scroll", settleIfPassed);
     };
   }, [value, duration]);

@@ -1,169 +1,105 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Sparkles, LogOut, LayoutDashboard, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { LogOut, Menu, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { BrandMark } from "./BrandMark";
 import { useAuth } from "@/lib/auth-context";
-import { useT } from "@/lib/i18n";
+import { useWords } from "@/lib/editorial";
 
 export function Navbar() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const t = useT();
+  const w = useWords();
   const [open, setOpen] = useState(false);
-
-  const navItems = [
-    { to: "/", label: t.nav.home },
-    { to: "/roadmap", label: t.nav.roadmap },
-    { to: "/community", label: t.nav.community },
-    { to: "/universities", label: t.nav.universities },
-    { to: "/for-schools", label: t.nav.forSchools },
-    { to: "/about", label: t.nav.about },
+  const trigger = useRef<HTMLButtonElement>(null);
+  const links = [
+    { to: "/", label: w("Practice tools", "Mashq vositalari", "Практика"), hash: "workshop" },
+    { to: "/methodology", label: w("How it works", "Qanday ishlaydi", "Как это работает") },
+    { to: "/for-schools", label: w("For schools", "Maktablar uchun", "Школам") },
+    { to: "/about", label: w("Team", "Jamoa", "Команда") },
   ];
-
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        trigger.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", close);
+    return () => document.removeEventListener("keydown", close);
+  }, [open]);
   return (
-    <header className="sticky top-0 z-50 w-full pt-[env(safe-area-inset-top)]">
-      <div className="mx-auto mt-4 max-w-[1500px] px-4 lg:px-6">
-        <nav className="glass flex min-h-16 items-center gap-4 rounded-full px-4 sm:px-5 md:px-6 lg:min-h-[68px]">
-          <div className="flex min-w-0 flex-1 items-center gap-6 md:gap-12">
-            <Link to="/" className="group flex shrink-0 items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent shadow-[0_4px_18px_-6px_var(--glow)] transition-all duration-300 group-hover:shadow-[0_6px_24px_-4px_var(--glow)]">
-                <Sparkles className="h-4 w-4 text-primary-foreground" />
-              </div>
-              <span className="text-base font-semibold tracking-tight lg:text-[17px]">
-                Abilitio
-              </span>
-            </Link>
-
-            <ul className="hidden min-w-0 flex-1 items-center justify-start gap-2 md:flex lg:gap-4">
-              {navItems.map((item) => (
-                <li key={item.to} className="shrink-0">
-                  <Link
-                    to={item.to}
-                    className="whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary/70 hover:text-foreground lg:px-4 lg:text-[15px]"
-                    activeProps={{
-                      className:
-                        "bg-gradient-to-br from-primary/15 to-accent/10 text-foreground border border-primary/20 shadow-[0_0_20px_-6px_var(--glow)]",
-                    }}
-                    activeOptions={{ exact: true }}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Right cluster */}
-          <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
-            {/* Inline switcher only where there's room; on mobile it lives in
-                the hamburger menu, so it no longer crowds the brand/toggles. */}
-            <div className="hidden md:block">
-              <LanguageSwitcher />
-            </div>
-            <span className="hidden md:block h-5 w-px bg-border/70" aria-hidden />
-            <ThemeToggle />
-
-            {user ? (
-              <>
-                <Link
-                  to="/dashboard"
-                  className="hidden lg:inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-[13px] font-medium text-primary transition-all hover:bg-primary/15 hover:border-primary/50"
-                >
-                  <LayoutDashboard className="h-3.5 w-3.5" /> {t.nav.dashboard}
-                </Link>
-                <Link
-                  to="/dashboard"
-                  className="hidden md:inline-flex lg:hidden h-9 w-9 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary transition-all hover:bg-primary/15"
-                  aria-label={t.nav.dashboard}
-                >
-                  <LayoutDashboard className="h-4 w-4" />
-                </Link>
-                <button
-                  onClick={async () => {
-                    await signOut();
-                    navigate({ to: "/" });
-                  }}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_10px_-4px_var(--glow)] transition-all hover:-translate-y-0.5"
-                  aria-label={t.common.signOut}
-                >
-                  <LogOut className="h-4 w-4" />
-                </button>
-              </>
-            ) : (
-              <Link
-                to="/auth"
-                search={{ mode: "login" }}
-                className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary to-accent px-4 py-1.5 text-[13px] font-medium text-primary-foreground shadow-[0_4px_14px_-6px_var(--glow)] transition-all hover:-translate-y-0.5"
-              >
-                {t.nav.signIn}
+    <header className="field-header">
+      <nav
+        className="field-wrap field-nav"
+        aria-label={w("Main navigation", "Asosiy menyu", "Основное меню")}
+      >
+        <Link to="/" className="field-brand" aria-label="Abilitio">
+          <BrandMark />
+          <span>
+            abilitio<span className="brand-dot">.</span>
+          </span>
+        </Link>
+        <ul className="nav-links">
+          {links.map((l) => (
+            <li key={l.to}>
+              <Link to={l.to} hash={l.hash} activeOptions={{ exact: true }}>
+                {l.label}
               </Link>
-            )}
-
-            {/* Mobile hamburger */}
+            </li>
+          ))}
+        </ul>
+        <div className="nav-tools">
+          <div className="nav-language">
+            <LanguageSwitcher />
+          </div>
+          <ThemeToggle />
+          <Link className="nav-login text-link text-sm" to={user ? "/dashboard" : "/auth"}>
+            {user
+              ? w("My dashboard", "Mening panelim", "Мой кабинет")
+              : w("Sign in", "Kirish", "Войти")}
+          </Link>
+          {user && (
             <button
-              type="button"
-              onClick={() => setOpen((v) => !v)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/70 text-foreground transition-all hover:bg-secondary/70 md:hidden"
-              aria-label={t.common.toggleMenu}
-              aria-expanded={open}
+              className="icon-button"
+              aria-label={w("Sign out", "Chiqish", "Выйти")}
+              onClick={async () => {
+                await signOut();
+                navigate({ to: "/" });
+              }}
             >
-              {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+              <LogOut size={16} />
             </button>
-          </div>
-        </nav>
-
-        {/* Mobile menu */}
-        {open && (
-          <div className="md:hidden mt-2 glass rounded-2xl p-2 animate-fade-in">
-            <div className="px-2 pt-1 pb-2 flex items-center justify-between">
-              <span className="text-xs text-muted-foreground font-medium">{t.common.language}</span>
-              <LanguageSwitcher />
-            </div>
-            <ul className="flex flex-col">
-              {navItems.map((item) => (
-                <li key={item.to}>
-                  <Link
-                    to={item.to}
-                    onClick={() => setOpen(false)}
-                    className="block rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-secondary/70 hover:text-foreground"
-                    activeProps={{
-                      className:
-                        "text-foreground bg-gradient-to-r from-primary/15 to-accent/10 border border-primary/20",
-                    }}
-                    activeOptions={{ exact: true }}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-              {!user && (
-                <li>
-                  <Link
-                    to="/auth"
-                    search={{ mode: "login" }}
-                    onClick={() => setOpen(false)}
-                    className="mt-1 flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-primary to-accent px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_4px_14px_-6px_var(--glow)]"
-                  >
-                    {t.nav.signIn}
-                  </Link>
-                </li>
-              )}
-              {user && (
-                <li>
-                  <Link
-                    to="/dashboard"
-                    onClick={() => setOpen(false)}
-                    className="mt-1 flex items-center justify-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary transition-all hover:bg-primary/15"
-                  >
-                    <LayoutDashboard className="h-4 w-4" /> {t.nav.dashboard}
-                  </Link>
-                </li>
-              )}
-            </ul>
-          </div>
-        )}
-      </div>
+          )}
+          <button
+            ref={trigger}
+            className="icon-button nav-toggle"
+            aria-expanded={open}
+            aria-controls="site-menu"
+            aria-label={w("Menu", "Menyu", "Меню")}
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <X size={18} /> : <Menu size={18} />}
+          </button>
+        </div>
+      </nav>
+      {open && (
+        <div id="site-menu" className="nav-menu field-wrap">
+          <LanguageSwitcher />
+          {links.map((l) => (
+            <Link key={l.to} to={l.to} hash={l.hash} onClick={() => setOpen(false)}>
+              {l.label}
+            </Link>
+          ))}
+          <Link to={user ? "/dashboard" : "/auth"} onClick={() => setOpen(false)}>
+            {user
+              ? w("My dashboard", "Mening panelim", "Мой кабинет")
+              : w("Sign in", "Kirish", "Войти")}
+          </Link>
+        </div>
+      )}
     </header>
   );
 }

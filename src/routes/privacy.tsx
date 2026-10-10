@@ -1,18 +1,15 @@
+import { pageMeta } from "@/lib/seo";
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage, LegalSection, LegalList } from "@/components/LegalPage";
 import { SITE_NAME, CONTACT_EMAIL, COMPANY_LOCATION } from "@/lib/constants";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => ({
-    meta: [
-      { title: "Privacy Policy — Abilitio" },
-      {
-        name: "description",
-        content:
-          "How Abilitio collects, uses, and protects student data, including assessment responses and information about minors.",
-      },
-    ],
-  }),
+  head: () =>
+    pageMeta(
+      "/privacy",
+      "Privacy Policy",
+      "How Abilitio collects, uses and protects assessment and account data.",
+    ),
   component: PrivacyPage,
 });
 
@@ -43,7 +40,7 @@ function PrivacyPage() {
             </>,
             <>
               <strong className="text-foreground">Assessment data</strong> — your responses to
-              personality, cognitive, interest, and IQ questions, and the results we generate
+              work-preference, reasoning, and interest questions, and the results we generate
               (career matches, strengths, MBTI type, and scores).
             </>,
             <>
@@ -103,9 +100,8 @@ function PrivacyPage() {
               file storage hosting.
             </>,
             <>
-              <strong className="text-foreground">Anthropic</strong> — powering AI features (such as
-              the ABBI assistant) when enabled; conversation content needed to answer you may be
-              processed.
+              <strong className="text-foreground">Formspree</strong> — processes messages submitted
+              through our contact form. ABBI uses rule-based responses.
             </>,
           ]}
         />

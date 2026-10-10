@@ -36,6 +36,7 @@ import { ensureNotBanned } from "../admin/admin.functions";
 export type LangText = { en: string; ru: string; uz: string };
 export type LangOpts = { en: string[]; ru: string[]; uz: string[] };
 export type ClientSession = {
+  sessionToken: string;
   personality: { id: string; prompt: LangText }[];
   iq: { id: string; prompt: LangText; options: LangOpts }[];
   interest: {
@@ -61,7 +62,14 @@ function lo(id: string, en: string[]): LangOpts {
 export const startCareerSession = createServerFn({ method: "GET" }).handler(
   async (): Promise<ClientSession> => {
     const s = pickSessionQuestions();
+    const { signSession } = await import("./session.server");
+    const sessionToken = signSession({
+      personality: s.personality.map((q) => q.id),
+      iq: s.iq.map((q) => q.id),
+      interest: s.interest.map((q) => ({ id: q.id, options: q.options.map((o) => o.id) })),
+    });
     return {
+      sessionToken,
       personality: s.personality.map((q) => ({ id: q.id, prompt: lp(q.id, q.prompt) })),
       iq: s.iq.map((q) => ({ id: q.id, prompt: lp(q.id, q.prompt), options: lo(q.id, q.options) })),
       interest: s.interest.map((q) => ({
@@ -121,6 +129,7 @@ export type CareerResultDTO = {
 };
 
 const submitSchema = z.object({
+  sessionToken: z.string().min(1).max(12000),
   personalityQIds: z.array(z.string()).length(12),
   personalityAnswers: z.array(z.number().int().min(1).max(5)).length(12),
   iqQIds: z.array(z.string()).length(9),
@@ -136,6 +145,9 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<CareerResultDTO> => {
     const { supabase, userId } = context;
     await ensureNotBanned(userId);
+    const { verifySession, validateSessionSubmission } = await import("./session.server");
+    const claim = verifySession(data.sessionToken);
+    validateSessionSubmission(claim, data);
 
     // Resolve personality questions from bank (server authoritative). Every id
     // must exist and be distinct — silently filtering unknown ids would shift
@@ -191,10 +203,12 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
     const recommendedSkills = RECOMMENDED_SKILLS_BY_PROFILE[cognitive.profile] ?? [];
 
     // Persist
-    const { data: row, error } = await supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row, error } = await supabaseAdmin
       .from("career_assessment_results")
       .insert({
         user_id: userId,
+        session_nonce: claim.nonce,
         personality_type: personality.mbti,
         work_style: personality.workStyle,
         leadership_style: personality.leadershipStyle,

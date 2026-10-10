@@ -13,11 +13,10 @@ import { Sparkles, Home, RefreshCw } from "lucide-react";
 
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth-context";
-import { LanguageProvider } from "@/lib/i18n";
-import { FloatingAuthButton } from "@/components/FloatingAuthButton";
+import { LanguageProvider, useT } from "@/lib/i18n";
+import { MotionProvider } from "@/components/MotionProvider";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { SITE_URL, OG_IMAGE_URL, SITE_NAME, CONTACT_EMAIL } from "@/lib/constants";
-import { getStaticDict } from "@/lib/i18n";
 import { initAnalytics } from "@/lib/analytics";
 
 const ORG_JSONLD = {
@@ -29,43 +28,31 @@ const ORG_JSONLD = {
   image: OG_IMAGE_URL,
   email: CONTACT_EMAIL,
   description:
-    "AI-powered talent discovery for students, parents, and schools. Uncover natural strengths and explore future career paths.",
+    "Career exploration for students and schools through reasoning, personality and interest questions.",
 };
 
-function CenteredGlow({ children }: { children: React.ReactNode }) {
+function CenteredState({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4">
-      {/* ambient brand glow */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div
-          className="absolute left-1/2 top-[-10%] h-[55vh] w-[110vw] -translate-x-1/2 rounded-[50%] opacity-50"
-          style={{
-            background:
-              "radial-gradient(ellipse at center, oklch(0.6 0.18 290 / 0.3), transparent 68%)",
-            filter: "blur(70px)",
-          }}
-        />
-        <div
-          className="absolute -bottom-32 right-[-10%] h-[45vh] w-[55vw] rounded-full opacity-35"
-          style={{
-            background:
-              "radial-gradient(ellipse at center, oklch(0.55 0.17 275 / 0.3), transparent 70%)",
-            filter: "blur(80px)",
-          }}
-        />
-      </div>
       {children}
     </div>
   );
 }
 
 function NotFoundComponent() {
-  // getStaticDict, not useT: this can render outside LanguageProvider.
-  const t = getStaticDict();
   return (
-    <CenteredGlow>
-      <div className="glass max-w-md rounded-3xl p-10 text-center animate-fade-up">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-[0_10px_30px_-10px_var(--glow)]">
+    <LanguageProvider>
+      <NotFoundContent />
+    </LanguageProvider>
+  );
+}
+
+function NotFoundContent() {
+  const t = useT();
+  return (
+    <CenteredState>
+      <div className="panel max-w-md rounded-3xl p-10 text-center animate-fade-up">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary">
           <Sparkles className="h-7 w-7 text-primary-foreground" />
         </div>
         <h1 className="mt-6 text-7xl font-bold gradient-text">404</h1>
@@ -80,20 +67,27 @@ function NotFoundComponent() {
           </Link>
         </div>
       </div>
-    </CenteredGlow>
+    </CenteredState>
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent(props: { error: unknown; reset: () => void }) {
+  return (
+    <LanguageProvider>
+      <ErrorContent {...props} />
+    </LanguageProvider>
+  );
+}
+
+function ErrorContent({ error, reset }: { error: unknown; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  // getStaticDict, not useT: the error may have unmounted LanguageProvider.
-  const t = getStaticDict();
+  const t = useT();
 
   return (
-    <CenteredGlow>
-      <div className="glass max-w-md rounded-3xl p-10 text-center animate-fade-up">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-destructive/80 to-primary/60 shadow-[0_10px_30px_-10px_var(--glow)]">
+    <CenteredState>
+      <div className="panel max-w-md rounded-3xl p-10 text-center animate-fade-up">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-card">
           <Sparkles className="h-7 w-7 text-primary-foreground" />
         </div>
         <h1 className="mt-6 text-2xl font-semibold tracking-tight text-foreground">
@@ -118,7 +112,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           </a>
         </div>
       </div>
-    </CenteredGlow>
+    </CenteredState>
   );
 }
 
@@ -127,26 +121,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "Abilitio — Discover Your True Potential" },
+      { title: "Abilitio — Find a career worth trying" },
       {
         name: "description",
         content:
-          "AI-powered talent discovery for students and parents. Uncover natural strengths and explore future career paths.",
+          "Explore your reasoning, personality and interests, then choose a career experiment.",
       },
       { name: "author", content: "Abilitio" },
-      { property: "og:title", content: "Abilitio — Discover Your True Potential" },
+      { property: "og:title", content: "Abilitio — Find a career worth trying" },
       {
         property: "og:description",
         content:
-          "AI-powered talent discovery for students and parents. Uncover natural strengths and explore future career paths.",
+          "Explore your reasoning, personality and interests, then choose a career experiment.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Abilitio — Discover Your True Potential" },
+      { name: "twitter:title", content: "Abilitio — Find a career worth trying" },
       {
         name: "twitter:description",
         content:
-          "AI-powered talent discovery for students and parents. Uncover natural strengths and explore future career paths.",
+          "Explore your reasoning, personality and interests, then choose a career experiment.",
       },
       { property: "og:image", content: OG_IMAGE_URL },
       { property: "og:image:width", content: "1200" },
@@ -157,13 +151,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
-      { rel: "apple-touch-icon", href: "/favicon.svg" },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
-      },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
     ],
   }),
   shellComponent: RootShell,
@@ -173,16 +161,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 // Applied before first paint so a stored "light" preference doesn't flash the
-// SSR-default dark theme for a frame on every load. Must stay inline &
-// synchronous; ThemeToggle takes over after hydration.
-const THEME_INIT_SCRIPT = `try{if(localStorage.getItem("abilitio-theme")==="light")document.documentElement.classList.remove("dark")}catch(e){}`;
+// Apply saved theme and the fail-open intro mask before the first paint.
+const THEME_INIT_SCRIPT = `try{if(localStorage.getItem("abilitio-theme")==="dark")document.documentElement.classList.add("dark");if(location.pathname==="/"&&!matchMedia("(prefers-reduced-motion: reduce)").matches&&localStorage.getItem("abilitio-motion")!=="off"){document.documentElement.dataset.intro="boot";setTimeout(()=>{if(document.documentElement.dataset.intro==="boot")document.documentElement.dataset.intro="done"},5000)}}catch(e){}`;
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    // suppressHydrationWarning: the inline script above may legitimately strip
-    // the server-rendered "dark" class before React hydrates.
-    <html lang="en" className="dark" suppressHydrationWarning>
+    // Saved theme and intro attributes may be applied before hydration.
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=DM+Sans:opsz,wght@9..40,400..800&family=Caveat:wght@600;700&family=Rubik:wght@500..800&family=Onest:wght@400..800&display=swap"
+        />
         <HeadContent />
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <script
@@ -210,8 +202,10 @@ function RootComponent() {
       <LanguageProvider>
         <AuthProvider>
           {/* Required: nested routes render here. */}
-          <Outlet />
-          <FloatingAuthButton />
+          <MotionProvider>
+            <Outlet />
+          </MotionProvider>
+
           <SonnerToaster />
         </AuthProvider>
       </LanguageProvider>

@@ -116,10 +116,10 @@ export const getCommunityMessages = createServerFn({ method: "GET" })
         .from("community_messages")
         .select("*")
         .eq("community_id", data.communityId)
-        .order("created_at", { ascending: true })
+        .order("created_at", { ascending: false })
         .limit(limit);
       if (error) throw new Error(error.message);
-      const messages = (rows ?? []) as CommunityMessageDTO[];
+      const messages = (rows ?? []).reverse() as CommunityMessageDTO[];
       const ids = Array.from(new Set(messages.map((m) => m.user_id)));
       const authors = await fetchAuthors(ids);
       return { messages, authors };

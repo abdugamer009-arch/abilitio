@@ -26,6 +26,7 @@ import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/community")({
   head: () => ({
     meta: [
+      { name: "robots", content: "noindex, follow" },
       { title: "Community — Abilitio" },
       {
         name: "description",
@@ -84,7 +85,7 @@ function CommunityPage() {
     return (
       <PageShell>
         <section className="px-4 pt-16 pb-24 sm:px-6">
-          <div className="mx-auto max-w-xl rounded-3xl border border-border/60 bg-secondary/30 p-10 text-center backdrop-blur-xl">
+          <div className="mx-auto max-w-xl rounded-3xl border border-border/60 bg-secondary/30 p-10 text-center ">
             <Lock className="mx-auto h-10 w-10 text-primary" />
             <h1 className="mt-4 text-2xl font-semibold">{t.community.unlockTitle}</h1>
             <p className="mt-2 text-sm text-muted-foreground">{t.community.unlockBody}</p>
@@ -108,7 +109,7 @@ function CommunityPage() {
         <div
           className="absolute left-1/2 top-[-200px] h-[700px] w-[1100px] -translate-x-1/2 rounded-full opacity-50 blur-3xl"
           style={{
-            background: "radial-gradient(ellipse, oklch(0.55 0.22 295 / 0.32), transparent 60%)",
+            background: "var(--yellow)",
           }}
         />
       </div>
@@ -140,7 +141,7 @@ function Sidebar({
 }) {
   const t = useT();
   return (
-    <aside className="rounded-3xl border border-border/60 bg-secondary/30 p-3 backdrop-blur-xl lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)] lg:overflow-y-auto">
+    <aside className="rounded-3xl border border-border/60 bg-secondary/30 p-3  lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)] lg:overflow-y-auto">
       <div className="px-3 pt-2 pb-3">
         <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           {isAdmin ? t.community.allCommunities : t.community.yourCommunity}
@@ -155,7 +156,7 @@ function Sidebar({
                 onClick={() => setActive(c.id)}
                 className={`group flex w-full items-center justify-between gap-2 rounded-2xl px-3 py-2.5 text-left text-[13px] transition-all ${
                   active
-                    ? "bg-gradient-to-br from-primary/20 to-accent/15 text-foreground shadow-[0_8px_24px_-10px_var(--glow)]"
+                    ? "bg-primary text-foreground"
                     : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
                 }`}
               >
@@ -350,8 +351,8 @@ function CommunityChat({
     <div className="flex flex-col gap-4">
       {/* Header */}
       <div
-        className="rounded-3xl border border-border/60 bg-gradient-to-br from-secondary/40 via-background/40 to-background/30 p-6 backdrop-blur-xl"
-        style={{ boxShadow: "0 18px 50px -22px oklch(0.55 0.22 295 / 0.35)" }}
+        className="rounded-3xl border border-border/60 bg-card p-6 "
+        style={{ boxShadow: "4px 4px 0 var(--ink)" }}
       >
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -367,7 +368,7 @@ function CommunityChat({
               <Users className="h-3.5 w-3.5" /> {community.member_count} {t.community.membersSuffix}
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-primary">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_var(--glow)]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
               {online} {t.community.online}
             </span>
           </div>
@@ -375,15 +376,15 @@ function CommunityChat({
       </div>
 
       {/* Daily question */}
-      <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/15 via-accent/10 to-transparent p-5 backdrop-blur-xl">
+      <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-card p-5 ">
         <div
           className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-50 blur-3xl"
           style={{
-            background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.4), transparent 70%)",
+            background: "var(--yellow)",
           }}
         />
         <div className="relative flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg">
             <Sparkles className="h-5 w-5" />
           </div>
           <div className="flex-1">
@@ -451,7 +452,7 @@ function CommunityChat({
       )}
 
       {/* Messages */}
-      <div className="flex h-[58vh] flex-col rounded-3xl border border-border/60 bg-secondary/20 backdrop-blur-xl">
+      <div className="flex h-[58vh] flex-col rounded-3xl border border-border/60 bg-secondary/20 ">
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 sm:px-6">
           {messages.length === 0 ? (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
@@ -501,7 +502,7 @@ function CommunityChat({
               type="submit"
               disabled={!input.trim()}
               aria-label={t.community.send}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_20px_-8px_var(--glow)] transition-all hover:-translate-y-0.5 disabled:opacity-50"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition-all hover:-translate-y-0.5 disabled:opacity-50"
             >
               <Send className="h-4 w-4" />
             </button>
@@ -576,7 +577,7 @@ function MessageRow({
     <div
       className={`group flex gap-3 transition-opacity duration-200 ${pending ? "opacity-60" : ""}`}
     >
-      <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-primary to-accent text-xs font-semibold text-primary-foreground">
+      <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-primary text-xs font-semibold text-primary-foreground">
         {avatarUrl ? (
           <img
             src={avatarUrl}
@@ -627,7 +628,7 @@ function MessageRow({
             </div>
           )}
         </div>
-        <div className="mt-1 inline-block max-w-full rounded-2xl rounded-tl-md bg-gradient-to-br from-secondary/70 to-secondary/40 px-3.5 py-2 text-sm leading-relaxed shadow-sm">
+        <div className="mt-1 inline-block max-w-full rounded-2xl rounded-tl-md bg-card px-3.5 py-2 text-sm leading-relaxed shadow-sm">
           {message.content}
         </div>
       </div>

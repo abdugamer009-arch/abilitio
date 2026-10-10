@@ -8,6 +8,7 @@ import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/abbi")({
   head: () => ({
     meta: [
+      { name: "robots", content: "noindex, follow" },
       { title: "ABBI — Career Guide | Abilitio" },
       {
         name: "description",
@@ -49,7 +50,7 @@ function AbbiPage() {
         <div
           className="absolute left-1/2 top-[-200px] h-[700px] w-[1100px] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
           style={{
-            background: "radial-gradient(ellipse, oklch(0.55 0.22 295 / 0.35), transparent 60%)",
+            background: "var(--yellow)",
           }}
         />
       </div>

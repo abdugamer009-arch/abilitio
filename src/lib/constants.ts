@@ -9,4 +9,4 @@ export const CONTACT_EMAIL = "ibodullayevabdurahmon95@gmail.com";
 export const CONTACT_PHONE = "+998 88 048 18 81";
 export const COMPANY_LOCATION = "Uzbekistan";
 // Last review date for the legal documents. Update when policies change.
-export const LEGAL_LAST_UPDATED = "June 29, 2026";
+export const LEGAL_LAST_UPDATED = "October 9, 2026";

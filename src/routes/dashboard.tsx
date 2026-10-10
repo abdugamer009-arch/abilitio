@@ -23,7 +23,6 @@ import {
   BarChart3,
   Settings as SettingsIcon,
   Star,
-  Gauge,
   Languages,
   Moon,
   KeyRound,
@@ -36,6 +35,7 @@ import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { MBTI_DESCRIPTIONS } from "@/lib/assessment/mbti-descriptions";
+import { useWords } from "@/lib/editorial";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -61,9 +61,6 @@ type Result = {
   id: string;
   iq_score: number;
   iq_level: string;
-  logical_score: number;
-  analytical_score: number;
-  pattern_score: number;
   mbti_type: string;
   top_strengths: string[];
   weaknesses?: string[];
@@ -139,11 +136,8 @@ function DashboardPage() {
             }> | null) ?? [];
           return {
             id: row.id as string,
-            iq_score: Math.round(70 + cog * 8),
+            iq_score: cog,
             iq_level: (row.cognitive_tier as string) ?? "—",
-            logical_score: Math.round(cog * 10),
-            analytical_score: Math.round(cog * 10),
-            pattern_score: Math.round(cog * 10),
             mbti_type: (row.personality_type as string) ?? "—",
             top_strengths: (row.strengths as string[]) ?? [],
             weaknesses: (row.improvements as string[]) ?? [],
@@ -218,7 +212,7 @@ function DashboardPage() {
         <div
           className="absolute left-1/2 top-[-200px] h-[700px] w-[1100px] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
           style={{
-            background: "radial-gradient(ellipse, oklch(0.55 0.22 295 / 0.35), transparent 60%)",
+            background: "var(--yellow)",
           }}
         />
       </div>
@@ -308,6 +302,7 @@ function ProfileHeader({
   levelProgress: number;
   tagline: string;
 }) {
+  const w = useWords();
   const [resolvedAvatar, setResolvedAvatar] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;
@@ -321,23 +316,23 @@ function ProfileHeader({
 
   return (
     <div
-      className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-gradient-to-br from-secondary/40 via-background/60 to-background/40 p-6 backdrop-blur-xl sm:p-8"
-      style={{ boxShadow: "0 20px 60px -20px oklch(0.55 0.22 295 / 0.35)" }}
+      className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-card p-6  sm:p-8"
+      style={{ boxShadow: "4px 4px 0 var(--ink)" }}
     >
       {/* gradient orbs */}
       <GlowBlob className="-right-20 -top-20 h-80 w-80 opacity-50 blur-3xl" alpha={0.5} />
       <div
         className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
         style={{
-          background: "radial-gradient(circle, oklch(0.70 0.18 320 / 0.4), transparent 70%)",
+          background: "var(--yellow)",
         }}
       />
 
       <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
         {/* Avatar */}
         <div className="relative shrink-0">
-          <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-primary via-accent to-primary opacity-70 blur-md transition-opacity group-hover:opacity-100" />
-          <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-accent text-3xl font-bold text-primary-foreground shadow-2xl sm:h-28 sm:w-28">
+          <div className="absolute -inset-1 rounded-3xl bg-card opacity-70 blur-md transition-opacity group-hover:opacity-100" />
+          <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden cartoon-avatar rounded-3xl bg-primary text-3xl font-bold text-primary-foreground shadow-2xl sm:h-28 sm:w-28">
             {resolvedAvatar ? (
               <img
                 src={resolvedAvatar}
@@ -349,7 +344,7 @@ function ProfileHeader({
               <span>{initials}</span>
             )}
           </div>
-          <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-gradient-to-br from-accent to-primary shadow-lg">
+          <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-card shadow-lg">
             <Crown className="h-3.5 w-3.5 text-primary-foreground" />
           </div>
         </div>
@@ -359,7 +354,8 @@ function ProfileHeader({
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="truncate text-2xl font-bold tracking-tight sm:text-3xl">{fullName}</h1>
             <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary">
-              <Sparkles className="h-3 w-3" /> Level {level}
+              <Sparkles className="h-3 w-3" />{" "}
+              {w("Activity level", "Faollik darajasi", "Уровень активности")} {level}
             </span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">{email}</p>
@@ -368,18 +364,28 @@ function ProfileHeader({
             <span className="gradient-text">{tagline}</span>
           </p>
 
+          <p className="mt-3 text-xs text-muted-foreground">
+            {w(
+              "Activity points come from saved assessments (50 each) and recorded achievements (25 each). A level is not a measure of skill or career readiness.",
+              "Faollik ballari saqlangan baholash (50) va qayd etilgan yutuqdan (25) keladi. Daraja ko‘nikma yoki kasbga tayyorlik o‘lchovi emas.",
+              "Баллы начисляются за сохранённые оценки (50) и записанные достижения (25). Уровень не измеряет навыки или готовность к профессии.",
+            )}
+          </p>
           {/* Level progress */}
           <div className="mt-5 max-w-md">
             <div className="mb-1.5 flex items-center justify-between text-[11px] text-muted-foreground">
-              <span>Progress to Level {level + 1}</span>
+              <span>
+                {w("Activity toward level", "Keyingi faollik darajasi", "До уровня активности")}{" "}
+                {level + 1}
+              </span>
               <span className="font-medium tabular-nums">{Math.round(levelProgress)}%</span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-secondary/60">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-primary via-accent to-primary transition-all duration-700"
+                className="h-full rounded-full bg-card transition-all duration-700"
                 style={{
                   width: `${levelProgress}%`,
-                  boxShadow: "0 0 12px oklch(0.65 0.22 295 / 0.6)",
+                  boxShadow: "4px 4px 0 var(--ink)",
                 }}
               />
             </div>
@@ -394,18 +400,23 @@ function ProfileHeader({
 /* TAB BAR                                                       */
 /* ============================================================ */
 function TabBar({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
+  const w = useWords();
   const tabs: { key: TabKey; label: string; icon: LucideIcon }[] = [
-    { key: "results", label: "Results", icon: Brain },
-    { key: "stats", label: "Stats", icon: BarChart3 },
-    { key: "skills", label: "Skills", icon: Trophy },
-    { key: "weekly", label: "Weekly", icon: TrendingUp },
-    { key: "universities", label: "Universities", icon: GraduationCap },
+    { key: "results", label: w("Results", "Natijalar", "Результаты"), icon: Brain },
+    { key: "stats", label: w("Test scores", "Test ballari", "Баллы тестов"), icon: BarChart3 },
+    { key: "skills", label: w("Activities", "Faoliyatlar", "Занятия"), icon: Trophy },
+    { key: "weekly", label: w("Recorded activity", "Qaydlar", "Активность"), icon: TrendingUp },
+    {
+      key: "universities",
+      label: w("Universities", "Universitetlar", "Университеты"),
+      icon: GraduationCap,
+    },
     { key: "abbi", label: "ABBI AI", icon: Sparkles },
-    { key: "settings", label: "Settings", icon: SettingsIcon },
+    { key: "settings", label: w("Settings", "Sozlamalar", "Настройки"), icon: SettingsIcon },
   ];
   return (
     <div className="mt-8 overflow-x-auto">
-      <div className="inline-flex min-w-full gap-1 rounded-2xl border border-border/60 bg-secondary/30 p-1.5 backdrop-blur-xl sm:gap-2">
+      <div className="inline-flex min-w-full gap-1 rounded-2xl border border-border/60 bg-secondary/30 p-1.5  sm:gap-2">
         {tabs.map((tt) => {
           const active = tab === tt.key;
           const Icon = tt.icon;
@@ -413,24 +424,24 @@ function TabBar({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
             <button
               key={tt.key}
               onClick={() => setTab(tt.key)}
-              className={`group relative flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 py-2.5 text-[12px] font-medium transition-all sm:flex-1 sm:text-sm ${
-                active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+              aria-pressed={active}
+              className={`dashboard-tab group relative flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 py-2.5 text-[12px] font-medium transition-all sm:flex-1 sm:text-sm ${
+                active ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {active && (
                 <span
-                  className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary/20 to-accent/15 transition-all"
+                  className="absolute inset-0 rounded-xl bg-primary transition-all"
                   style={{
-                    boxShadow:
-                      "0 8px 24px -8px oklch(0.55 0.22 295 / 0.45), inset 0 1px 0 oklch(1 0 0 / 0.08)",
+                    boxShadow: "4px 4px 0 var(--ink)",
                   }}
                 />
               )}
               <Icon
-                className={`relative h-4 w-4 transition-colors ${active ? "text-primary" : ""}`}
+                className={`relative h-4 w-4 transition-colors ${active ? "text-primary-foreground" : ""}`}
               />
               <span className="relative hidden sm:inline">{tt.label}</span>
-              <span className="relative sm:hidden">{tt.label.split(" ")[0]}</span>
+              <span className="relative sm:hidden">{tt.label}</span>
             </button>
           );
         })}
@@ -457,19 +468,20 @@ function ResultsSection({
   tIqLevel: (l: string) => string;
   t: ReturnType<typeof useI18n>["t"];
 }) {
+  const w = useWords();
   if (!latest) {
     return (
       <GlassCard className="p-10 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_30px_-10px_var(--glow)]">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
           <Brain className="h-8 w-8" />
         </div>
         <h3 className="mt-4 text-xl font-semibold">No assessment yet</h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          Take your first assessment to unlock your AI-powered insights.
+          Take your first assessment to see your assessment profile.
         </p>
         <Link
           to="/assessment"
-          className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_4px_16px_-6px_var(--glow)] hover:-translate-y-0.5 transition-all"
+          className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:-translate-y-0.5 transition-all"
         >
           {t.dashboard.startFirst} <ChevronRight className="h-4 w-4" />
         </Link>
@@ -482,9 +494,9 @@ function ResultsSection({
       {/* Top metrics row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricRing
-          label="IQ Score"
+          label="Reasoning / 10"
           value={latest.iq_score}
-          max={160}
+          max={10}
           hint={tIqLevel(latest.iq_level)}
           icon={Brain}
         />
@@ -501,31 +513,33 @@ function ResultsSection({
           icon={Activity}
         />
         <MetricCard
-          label="Top Match"
-          value={latest.careers?.[0] ? `${latest.careers[0].match}%` : "—"}
+          label={w("Exploration fit", "Izlanish mosligi", "Соответствие для пробы")}
+          value={latest.careers?.[0] ? `${latest.careers[0].match}/100` : "—"}
           hint={latest.careers?.[0] ? tCareer(latest.careers[0].name).name : "—"}
           icon={Target}
         />
       </div>
 
       {/* Cognitive bars + Strengths/Weaknesses */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="settings-grid grid gap-6 lg:grid-cols-2">
         <GlassCard className="p-7">
-          <SectionTitle icon={Gauge}>Cognitive Profile</SectionTitle>
-          <div className="mt-6 space-y-5">
-            <BarRow
-              label={tTrait("Logical Reasoning") || "Logical Reasoning"}
-              value={latest.logical_score}
-            />
-            <BarRow
-              label={tTrait("Analytical Thinking") || "Analytical Thinking"}
-              value={latest.analytical_score}
-            />
-            <BarRow
-              label={tTrait("Pattern Recognition") || "Pattern Recognition"}
-              value={latest.pattern_score}
-            />
-          </div>
+          <SectionTitle icon={Brain}>
+            {w("About your reasoning score", "Mantiq ballingiz haqida", "О вашем балле мышления")}
+          </SectionTitle>
+          <p className="mt-4 text-sm text-muted-foreground">
+            {w(
+              "One overall score from nine reasoning questions. We do not measure logic, analytical thinking and pattern recognition separately. It is not an IQ score or a measure of your future potential.",
+              "To‘qqizta mantiq savolidan bitta umumiy ball. Mantiq, tahlil va naqshni topishni alohida o‘lchamaymiz. Bu IQ yoki kelajak imkoniyatingiz o‘lchovi emas.",
+              "Один общий балл по девяти вопросам. Логика, анализ и поиск закономерностей отдельно не измеряются. Это не IQ и не оценка будущего потенциала.",
+            )}
+          </p>
+          <p className="mt-4 text-sm text-muted-foreground">
+            {w(
+              "Your personality summary describes your answers today. Preferences can change; a type is not a fixed identity.",
+              "Shaxsiyat xulosasi bugungi javoblaringizni tasvirlaydi. Afzallik o‘zgarishi mumkin; tur doimiy shaxsiyat emas.",
+              "Описание личности отражает сегодняшние ответы. Предпочтения меняются; тип не определяет вас навсегда.",
+            )}
+          </p>
         </GlassCard>
 
         <div className="grid gap-6">
@@ -536,7 +550,7 @@ function ResultsSection({
                 {latest.top_strengths.map((s) => (
                   <span
                     key={s}
-                    className="rounded-full border border-primary/20 bg-gradient-to-br from-primary/15 to-accent/10 px-3 py-1.5 text-xs font-medium"
+                    className="rounded-full border border-primary/20 bg-mint text-ink px-3 py-1.5 text-xs font-medium"
                   >
                     {tTrait(s)}
                   </span>
@@ -553,7 +567,7 @@ function ResultsSection({
                 {latest.weaknesses.map((s) => (
                   <span
                     key={s}
-                    className="rounded-full border border-accent/20 bg-gradient-to-br from-accent/10 to-primary/5 px-3 py-1.5 text-xs font-medium text-accent/80"
+                    className="rounded-full border border-accent/20 bg-card px-3 py-1.5 text-xs font-medium text-accent/80"
                   >
                     {tTrait(s)}
                   </span>
@@ -568,7 +582,16 @@ function ResultsSection({
 
       {/* Career matches */}
       <GlassCard className="p-7">
-        <SectionTitle icon={Trophy}>Top Career Matches</SectionTitle>
+        <SectionTitle icon={Trophy}>
+          {w("Careers to explore", "O‘rganish uchun kasblar", "Профессии для исследования")}
+        </SectionTitle>
+        <p className="mt-3 text-sm text-muted-foreground">
+          {w(
+            "Fit scores compare your answers with career profiles on a 0–100 scale. They are not percentages, success probabilities or proof of ability. Start with the reasons, then try the work.",
+            "0–100 moslik balli javoblaringizni kasb profillari bilan solishtiradi. Bu foiz, muvaffaqiyat ehtimoli yoki qobiliyat isboti emas. Sabablarni o‘qing, so‘ng ishni sinang.",
+            "Баллы 0–100 сравнивают ответы с профилями профессий. Это не проценты, вероятность успеха или доказательство способностей. Изучите причины и попробуйте работу.",
+          )}
+        </p>
         {latest.careers?.length ? (
           <div className="mt-6 grid gap-4 lg:grid-cols-3">
             {latest.careers.slice(0, 3).map((c, i) => (
@@ -588,11 +611,11 @@ function ResultsSection({
 
       {/* Career Battles CTA */}
       <Link to="/career-battles" className="group block">
-        <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-accent/5 to-background/40 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-[0_16px_40px_-16px_oklch(0.55_0.22_295_/_0.4)]">
+        <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50">
           <GlowBlob className="-right-8 -top-8 h-32 w-32 opacity-30 blur-3xl" />
           <div className="relative flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)]">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
                 <Swords className="h-5 w-5" />
               </div>
               <div>
@@ -614,13 +637,13 @@ function ResultsSection({
           {results.map((r, i) => (
             <li
               key={r.id}
-              className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3 text-sm transition-all hover:border-primary/30 hover:bg-secondary/50 ${i === 0 ? "border-primary/30 bg-gradient-to-r from-primary/8 to-accent/5" : "border-border/60 bg-secondary/30"}`}
+              className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3 text-sm transition-all hover:border-primary/30 hover:bg-secondary/50 ${i === 0 ? "border-primary/30 bg-mint text-ink" : "border-border/60 bg-secondary/30"}`}
             >
               <span className="inline-flex items-center gap-2 text-muted-foreground">
                 {i === 0 ? (
                   <span className="relative flex h-2 w-2 shrink-0">
                     <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-50" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-gradient-to-br from-primary to-accent" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
                   </span>
                 ) : (
                   <Calendar className="h-3.5 w-3.5" />
@@ -628,7 +651,7 @@ function ResultsSection({
                 {new Date(r.created_at).toLocaleDateString()}
               </span>
               <span className="text-muted-foreground">
-                IQ <span className="font-semibold text-foreground">{r.iq_score}</span>
+                Reasoning / 10 <span className="font-semibold text-foreground">{r.iq_score}</span>
               </span>
               <span className="text-muted-foreground">
                 Type <span className="font-semibold text-foreground">{r.mbti_type}</span>
@@ -658,15 +681,16 @@ function CareerCard({
   featured?: boolean;
   tCareer: (n: string) => { name: string; reason: string };
 }) {
+  const w = useWords();
   const tc = tCareer(career.name);
   return (
     <div
       className={`group relative overflow-hidden rounded-2xl border p-5 transition-all hover:-translate-y-1 ${
         featured
-          ? "border-primary/40 bg-gradient-to-br from-primary/15 via-accent/10 to-background/40 lg:col-span-1 lg:row-span-1"
+          ? "border-primary/40 bg-card lg:col-span-1 lg:row-span-1"
           : "border-border/60 bg-secondary/30"
       }`}
-      style={featured ? { boxShadow: "0 16px 40px -16px oklch(0.55 0.22 295 / 0.5)" } : undefined}
+      style={featured ? { boxShadow: "4px 4px 0 var(--ink)" } : undefined}
     >
       {featured && (
         <GlowBlob className="-right-10 -top-10 h-32 w-32 opacity-60 blur-2xl" alpha={0.5} />
@@ -674,14 +698,13 @@ function CareerCard({
       <div className="relative flex items-center justify-between">
         <span
           className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
-            featured
-              ? "bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-[0_2px_10px_-4px_var(--glow)]"
-              : "bg-secondary text-muted-foreground"
+            featured ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
           }`}
         >
-          {featured && <Crown className="h-3 w-3" />} #{rank} {featured ? "Best Match" : ""}
+          {featured && <Crown className="h-3 w-3" />} #{rank}{" "}
+          {featured ? w("First suggestion", "Birinchi tavsiya", "Первое предложение") : ""}
         </span>
-        <span className="text-2xl font-bold gradient-text tabular-nums">{career.match}%</span>
+        <span className="text-2xl font-bold gradient-text tabular-nums">{career.match}/100</span>
       </div>
       <h4 className="relative mt-3 text-lg font-semibold">{tc.name}</h4>
       <p className="relative mt-2 line-clamp-3 text-xs text-muted-foreground">
@@ -689,8 +712,8 @@ function CareerCard({
       </p>
       <div className="relative mt-4 h-1.5 overflow-hidden rounded-full bg-secondary/60">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all duration-1000"
-          style={{ width: `${career.match}%` }}
+          className="h-full rounded-full bg-primary transition-all duration-1000"
+          style={{ width: `${career.match}/100` }}
         />
       </div>
     </div>
@@ -714,45 +737,33 @@ function MetricRing({
   const circumference = 2 * Math.PI * 30;
   const offset = circumference - (pct / 100) * circumference;
   return (
-    <GlassCard className="p-5 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]">
+    <GlassCard className="p-5 transition-all hover:-translate-y-0.5">
       <div className="flex items-center justify-between">
         <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-        <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]">
+        <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Icon className="h-3 w-3" />
         </span>
       </div>
       <div className="mt-3 flex items-center gap-4">
         <div className="relative h-20 w-20">
           <svg className="h-full w-full -rotate-90" viewBox="0 0 70 70">
+            <circle cx="35" cy="35" r="30" fill="none" stroke="var(--mint-solid)" strokeWidth="5" />
             <circle
               cx="35"
               cy="35"
               r="30"
               fill="none"
-              stroke="oklch(0.30 0.04 295 / 0.3)"
-              strokeWidth="5"
-            />
-            <circle
-              cx="35"
-              cy="35"
-              r="30"
-              fill="none"
-              stroke="url(#ringGrad)"
+              stroke="var(--mint-solid)"
               strokeWidth="5"
               strokeLinecap="round"
               strokeDasharray={circumference}
               strokeDashoffset={offset}
               style={{
                 transition: "stroke-dashoffset 1.2s ease-out",
-                filter: "drop-shadow(0 0 6px oklch(0.65 0.22 295 / 0.6))",
+                filter: "none",
               }}
             />
-            <defs>
-              <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="oklch(0.65 0.22 295)" />
-                <stop offset="100%" stopColor="oklch(0.75 0.18 320)" />
-              </linearGradient>
-            </defs>
+            <defs></defs>
           </svg>
           <div className="absolute inset-0 flex items-center justify-center text-xl font-bold tabular-nums">
             {value}
@@ -778,33 +789,16 @@ function MetricCard({
   icon: LucideIcon;
 }) {
   return (
-    <GlassCard className="p-5 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]">
+    <GlassCard className="p-5 transition-all hover:-translate-y-0.5">
       <div className="flex items-center justify-between">
         <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-        <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]">
+        <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Icon className="h-3 w-3" />
         </span>
       </div>
       <div className="mt-3 text-3xl font-bold gradient-text">{value}</div>
       <div className="mt-1 line-clamp-2 text-[11px] text-muted-foreground">{hint}</div>
     </GlassCard>
-  );
-}
-
-function BarRow({ label, value }: { label: string; value: number }) {
-  return (
-    <div>
-      <div className="mb-2 flex items-center justify-between text-sm">
-        <span className="text-muted-foreground">{label}</span>
-        <span className="font-semibold tabular-nums">{value}%</span>
-      </div>
-      <div className="h-2 overflow-hidden rounded-full bg-secondary/60">
-        <div
-          className="h-full rounded-full bg-gradient-to-r from-primary via-accent to-primary transition-all duration-1000"
-          style={{ width: `${value}%`, boxShadow: "0 0 10px oklch(0.65 0.22 295 / 0.5)" }}
-        />
-      </div>
-    </div>
   );
 }
 
@@ -820,12 +814,6 @@ const STAT_FIELDS: {
 }[] = [
   { key: "sat_score", label: "SAT Score", icon: GraduationCap, max: 1600 },
   { key: "ielts_band", label: "IELTS Band", icon: Languages, max: 9 },
-  { key: "study_progress", label: "Study Progress", icon: TrendingUp, unit: "%", max: 100 },
-  { key: "leadership_level", label: "Leadership", icon: Trophy, unit: "%", max: 100 },
-  { key: "productivity_level", label: "Productivity", icon: Zap, unit: "%", max: 100 },
-  { key: "creativity_score", label: "Creativity", icon: Sparkles, unit: "%", max: 100 },
-  { key: "communication_score", label: "Communication", icon: Activity, unit: "%", max: 100 },
-  { key: "emotional_intelligence", label: "Emotional IQ", icon: Heart, unit: "%", max: 100 },
 ];
 
 function StatsSection({
@@ -841,6 +829,8 @@ function StatsSection({
   achievements: Achievement[];
   setAchievements: (a: Achievement[]) => void;
 }) {
+  const w = useWords();
+  const [saveError, setSaveError] = useState(false);
   const [editing, setEditing] = useState(false);
   const empty: Stats = {
     user_id: userId,
@@ -864,10 +854,15 @@ function StatsSection({
 
   async function saveStats() {
     const payload = { ...draft, user_id: userId };
-    const { data, error } = await supabase.from("user_stats").upsert(payload).select().single();
-    if (!error && data) {
-      setStats(data as unknown as Stats);
-      setEditing(false);
+    setSaveError(false);
+    try {
+      const { data, error } = await supabase.from("user_stats").upsert(payload).select().single();
+      if (!error && data) {
+        setStats(data as unknown as Stats);
+        setEditing(false);
+      } else setSaveError(true);
+    } catch {
+      setSaveError(true);
     }
   }
 
@@ -876,7 +871,9 @@ function StatsSection({
       {/* Stats grid */}
       <GlassCard className="p-7">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <SectionTitle icon={BarChart3}>Personal Stats</SectionTitle>
+          <SectionTitle icon={BarChart3}>
+            {w("Your recorded test scores", "Qayd etilgan test ballari", "Записанные баллы тестов")}
+          </SectionTitle>
           <button
             onClick={() => (editing ? saveStats() : setEditing(true))}
             className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary/20"
@@ -892,19 +889,33 @@ function StatsSection({
             )}
           </button>
         </div>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <p className="mt-4 text-sm text-muted-foreground">
+          {w(
+            "SAT and IELTS results entered by you; Abilitio has not verified them. No score means not recorded, not zero ability. Older personal ratings are retained in your data but are no longer shown as measurements.",
+            "SAT va IELTS ballarini o‘zingiz kiritasiz; Abilitio tekshirmagan. Ball yo‘qligi — qayd yo‘q, qobiliyat nol emas. Eski shaxsiy baholar ma’lumotda qoladi, o‘lchov sifatida ko‘rsatilmaydi.",
+            "SAT и IELTS введены вами и не проверены Abilitio. Отсутствие балла означает отсутствие записи, не нулевые способности. Старые личные рейтинги сохранены в данных, но не показываются как измерения.",
+          )}
+        </p>
+        {saveError && (
+          <p role="alert" className="mt-4">
+            {w(
+              "Scores were not saved. Please try again.",
+              "Ballar saqlanmadi. Qayta urinib ko‘ring.",
+              "Баллы не сохранены. Попробуйте снова.",
+            )}
+          </p>
+        )}
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
           {STAT_FIELDS.map((f) => {
             const Icon = f.icon;
             const raw = draft[f.key] as number | null;
-            const value = raw ?? 0;
-            const pct = f.max ? Math.min(100, (Number(value) / f.max) * 100) : 0;
             return (
               <div
                 key={String(f.key)}
-                className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/40 to-background/40 p-4 transition-all hover:border-primary/30 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]"
+                className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 transition-all hover:border-primary/30 hover:-translate-y-0.5"
               >
                 <div className="flex items-center justify-between">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_2px_8px_-2px_var(--glow)]">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                     <Icon className="h-3 w-3" />
                   </span>
                   <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -914,6 +925,10 @@ function StatsSection({
                 {editing ? (
                   <input
                     type="number"
+                    aria-label={f.label}
+                    min={0}
+                    max={f.max}
+                    step={f.key === "ielts_band" ? 0.5 : 1}
                     value={raw ?? ""}
                     onChange={(e) =>
                       setDraft({
@@ -928,18 +943,16 @@ function StatsSection({
                     {raw !== null ? (
                       <CountUp value={raw} suffix={f.unit ?? ""} duration={1000} />
                     ) : (
-                      "—"
+                      <span className="text-sm">
+                        {w("Not recorded", "Qayd etilmagan", "Не записано")}
+                      </span>
                     )}
                   </div>
                 )}
-                {f.max && (
-                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-secondary/60">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all duration-700"
-                      style={{ width: `${pct}%`, boxShadow: "0 0 8px oklch(0.65 0.22 295 / 0.4)" }}
-                    />
-                  </div>
-                )}
+                <p className="mt-3 text-xs text-muted-foreground">
+                  {w("Scale", "Shkala", "Шкала")}: {f.max} ·{" "}
+                  {w("Entered by you", "O‘zingiz kiritgan", "Введено вами")}
+                </p>
               </div>
             );
           })}
@@ -1063,7 +1076,7 @@ function AchievementsBlock({
             </button>
             <button
               onClick={addOne}
-              className="rounded-full bg-gradient-to-r from-primary to-accent px-3 py-1 text-[11px] font-medium text-primary-foreground shadow-[0_2px_8px_-3px_var(--glow)] hover:-translate-y-0.5 transition-all"
+              className="rounded-full bg-primary px-3 py-1 text-[11px] font-medium text-primary-foreground hover:-translate-y-0.5 transition-all"
             >
               Save
             </button>
@@ -1084,10 +1097,10 @@ function AchievementsBlock({
           return (
             <div
               key={a.id}
-              className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-secondary/30 to-background/30 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_8px_24px_-10px_oklch(0.55_0.22_295_/_0.3)]"
+              className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-primary/30"
             >
               <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
                   <Trophy className="h-4 w-4" />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -1231,13 +1244,13 @@ function SettingsSection({
       {isAdmin && (
         <Link
           to="/admin"
-          className="group relative block overflow-hidden rounded-3xl border border-primary/40 bg-gradient-to-br from-primary/20 via-accent/10 to-background/40 p-6 backdrop-blur-xl transition-all hover:-translate-y-0.5"
-          style={{ boxShadow: "0 20px 60px -20px var(--glow)" }}
+          className="group relative block overflow-hidden rounded-3xl border border-primary/40 bg-card p-6  transition-all hover:-translate-y-0.5"
+          style={{ boxShadow: "4px 4px 0 var(--ink)" }}
         >
           <GlowBlob className="-right-10 -top-10 h-40 w-40 opacity-50 blur-3xl" alpha={0.5} />
           <div className="relative flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg">
                 <Crown className="h-6 w-6" />
               </div>
               <div>
@@ -1271,7 +1284,7 @@ function SettingsSection({
           setStats({ ...base, avatar_url: newPath });
         }}
       />
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="settings-grid grid gap-6 lg:grid-cols-2">
         <GlassCard className="p-7">
           <SectionTitle icon={UserIcon}>Profile</SectionTitle>
           <div className="mt-5 space-y-3">
@@ -1300,7 +1313,7 @@ function SettingsSection({
                   </button>
                   <button
                     onClick={saveProfile}
-                    className="rounded-full bg-gradient-to-r from-primary to-accent px-4 py-1.5 text-xs font-medium text-primary-foreground shadow-[0_2px_8px_-3px_var(--glow)] hover:-translate-y-0.5 transition-all"
+                    className="rounded-full bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground hover:-translate-y-0.5 transition-all"
                   >
                     Save
                   </button>
@@ -1351,7 +1364,7 @@ function SettingsSection({
         <GlassCard className="p-7">
           <SectionTitle icon={LogOut}>Session</SectionTitle>
           <p className="mt-3 text-sm text-muted-foreground">
-            Sign out from this device. Your progress is saved.
+            Sign out from this device. Check your save status before leaving.
           </p>
           <button
             onClick={onLogout}
@@ -1385,7 +1398,7 @@ function WeeklyEmailToggle({ userId }: { userId: string }) {
       <button
         onClick={toggle}
         aria-pressed={enabled}
-        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-all duration-300 focus-visible:outline-none ${enabled ? "bg-gradient-to-r from-primary to-accent shadow-[0_0_12px_-3px_var(--glow)]" : "bg-secondary"}`}
+        className={`cartoon-switch relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-all duration-300 focus-visible:outline-none ${enabled ? "bg-primary" : "bg-secondary"}`}
       >
         <span
           className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-lg ring-0 transition-transform ${enabled ? "translate-x-4" : "translate-x-0"}`}
@@ -1433,9 +1446,9 @@ function PrefRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3">
+    <div className="pref-row flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3">
       <div className="flex items-center gap-3 min-w-0">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Icon className="h-4 w-4" />
         </div>
         <div className="min-w-0">
@@ -1443,7 +1456,7 @@ function PrefRow({
           <div className="truncate text-[11px] text-muted-foreground">{hint}</div>
         </div>
       </div>
-      <div className="shrink-0">{children}</div>
+      <div className="pref-control shrink-0">{children}</div>
     </div>
   );
 }
@@ -1460,24 +1473,18 @@ function GlassCard({
 }) {
   return (
     <div
-      className={`rounded-3xl border border-border/60 bg-gradient-to-br from-secondary/30 via-background/40 to-background/30 backdrop-blur-xl ${className}`}
-      style={{ boxShadow: "0 10px 40px -20px oklch(0.55 0.22 295 / 0.25)" }}
+      className={`rounded-3xl border border-border/60 bg-card  ${className}`}
+      style={{ boxShadow: "4px 4px 0 var(--ink)" }}
     >
       {children}
     </div>
   );
 }
 
-function SectionTitle({
-  icon: Icon,
-  children,
-}: {
-  icon: LucideIcon;
-  children: React.ReactNode;
-}) {
+function SectionTitle({ icon: Icon, children }: { icon: LucideIcon; children: React.ReactNode }) {
   return (
     <h2 className="flex items-center gap-2 text-base font-semibold">
-      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">
+      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
         <Icon className="h-3.5 w-3.5" />
       </span>
       {children}

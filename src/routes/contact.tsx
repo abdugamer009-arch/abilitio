@@ -1,334 +1,232 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageShell } from "@/components/PageShell";
-import { Reveal } from "@/components/Reveal";
-import { Mail, MessageSquare, MapPin, Send, Phone, Copy, Check, Loader2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
-import { useT } from "@/lib/i18n";
+import { ArrowUpRight, Check } from "lucide-react";
+import { PageShell } from "@/components/PageShell";
+import { useWords } from "@/lib/editorial";
 import { CONTACT_EMAIL, CONTACT_PHONE } from "@/lib/constants";
-
-const CONTACT_PHONE_TEL = CONTACT_PHONE.replace(/\s+/g, "");
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/mqejjovw";
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
+import { pageMeta } from "@/lib/seo";
 export const Route = createFileRoute("/contact")({
-  head: () => ({
-    meta: [
-      { title: "Contacts — Abilitio" },
-      {
-        name: "description",
-        content: "Get in touch with the Abilitio team. We'd love to hear from you.",
-      },
-    ],
+  validateSearch: (search: Record<string, unknown>): { topic?: string } => ({
+    topic: search.topic === "school" ? "school" : undefined,
   }),
-  component: ContactPage,
+  head: () =>
+    pageMeta(
+      "/contact",
+      "Talk to the team",
+      "Ask about the assessment or plan a school pilot with Abilitio.",
+    ),
+  component: Contact,
 });
-
-type Status = "idle" | "sending" | "success" | "error";
-
-function ContactPage() {
-  const t = useT();
-  const [copiedPhone, setCopiedPhone] = useState(false);
-  const [copiedEmail, setCopiedEmail] = useState(false);
-
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [website, setWebsite] = useState("");
-  const [startedAt] = useState(() => Date.now());
-  const [status, setStatus] = useState<Status>("idle");
-  const [errorMsg, setErrorMsg] = useState("");
-
-  const handleCopy = async (text: string, type: "phone" | "email") => {
-    await navigator.clipboard.writeText(text);
-    if (type === "phone") {
-      setCopiedPhone(true);
-      setTimeout(() => setCopiedPhone(false), 2000);
-    } else {
-      setCopiedEmail(true);
-      setTimeout(() => setCopiedEmail(false), 2000);
-    }
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
+const ENDPOINT = "https://formspree.io/f/mqejjovw";
+function Contact() {
+  const w = useWords();
+  const [status, setStatus] = useState("idle");
+  const [error, setError] = useState("");
+  const [school, setSchool] = useState(Route.useSearch().topic === "school");
+  const [copy, setCopy] = useState(false);
+  async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setErrorMsg("");
-    if (website.trim() !== "") return;
-    if (Date.now() - startedAt < 1500) {
-      setStatus("error");
-      setErrorMsg(t.contact.errors.generic);
-      return;
-    }
-    const trimmedName = name.trim();
-    const trimmedEmail = email.trim();
-    const trimmedMessage = message.trim();
-    if (trimmedName.length < 2 || trimmedName.length > 100) {
-      setStatus("error");
-      setErrorMsg(t.contact.errors.name);
-      return;
-    }
-    if (!EMAIL_RE.test(trimmedEmail) || trimmedEmail.length > 200) {
-      setStatus("error");
-      setErrorMsg(t.contact.errors.email);
-      return;
-    }
-    if (trimmedMessage.length < 5 || trimmedMessage.length > 2000) {
-      setStatus("error");
-      setErrorMsg(t.contact.errors.msg);
-      return;
-    }
-
+    const form = e.currentTarget;
+    const fields = new FormData(form);
+    if (fields.get("website")) return;
     setStatus("sending");
+    setError("");
     try {
-      const res = await fetch(FORMSPREE_ENDPOINT, {
+      const response = await fetch(ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          name: trimmedName,
-          email: trimmedEmail,
-          message: trimmedMessage,
-          _subject: `New Abilitio contact from ${trimmedName}`,
+          ...Object.fromEntries(fields),
+          _subject: school ? "Abilitio school pilot inquiry" : "Abilitio contact",
         }),
       });
-      if (!res.ok) throw new Error("Request failed");
+      if (!response.ok) throw new Error("submission_failed");
       setStatus("success");
-      setName("");
-      setEmail("");
-      setMessage("");
+      form.reset();
     } catch {
       setStatus("error");
-      setErrorMsg(t.contact.errors.generic);
+      setError(
+        w(
+          "Your message was not sent. Try again or email us directly.",
+          "Xabar yuborilmadi. Qayta urining yoki bevosita email yozing.",
+          "Сообщение не отправлено. Повторите или напишите на почту.",
+        ),
+      );
     }
-  };
-
+  }
   return (
     <PageShell>
-      <section className="relative px-6 pt-20 pb-12 text-center">
-        <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
-        <div className="relative animate-fade-up">
-          <div className="text-xs uppercase tracking-widest text-accent">{t.contact.eyebrow}</div>
-          <h1 className="mt-3 text-4xl font-bold md:text-6xl">
-            {t.contact.titleA} <span className="gradient-text">{t.contact.titleB}</span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
-            {t.contact.subtitle}
+      <div className="field-wrap">
+        <header className="field-intro">
+          <p className="micro section-number">
+            {w("CONTACT / SCHOOL TRIALS", "ALOQA / MAKTAB SINOVLARI", "КОНТАКТЫ / ПИЛОТЫ")}
           </p>
-        </div>
-      </section>
-
-      <section className="px-6 pb-12">
-        <Reveal className="mx-auto flex max-w-3xl flex-col items-center gap-6 md:flex-row md:justify-center">
-          <a
-            href={`tel:${CONTACT_PHONE_TEL}`}
-            className="group glass relative w-full max-w-sm overflow-hidden rounded-3xl p-8 text-center transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_60px_-10px_var(--glow)] md:w-auto md:flex-1"
-          >
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_24px_-8px_var(--glow)] transition-all duration-500 group-hover:scale-110">
-              <Phone className="h-6 w-6 transition-transform duration-500 group-hover:scale-110" />
-            </div>
-            <div className="mt-5 text-xs uppercase tracking-widest text-muted-foreground">
-              {t.contact.phone}
-            </div>
-            <div className="mt-2 text-2xl font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary">
-              {CONTACT_PHONE}
-            </div>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                handleCopy(CONTACT_PHONE_TEL, "phone");
-              }}
-              className="mx-auto mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs text-muted-foreground transition-all duration-300 hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
-            >
-              {copiedPhone ? (
-                <Check className="h-3.5 w-3.5 text-emerald-400" />
-              ) : (
-                <Copy className="h-3.5 w-3.5" />
+          <div>
+            <h1>{w("Start a conversation.", "Suhbatni boshlang.", "Начните разговор.")}</h1>
+            <p>
+              {w(
+                "Tell us what you are trying to understand. For a school, tell us the number of students and the language you need.",
+                "Nimani tushunmoqchi ekaningizni ayting. Maktab uchun sinov hajmi va tilini yozing.",
+                "Расскажите о вашем вопросе. Для школы укажите масштаб и язык пилота.",
               )}
-              {copiedPhone ? t.contact.copied : t.contact.copy}
-            </button>
-          </a>
-
-          <a
-            href={`mailto:${CONTACT_EMAIL}`}
-            className="group glass relative w-full max-w-sm overflow-hidden rounded-3xl p-8 text-center transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_60px_-10px_var(--glow)] md:w-auto md:flex-1"
-          >
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_8px_24px_-8px_var(--glow)] transition-all duration-500 group-hover:scale-110">
-              <Mail className="h-6 w-6 transition-transform duration-500 group-hover:scale-110" />
-            </div>
-            <div className="mt-5 text-xs uppercase tracking-widest text-muted-foreground">
-              {t.contact.email}
-            </div>
-            <div className="mt-2 text-lg font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary md:text-xl">
-              {CONTACT_EMAIL}
-            </div>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                handleCopy(CONTACT_EMAIL, "email");
-              }}
-              className="mx-auto mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs text-muted-foreground transition-all duration-300 hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
-            >
-              {copiedEmail ? (
-                <Check className="h-3.5 w-3.5 text-emerald-400" />
-              ) : (
-                <Copy className="h-3.5 w-3.5" />
-              )}
-              {copiedEmail ? t.contact.copied : t.contact.copy}
-            </button>
-          </a>
-        </Reveal>
-      </section>
-
-      <section className="px-6 pb-24">
-        <Reveal className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
-          <div className="space-y-4 md:col-span-1">
-            {[
-              { icon: MessageSquare, label: t.contact.support, value: t.contact.supportVal },
-              { icon: MapPin, label: t.contact.basedIn, value: t.contact.basedVal },
-            ].map((c) => (
-              <div
-                key={c.label}
-                className="glass rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_40px_-5px_var(--glow)]"
-              >
-                <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_4px_12px_-4px_var(--glow)]">
-                  <c.icon className="h-4 w-4" />
-                </div>
-                <div className="mt-3 text-xs text-muted-foreground">{c.label}</div>
-                <div className="text-sm font-medium">{c.value}</div>
-              </div>
-            ))}
+            </p>
           </div>
-
-          <form onSubmit={handleSubmit} className="glass rounded-3xl p-8 md:col-span-2" noValidate>
+        </header>
+        <section className="field-section field-rule contact-layout">
+          <aside>
+            <p className="micro">{w("DIRECT CONTACT", "BEVOSITA ALOQA", "ПРЯМОЙ КОНТАКТ")}</p>
+            <a className="text-link mt-6 break-all" href={`mailto:${CONTACT_EMAIL}`}>
+              {CONTACT_EMAIL}
+            </a>
+            <button
+              className="block text-sm mt-4 text-muted-foreground"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(CONTACT_EMAIL);
+                  setCopy(true);
+                } catch {
+                  setError(
+                    w(
+                      "Select and copy the email address above.",
+                      "Yuqoridagi emailni belgilang va nusxalang.",
+                      "Выделите и скопируйте адрес выше.",
+                    ),
+                  );
+                }
+              }}
+            >
+              {copy
+                ? w("Copied", "Nusxalandi", "Скопировано")
+                : w("Copy address", "Manzilni nusxalash", "Копировать адрес")}
+            </button>
+            <a className="text-link mt-8" href={`tel:${CONTACT_PHONE.replace(/\s/g, "")}`}>
+              {CONTACT_PHONE}
+            </a>
+            <p className="text-sm text-muted-foreground mt-8">
+              {w(
+                "Your message goes to our team. A school inquiry begins with agreeing the number of students, reports and price; it does not create a subscription.",
+                "Xabaringiz jamoamizga boradi. Maktab so‘rovi hajmni muhokama qilishdan boshlanadi, obuna yaratmaydi.",
+                "Сообщение получит команда. Запрос школы начинает обсуждение условий и не создаёт подписку.",
+              )}
+            </p>
+          </aside>
+          <div>
             {status === "success" ? (
-              <div
-                role="status"
-                className="flex h-full flex-col items-center justify-center py-12 text-center animate-fade-up"
-              >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent glow-purple">
-                  <Check className="h-6 w-6 text-primary-foreground" />
-                </div>
-                <h3 className="mt-6 text-2xl font-semibold">{t.contact.successTitle}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{t.contact.successBody}</p>
-                <button
-                  type="button"
-                  onClick={() => setStatus("idle")}
-                  className="mt-6 rounded-full border border-primary/20 bg-primary/5 px-5 py-2 text-xs text-muted-foreground transition-all hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
-                >
-                  {t.contact.sendAnother}
+              <div role="status" className="sample-result">
+                <Check size={24} />
+                <h2 className="text-4xl mt-6">
+                  {w("Message received.", "Xabar qabul qilindi.", "Сообщение получено.")}
+                </h2>
+                <p className="mt-4">
+                  {w(
+                    "The team will reply to the address you provided.",
+                    "Jamoa ko‘rsatgan manzilingizga javob beradi.",
+                    "Команда ответит на указанный адрес.",
+                  )}
+                </p>
+                <button className="text-link mt-6" onClick={() => setStatus("idle")}>
+                  {w("Send another message", "Yana xabar yuborish", "Отправить ещё")}
                 </button>
               </div>
             ) : (
-              <div className="space-y-5">
-                <div className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
-                  <label htmlFor="website">Website</label>
-                  <input
-                    id="website"
-                    name="website"
-                    type="text"
-                    tabIndex={-1}
-                    autoComplete="off"
-                    value={website}
-                    onChange={(e) => setWebsite(e.target.value)}
-                  />
-                </div>
-
-                <div className="grid gap-5 md:grid-cols-2">
-                  <Field
-                    label={t.contact.name}
-                    id="name"
-                    value={name}
-                    onChange={setName}
-                    placeholder={t.contact.placeholderName}
-                  />
-                  <Field
-                    label={t.contact.emailLabel}
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={setEmail}
-                    placeholder={t.contact.placeholderEmail}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="msg" className="text-xs text-muted-foreground">
-                    {t.contact.message}
-                  </label>
-                  <textarea
-                    id="msg"
-                    required
-                    rows={5}
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder={t.contact.placeholderMsg}
-                    maxLength={2000}
-                    className="mt-2 w-full rounded-2xl border border-border bg-secondary/40 px-4 py-3 text-sm outline-none transition-all duration-300 focus:border-primary focus:shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_18%,transparent)]"
-                  />
-                </div>
-
-                {status === "error" && (
-                  <div
-                    role="alert"
-                    className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+              <form onSubmit={submit}>
+                <label>
+                  {w("I am writing about", "Mavzu", "Тема")}
+                  <select
+                    name="topic"
+                    value={school ? "school" : "assessment"}
+                    onChange={(e) => setSchool(e.target.value === "school")}
                   >
-                    {errorMsg || t.contact.errors.generic}
-                  </div>
+                    <option value="assessment">
+                      {w("The assessment / my account", "Baholash / hisobim", "Оценка / аккаунт")}
+                    </option>
+                    <option value="school">
+                      {w("A school trial", "Maktab sinovi", "Пилот для школы")}
+                    </option>
+                  </select>
+                </label>
+                <div className="form-row">
+                  <label>
+                    {w("Your name", "Ismingiz", "Ваше имя")}
+                    <input name="name" minLength={2} maxLength={100} autoComplete="name" required />
+                  </label>
+                  <label>
+                    {w("Email", "Email", "Почта")}
+                    <input
+                      name="email"
+                      type="email"
+                      maxLength={200}
+                      autoComplete="email"
+                      required
+                    />
+                  </label>
+                </div>
+                {school && (
+                  <>
+                    <div className="form-row">
+                      <label>
+                        {w("Institution", "Muassasa", "Учреждение")}
+                        <input name="institution" required maxLength={150} />
+                      </label>
+                      <label>
+                        {w("Your role", "Lavozimingiz", "Ваша роль")}
+                        <input name="role" required maxLength={100} />
+                      </label>
+                    </div>
+                    <div className="form-row">
+                      <label>
+                        {w(
+                          "Proposed student count",
+                          "Taxminiy o‘quvchi soni",
+                          "Количество учеников",
+                        )}
+                        <input name="students" type="number" min={1} max={100000} required />
+                      </label>
+                      <label>
+                        {w("Preferred language", "Til", "Язык")}
+                        <select name="language">
+                          <option>Uzbek</option>
+                          <option>English</option>
+                          <option>Russian</option>
+                        </select>
+                      </label>
+                    </div>
+                  </>
                 )}
-
-                <button
-                  type="submit"
-                  disabled={status === "sending"}
-                  className="cta-sheen relative overflow-hidden inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-3 text-sm font-medium text-primary-foreground shadow-[0_6px_20px_-6px_var(--glow)] transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0"
-                >
-                  {status === "sending" ? (
-                    <>
-                      {t.contact.sending} <Loader2 className="h-4 w-4 animate-spin" />
-                    </>
-                  ) : (
-                    <>
-                      {t.contact.send} <Send className="h-4 w-4" />
-                    </>
+                <label>
+                  {w("Your question", "Savolingiz", "Ваш вопрос")}
+                  <textarea name="message" minLength={5} maxLength={2000} rows={6} required />
+                </label>
+                <div hidden aria-hidden>
+                  <label>
+                    Website
+                    <input name="website" tabIndex={-1} autoComplete="off" />
+                  </label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {w(
+                    "Avoid including student names or assessment answers.",
+                    "O‘quvchi ismlari yoki baholash javoblarini yubormang.",
+                    "Не включайте имена учеников и ответы на вопросы.",
                   )}
+                </p>
+                {error && (
+                  <p role="alert" className="field-error">
+                    {error}
+                  </p>
+                )}
+                <button className="field-button justify-self-start" disabled={status === "sending"}>
+                  {status === "sending"
+                    ? w("Sending…", "Yuborilmoqda…", "Отправка…")
+                    : w("Send message", "Xabar yuborish", "Отправить")}
+                  <ArrowUpRight size={18} />
                 </button>
-              </div>
+              </form>
             )}
-          </form>
-        </Reveal>
-      </section>
+            {error && status === "success" && <p role="alert">{error}</p>}
+          </div>
+        </section>
+      </div>
     </PageShell>
-  );
-}
-
-function Field({
-  label,
-  id,
-  type = "text",
-  placeholder,
-  value,
-  onChange,
-}: {
-  label: string;
-  id: string;
-  type?: string;
-  placeholder?: string;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div>
-      <label htmlFor={id} className="text-xs text-muted-foreground">
-        {label}
-      </label>
-      <input
-        id={id}
-        type={type}
-        required
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        maxLength={type === "email" ? 200 : 100}
-        className="mt-2 w-full rounded-2xl border border-border bg-secondary/40 px-4 py-3 text-sm outline-none transition-all duration-300 focus:border-primary focus:shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_18%,transparent)]"
-      />
-    </div>
   );
 }

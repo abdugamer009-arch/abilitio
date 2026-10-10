@@ -70,8 +70,8 @@ function SchoolRegisterPage() {
       <PageShell>
         <section className="px-6 pt-24 pb-24">
           <div className="mx-auto max-w-xl">
-            <div className="glass rounded-3xl p-8 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground glow-purple">
+            <div className="panel rounded-3xl p-8 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground glow-purple">
                 <GraduationCap className="h-6 w-6" />
               </div>
               <h1 className="mt-5 text-2xl font-bold gradient-text">School registered</h1>
@@ -119,7 +119,7 @@ function SchoolRegisterPage() {
               Create your school's principal account on Abilitio.
             </p>
           </div>
-          <form onSubmit={submit} className="glass mt-8 space-y-3 rounded-3xl p-7">
+          <form onSubmit={submit} className="panel mt-8 space-y-3 rounded-3xl p-7">
             <Field
               label="School Name"
               value={form.name}

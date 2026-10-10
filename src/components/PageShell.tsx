@@ -1,6 +1,6 @@
 import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
-import { AmbientBackdrop } from "./AmbientBackdrop";
+
 import { ScrollProgress } from "./ScrollProgress";
 import { useT } from "@/lib/i18n";
 
@@ -15,13 +15,9 @@ export function PageShell({ children }: { children: React.ReactNode }) {
         {t.nav.skipToContent}
       </a>
       <ScrollProgress />
-      <AmbientBackdrop />
+
       <Navbar />
-      <main
-        id="main"
-        className="animate-fade-in transition-opacity duration-500 ease-out"
-        tabIndex={-1}
-      >
+      <main id="main" className="page-plane" tabIndex={-1}>
         {children}
       </main>
       <Footer />

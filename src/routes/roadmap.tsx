@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { ActivityGuide } from "@/components/ActivityGuide";
 import { PageShell } from "@/components/PageShell";
 import { GlowBlob } from "@/components/GlowBlob";
 import { useAuth } from "@/lib/auth-context";
@@ -23,11 +24,15 @@ import {
   type RoadmapPhase,
   type RoadmapTrack,
 } from "@/lib/roadmap/roadmap-world";
+import { track as analyticsTrack, AnalyticsEvent } from "@/lib/analytics";
+import { useTaskJournal } from "@/lib/roadmap/useTaskJournal";
+import { useWords } from "@/lib/editorial";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/roadmap")({
   head: () => ({
     meta: [
+      { name: "robots", content: "noindex, follow" },
       { title: "Roadmap World — Your Career Journey | Abilitio" },
       {
         name: "description",
@@ -48,7 +53,13 @@ function RoadmapPage() {
 
   const [topCareer, setTopCareer] = useState<string | null>(null);
   const [activePhase, setActivePhase] = useState<RoadmapPhase["index"]>(1);
-  const [tasksDone, setTasksDone] = useState<Record<string, boolean>>({});
+  const {
+    tasks: tasksDone,
+    persist: persistTasks,
+    syncState,
+    legacyFound,
+  } = useTaskJournal(user?.id);
+  const w = useWords();
   const [celebrating, setCelebrating] = useState<number | null>(null);
 
   useEffect(() => {
@@ -71,29 +82,13 @@ function RoadmapPage() {
     })();
   }, [user]);
 
-  // Per-user task completion (localStorage v1)
-  useEffect(() => {
-    if (!user || typeof window === "undefined") return;
-    try {
-      const raw = localStorage.getItem(`roadmap_tasks_${user.id}`);
-      setTasksDone(raw ? JSON.parse(raw) : {});
-    } catch {
-      setTasksDone({});
-    }
-  }, [user]);
-
-  function persistTasks(next: Record<string, boolean>) {
-    setTasksDone(next);
-    if (!user || typeof window === "undefined") return;
-    localStorage.setItem(`roadmap_tasks_${user.id}`, JSON.stringify(next));
-  }
-
   const track: RoadmapTrack = useMemo(() => pickTrack(topCareer ?? undefined), [topCareer]);
   const phases = useMemo(() => buildRoadmap(track), [track]);
 
   function handleComplete(p: RoadmapPhase, taskId: string) {
     if (tasksDone[taskId]) return;
     persistTasks({ ...tasksDone, [taskId]: true });
+    if (Object.keys(tasksDone).length === 0) analyticsTrack(AnalyticsEvent.FirstTask);
 
     // Phase completion celebration
     const allDone = p.tasks.every((t) => (t.id === taskId ? true : tasksDone[t.id]));
@@ -103,6 +98,21 @@ function RoadmapPage() {
   if (loading || !user) {
     return (
       <PageShell>
+        <p role="status" className="field-wrap pt-4 text-xs text-muted-foreground">
+          {syncState === "saved"
+            ? w(
+                "Journal saved to your account",
+                "Daftar hisobingizga saqlandi",
+                "Дневник сохранён в аккаунте",
+              )
+            : syncState === "local"
+              ? w(
+                  "Saved in this browser; account sync pending. Reconnect to retry.",
+                  "Shu brauzerda saqlandi; hisobga ulash kutilmoqda. Ulanishni tekshiring.",
+                  "Сохранено в браузере; синхронизация ожидает подключения.",
+                )
+              : w("Loading your journal…", "Daftar yuklanmoqda…", "Загрузка дневника…")}
+        </p>
         <section className="px-6 pt-12 pb-24" aria-busy="true" aria-label={t.roadmapUi.loadingAria}>
           <div className="mx-auto max-w-5xl">
             <div className="skeleton mx-auto h-10 w-72 rounded-2xl" />
@@ -122,18 +132,27 @@ function RoadmapPage() {
 
   return (
     <PageShell>
+      {legacyFound && (
+        <p className="field-wrap py-4 text-sm text-muted-foreground" role="status">
+          {w(
+            "Older progress has no recorded career direction. Those marks are preserved for review; they do not count toward this path.",
+            "Oldingi natijada kasb yo‘nalishi qayd etilmagan. Belgilar ko‘rib chiqish uchun saqlanadi va bu yo‘lga qo‘shilmaydi.",
+            "У прежних отметок не записано направление. Они сохранены для проверки и не учитываются в этом пути.",
+          )}
+        </p>
+      )}
       {/* Ambient backdrop */}
       <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-[700px] overflow-hidden">
         <div
           className="absolute left-1/2 top-[-220px] h-[800px] w-[1200px] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
           style={{
-            background: "radial-gradient(ellipse, oklch(0.55 0.22 295 / 0.35), transparent 60%)",
+            background: "var(--graph-paper)",
           }}
         />
         <div
           className="absolute -bottom-40 right-[-200px] h-[500px] w-[800px] rounded-full opacity-40 blur-3xl"
           style={{
-            background: "radial-gradient(circle, oklch(0.70 0.18 320 / 0.4), transparent 70%)",
+            background: "var(--graph-paper)",
           }}
         />
       </div>
@@ -154,8 +173,8 @@ function RoadmapPage() {
             </div>
             <Link
               to="/universities"
-              className="inline-flex items-center gap-2 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 to-accent/10 px-4 py-3 backdrop-blur-md transition-all hover:-translate-y-0.5"
-              style={{ boxShadow: "0 10px 30px -10px oklch(0.55 0.22 295 / 0.4)" }}
+              className="inline-flex items-center gap-2 rounded-2xl border border-primary/30 bg-primary px-4 py-3 -md transition-all hover:-translate-y-0.5"
+              style={{ boxShadow: "4px 4px 0 var(--ink)" }}
             >
               <GraduationCap className="h-7 w-7 text-primary" />
               <div className="text-left">
@@ -182,8 +201,8 @@ function RoadmapPage() {
           <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_2fr]">
             {/* Phase summary */}
             <div
-              className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-secondary/40 via-background/60 to-background/40 p-7 backdrop-blur-xl"
-              style={{ boxShadow: "0 20px 60px -20px oklch(0.55 0.22 295 / 0.35)" }}
+              className="relative overflow-hidden rounded-3xl border border-border/60 bg-card p-7 "
+              style={{ boxShadow: "4px 4px 0 var(--ink)" }}
             >
               <GlowBlob className="-right-16 -top-16 h-48 w-48 opacity-50 blur-3xl" alpha={0.45} />
               <div className="relative">
@@ -272,15 +291,15 @@ function WorldMap({
 
   return (
     <div
-      className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-b from-secondary/30 via-background/50 to-background/30 p-2 backdrop-blur-xl sm:p-4"
-      style={{ boxShadow: "0 30px 80px -30px oklch(0.55 0.22 295 / 0.45)" }}
+      className="roadmap-world relative overflow-hidden rounded-3xl border border-border/60 bg-card p-2 sm:p-4"
+      style={{ boxShadow: "4px 4px 0 var(--ink)" }}
     >
       {/* sky gradient + stars */}
       <div className="pointer-events-none absolute inset-0">
         <div
           className="absolute inset-0"
           style={{
-            background: "linear-gradient(180deg, oklch(0.35 0.12 295 / 0.25) 0%, transparent 60%)",
+            background: "var(--graph-paper)",
           }}
         />
         {[...Array(30)].map((_, i) => (
@@ -299,29 +318,11 @@ function WorldMap({
       </div>
 
       <svg viewBox="0 0 1000 400" className="relative w-full" style={{ aspectRatio: "1000/400" }}>
-        <defs>
-          <linearGradient id="pathGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="oklch(0.65 0.22 295)" stopOpacity="0.7" />
-            <stop offset="100%" stopColor="oklch(0.70 0.18 320)" stopOpacity="0.7" />
-          </linearGradient>
-          <radialGradient id="islandFill" cx="50%" cy="40%">
-            <stop offset="0%" stopColor="oklch(0.55 0.18 295)" />
-            <stop offset="100%" stopColor="oklch(0.28 0.10 290)" />
-          </radialGradient>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="6" result="b" />
-            <feMerge>
-              <feMergeNode in="b" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-
         {/* Curved travel path */}
         <path
           d="M 110 280 Q 200 180, 290 180 T 500 250 T 720 150 T 900 240"
           fill="none"
-          stroke="url(#pathGrad)"
+          stroke="var(--ink)"
           strokeWidth="3"
           strokeDasharray="2 8"
           strokeLinecap="round"
@@ -341,30 +342,39 @@ function WorldMap({
             >
               {/* Glow when active or completed */}
               {(active || completed) && (
-                <circle
-                  r={50}
-                  fill={completed ? "oklch(0.75 0.18 150 / 0.25)" : "oklch(0.65 0.24 295 / 0.3)"}
-                  filter="url(#glow)"
-                />
+                <circle r={50} fill={completed ? "var(--mint)" : "var(--yellow)"} />
               )}
               {/* Island ellipse */}
-              <ellipse cx="0" cy="6" rx="42" ry="14" fill="oklch(0.20 0.04 285 / 0.6)" />
+              <ellipse
+                cx="0"
+                cy="6"
+                rx="42"
+                ry="14"
+                fill="var(--mint)"
+                stroke="var(--ink)"
+                strokeWidth="3"
+              />
               <path
                 d="M -38 0 Q -30 -22, 0 -25 Q 32 -22, 38 0 Z"
-                fill="url(#islandFill)"
-                stroke={active ? "oklch(0.75 0.20 295)" : "oklch(0.45 0.10 295 / 0.5)"}
-                strokeWidth={active ? 2 : 1}
+                fill="var(--butter)"
+                stroke="var(--ink)"
+                strokeWidth="3"
               />
               {/* Peak */}
-              <path d="M -8 -22 Q 0 -38, 8 -22 Z" fill="oklch(0.70 0.16 295)" />
+              <path
+                d="M -8 -22 Q 0 -38, 8 -22 Z"
+                fill="var(--pink)"
+                stroke="var(--ink)"
+                strokeWidth="3"
+              />
 
               {/* Check for completed */}
               {completed && (
                 <g transform="translate(0,-8)">
-                  <circle r="10" fill="oklch(0.55 0.18 150)" />
+                  <circle r="10" fill="var(--mint-solid)" />
                   <path
                     d="M -4 0 L -1 3 L 5 -3"
-                    stroke="white"
+                    stroke="var(--illustration-ink)"
                     strokeWidth="2"
                     fill="none"
                     strokeLinecap="round"
@@ -381,11 +391,11 @@ function WorldMap({
                 className="select-none"
                 fontSize="13"
                 fontWeight="600"
-                fill={active ? "oklch(0.92 0.02 295)" : "oklch(0.75 0.04 295)"}
+                fill="var(--foreground)"
               >
                 {p.name}
               </text>
-              <text x="0" y="56" textAnchor="middle" fontSize="10" fill="oklch(0.65 0.04 295)">
+              <text x="0" y="56" textAnchor="middle" fontSize="10" fill="var(--foreground)">
                 {phaseWord} {p.index}
               </text>
             </g>
@@ -397,17 +407,17 @@ function WorldMap({
           transform={`translate(${abbiPos.x}, ${abbiPos.y - 50})`}
           style={{ transition: "transform 600ms cubic-bezier(0.16,1,0.3,1)" }}
         >
-          <circle r="14" fill="oklch(0.65 0.24 295 / 0.35)" filter="url(#glow)" />
-          <circle r="9" fill="oklch(0.75 0.20 295)" />
-          <circle r="9" fill="url(#pathGrad)" />
+          <circle r="14" fill="var(--illustration-ink)" />
+          <circle r="9" fill="var(--yellow)" />
+          <circle r="9" fill="var(--yellow)" />
           {/* eyes */}
-          <circle cx="-2.5" cy="-1" r="1.3" fill="white" />
-          <circle cx="2.5" cy="-1" r="1.3" fill="white" />
+          <circle cx="-2.5" cy="-1" r="1.3" fill="var(--illustration-ink)" />
+          <circle cx="2.5" cy="-1" r="1.3" fill="var(--illustration-ink)" />
           {/* smile */}
           <path
             d="M -2.5 2.5 Q 0 4, 2.5 2.5"
-            stroke="white"
-            strokeWidth="0.8"
+            stroke="var(--illustration-ink)"
+            strokeWidth="3"
             fill="none"
             strokeLinecap="round"
           />
@@ -415,9 +425,9 @@ function WorldMap({
             x="0"
             y="-18"
             textAnchor="middle"
-            fontSize="9"
-            fontWeight="600"
-            fill="oklch(0.85 0.04 295)"
+            fontSize="12"
+            fontWeight="800"
+            fill="var(--foreground)"
           >
             ABBI
           </text>
@@ -442,16 +452,16 @@ function TaskNode({
   const t = useT();
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl border p-5 backdrop-blur-xl transition-all
+      className={`group relative overflow-hidden rounded-2xl border p-5  transition-all
         ${
           done
             ? "border-accent/40 bg-accent/5"
             : isCurrent
-              ? "border-primary/40 bg-gradient-to-br from-primary/10 via-secondary/30 to-background/40"
+              ? "border-primary/40 bg-card"
               : "border-border/60 bg-secondary/20"
         }
       `}
-      style={done ? { boxShadow: "0 0 30px -10px oklch(0.75 0.18 150 / 0.4)" } : undefined}
+      style={done ? { boxShadow: "4px 4px 0 var(--ink)" } : undefined}
     >
       {isCurrent && (
         <GlowBlob className="-right-16 -top-16 h-40 w-40 opacity-60 blur-3xl" alpha={0.4} />
@@ -461,12 +471,12 @@ function TaskNode({
         <button
           onClick={onComplete}
           disabled={done}
-          className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition-all
+          className={`task-complete-button mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition-all
             ${
               done
                 ? "border-accent bg-accent/20 text-accent"
                 : isCurrent
-                  ? "border-primary/60 bg-gradient-to-br from-primary/15 to-accent/10 text-primary hover:border-transparent hover:from-primary hover:to-accent hover:text-primary-foreground hover:shadow-[0_0_16px_-4px_var(--glow)]"
+                  ? "border-primary/60 bg-primary text-primary hover:border-transparent hover:from-primary hover:to-accent hover:text-primary-foreground"
                   : "border-border bg-background/50 text-muted-foreground"
             }
           `}
@@ -483,12 +493,13 @@ function TaskNode({
               {task.title}
             </h3>
             {isCurrent && (
-              <span className="rounded-full border border-primary/30 bg-gradient-to-r from-primary/15 to-accent/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-primary shadow-[0_0_8px_-2px_var(--glow)]">
+              <span className="rounded-full border border-primary/30 bg-yellow text-ink px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-primary">
                 {t.roadmapUi.upNext}
               </span>
             )}
           </div>
           <p className="mt-1 text-xs text-muted-foreground">{task.description}</p>
+          <ActivityGuide task={task} />
           <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
             <span className="inline-flex items-center gap-1">
               <Zap className="h-3 w-3 text-primary" /> {task.xp} XP
@@ -506,7 +517,7 @@ function TaskNode({
 /* =================== HELPERS =================== */
 function Pill({ children, icon }: { children: React.ReactNode; icon: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-gradient-to-r from-primary/10 to-accent/5 px-3 py-1 text-[11px] font-medium">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-white text-ink px-3 py-1 text-[11px] font-medium">
       {icon} {children}
     </span>
   );
@@ -532,8 +543,8 @@ function PhaseProgress({
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-secondary/60">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-primary via-accent to-primary transition-all duration-700"
-          style={{ width: `${pct}%`, boxShadow: "0 0 12px oklch(0.65 0.22 295 / 0.6)" }}
+          className="h-full rounded-full bg-card transition-all duration-700"
+          style={{ width: `${pct}%`, boxShadow: "4px 4px 0 var(--ink)" }}
         />
       </div>
     </div>
@@ -543,24 +554,27 @@ function PhaseProgress({
 function CelebrationModal({ phaseIndex, onClose }: { phaseIndex: number; onClose: () => void }) {
   const t = useT();
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+    <div className="roadmap-modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
       <div
-        className="relative w-full max-w-md overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-secondary/80 via-background to-background/80 p-8 text-center backdrop-blur-xl"
-        style={{ boxShadow: "0 30px 80px -20px oklch(0.55 0.22 295 / 0.6)" }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="roadmap-celebration-title"
+        className="roadmap-modal relative w-full max-w-md overflow-hidden rounded-3xl border border-primary/30 bg-card p-8 text-center"
+        style={{ boxShadow: "8px 8px 0 var(--ink)" }}
       >
         <GlowBlob className="-right-16 -top-16 h-64 w-64 opacity-60 blur-3xl" alpha={0.5} />
         <div className="relative">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-primary text-primary-foreground shadow-lg">
             <Trophy className="h-8 w-8" />
           </div>
-          <h3 className="mt-4 text-2xl font-bold tracking-tight">
+          <h3 id="roadmap-celebration-title" className="mt-4 text-2xl font-bold tracking-tight">
             {t.roadmapUi.celebrationTitle.replace("{i}", String(phaseIndex))}
           </h3>
           <p className="mt-2 text-sm text-muted-foreground">{t.roadmapUi.celebrationBody}</p>
           <button
             onClick={onClose}
-            className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-br from-primary to-accent px-6 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:-translate-y-0.5"
-            style={{ boxShadow: "0 10px 28px -10px oklch(0.55 0.22 295 / 0.6)" }}
+            className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:-translate-y-0.5"
+            style={{ boxShadow: "4px 4px 0 var(--ink)" }}
           >
             {t.roadmapUi.continueJourney} <Compass className="h-4 w-4" />
           </button>

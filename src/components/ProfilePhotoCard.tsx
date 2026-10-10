@@ -73,26 +73,28 @@ export function ProfilePhotoCard({
         if (upErr) throw upErr;
         setProgress(75);
 
-        // Remove previous avatar file
-        if (avatarPath && !avatarPath.startsWith("http")) {
-          await supabase.storage.from("avatars").remove([avatarPath]);
-        }
-
         const { error: dbErr } = await supabase
           .from("user_stats")
           .upsert({ user_id: userId, avatar_url: path }, { onConflict: "user_id" });
-        if (dbErr) throw dbErr;
+        if (dbErr) {
+          await supabase.storage.from("avatars").remove([path]);
+          throw dbErr;
+        }
+        // The old object stays intact until the new database reference commits.
+        if (avatarPath && !avatarPath.startsWith("http"))
+          await supabase.storage.from("avatars").remove([avatarPath]);
 
         const signed = await resolveAvatarUrl(path);
         setResolved(signed);
         setPreview(null);
-        URL.revokeObjectURL(localUrl);
+
         setProgress(100);
         onChange(path);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Upload failed.");
         setPreview(null);
       } finally {
+        URL.revokeObjectURL(localUrl);
         setBusy(false);
         setTimeout(() => setProgress(0), 600);
       }
@@ -104,13 +106,12 @@ export function ProfilePhotoCard({
     setError(null);
     setBusy(true);
     try {
-      if (avatarPath && !avatarPath.startsWith("http")) {
-        await supabase.storage.from("avatars").remove([avatarPath]);
-      }
       const { error: dbErr } = await supabase
         .from("user_stats")
         .upsert({ user_id: userId, avatar_url: null }, { onConflict: "user_id" });
       if (dbErr) throw dbErr;
+      if (avatarPath && !avatarPath.startsWith("http"))
+        await supabase.storage.from("avatars").remove([avatarPath]);
       setResolved(null);
       setPreview(null);
       onChange(null);
@@ -130,13 +131,13 @@ export function ProfilePhotoCard({
 
   return (
     <div
-      className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-secondary/30 via-background/40 to-background/30 p-7 backdrop-blur-xl"
-      style={{ boxShadow: "0 10px 40px -20px oklch(0.55 0.22 295 / 0.25)" }}
+      className="relative overflow-hidden rounded-3xl border border-border/60 bg-card p-7 "
+      style={{ boxShadow: "4px 4px 0 var(--ink)" }}
     >
       <GlowBlob className="-right-16 -top-16 h-48 w-48 opacity-50 blur-3xl" alpha={0.4} />
 
       <h2 className="flex items-center gap-2 text-base font-semibold">
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_3px_10px_-3px_var(--glow)]">
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Camera className="h-3.5 w-3.5" />
         </span>
         Profile Photo
@@ -145,8 +146,8 @@ export function ProfilePhotoCard({
       <div className="mt-6 flex flex-col items-center gap-6 sm:flex-row sm:items-start">
         {/* Avatar preview */}
         <div className="relative shrink-0">
-          <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-primary via-accent to-primary opacity-70 blur-md" />
-          <div className="relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-primary to-accent text-2xl font-bold text-primary-foreground shadow-2xl">
+          <div className="absolute -inset-1 rounded-full bg-card opacity-70 blur-md" />
+          <div className="relative flex h-28 w-28 items-center justify-center overflow-hidden cartoon-avatar rounded-full bg-primary text-2xl font-bold text-primary-foreground shadow-2xl">
             {displayed ? (
               <img
                 src={displayed}
@@ -158,7 +159,7 @@ export function ProfilePhotoCard({
               <span>{initials}</span>
             )}
             {busy && (
-              <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-sm">
+              <div className="absolute inset-0 flex items-center justify-center bg-background/60 -sm">
                 <Loader2 className="h-7 w-7 animate-spin text-primary" />
               </div>
             )}
@@ -182,7 +183,7 @@ export function ProfilePhotoCard({
                 : "border-primary/30 bg-secondary/20 hover:border-primary/60 hover:bg-primary/5",
             )}
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-accent/10 ring-1 ring-primary/30 shadow-[0_4px_14px_-4px_var(--glow)] transition-transform duration-300 group-hover:scale-105">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary ring-1 ring-primary/30 transition-transform duration-300 group-hover:scale-105">
               <UploadCloud className="h-5 w-5 text-primary transition-transform duration-300 group-hover:scale-110" />
             </div>
             <p className="mt-3 text-sm font-medium">
@@ -205,8 +206,8 @@ export function ProfilePhotoCard({
           {progress > 0 && (
             <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-secondary/60">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-primary via-accent to-primary transition-all duration-300"
-                style={{ width: `${progress}%`, boxShadow: "0 0 8px oklch(0.65 0.22 295 / 0.7)" }}
+                className="h-full rounded-full bg-card transition-all duration-300"
+                style={{ width: `${progress}%`, boxShadow: "4px 4px 0 var(--ink)" }}
               />
             </div>
           )}

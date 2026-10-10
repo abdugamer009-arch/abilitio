@@ -92,9 +92,8 @@ export function AbbiChat() {
           .sort((a, b) => b.weight - a.weight)
           .slice(0, 3)
           .map((i) => i.key);
-        const cog = (result.cognitive_score as number | null) ?? 0;
         next.mbtiType = result.personality_type as string;
-        next.iqScore = Math.round(70 + cog * 8);
+        next.iqScore = null;
         next.topStrengths = (result.strengths as string[]) ?? [];
         next.topInterests = topInterests;
         next.weaknesses = (result.improvements as string[]) ?? [];
@@ -148,15 +147,15 @@ export function AbbiChat() {
     <div className="space-y-4">
       {/* Hero */}
       <div
-        className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-primary/15 via-secondary/30 to-background/40 p-6 backdrop-blur-xl"
-        style={{ boxShadow: "0 20px 60px -20px oklch(0.55 0.22 295 / 0.4)" }}
+        className="relative overflow-hidden rounded-3xl border border-border/60 bg-card p-6 "
+        style={{ boxShadow: "4px 4px 0 var(--ink)" }}
       >
         <GlowBlob className="-right-16 -top-16 h-64 w-64 opacity-60 blur-3xl" alpha={0.5} />
         <div className="relative flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div
-              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg"
-              style={{ boxShadow: "0 10px 25px -8px oklch(0.55 0.22 295 / 0.6)" }}
+              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg"
+              style={{ boxShadow: "4px 4px 0 var(--ink)" }}
             >
               <Sparkles className="h-6 w-6" />
             </div>
@@ -172,8 +171,8 @@ export function AbbiChat() {
 
       {/* Chat window */}
       <div
-        className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-secondary/30 via-background/40 to-background/30 backdrop-blur-xl"
-        style={{ boxShadow: "0 10px 40px -20px oklch(0.55 0.22 295 / 0.3)" }}
+        className="relative overflow-hidden rounded-3xl border border-border/60 bg-card "
+        style={{ boxShadow: "4px 4px 0 var(--ink)" }}
       >
         {/* Transcript */}
         <div ref={scrollRef} className="h-[480px] overflow-y-auto px-4 py-6 sm:px-6">
@@ -197,7 +196,7 @@ export function AbbiChat() {
                   key={s}
                   onClick={() => handleSend(s)}
                   disabled={typing}
-                  className="rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-[11px] text-muted-foreground transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/10 hover:text-primary hover:shadow-[0_4px_12px_-4px_oklch(0.55_0.22_295_/_0.3)] disabled:opacity-50"
+                  className="rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-[11px] text-muted-foreground transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/10 hover:text-primary disabled:opacity-50"
                 >
                   {s}
                 </button>
@@ -239,8 +238,8 @@ export function AbbiChat() {
             <button
               type="submit"
               disabled={!canSend}
-              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
-              style={{ boxShadow: "0 10px 24px -10px oklch(0.55 0.22 295 / 0.6)" }}
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+              style={{ boxShadow: "4px 4px 0 var(--ink)" }}
               aria-label={t.community.send}
             >
               <Send className="h-4 w-4" />
@@ -265,12 +264,12 @@ function MessageBubble({ role, content }: { role: "user" | "abbi"; content: stri
     return (
       <div className="flex items-start justify-end gap-3 animate-fade-in">
         <div
-          className="max-w-[80%] rounded-2xl rounded-tr-md bg-gradient-to-br from-primary to-accent px-4 py-2.5 text-sm text-primary-foreground shadow-md"
-          style={{ boxShadow: "0 8px 20px -10px oklch(0.55 0.22 295 / 0.5)" }}
+          className="max-w-[80%] rounded-2xl rounded-tr-md bg-primary px-4 py-2.5 text-sm text-primary-foreground shadow-md"
+          style={{ boxShadow: "4px 4px 0 var(--ink)" }}
         >
           {content}
         </div>
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-secondary/80 to-secondary/40 border border-border/60 text-muted-foreground">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-card border border-border/60 text-muted-foreground">
           <UserIcon className="h-4 w-4" />
         </div>
       </div>
@@ -278,13 +277,13 @@ function MessageBubble({ role, content }: { role: "user" | "abbi"; content: stri
   }
   return (
     <div className="flex items-start gap-3 animate-fade-in">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow">
         <Bot className="h-4 w-4" />
       </div>
       {/* chat-md (styles.css) styles the rendered markdown — headings, lists,
           code. The former `prose-*` classes were inert: @tailwindcss/typography
           was never installed, so ABBI's replies rendered as flat unstyled text. */}
-      <div className="chat-md max-w-[85%] rounded-2xl rounded-tl-md border border-border/40 bg-secondary/30 px-4 py-3 text-sm leading-relaxed text-foreground backdrop-blur-md">
+      <div className="chat-md max-w-[85%] rounded-2xl rounded-tl-md border border-border/40 bg-secondary/30 px-4 py-3 text-sm leading-relaxed text-foreground -md">
         <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{content}</ReactMarkdown>
       </div>
     </div>
@@ -295,30 +294,30 @@ function TypingBubble() {
   const t = useT();
   return (
     <div className="flex items-start gap-3 animate-fade-in">
-      <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow">
+      <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow">
         <Bot className="h-4 w-4" />
         <span
           className="absolute -inset-1 -z-10 rounded-full opacity-60 blur-md"
           style={{
-            background: "radial-gradient(circle, oklch(0.65 0.24 295 / 0.6), transparent 70%)",
+            background: "var(--yellow)",
           }}
         />
       </div>
-      <div className="flex items-center gap-2 rounded-2xl rounded-tl-md border border-border/40 bg-secondary/30 px-4 py-3 backdrop-blur-md">
+      <div className="flex items-center gap-2 rounded-2xl rounded-tl-md border border-border/40 bg-secondary/30 px-4 py-3 -md">
         <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
           {t.abbiChat.thinking}
         </span>
         <span className="flex items-center gap-1">
           <span
-            className="h-1.5 w-1.5 animate-bounce rounded-full bg-gradient-to-br from-primary to-accent"
+            className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary"
             style={{ animationDelay: "0ms" }}
           />
           <span
-            className="h-1.5 w-1.5 animate-bounce rounded-full bg-gradient-to-br from-primary to-accent"
+            className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary"
             style={{ animationDelay: "150ms" }}
           />
           <span
-            className="h-1.5 w-1.5 animate-bounce rounded-full bg-gradient-to-br from-primary to-accent"
+            className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary"
             style={{ animationDelay: "300ms" }}
           />
         </span>

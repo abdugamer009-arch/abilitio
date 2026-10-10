@@ -1,18 +1,15 @@
+import { pageMeta } from "@/lib/seo";
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage, LegalSection, LegalList } from "@/components/LegalPage";
 import { SITE_NAME, CONTACT_EMAIL, COMPANY_LOCATION } from "@/lib/constants";
 
 export const Route = createFileRoute("/terms")({
-  head: () => ({
-    meta: [
-      { title: "Terms of Service — Abilitio" },
-      {
-        name: "description",
-        content:
-          "The terms that govern your use of Abilitio, including eligibility, assessments, and payments.",
-      },
-    ],
-  }),
+  head: () =>
+    pageMeta(
+      "/terms",
+      "Terms of Service",
+      "Terms for using the Abilitio career exploration tools.",
+    ),
   component: TermsPage,
 });
 

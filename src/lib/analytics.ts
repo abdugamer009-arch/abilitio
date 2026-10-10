@@ -35,6 +35,24 @@ export function initAnalytics() {
   s.setAttribute("data-domain", DOMAIN);
   s.src = SRC;
   document.head.appendChild(s);
+  // Collect browser vitals only after analytics is explicitly configured.
+  // No answers, account IDs or URL queries are sent.
+  import("web-vitals")
+    .then(({ onCLS, onINP, onLCP }) => {
+      const report = (metric: { name: string; value: number; rating: string }) =>
+        track("web_vital", {
+          metric: metric.name,
+          value: Math.round(metric.value * 1000) / 1000,
+          rating: metric.rating,
+          route: location.pathname,
+        });
+      onCLS(report);
+      onINP(report);
+      onLCP(report);
+    })
+    .catch(() => {
+      /* measurement is optional */
+    });
 }
 
 /** Record a funnel event. Never throws, never blocks — analytics must not break the app. */
@@ -49,8 +67,14 @@ export function track(event: string, props?: Record<string, string | number | bo
 
 /** Named funnel events — one source of truth so call sites can't drift on spelling. */
 export const AnalyticsEvent = {
+  AssessmentCTA: "assessment_cta",
+  AuthReturned: "auth_returned",
+  ResultSaved: "result_saved",
   AssessmentStarted: "assessment_started",
   AssessmentCompleted: "assessment_completed",
   SignedUp: "signed_up",
+  AssessmentStage: "assessment_stage",
+  FirstTask: "first_task_completed",
+  BrainFallback: "brain_fallback",
   SchoolRegistered: "school_registered",
 } as const;

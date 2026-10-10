@@ -29,10 +29,10 @@ const TASKS: Record<RoadmapTrack, Record<RoadmapPhase["index"], Omit<RoadmapTask
   tech: {
     1: [
       {
-        title: "Learn Python basics",
-        description: "Variables, loops, functions, lists & dicts.",
+        title: "Try a Python calculation",
+        description: "Make a list of expenses and check its total with a small program.",
         xp: 50,
-        estimate: "3 hrs",
+        estimate: "30 min",
       },
       {
         title: "Build your first script",
@@ -47,7 +47,7 @@ const TASKS: Record<RoadmapTrack, Record<RoadmapPhase["index"], Omit<RoadmapTask
         estimate: "45 min",
       },
       {
-        title: "Master the terminal",
+        title: "Practice five terminal commands",
         description: "Navigate files, run scripts, basic shell commands.",
         xp: 30,
         estimate: "1 hr",
@@ -144,7 +144,8 @@ const TASKS: Record<RoadmapTrack, Record<RoadmapPhase["index"], Omit<RoadmapTask
     1: [
       {
         title: "Pick your medium",
-        description: "Design, video, writing — commit to one for 90 days.",
+        description:
+          "Try writing, drawing and video planning; choose a medium for your next session.",
         xp: 40,
         estimate: "30 min",
       },
@@ -353,7 +354,7 @@ const TASKS: Record<RoadmapTrack, Record<RoadmapPhase["index"], Omit<RoadmapTask
   science: {
     1: [
       {
-        title: "Master the scientific method",
+        title: "Try a small scientific experiment",
         description: "Question → hypothesis → experiment → revise.",
         xp: 50,
         estimate: "1 week",
@@ -366,7 +367,7 @@ const TASKS: Record<RoadmapTrack, Record<RoadmapPhase["index"], Omit<RoadmapTask
       },
       {
         title: "Learn statistics basics",
-        description: "Distributions, significance, regression.",
+        description: "Start with a small data table, mean, median and a chart.",
         xp: 100,
         estimate: "1 month",
       },
@@ -685,7 +686,7 @@ export function buildRoadmap(track: RoadmapTrack): RoadmapPhase[] {
     index: i,
     name: NAMES[i].name,
     subtitle: NAMES[i].subtitle,
-    tasks: tasks[i].map((t, idx) => ({ ...t, id: `p${i}_t${idx + 1}` })),
+    tasks: tasks[i].map((t, idx) => ({ ...t, id: `${track}:p${i}_t${idx + 1}` })),
   }));
 }
 
@@ -697,3 +698,13 @@ export const TRACK_LABEL: Record<RoadmapTrack, string> = {
   social: "People & Media Path",
   default: "Personal Growth Path",
 };
+
+/** Stable path-scoped identity prevents progress carrying onto unrelated work. */
+export const ROADMAP_TASK_IDS = new Set(
+  (["tech", "creative", "business", "science", "social", "default"] as RoadmapTrack[]).flatMap(
+    (track) => buildRoadmap(track).flatMap((phase) => phase.tasks.map((task) => task.id)),
+  ),
+);
+export function scopedTaskState(state: Record<string, boolean>) {
+  return Object.fromEntries(Object.entries(state).filter(([id]) => ROADMAP_TASK_IDS.has(id)));
+}

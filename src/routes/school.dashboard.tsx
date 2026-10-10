@@ -49,14 +49,14 @@ export const Route = createFileRoute("/school/dashboard")({
 });
 
 const COLORS = [
-  "#a855f7",
-  "#8b5cf6",
-  "#7c3aed",
-  "#6d28d9",
-  "#c084fc",
-  "#d8b4fe",
-  "#9333ea",
-  "#a78bfa",
+  "var(--mint)",
+  "var(--butter)",
+  "var(--pink)",
+  "var(--sky)",
+  "var(--yellow)",
+  "var(--mint-solid)",
+  "var(--butter-solid)",
+  "var(--pink-solid)",
 ];
 
 function PrincipalDashboard() {
@@ -200,33 +200,29 @@ function PrincipalDashboard() {
 
           {/* Charts */}
           <div className="mt-6 grid gap-6 lg:grid-cols-2">
-            <div className="glass rounded-3xl p-6">
+            <div className="panel rounded-3xl p-6">
               <h3 className="text-sm font-semibold">{t.school.talentDistribution}</h3>
               <p className="text-xs text-muted-foreground">{t.school.talentDistributionSub}</p>
               <div className="mt-4 h-72">
                 <ResponsiveContainer>
                   <BarChart data={data.bucketDistribution}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                    <YAxis
-                      stroke="hsl(var(--muted-foreground))"
-                      fontSize={11}
-                      allowDecimals={false}
-                    />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="label" stroke="var(--muted-foreground)" fontSize={11} />
+                    <YAxis stroke="var(--muted-foreground)" fontSize={11} allowDecimals={false} />
                     <Tooltip
                       contentStyle={{
-                        background: "hsl(var(--background))",
-                        border: "1px solid hsl(var(--border))",
+                        background: "var(--card)",
+                        border: "3px solid var(--border)",
                         borderRadius: 12,
                       }}
                     />
-                    <Bar dataKey="count" fill="#a855f7" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="count" fill="var(--mint)" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            <div className="glass rounded-3xl p-6">
+            <div className="panel rounded-3xl p-6">
               <h3 className="text-sm font-semibold">{t.school.topCareerMatches}</h3>
               <p className="text-xs text-muted-foreground">{t.school.topCareerMatchesSub}</p>
               <div className="mt-4 h-72">
@@ -245,8 +241,8 @@ function PrincipalDashboard() {
                     </Pie>
                     <Tooltip
                       contentStyle={{
-                        background: "hsl(var(--background))",
-                        border: "1px solid hsl(var(--border))",
+                        background: "var(--card)",
+                        border: "3px solid var(--border)",
                         borderRadius: 12,
                       }}
                     />
@@ -258,7 +254,7 @@ function PrincipalDashboard() {
           </div>
 
           {/* Class breakdown */}
-          <div className="mt-6 glass rounded-3xl p-6">
+          <div className="mt-6 panel rounded-3xl p-6">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-semibold">{t.school.classAnalytics}</h3>
@@ -305,7 +301,7 @@ function PrincipalDashboard() {
             {data.topTalents
               .filter((talent) => talent.students.length)
               .map((talent) => (
-                <div key={talent.dimension} className="glass rounded-2xl p-5">
+                <div key={talent.dimension} className="panel rounded-2xl p-5">
                   <h4 className="text-xs font-semibold text-primary">{talent.dimension}</h4>
                   <ul className="mt-3 space-y-1.5 text-sm">
                     {talent.students.map((s) => (
@@ -322,7 +318,7 @@ function PrincipalDashboard() {
           </div>
 
           {/* AI Insights */}
-          <div className="mt-6 glass rounded-3xl p-6">
+          <div className="mt-6 panel rounded-3xl p-6">
             <div className="flex items-center gap-2">
               <Lightbulb className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold">{t.school.aiInsights}</h3>
@@ -340,7 +336,7 @@ function PrincipalDashboard() {
           </div>
 
           {/* Specialized classes */}
-          <div className="mt-6 glass rounded-3xl p-6">
+          <div className="mt-6 panel rounded-3xl p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h3 className="text-sm font-semibold">{t.school.classCreator}</h3>
@@ -405,7 +401,7 @@ function StatCard({
   value: string | number;
 }) {
   return (
-    <div className="glass rounded-2xl p-5">
+    <div className="panel rounded-2xl p-5">
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">{label}</span>
         <Icon className="h-4 w-4 text-primary" />

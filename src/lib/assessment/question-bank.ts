@@ -1,3 +1,4 @@
+import { SAMPLE_QUESTIONS } from "./sample-questions";
 // Question Bank — master pool for all assessment questions.
 // Expandable: add more questions to each array; the session picker selects 10 from each.
 
@@ -2033,14 +2034,8 @@ export const PERSONALITY_BANK: PersonalityQ[] = [
 // Currently: 260 questions (c1–c10, iq1–iq250)
 // ─────────────────────────────────────────────────────────────────────────────
 export const IQ_BANK: CognitiveQ[] = [
+  ...SAMPLE_QUESTIONS,
   // ── Original cognitive questions ──
-  {
-    id: "c1",
-    section: "cognitive",
-    prompt: "Find the next number: 2, 6, 12, 20, 30, ?",
-    options: ["36", "40", "42", "44"],
-    correct: 2,
-  },
   {
     id: "c2",
     section: "cognitive",
@@ -2058,22 +2053,7 @@ export const IQ_BANK: CognitiveQ[] = [
     section: "cognitive",
     prompt: "If CAT = 3120 and DOG = 4157, what code is BIRD?",
     options: ["29184", "21845", "29154", "29185"],
-    correct: 3,
-  },
-  {
-    id: "c4",
-    section: "cognitive",
-    prompt: "Which one doesn't belong: Square, Circle, Triangle, Cube?",
-    options: ["Square", "Circle", "Triangle", "Cube"],
-    correct: 3,
-  },
-  {
-    id: "c5",
-    section: "cognitive",
-    prompt:
-      "If 5 machines make 5 widgets in 5 minutes, how long do 100 machines need for 100 widgets?",
-    options: ["100 min", "20 min", "5 min", "1 min"],
-    correct: 2,
+    correct: 0,
   },
   {
     id: "c6",
@@ -2093,14 +2073,7 @@ export const IQ_BANK: CognitiveQ[] = [
       "10 h after the first",
       "12 h after the first",
     ],
-    correct: 0,
-  },
-  {
-    id: "c8",
-    section: "cognitive",
-    prompt: "Which number completes the series: 1, 4, 9, 16, 25, ?",
-    options: ["30", "32", "36", "49"],
-    correct: 2,
+    correct: 1,
   },
   {
     id: "c9",

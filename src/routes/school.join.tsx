@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useServerFn } from "@tanstack/react-start";
 import { joinSchool } from "@/lib/schools/schools.functions";
 import { Loader2, Users } from "lucide-react";
+import { useWords } from "@/lib/editorial";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/school/join")({
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/school/join")({
 
 function SchoolJoinPage() {
   const t = useT();
+  const w = useWords();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const join = useServerFn(joinSchool);
@@ -58,13 +60,20 @@ function SchoolJoinPage() {
       <section className="px-6 pt-24 pb-24">
         <div className="mx-auto max-w-md">
           <div className="text-center">
-            <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground glow-purple">
+            <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground glow-purple">
               <Users className="h-5 w-5" />
             </div>
             <h1 className="mt-5 text-3xl font-bold gradient-text">{t.schoolJoin.title}</h1>
             <p className="mt-2 text-sm text-muted-foreground">{t.schoolJoin.subtitle}</p>
           </div>
-          <form onSubmit={submit} className="glass mt-8 space-y-3 rounded-3xl p-7">
+          <p className="mt-6 text-sm text-muted-foreground">
+            {w(
+              "Joining with a school code links your account to that school. Its principal can view your individual assessment results and class summaries. Confirm the school and ask how your results will be used before joining.",
+              "Maktab kodi hisobingizni o‘sha maktabga ulaydi. Direktor individual natijalar va sinf xulosalarini ko‘ra oladi. Qo‘shilishdan oldin maktabni tekshiring va natijalar qanday ishlatilishini so‘rang.",
+              "Код связывает аккаунт со школой. Директор сможет видеть индивидуальные результаты и сводки класса. Проверьте школу и уточните использование результатов до присоединения.",
+            )}
+          </p>
+          <form onSubmit={submit} className="panel mt-8 space-y-3 rounded-3xl p-7">
             <label className="block">
               <span className="mb-1 block text-xs text-muted-foreground">
                 {t.schoolJoin.codeLabel}

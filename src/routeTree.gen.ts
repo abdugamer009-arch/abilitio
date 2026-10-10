@@ -9,151 +9,41 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as UniversitiesRouteImport } from './routes/universities'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as SuccessStoriesRouteImport } from './routes/success-stories'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as RoadmapRouteImport } from './routes/roadmap'
-import { Route as ResultsRouteImport } from './routes/results'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as PricingRouteImport } from './routes/pricing'
-import { Route as MethodologyRouteImport } from './routes/methodology'
-import { Route as MentorsRouteImport } from './routes/mentors'
-import { Route as IqTestRouteImport } from './routes/iq-test'
-import { Route as ForSchoolsRouteImport } from './routes/for-schools'
-import { Route as FeaturesRouteImport } from './routes/features'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as CommunityRouteImport } from './routes/community'
-import { Route as CareerResultsRouteImport } from './routes/career-results'
-import { Route as CareerBattlesRouteImport } from './routes/career-battles'
-import { Route as CareerAssessmentRouteImport } from './routes/career-assessment'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AssessmentRouteImport } from './routes/assessment'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as AbbiRouteImport } from './routes/abbi'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SchoolReportRouteImport } from './routes/school.report'
-import { Route as SchoolRegisterRouteImport } from './routes/school.register'
-import { Route as SchoolJoinRouteImport } from './routes/school.join'
-import { Route as SchoolDashboardRouteImport } from './routes/school.dashboard'
-import { Route as SchoolClassBuilderRouteImport } from './routes/school.class-builder'
+import { Route as AbbiRouteImport } from './routes/abbi'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AssessmentRouteImport } from './routes/assessment'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CareerAssessmentRouteImport } from './routes/career-assessment'
+import { Route as CareerBattlesRouteImport } from './routes/career-battles'
+import { Route as CareerResultsRouteImport } from './routes/career-results'
+import { Route as CommunityRouteImport } from './routes/community'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as ForSchoolsRouteImport } from './routes/for-schools'
+import { Route as IqTestRouteImport } from './routes/iq-test'
+import { Route as MentorsRouteImport } from './routes/mentors'
+import { Route as MethodologyRouteImport } from './routes/methodology'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ResultsRouteImport } from './routes/results'
+import { Route as RoadmapRouteImport } from './routes/roadmap'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SuccessStoriesRouteImport } from './routes/success-stories'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as UniversitiesRouteImport } from './routes/universities'
 import { Route as SchoolAnalyticsRouteImport } from './routes/school.analytics'
+import { Route as SchoolClassBuilderRouteImport } from './routes/school.class-builder'
+import { Route as SchoolDashboardRouteImport } from './routes/school.dashboard'
+import { Route as SchoolJoinRouteImport } from './routes/school.join'
+import { Route as SchoolRegisterRouteImport } from './routes/school.register'
+import { Route as SchoolReportRouteImport } from './routes/school.report'
 
-const UniversitiesRoute = UniversitiesRouteImport.update({
-  id: '/universities',
-  path: '/universities',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SuccessStoriesRoute = SuccessStoriesRouteImport.update({
-  id: '/success-stories',
-  path: '/success-stories',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RoadmapRoute = RoadmapRouteImport.update({
-  id: '/roadmap',
-  path: '/roadmap',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResultsRoute = ResultsRouteImport.update({
-  id: '/results',
-  path: '/results',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PricingRoute = PricingRouteImport.update({
-  id: '/pricing',
-  path: '/pricing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MethodologyRoute = MethodologyRouteImport.update({
-  id: '/methodology',
-  path: '/methodology',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MentorsRoute = MentorsRouteImport.update({
-  id: '/mentors',
-  path: '/mentors',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IqTestRoute = IqTestRouteImport.update({
-  id: '/iq-test',
-  path: '/iq-test',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForSchoolsRoute = ForSchoolsRouteImport.update({
-  id: '/for-schools',
-  path: '/for-schools',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeaturesRoute = FeaturesRouteImport.update({
-  id: '/features',
-  path: '/features',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CommunityRoute = CommunityRouteImport.update({
-  id: '/community',
-  path: '/community',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CareerResultsRoute = CareerResultsRouteImport.update({
-  id: '/career-results',
-  path: '/career-results',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CareerBattlesRoute = CareerBattlesRouteImport.update({
-  id: '/career-battles',
-  path: '/career-battles',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CareerAssessmentRoute = CareerAssessmentRouteImport.update({
-  id: '/career-assessment',
-  path: '/career-assessment',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AssessmentRoute = AssessmentRouteImport.update({
-  id: '/assessment',
-  path: '/assessment',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AbbiRoute = AbbiRouteImport.update({
@@ -161,29 +51,124 @@ const AbbiRoute = AbbiRouteImport.update({
   path: '/abbi',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SchoolReportRoute = SchoolReportRouteImport.update({
-  id: '/school/report',
-  path: '/school/report',
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SchoolRegisterRoute = SchoolRegisterRouteImport.update({
-  id: '/school/register',
-  path: '/school/register',
+const AssessmentRoute = AssessmentRouteImport.update({
+  id: '/assessment',
+  path: '/assessment',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SchoolJoinRoute = SchoolJoinRouteImport.update({
-  id: '/school/join',
-  path: '/school/join',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SchoolDashboardRoute = SchoolDashboardRouteImport.update({
-  id: '/school/dashboard',
-  path: '/school/dashboard',
+const CareerAssessmentRoute = CareerAssessmentRouteImport.update({
+  id: '/career-assessment',
+  path: '/career-assessment',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareerBattlesRoute = CareerBattlesRouteImport.update({
+  id: '/career-battles',
+  path: '/career-battles',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareerResultsRoute = CareerResultsRouteImport.update({
+  id: '/career-results',
+  path: '/career-results',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityRoute = CommunityRouteImport.update({
+  id: '/community',
+  path: '/community',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesRoute = FeaturesRouteImport.update({
+  id: '/features',
+  path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForSchoolsRoute = ForSchoolsRouteImport.update({
+  id: '/for-schools',
+  path: '/for-schools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IqTestRoute = IqTestRouteImport.update({
+  id: '/iq-test',
+  path: '/iq-test',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MentorsRoute = MentorsRouteImport.update({
+  id: '/mentors',
+  path: '/mentors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MethodologyRoute = MethodologyRouteImport.update({
+  id: '/methodology',
+  path: '/methodology',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResultsRoute = ResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoadmapRoute = RoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuccessStoriesRoute = SuccessStoriesRouteImport.update({
+  id: '/success-stories',
+  path: '/success-stories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UniversitiesRoute = UniversitiesRouteImport.update({
+  id: '/universities',
+  path: '/universities',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SchoolAnalyticsRoute = SchoolAnalyticsRouteImport.update({
+  id: '/school/analytics',
+  path: '/school/analytics',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SchoolClassBuilderRoute = SchoolClassBuilderRouteImport.update({
@@ -191,9 +176,24 @@ const SchoolClassBuilderRoute = SchoolClassBuilderRouteImport.update({
   path: '/school/class-builder',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SchoolAnalyticsRoute = SchoolAnalyticsRouteImport.update({
-  id: '/school/analytics',
-  path: '/school/analytics',
+const SchoolDashboardRoute = SchoolDashboardRouteImport.update({
+  id: '/school/dashboard',
+  path: '/school/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SchoolJoinRoute = SchoolJoinRouteImport.update({
+  id: '/school/join',
+  path: '/school/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SchoolRegisterRoute = SchoolRegisterRouteImport.update({
+  id: '/school/register',
+  path: '/school/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SchoolReportRoute = SchoolReportRouteImport.update({
+  id: '/school/report',
+  path: '/school/report',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -435,165 +435,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/universities': {
-      id: '/universities'
-      path: '/universities'
-      fullPath: '/universities'
-      preLoaderRoute: typeof UniversitiesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/success-stories': {
-      id: '/success-stories'
-      path: '/success-stories'
-      fullPath: '/success-stories'
-      preLoaderRoute: typeof SuccessStoriesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/roadmap': {
-      id: '/roadmap'
-      path: '/roadmap'
-      fullPath: '/roadmap'
-      preLoaderRoute: typeof RoadmapRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/results': {
-      id: '/results'
-      path: '/results'
-      fullPath: '/results'
-      preLoaderRoute: typeof ResultsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pricing': {
-      id: '/pricing'
-      path: '/pricing'
-      fullPath: '/pricing'
-      preLoaderRoute: typeof PricingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/methodology': {
-      id: '/methodology'
-      path: '/methodology'
-      fullPath: '/methodology'
-      preLoaderRoute: typeof MethodologyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mentors': {
-      id: '/mentors'
-      path: '/mentors'
-      fullPath: '/mentors'
-      preLoaderRoute: typeof MentorsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/iq-test': {
-      id: '/iq-test'
-      path: '/iq-test'
-      fullPath: '/iq-test'
-      preLoaderRoute: typeof IqTestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/for-schools': {
-      id: '/for-schools'
-      path: '/for-schools'
-      fullPath: '/for-schools'
-      preLoaderRoute: typeof ForSchoolsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/features': {
-      id: '/features'
-      path: '/features'
-      fullPath: '/features'
-      preLoaderRoute: typeof FeaturesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/community': {
-      id: '/community'
-      path: '/community'
-      fullPath: '/community'
-      preLoaderRoute: typeof CommunityRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/career-results': {
-      id: '/career-results'
-      path: '/career-results'
-      fullPath: '/career-results'
-      preLoaderRoute: typeof CareerResultsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/career-battles': {
-      id: '/career-battles'
-      path: '/career-battles'
-      fullPath: '/career-battles'
-      preLoaderRoute: typeof CareerBattlesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/career-assessment': {
-      id: '/career-assessment'
-      path: '/career-assessment'
-      fullPath: '/career-assessment'
-      preLoaderRoute: typeof CareerAssessmentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/assessment': {
-      id: '/assessment'
-      path: '/assessment'
-      fullPath: '/assessment'
-      preLoaderRoute: typeof AssessmentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/abbi': {
@@ -603,39 +449,172 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AbbiRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/school/report': {
-      id: '/school/report'
-      path: '/school/report'
-      fullPath: '/school/report'
-      preLoaderRoute: typeof SchoolReportRouteImport
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/school/register': {
-      id: '/school/register'
-      path: '/school/register'
-      fullPath: '/school/register'
-      preLoaderRoute: typeof SchoolRegisterRouteImport
+    '/assessment': {
+      id: '/assessment'
+      path: '/assessment'
+      fullPath: '/assessment'
+      preLoaderRoute: typeof AssessmentRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/school/join': {
-      id: '/school/join'
-      path: '/school/join'
-      fullPath: '/school/join'
-      preLoaderRoute: typeof SchoolJoinRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/school/dashboard': {
-      id: '/school/dashboard'
-      path: '/school/dashboard'
-      fullPath: '/school/dashboard'
-      preLoaderRoute: typeof SchoolDashboardRouteImport
+    '/career-assessment': {
+      id: '/career-assessment'
+      path: '/career-assessment'
+      fullPath: '/career-assessment'
+      preLoaderRoute: typeof CareerAssessmentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/career-battles': {
+      id: '/career-battles'
+      path: '/career-battles'
+      fullPath: '/career-battles'
+      preLoaderRoute: typeof CareerBattlesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/career-results': {
+      id: '/career-results'
+      path: '/career-results'
+      fullPath: '/career-results'
+      preLoaderRoute: typeof CareerResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community': {
+      id: '/community'
+      path: '/community'
+      fullPath: '/community'
+      preLoaderRoute: typeof CommunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features': {
+      id: '/features'
+      path: '/features'
+      fullPath: '/features'
+      preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/for-schools': {
+      id: '/for-schools'
+      path: '/for-schools'
+      fullPath: '/for-schools'
+      preLoaderRoute: typeof ForSchoolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/iq-test': {
+      id: '/iq-test'
+      path: '/iq-test'
+      fullPath: '/iq-test'
+      preLoaderRoute: typeof IqTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mentors': {
+      id: '/mentors'
+      path: '/mentors'
+      fullPath: '/mentors'
+      preLoaderRoute: typeof MentorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/methodology': {
+      id: '/methodology'
+      path: '/methodology'
+      fullPath: '/methodology'
+      preLoaderRoute: typeof MethodologyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/results': {
+      id: '/results'
+      path: '/results'
+      fullPath: '/results'
+      preLoaderRoute: typeof ResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roadmap': {
+      id: '/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof RoadmapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/success-stories': {
+      id: '/success-stories'
+      path: '/success-stories'
+      fullPath: '/success-stories'
+      preLoaderRoute: typeof SuccessStoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/universities': {
+      id: '/universities'
+      path: '/universities'
+      fullPath: '/universities'
+      preLoaderRoute: typeof UniversitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/school/analytics': {
+      id: '/school/analytics'
+      path: '/school/analytics'
+      fullPath: '/school/analytics'
+      preLoaderRoute: typeof SchoolAnalyticsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/school/class-builder': {
@@ -645,11 +624,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SchoolClassBuilderRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/school/analytics': {
-      id: '/school/analytics'
-      path: '/school/analytics'
-      fullPath: '/school/analytics'
-      preLoaderRoute: typeof SchoolAnalyticsRouteImport
+    '/school/dashboard': {
+      id: '/school/dashboard'
+      path: '/school/dashboard'
+      fullPath: '/school/dashboard'
+      preLoaderRoute: typeof SchoolDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/school/join': {
+      id: '/school/join'
+      path: '/school/join'
+      fullPath: '/school/join'
+      preLoaderRoute: typeof SchoolJoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/school/register': {
+      id: '/school/register'
+      path: '/school/register'
+      fullPath: '/school/register'
+      preLoaderRoute: typeof SchoolRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/school/report': {
+      id: '/school/report'
+      path: '/school/report'
+      fullPath: '/school/report'
+      preLoaderRoute: typeof SchoolReportRouteImport
       parentRoute: typeof rootRouteImport
     }
   }

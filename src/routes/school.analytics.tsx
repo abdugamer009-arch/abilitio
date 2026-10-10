@@ -48,14 +48,14 @@ export const Route = createFileRoute("/school/analytics")({
 });
 
 const COLORS = [
-  "#a855f7",
-  "#8b5cf6",
-  "#7c3aed",
-  "#6d28d9",
-  "#c084fc",
-  "#d8b4fe",
-  "#9333ea",
-  "#a78bfa",
+  "var(--mint)",
+  "var(--butter)",
+  "var(--pink)",
+  "var(--sky)",
+  "var(--yellow)",
+  "var(--mint-solid)",
+  "var(--butter-solid)",
+  "var(--pink-solid)",
 ];
 
 function SchoolAnalytics() {
@@ -92,6 +92,18 @@ function SchoolAnalytics() {
       </PageShell>
     );
   }
+  if (err)
+    return (
+      <PageShell>
+        <div className="field-wrap field-section" role="alert">
+          <h1 className="text-3xl">{t.common.tryAgain}</h1>
+          <p className="mt-4">{t.errorPages.errorBody}</p>
+          <button className="field-button mt-6" onClick={() => window.location.reload()}>
+            {t.common.tryAgain}
+          </button>
+        </div>
+      </PageShell>
+    );
   if (!d)
     return (
       <PageShell>
@@ -173,21 +185,17 @@ function SchoolAnalytics() {
               <div className="h-72">
                 <ResponsiveContainer>
                   <BarChart data={d.careerDistribution.slice(0, 10)}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                    <YAxis
-                      stroke="hsl(var(--muted-foreground))"
-                      fontSize={11}
-                      allowDecimals={false}
-                    />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="name" stroke="var(--muted-foreground)" fontSize={11} />
+                    <YAxis stroke="var(--muted-foreground)" fontSize={11} allowDecimals={false} />
                     <Tooltip
                       contentStyle={{
-                        background: "hsl(var(--background))",
-                        border: "1px solid hsl(var(--border))",
+                        background: "var(--card)",
+                        border: "3px solid var(--border)",
                         borderRadius: 12,
                       }}
                     />
-                    <Bar dataKey="count" fill="#a855f7" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="count" fill="var(--mint)" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -213,8 +221,8 @@ function SchoolAnalytics() {
                     </Pie>
                     <Tooltip
                       contentStyle={{
-                        background: "hsl(var(--background))",
-                        border: "1px solid hsl(var(--border))",
+                        background: "var(--card)",
+                        border: "3px solid var(--border)",
                         borderRadius: 12,
                       }}
                     />
@@ -228,21 +236,17 @@ function SchoolAnalytics() {
               <div className="h-64">
                 <ResponsiveContainer>
                   <BarChart data={d.cognitiveDistribution}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="tier" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                    <YAxis
-                      stroke="hsl(var(--muted-foreground))"
-                      fontSize={11}
-                      allowDecimals={false}
-                    />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="tier" stroke="var(--muted-foreground)" fontSize={11} />
+                    <YAxis stroke="var(--muted-foreground)" fontSize={11} allowDecimals={false} />
                     <Tooltip
                       contentStyle={{
-                        background: "hsl(var(--background))",
-                        border: "1px solid hsl(var(--border))",
+                        background: "var(--card)",
+                        border: "3px solid var(--border)",
                         borderRadius: 12,
                       }}
                     />
-                    <Bar dataKey="count" fill="#7c3aed" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="count" fill="var(--pink)" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -270,7 +274,7 @@ function SchoolAnalytics() {
           </div>
 
           {/* Heatmap */}
-          <div className="glass mt-6 rounded-3xl p-6">
+          <div className="panel mt-6 rounded-3xl p-6">
             <h3 className="text-sm font-semibold">{t.school.talentHeatmap}</h3>
             <p className="text-xs text-muted-foreground">{t.school.talentHeatmapSub}</p>
             <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -309,7 +313,7 @@ function SchoolAnalytics() {
           </div>
 
           {/* At-risk */}
-          <div className="glass mt-6 rounded-3xl p-6">
+          <div className="panel mt-6 rounded-3xl p-6">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold">{t.school.atRiskTitle}</h3>
@@ -318,10 +322,7 @@ function SchoolAnalytics() {
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               {atRisk.length ? (
                 atRisk.map((s) => (
-                  <div
-                    key={s.user_id}
-                    className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4"
-                  >
+                  <div key={s.user_id} className="rounded-2xl border border-border bg-butter p-4">
                     <div className="text-sm font-semibold">{s.name}</div>
                     <div className="mt-1 text-xs text-muted-foreground">
                       {t.school.currently}{" "}
@@ -343,7 +344,7 @@ function SchoolAnalytics() {
           </div>
 
           {/* AI Insights */}
-          <div className="glass mt-6 rounded-3xl p-6">
+          <div className="panel mt-6 rounded-3xl p-6">
             <div className="flex items-center gap-2">
               <Lightbulb className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold">{t.school.aiInsights}</h3>
@@ -390,7 +391,7 @@ function Stat({
   value: string | number;
 }) {
   return (
-    <div className="glass rounded-2xl p-5">
+    <div className="panel rounded-2xl p-5">
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">{label}</span>
         <Icon className="h-4 w-4 text-primary" />
@@ -410,7 +411,7 @@ function Glass({
   children: React.ReactNode;
 }) {
   return (
-    <div className="glass rounded-3xl p-6">
+    <div className="panel rounded-3xl p-6">
       <h3 className="text-sm font-semibold">{title}</h3>
       <p className="text-xs text-muted-foreground">{subtitle}</p>
       <div className="mt-4">{children}</div>
