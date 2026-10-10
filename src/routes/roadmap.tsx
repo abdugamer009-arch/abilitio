@@ -584,7 +584,15 @@ function CelebrationModal({ phaseIndex, onClose }: { phaseIndex: number; onClose
     document.addEventListener("keydown", keydown);
     return () => {
       document.removeEventListener("keydown", keydown);
-      if (previous?.isConnected) previous.focus();
+      if (previous?.isConnected && !previous.matches(":disabled")) previous.focus();
+      else {
+        const related = previous?.parentElement?.querySelector<HTMLElement>(
+          "summary, a[href], button:not(:disabled)",
+        );
+        (
+          related ?? document.querySelector<HTMLElement>("main a[href], main button:not(:disabled)")
+        )?.focus();
+      }
     };
   }, []);
   return (
