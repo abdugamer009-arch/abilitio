@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -1005,6 +1006,26 @@ function AchievementsBlock({
   achievements: Achievement[];
   setAchievements: (a: Achievement[]) => void;
 }) {
+  const w = useWords();
+  const pending = useRef(false);
+  const titleInput = useRef<HTMLInputElement>(null);
+  function validTitle() {
+    if (draft.title.trim()) return true;
+    titleInput.current?.focus();
+    toast.error(
+      w("Enter an activity title.", "Faoliyat nomini kiriting.", "Введите название занятия."),
+    );
+    return false;
+  }
+  function failed() {
+    toast.error(
+      w(
+        "Activity was not saved. Please try again.",
+        "Faoliyat saqlanmadi. Qayta urinib ko‘ring.",
+        "Занятие не сохранено. Попробуйте снова.",
+      ),
+    );
+  }
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<{ title: string; description: string }>({
@@ -1013,35 +1034,50 @@ function AchievementsBlock({
   });
 
   async function addOne() {
-    if (!draft.title.trim()) return;
-    const { data, error } = await supabase
-      .from("user_achievements")
-      .insert({
-        user_id: userId,
-        title: draft.title.trim(),
-        description: draft.description.trim() || null,
-      })
-      .select()
-      .single();
-    if (!error && data) {
-      setAchievements([data as unknown as Achievement, ...achievements]);
-      setDraft({ title: "", description: "" });
-      setAdding(false);
+    if (pending.current || !validTitle()) return;
+    pending.current = true;
+    try {
+      const { data, error } = await supabase
+        .from("user_achievements")
+        .insert({
+          user_id: userId,
+          title: draft.title.trim(),
+          description: draft.description.trim() || null,
+        })
+        .select()
+        .single();
+      if (!error && data) {
+        setAchievements([data as unknown as Achievement, ...achievements]);
+        setDraft({ title: "", description: "" });
+        setAdding(false);
+      } else failed();
+    } catch {
+      failed();
+    } finally {
+      pending.current = false;
     }
   }
 
   async function saveEdit(id: string) {
-    const { data, error } = await supabase
-      .from("user_achievements")
-      .update({ title: draft.title.trim(), description: draft.description.trim() || null })
-      .eq("id", id)
-      .select()
-      .single();
-    if (!error && data) {
-      setAchievements(
-        achievements.map((a) => (a.id === id ? (data as unknown as Achievement) : a)),
-      );
-      setEditingId(null);
+    if (pending.current || !validTitle()) return;
+    pending.current = true;
+    try {
+      const { data, error } = await supabase
+        .from("user_achievements")
+        .update({ title: draft.title.trim(), description: draft.description.trim() || null })
+        .eq("id", id)
+        .select()
+        .single();
+      if (!error && data) {
+        setAchievements(
+          achievements.map((a) => (a.id === id ? (data as unknown as Achievement) : a)),
+        );
+        setEditingId(null);
+      } else failed();
+    } catch {
+      failed();
+    } finally {
+      pending.current = false;
     }
   }
 
@@ -1068,6 +1104,8 @@ function AchievementsBlock({
       {adding && (
         <div className="mt-5 rounded-2xl border border-primary/30 bg-primary/5 p-4">
           <input
+            ref={titleInput}
+            aria-label={w("Activity title", "Faoliyat nomi", "Название занятия")}
             autoFocus
             placeholder="e.g. Founder of NavoiUnity"
             value={draft.title}
@@ -1121,6 +1159,8 @@ function AchievementsBlock({
                   {isEditing ? (
                     <>
                       <input
+                        ref={titleInput}
+                        aria-label={w("Activity title", "Faoliyat nomi", "Название занятия")}
                         value={draft.title}
                         onChange={(e) => setDraft({ ...draft, title: e.target.value })}
                         className="w-full bg-transparent text-sm font-semibold outline-none ring-1 ring-border/60 rounded px-2 py-1 focus:ring-primary/50"
