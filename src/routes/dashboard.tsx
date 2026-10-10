@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Brain,
   Calendar,
@@ -852,7 +852,19 @@ function StatsSection({
     setDraft(current); /* eslint-disable-next-line */
   }, [stats]);
 
+  const saving = useRef(false);
+  const scoreFields = useRef<HTMLDivElement>(null);
   async function saveStats() {
+    if (saving.current) return;
+    const invalid = [
+      ...(scoreFields.current?.querySelectorAll<HTMLInputElement>("input") ?? []),
+    ].find((input) => !input.validity.valid);
+    if (invalid) {
+      invalid.focus();
+      invalid.reportValidity();
+      return;
+    }
+    saving.current = true;
     const payload = { ...draft, user_id: userId };
     setSaveError(false);
     try {
@@ -863,11 +875,13 @@ function StatsSection({
       } else setSaveError(true);
     } catch {
       setSaveError(true);
+    } finally {
+      saving.current = false;
     }
   }
 
   return (
-    <div className="space-y-6">
+    <div ref={scoreFields} className="space-y-6">
       {/* Stats grid */}
       <GlassCard className="p-7">
         <div className="flex flex-wrap items-center justify-between gap-3">
