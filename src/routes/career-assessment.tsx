@@ -91,6 +91,7 @@ function CareerAssessmentPage() {
   const [step, setStep] = useState(0);
   const [starting, setStarting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const submissionPending = useRef(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Answers>(makeAnswers());
 
@@ -302,11 +303,14 @@ function CareerAssessmentPage() {
   );
 
   const finish = useCallback(async () => {
+    if (submissionPending.current) return;
     if (!user) {
       navigate({ to: "/auth", search: { mode: "signup", next: "/career-assessment" } });
       return;
     }
     if (!session) return;
+    submissionPending.current = true;
+    setSubmitError(null);
     setSubmitting(true);
     try {
       const result = await submit({
@@ -337,6 +341,8 @@ function CareerAssessmentPage() {
     } catch (e: unknown) {
       setSubmitError(e instanceof Error ? e.message : t.careerAssessment.submissionFailed);
       setSubmitting(false);
+    } finally {
+      submissionPending.current = false;
     }
   }, [user, session, answers, submit, navigate, t]);
 
