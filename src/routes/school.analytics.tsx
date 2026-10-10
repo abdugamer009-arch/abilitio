@@ -30,7 +30,8 @@ import {
   Lightbulb,
   Wand2,
 } from "lucide-react";
-import { useT } from "@/lib/i18n";
+import { useI18n, useT } from "@/lib/i18n";
+import { useUiText } from "@/lib/ui-text";
 
 /** Lightweight {placeholder} interpolation for localized template strings. */
 function fill(template: string, vars: Record<string, string | number>): string {
@@ -60,6 +61,8 @@ const COLORS = [
 
 function SchoolAnalytics() {
   const t = useT();
+  const { lang } = useI18n();
+  const tr = useUiText();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const fetchOverview = useServerFn(getSchoolCareerOverview);
@@ -291,7 +294,9 @@ function SchoolAnalytics() {
                       .sort((a, b) => b[1] - a[1])
                       .map(([cat, n]) => (
                         <li key={cat} className="flex items-center gap-2 text-xs">
-                          <span className="w-32 truncate">{cat}</span>
+                          <span className="w-32 truncate">
+                            {lang === "en" ? cat : tr(cat.charAt(0).toUpperCase() + cat.slice(1))}
+                          </span>
                           <div className="h-2 flex-1 rounded-full bg-secondary">
                             <div
                               className="h-full rounded-full bg-primary"
