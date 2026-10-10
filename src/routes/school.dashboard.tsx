@@ -1,3 +1,4 @@
+import { useSchoolInsight } from "@/lib/school-text";
 import { useUiText } from "@/lib/ui-text";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
@@ -61,6 +62,7 @@ const COLORS = [
 ];
 
 function PrincipalDashboard() {
+  const insight = useSchoolInsight();
   const tr = useUiText();
   const t = useT();
   const { user, loading } = useAuth();
@@ -331,7 +333,7 @@ function PrincipalDashboard() {
                   key={idx}
                   className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-foreground/90"
                 >
-                  {i}
+                  {insight(i)}
                 </li>
               ))}
             </ul>

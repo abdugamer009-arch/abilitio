@@ -1,3 +1,4 @@
+import { useSchoolInsight } from "@/lib/school-text";
 import { useUiText } from "@/lib/ui-text";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -14,7 +15,7 @@ export const Route = createFileRoute("/school/report")({
 });
 
 function SchoolReportPage() {
-  const tr = useUiText();
+  const insight = useSchoolInsight();
   const tr = useUiText();
 
   const { user, loading } = useAuth();
@@ -137,7 +138,7 @@ function SchoolReportPage() {
           <ul className="mt-3 space-y-2 text-sm">
             {data.insights.map((i, idx) => (
               <li key={idx} className="rounded-lg border border-border bg-butter px-3 py-2">
-                {i}
+                {insight(i)}
               </li>
             ))}
           </ul>
