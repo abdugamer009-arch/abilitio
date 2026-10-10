@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityGuide } from "@/components/ActivityGuide";
 import { PageShell } from "@/components/PageShell";
 import { GlowBlob } from "@/components/GlowBlob";
@@ -553,9 +553,44 @@ function PhaseProgress({
 
 function CelebrationModal({ phaseIndex, onClose }: { phaseIndex: number; onClose: () => void }) {
   const t = useT();
+  const dialog = useRef<HTMLDivElement>(null);
+  const close = useRef(onClose);
+  close.current = onClose;
+  useEffect(() => {
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const node = dialog.current;
+    node?.querySelector<HTMLButtonElement>("button")?.focus();
+    function keydown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close.current();
+      }
+      if (event.key === "Tab") {
+        const buttons = node?.querySelectorAll<HTMLElement>(
+          "button, a[href], input, select, textarea, [tabindex='0']",
+        );
+        if (!buttons?.length) return;
+        const first = buttons[0],
+          last = buttons[buttons.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    }
+    document.addEventListener("keydown", keydown);
+    return () => {
+      document.removeEventListener("keydown", keydown);
+      if (previous?.isConnected) previous.focus();
+    };
+  }, []);
   return (
     <div className="roadmap-modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
       <div
+        ref={dialog}
         role="dialog"
         aria-modal="true"
         aria-labelledby="roadmap-celebration-title"
