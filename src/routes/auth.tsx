@@ -79,7 +79,14 @@ function AuthPage() {
     const ep = emailSchema.safeParse(email.trim());
     if (!ep.success) return setErr(t.auth.errInvalidEmail);
     const pp = passSchema.safeParse(password);
-    if (!pp.success) return setErr(pp.error.issues[0].message);
+    if (!pp.success)
+      return setErr(
+        w(
+          "At least 8 characters (maximum 72).",
+          "Kamida 8 ta belgi (ko‘pi bilan 72).",
+          "От 8 до 72 символов.",
+        ),
+      );
 
     setLoading(true);
     try {
