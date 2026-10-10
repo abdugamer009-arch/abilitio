@@ -23,7 +23,7 @@ The Supabase dashboard currently requires owner sign-in. The local Vercel CLI is
 - A retry after a successful save but lost response returns the stored result for that same user and signed attempt. A different unique conflict, missing migration, or failed lookup still fails; no scores are overwritten and no client writes are added.
 - Personality, reasoning, interests, career matching and scoring formulas are unchanged.
 
-Lint, TypeScript, Vercel production build, and 71 tests pass. Five new tests cover successful storage, a lost-response retry scoped to owner and nonce, unrelated conflicts, missing schema, and failed recovery reads. Browser retry evidence is stored alongside the existing local audit artifacts.
+Lint, TypeScript, Vercel production build, and 71 tests pass. Five new tests cover successful storage, a lost-response retry scoped to owner and nonce, unrelated conflicts, missing schema, and failed recovery reads. Six browser cases (ENG/RU/UZ at 1440px and 390px) also pass: repeated Enter makes one pending request; a mocked API failure retains all answers; a successful retry opens results and clears the draft. These use browser-only accounts and intercepted submission responses, not a live database save. Browser retry evidence is stored alongside the existing local audit artifacts.
 
 ## Required verification after the database repair
 
