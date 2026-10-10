@@ -1,3 +1,4 @@
+import { useUiText } from "@/lib/ui-text";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { useEffect, useState } from "react";
@@ -18,6 +19,8 @@ export const Route = createFileRoute("/school/register")({
 });
 
 function SchoolRegisterPage() {
+  const tr = useUiText();
+
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const register = useServerFn(registerSchool);
@@ -59,7 +62,7 @@ function SchoolRegisterPage() {
       setSchool(res.school);
       track(AnalyticsEvent.SchoolRegistered);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Failed to register school.");
+      setErr(e instanceof Error ? e.message : tr("Failed to register school."));
     } finally {
       setSubmitting(false);
     }
@@ -74,9 +77,9 @@ function SchoolRegisterPage() {
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground glow-purple">
                 <GraduationCap className="h-6 w-6" />
               </div>
-              <h1 className="mt-5 text-2xl font-bold gradient-text">School registered</h1>
+              <h1 className="mt-5 text-2xl font-bold gradient-text">{tr("School registered")}</h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Share this code with your students so they can join.
+                {tr("Share this code with your students so they can join.")}
               </p>
               <div className="mt-6 flex items-center justify-center gap-2 rounded-2xl border border-border bg-secondary/50 px-5 py-4">
                 <span className="font-mono text-xl tracking-widest">{school.code}</span>
@@ -87,7 +90,7 @@ function SchoolRegisterPage() {
                     setTimeout(() => setCopied(false), 1500);
                   }}
                   className="ml-2 inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-secondary"
-                  aria-label="Copy code"
+                  aria-label={tr("Copy code")}
                 >
                   {copied ? (
                     <Check className="h-4 w-4 text-primary" />
@@ -100,7 +103,7 @@ function SchoolRegisterPage() {
                 to="/school/dashboard"
                 className="mt-6 inline-flex rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:glow-purple"
               >
-                Go to principal dashboard
+                {tr("Go to principal dashboard")}
               </Link>
             </div>
           </div>
@@ -114,52 +117,52 @@ function SchoolRegisterPage() {
       <section className="px-6 pt-20 pb-24">
         <div className="mx-auto max-w-xl">
           <div className="text-center">
-            <h1 className="text-3xl font-bold gradient-text">Register your school</h1>
+            <h1 className="text-3xl font-bold gradient-text">{tr("Register your school")}</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Create your school's principal account on Abilitio.
+              {tr("Create your school's principal account on Abilitio.")}
             </p>
           </div>
           <form onSubmit={submit} className="panel mt-8 space-y-3 rounded-3xl p-7">
             <Field
-              label="School Name"
+              label={tr("School Name")}
               value={form.name}
               onChange={(v) => setForm({ ...form, name: v })}
               required
             />
             <Field
-              label="Principal Name"
+              label={tr("Principal Name")}
               value={form.principalName}
               onChange={(v) => setForm({ ...form, principalName: v })}
               required
             />
             <div className="grid grid-cols-2 gap-3">
               <Field
-                label="School Email"
+                label={tr("School Email")}
                 type="email"
                 value={form.email}
                 onChange={(v) => setForm({ ...form, email: v })}
                 required
               />
               <Field
-                label="Phone"
+                label={tr("Phone")}
                 value={form.phone}
                 onChange={(v) => setForm({ ...form, phone: v })}
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Field
-                label="City"
+                label={tr("City")}
                 value={form.city}
                 onChange={(v) => setForm({ ...form, city: v })}
               />
               <Field
-                label="Country"
+                label={tr("Country")}
                 value={form.country}
                 onChange={(v) => setForm({ ...form, country: v })}
               />
             </div>
             <Field
-              label="Number of Students (estimate)"
+              label={tr("Number of Students (estimate)")}
               type="number"
               value={form.students}
               onChange={(v) => setForm({ ...form, students: v })}
@@ -175,7 +178,7 @@ function SchoolRegisterPage() {
               className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground hover:glow-purple disabled:opacity-60"
             >
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-              Register school
+              {tr("Register school")}
             </button>
           </form>
         </div>

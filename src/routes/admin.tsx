@@ -1,3 +1,4 @@
+import { useUiText } from "@/lib/ui-text";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -48,6 +49,8 @@ const PURPLE = [
 ];
 
 function AdminDashboardPage() {
+  const tr = useUiText();
+
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const checkFn = useServerFn(checkIsAdmin);
@@ -114,7 +117,11 @@ function AdminDashboardPage() {
   if (loading || !ready) {
     return (
       <PageShell>
-        <section className="px-6 pt-12 pb-24" aria-busy="true" aria-label="Loading admin dashboard">
+        <section
+          className="px-6 pt-12 pb-24"
+          aria-busy="true"
+          aria-label={tr("Loading admin dashboard")}
+        >
           <div className="mx-auto max-w-6xl">
             <div className="skeleton h-10 w-64 rounded-2xl" />
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -139,16 +146,16 @@ function AdminDashboardPage() {
           <div className="mx-auto max-w-md panel rounded-3xl p-10 text-center">
             <Shield className="mx-auto h-10 w-10 text-primary" />
             <h1 className="mt-4 text-2xl font-semibold">
-              {forbidden ? "Admin only" : "Admin dashboard error"}
+              {forbidden ? tr("Admin only") : tr("Admin dashboard error")}
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
               {forbidden
-                ? "This account is not an admin."
-                : "Access check or data loading failed on the server."}
+                ? tr("This account is not an admin.")
+                : tr("Access check or data loading failed on the server.")}
             </p>
             {forbidden && (
               <p className="mt-2 text-xs text-muted-foreground">
-                Signed in as{" "}
+                {tr("Signed in as")}{" "}
                 <span className="font-medium text-foreground">
                   {serverEmail ?? user?.email ?? "unknown"}
                 </span>
@@ -163,7 +170,7 @@ function AdminDashboardPage() {
               to="/"
               className="mt-6 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:glow-purple"
             >
-              Go home
+              {tr("Go home")}
             </Link>
           </div>
         </section>
@@ -194,9 +201,11 @@ function AdminDashboardPage() {
               <Crown className="h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Admin Dashboard</h1>
+              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+                {tr("Admin Dashboard")}
+              </h1>
               <p className="text-xs text-muted-foreground">
-                Founder-level analytics & user management
+                {tr("Founder-level analytics & user management")}
               </p>
             </div>
           </div>
@@ -205,42 +214,42 @@ function AdminDashboardPage() {
             <>
               {/* Founder analytics */}
               <h2 className="mt-8 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                Engagement
+                {tr("Engagement")}
               </h2>
               <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <StatCard icon={Users} label="Daily Active Users" value={analytics.dau} />
-                <StatCard icon={Users} label="Weekly Active Users" value={analytics.wau} />
-                <StatCard icon={Users} label="Monthly Active Users" value={analytics.mau} />
+                <StatCard icon={Users} label={tr("Daily Active Users")} value={analytics.dau} />
+                <StatCard icon={Users} label={tr("Weekly Active Users")} value={analytics.wau} />
+                <StatCard icon={Users} label={tr("Monthly Active Users")} value={analytics.mau} />
                 <StatCard
                   icon={TrendingUp}
-                  label="Most Popular Career"
+                  label={tr("Most Popular Career")}
                   valueText={analytics.popularCareers[0]?.name ?? "—"}
                 />
               </div>
 
               <h2 className="mt-8 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                Platform
+                {tr("Platform")}
               </h2>
               <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <StatCard icon={Users} label="Total Users" value={analytics.totalUsers} />
+                <StatCard icon={Users} label={tr("Total Users")} value={analytics.totalUsers} />
                 <StatCard
                   icon={Brain}
-                  label="Completed Assessments"
+                  label={tr("Completed Assessments")}
                   value={analytics.completedAssessments}
                 />
                 <StatCard
                   icon={TrendingUp}
-                  label="New This Week"
+                  label={tr("New This Week")}
                   value={analytics.newUsersThisWeek}
                 />
                 <StatCard
                   icon={TrendingUp}
-                  label="New This Month"
+                  label={tr("New This Month")}
                   value={analytics.newUsersThisMonth}
                 />
                 <StatCard
                   icon={Sparkles}
-                  label="Most Active Community"
+                  label={tr("Most Active Community")}
                   valueText={analytics.mostActiveCommunity?.name ?? "—"}
                   hint={
                     analytics.mostActiveCommunity
@@ -251,7 +260,7 @@ function AdminDashboardPage() {
               </div>
 
               <div className="mt-6 grid gap-6 lg:grid-cols-2">
-                <GlassChart title="Signups — last 7 days">
+                <GlassChart title={tr("Signups — last 7 days")}>
                   <ResponsiveContainer width="100%" height={260}>
                     <LineChart data={analytics.weeklySignups}>
                       <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" opacity={0.3} />
@@ -281,7 +290,7 @@ function AdminDashboardPage() {
                   </ResponsiveContainer>
                 </GlassChart>
 
-                <GlassChart title="Most popular careers">
+                <GlassChart title={tr("Most popular careers")}>
                   <ResponsiveContainer width="100%" height={260}>
                     <BarChart
                       data={analytics.popularCareers}
@@ -312,7 +321,7 @@ function AdminDashboardPage() {
                   </ResponsiveContainer>
                 </GlassChart>
 
-                <GlassChart title="Personality types distribution">
+                <GlassChart title={tr("Personality types distribution")}>
                   <ResponsiveContainer width="100%" height={260}>
                     <PieChart>
                       <Pie
@@ -342,9 +351,9 @@ function AdminDashboardPage() {
 
               <div className="mt-8">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <h2 className="text-lg font-semibold">User management</h2>
+                  <h2 className="text-lg font-semibold">{tr("User management")}</h2>
                   <input
-                    placeholder="Search by name or email"
+                    placeholder={tr("Search by name or email")}
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     className="rounded-full border border-border/60 bg-secondary/30 px-4 py-2 text-sm outline-none focus:border-primary/40"
@@ -354,12 +363,12 @@ function AdminDashboardPage() {
                   <table className="w-full min-w-[800px] text-sm">
                     <thead className="border-b border-border/40 text-xs uppercase tracking-wider text-muted-foreground">
                       <tr>
-                        <th className="px-4 py-3 text-left">User</th>
-                        <th className="px-4 py-3 text-left">Email</th>
-                        <th className="px-4 py-3 text-left">Joined</th>
-                        <th className="px-4 py-3 text-left">Age</th>
-                        <th className="px-4 py-3 text-left">Assessment</th>
-                        <th className="px-4 py-3 text-right">Actions</th>
+                        <th className="px-4 py-3 text-left">{tr("User")}</th>
+                        <th className="px-4 py-3 text-left">{tr("Email")}</th>
+                        <th className="px-4 py-3 text-left">{tr("Joined")}</th>
+                        <th className="px-4 py-3 text-left">{tr("Age")}</th>
+                        <th className="px-4 py-3 text-left">{tr("Assessment")}</th>
+                        <th className="px-4 py-3 text-right">{tr("Actions")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -372,7 +381,7 @@ function AdminDashboardPage() {
                             {u.name || u.surname ? `${u.name} ${u.surname}`.trim() : "—"}
                             {u.is_banned && (
                               <span className="ml-2 rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] text-destructive">
-                                banned
+                                {tr("banned")}
                               </span>
                             )}
                           </td>
@@ -384,7 +393,8 @@ function AdminDashboardPage() {
                           <td className="px-4 py-3">
                             {u.has_assessment ? (
                               <span className="inline-flex items-center gap-1 text-accent">
-                                <Check className="h-3 w-3" /> done
+                                <Check className="h-3 w-3" />
+                                {tr("done")}
                               </span>
                             ) : (
                               <span className="text-muted-foreground">—</span>
@@ -393,7 +403,7 @@ function AdminDashboardPage() {
                           <td className="px-4 py-3">
                             <div className="flex justify-end gap-1">
                               <IconBtn
-                                title={u.is_banned ? "Unban" : "Ban"}
+                                title={tr(u.is_banned ? "Unban" : "Ban")}
                                 onClick={() => handleBan(u.id, !u.is_banned)}
                                 disabled={busy === u.id}
                                 danger={!u.is_banned}
@@ -407,7 +417,7 @@ function AdminDashboardPage() {
                       {filtered.length === 0 && (
                         <tr>
                           <td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">
-                            No users found.
+                            {tr("No users found.")}
                           </td>
                         </tr>
                       )}

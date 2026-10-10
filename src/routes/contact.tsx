@@ -185,9 +185,9 @@ function Contact() {
                       <label>
                         {w("Preferred language", "Til", "Язык")}
                         <select name="language">
-                          <option>Uzbek</option>
-                          <option>English</option>
-                          <option>Russian</option>
+                          <option value="Uzbek">{w("Uzbek", "O‘zbekcha", "Узбекский")}</option>
+                          <option value="English">{w("English", "Inglizcha", "Английский")}</option>
+                          <option value="Russian">{w("Russian", "Ruscha", "Русский")}</option>
                         </select>
                       </label>
                     </div>

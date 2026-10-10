@@ -1,7 +1,8 @@
+import { useUiText } from "@/lib/ui-text";
 import { toast } from "sonner";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   Brain,
   Calendar,
@@ -469,6 +470,8 @@ function ResultsSection({
   tIqLevel: (l: string) => string;
   t: ReturnType<typeof useI18n>["t"];
 }) {
+  const tr = useUiText();
+
   const w = useWords();
   if (!latest) {
     return (
@@ -476,9 +479,9 @@ function ResultsSection({
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
           <Brain className="h-8 w-8" />
         </div>
-        <h3 className="mt-4 text-xl font-semibold">No assessment yet</h3>
+        <h3 className="mt-4 text-xl font-semibold">{tr("No assessment yet")}</h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          Take your first assessment to see your assessment profile.
+          {tr("Take your first assessment to see your assessment profile.")}
         </p>
         <Link
           to="/assessment"
@@ -495,22 +498,22 @@ function ResultsSection({
       {/* Top metrics row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricRing
-          label="Reasoning / 10"
+          label={tr("Reasoning / 10")}
           value={latest.iq_score}
           max={10}
-          hint={tIqLevel(latest.iq_level)}
+          hint={tr(tIqLevel(latest.iq_level))}
           icon={Brain}
         />
         <MetricCard
-          label="Personality"
+          label={tr("Personality")}
           value={latest.mbti_type}
-          hint={MBTI_DESCRIPTIONS[latest.mbti_type] ?? "Unique mind"}
+          hint={tr(MBTI_DESCRIPTIONS[latest.mbti_type] ?? "Unique mind")}
           icon={Sparkles}
         />
         <MetricCard
-          label="Assessments"
+          label={tr("Assessments")}
           value={String(results.length)}
-          hint="Total taken"
+          hint={tr("Total taken")}
           icon={Activity}
         />
         <MetricCard
@@ -545,7 +548,7 @@ function ResultsSection({
 
         <div className="grid gap-6">
           <GlassCard className="p-7">
-            <SectionTitle icon={Heart}>Top Strengths</SectionTitle>
+            <SectionTitle icon={Heart}>{tr("Top Strengths")}</SectionTitle>
             {latest.top_strengths?.length ? (
               <div className="mt-4 flex flex-wrap gap-2">
                 {latest.top_strengths.map((s) => (
@@ -558,11 +561,11 @@ function ResultsSection({
                 ))}
               </div>
             ) : (
-              <p className="mt-3 text-sm text-muted-foreground">No data yet.</p>
+              <p className="mt-3 text-sm text-muted-foreground">{tr("No data yet.")}</p>
             )}
           </GlassCard>
           <GlassCard className="p-7">
-            <SectionTitle icon={Zap}>Growth Areas</SectionTitle>
+            <SectionTitle icon={Zap}>{tr("Growth Areas")}</SectionTitle>
             {latest.weaknesses?.length ? (
               <div className="mt-4 flex flex-wrap gap-2">
                 {latest.weaknesses.map((s) => (
@@ -575,7 +578,7 @@ function ResultsSection({
                 ))}
               </div>
             ) : (
-              <p className="mt-3 text-sm text-muted-foreground">All round excellence.</p>
+              <p className="mt-3 text-sm text-muted-foreground">{tr("All round excellence.")}</p>
             )}
           </GlassCard>
         </div>
@@ -606,7 +609,7 @@ function ResultsSection({
             ))}
           </div>
         ) : (
-          <p className="mt-3 text-sm text-muted-foreground">No career data yet.</p>
+          <p className="mt-3 text-sm text-muted-foreground">{tr("No career data yet.")}</p>
         )}
       </GlassCard>
 
@@ -620,9 +623,9 @@ function ResultsSection({
                 <Swords className="h-5 w-5" />
               </div>
               <div>
-                <div className="text-sm font-semibold">Try Career Battles</div>
+                <div className="text-sm font-semibold">{tr("Try Career Battles")}</div>
                 <div className="text-xs text-muted-foreground">
-                  Compare your top careers side-by-side with AI insights
+                  {tr("Compare your top careers side-by-side with AI insights")}
                 </div>
               </div>
             </div>
@@ -633,7 +636,7 @@ function ResultsSection({
 
       {/* History */}
       <GlassCard className="p-7">
-        <SectionTitle icon={TrendingUp}>Assessment History</SectionTitle>
+        <SectionTitle icon={TrendingUp}>{tr("Assessment History")}</SectionTitle>
         <ul className="mt-5 space-y-2">
           {results.map((r, i) => (
             <li
@@ -652,13 +655,15 @@ function ResultsSection({
                 {new Date(r.created_at).toLocaleDateString()}
               </span>
               <span className="text-muted-foreground">
-                Reasoning / 10 <span className="font-semibold text-foreground">{r.iq_score}</span>
+                {tr("Reasoning / 10")}
+                <span className="font-semibold text-foreground">{r.iq_score}</span>
               </span>
               <span className="text-muted-foreground">
-                Type <span className="font-semibold text-foreground">{r.mbti_type}</span>
+                {tr("Type")}
+                <span className="font-semibold text-foreground">{r.mbti_type}</span>
               </span>
               <span className="text-muted-foreground">
-                Top:{" "}
+                {tr("Top:")}{" "}
                 <span className="font-semibold text-foreground">
                   {r.careers?.[0] ? tCareer(r.careers[0].name).name : "—"}
                 </span>
@@ -830,6 +835,8 @@ function StatsSection({
   achievements: Achievement[];
   setAchievements: (a: Achievement[]) => void;
 }) {
+  const tr = useUiText();
+
   const w = useWords();
   const [saveError, setSaveError] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -895,11 +902,13 @@ function StatsSection({
           >
             {editing ? (
               <>
-                <Check className="h-3.5 w-3.5" /> Save
+                <Check className="h-3.5 w-3.5" />
+                {tr("Save")}
               </>
             ) : (
               <>
-                <Pencil className="h-3.5 w-3.5" /> Edit Stats
+                <Pencil className="h-3.5 w-3.5" />
+                {tr("Edit Stats")}
               </>
             )}
           </button>
@@ -934,13 +943,13 @@ function StatsSection({
                     <Icon className="h-3 w-3" />
                   </span>
                   <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                    {f.label}
+                    {tr(f.label)}
                   </span>
                 </div>
                 {editing ? (
                   <input
                     type="number"
-                    aria-label={f.label}
+                    aria-label={tr(f.label)}
                     min={0}
                     max={f.max}
                     step={f.key === "ielts_band" ? 0.5 : 1}
@@ -981,7 +990,7 @@ function StatsSection({
               }}
               className="rounded-full border border-border px-4 py-1.5 text-xs hover:bg-secondary"
             >
-              Cancel
+              {tr("Cancel")}
             </button>
           </div>
         )}
@@ -1006,6 +1015,8 @@ function AchievementsBlock({
   achievements: Achievement[];
   setAchievements: (a: Achievement[]) => void;
 }) {
+  const tr = useUiText();
+
   const w = useWords();
   const pending = useRef(false);
   const titleInput = useRef<HTMLInputElement>(null);
@@ -1089,7 +1100,7 @@ function AchievementsBlock({
   return (
     <GlassCard className="p-7">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <SectionTitle icon={Award}>Achievements & Activities</SectionTitle>
+        <SectionTitle icon={Award}>{tr("Achievements & Activities")}</SectionTitle>
         <button
           onClick={() => {
             setAdding(true);
@@ -1097,7 +1108,8 @@ function AchievementsBlock({
           }}
           className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary/20"
         >
-          <Plus className="h-3.5 w-3.5" /> Add
+          <Plus className="h-3.5 w-3.5" />
+          {tr("Add")}
         </button>
       </div>
 
@@ -1107,13 +1119,13 @@ function AchievementsBlock({
             ref={titleInput}
             aria-label={w("Activity title", "Faoliyat nomi", "Название занятия")}
             autoFocus
-            placeholder="e.g. Founder of NavoiUnity"
+            placeholder={tr("e.g. Founder of NavoiUnity")}
             value={draft.title}
             onChange={(e) => setDraft({ ...draft, title: e.target.value })}
             className="w-full bg-transparent text-sm font-medium outline-none placeholder:text-muted-foreground/60"
           />
           <textarea
-            placeholder="Short description (optional)"
+            placeholder={tr("Short description (optional)")}
             value={draft.description}
             onChange={(e) => setDraft({ ...draft, description: e.target.value })}
             className="mt-2 w-full resize-none bg-transparent text-xs text-muted-foreground outline-none placeholder:text-muted-foreground/60"
@@ -1124,13 +1136,13 @@ function AchievementsBlock({
               onClick={() => setAdding(false)}
               className="rounded-full border border-border px-3 py-1 text-[11px] hover:bg-secondary"
             >
-              Cancel
+              {tr("Cancel")}
             </button>
             <button
               onClick={addOne}
               className="rounded-full bg-primary px-3 py-1 text-[11px] font-medium text-primary-foreground hover:-translate-y-0.5 transition-all"
             >
-              Save
+              {tr("Save")}
             </button>
           </div>
         </div>
@@ -1139,9 +1151,9 @@ function AchievementsBlock({
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         {achievements.length === 0 && !adding && (
           <div className="col-span-full rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
-            No achievements yet. Add your first one — e.g.{" "}
-            <span className="text-foreground">"Olympiad Participant"</span> or{" "}
-            <span className="text-foreground">"Debate Club Member"</span>.
+            {tr("No achievements yet. Add your first one — e.g.")}{" "}
+            <span className="text-foreground">{tr('"Olympiad Participant"')}</span> {tr("or")}{" "}
+            <span className="text-foreground">{tr('"Debate Club Member"')}</span>.
           </div>
         )}
         {achievements.map((a) => {
@@ -1256,6 +1268,8 @@ function SettingsSection({
   initials: string;
   t: ReturnType<typeof useI18n>["t"];
 }) {
+  const tr = useUiText();
+
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<Profile>({
     name: profile?.name ?? "",
@@ -1288,9 +1302,11 @@ function SettingsSection({
 
   async function changePassword() {
     setMsg(null);
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + "/auth?mode=recovery",
+    });
     if (error) setMsg(error.message);
-    else setMsg("Password reset link sent to your email.");
+    else setMsg(tr("Password reset link sent to your email."));
   }
 
   return (
@@ -1308,9 +1324,13 @@ function SettingsSection({
                 <Crown className="h-6 w-6" />
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wider text-accent">Founder access</div>
-                <div className="text-lg font-bold gradient-text">Open Admin Dashboard</div>
-                <div className="text-xs text-muted-foreground">Analytics and user management</div>
+                <div className="text-xs uppercase tracking-wider text-accent">
+                  {tr("Founder access")}
+                </div>
+                <div className="text-lg font-bold gradient-text">{tr("Open Admin Dashboard")}</div>
+                <div className="text-xs text-muted-foreground">
+                  {tr("Analytics and user management")}
+                </div>
               </div>
             </div>
             <ChevronRight className="h-5 w-5 text-primary transition-transform group-hover:translate-x-1" />
@@ -1340,18 +1360,18 @@ function SettingsSection({
       />
       <div className="settings-grid grid gap-6 lg:grid-cols-2">
         <GlassCard className="p-7">
-          <SectionTitle icon={UserIcon}>Profile</SectionTitle>
+          <SectionTitle icon={UserIcon}>{tr("Profile")}</SectionTitle>
           <div className="mt-5 space-y-3">
-            <Field label="Email" value={email} disabled />
+            <Field label={tr("Email")} value={email} disabled />
             {editing ? (
               <>
                 <Field
-                  label="First name"
+                  label={tr("First name")}
                   value={draft.name}
                   onChange={(v) => setDraft({ ...draft, name: v })}
                 />
                 <Field
-                  label="Last name"
+                  label={tr("Last name")}
                   value={draft.surname}
                   onChange={(v) => setDraft({ ...draft, surname: v })}
                 />
@@ -1363,25 +1383,26 @@ function SettingsSection({
                     }}
                     className="rounded-full border border-border px-4 py-1.5 text-xs hover:bg-secondary"
                   >
-                    Cancel
+                    {tr("Cancel")}
                   </button>
                   <button
                     onClick={saveProfile}
                     className="rounded-full bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground hover:-translate-y-0.5 transition-all"
                   >
-                    Save
+                    {tr("Save")}
                   </button>
                 </div>
               </>
             ) : (
               <>
-                <Field label="First name" value={profile?.name ?? ""} disabled />
-                <Field label="Last name" value={profile?.surname ?? ""} disabled />
+                <Field label={tr("First name")} value={profile?.name ?? ""} disabled />
+                <Field label={tr("Last name")} value={profile?.surname ?? ""} disabled />
                 <button
                   onClick={() => setEditing(true)}
                   className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary hover:bg-primary/20"
                 >
-                  <Pencil className="h-3.5 w-3.5" /> Edit profile
+                  <Pencil className="h-3.5 w-3.5" />
+                  {tr("Edit profile")}
                 </button>
               </>
             )}
@@ -1389,12 +1410,12 @@ function SettingsSection({
         </GlassCard>
 
         <GlassCard className="p-7">
-          <SectionTitle icon={SettingsIcon}>Preferences</SectionTitle>
+          <SectionTitle icon={SettingsIcon}>{tr("Preferences")}</SectionTitle>
           <div className="mt-5 space-y-4">
-            <PrefRow icon={Languages} label="Language" hint="Switch interface language">
+            <PrefRow icon={Languages} label={tr("Language")} hint={tr("Switch interface language")}>
               <LanguageSwitcher />
             </PrefRow>
-            <PrefRow icon={Moon} label="Appearance" hint="Light or dark theme">
+            <PrefRow icon={Moon} label={tr("Appearance")} hint={tr("Light or dark theme")}>
               <ThemeToggle />
             </PrefRow>
             <WeeklyEmailToggle userId={userId} />
@@ -1402,23 +1423,24 @@ function SettingsSection({
         </GlassCard>
 
         <GlassCard className="p-7">
-          <SectionTitle icon={KeyRound}>Security</SectionTitle>
+          <SectionTitle icon={KeyRound}>{tr("Security")}</SectionTitle>
           <p className="mt-3 text-sm text-muted-foreground">
-            Reset your password — we'll send a secure link to your email.
+            {tr("Reset your password — we'll send a secure link to your email.")}
           </p>
           <button
             onClick={changePassword}
             className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary hover:bg-primary/20"
           >
-            <KeyRound className="h-3.5 w-3.5" /> Send reset link
+            <KeyRound className="h-3.5 w-3.5" />
+            {tr("Send reset link")}
           </button>
           {msg && <p className="mt-3 text-xs text-muted-foreground">{msg}</p>}
         </GlassCard>
 
         <GlassCard className="p-7">
-          <SectionTitle icon={LogOut}>Session</SectionTitle>
+          <SectionTitle icon={LogOut}>{tr("Session")}</SectionTitle>
           <p className="mt-3 text-sm text-muted-foreground">
-            Sign out from this device. Check your save status before leaving.
+            {tr("Sign out from this device. Check your save status before leaving.")}
           </p>
           <button
             onClick={onLogout}
@@ -1433,6 +1455,8 @@ function SettingsSection({
 }
 
 function WeeklyEmailToggle({ userId }: { userId: string }) {
+  const tr = useUiText();
+
   const key = `pref_weekly_email_${userId}`;
   const [enabled, setEnabled] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -1446,11 +1470,12 @@ function WeeklyEmailToggle({ userId }: { userId: string }) {
   return (
     <PrefRow
       icon={Mail}
-      label="Weekly digest email"
-      hint="Activate in Lovable integrations to enable sending"
+      label={tr("Weekly digest email")}
+      hint={tr("Saved on this device; email delivery is not connected.")}
     >
       <button
         onClick={toggle}
+        aria-label={tr("Weekly digest email")}
         aria-pressed={enabled}
         className={`cartoon-switch relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-all duration-300 focus-visible:outline-none ${enabled ? "bg-primary" : "bg-secondary"}`}
       >
@@ -1473,12 +1498,17 @@ function Field({
   disabled?: boolean;
   onChange?: (v: string) => void;
 }) {
+  const id = useId();
   return (
     <div>
-      <label className="mb-1 block text-[10px] uppercase tracking-wider text-muted-foreground">
+      <label
+        htmlFor={id}
+        className="mb-1 block text-[10px] uppercase tracking-wider text-muted-foreground"
+      >
         {label}
       </label>
       <input
+        id={id}
         value={value}
         disabled={disabled}
         onChange={(e) => onChange?.(e.target.value)}

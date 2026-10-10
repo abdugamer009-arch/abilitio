@@ -268,7 +268,15 @@ export function CareerWorkshop({
             <span>
               <span className="micro">0{i + 1}</span>
               <strong>{name}</strong>
-              <span className="stage-brand">{["Signal", "Vector", "Trajectory"][i]}</span>
+              <span className="stage-brand">
+                {
+                  [
+                    w("Signal", "Signal", "Сигнал"),
+                    w("Vector", "Vektor", "Вектор"),
+                    w("Trajectory", "Trayektoriya", "Траектория"),
+                  ][i]
+                }
+              </span>
               <small>{stageNotes[i]}</small>
             </span>
             <ArrowRight size={18} />

@@ -1,3 +1,4 @@
+import { useUiText } from "@/lib/ui-text";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
@@ -60,6 +61,7 @@ const COLORS = [
 ];
 
 function PrincipalDashboard() {
+  const tr = useUiText();
   const t = useT();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -281,7 +283,7 @@ function PrincipalDashboard() {
                       .slice(0, 5)
                       .map((b) => (
                         <div key={b.bucket} className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">{b.label}</span>
+                          <span className="text-muted-foreground">{tr(b.label)}</span>
                           <span className="font-medium">{b.count}</span>
                         </div>
                       ))}
@@ -301,8 +303,8 @@ function PrincipalDashboard() {
             {data.topTalents
               .filter((talent) => talent.students.length)
               .map((talent) => (
-                <div key={talent.dimension} className="panel rounded-2xl p-5">
-                  <h4 className="text-xs font-semibold text-primary">{talent.dimension}</h4>
+                <div key={tr(talent.dimension)} className="panel rounded-2xl p-5">
+                  <h4 className="text-xs font-semibold text-primary">{tr(talent.dimension)}</h4>
                   <ul className="mt-3 space-y-1.5 text-sm">
                     {talent.students.map((s) => (
                       <li key={s.user_id} className="flex items-center justify-between">

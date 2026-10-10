@@ -1,3 +1,4 @@
+import { useUiText } from "@/lib/ui-text";
 import { useCallback, useEffect, useRef, useState, type DragEvent } from "react";
 import { Camera, Loader2, Trash2, UploadCloud, User as UserIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +26,8 @@ export function ProfilePhotoCard({
   initials: string;
   onChange: (newPath: string | null) => void;
 }) {
+  const tr = useUiText();
+
   const [preview, setPreview] = useState<string | null>(null);
   const [resolved, setResolved] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -49,11 +52,11 @@ export function ProfilePhotoCard({
     async (file: File) => {
       setError(null);
       if (!ACCEPTED.includes(file.type)) {
-        setError("Please upload a JPG, PNG, or WEBP image.");
+        setError(tr("Please upload a JPG, PNG, or WEBP image."));
         return;
       }
       if (file.size > MAX_BYTES) {
-        setError("Image must be smaller than 5 MB.");
+        setError(tr("Image must be smaller than 5 MB."));
         return;
       }
 
@@ -91,7 +94,7 @@ export function ProfilePhotoCard({
         setProgress(100);
         onChange(path);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Upload failed.");
+        setError(e instanceof Error ? e.message : tr("Upload failed."));
         setPreview(null);
       } finally {
         URL.revokeObjectURL(localUrl);
@@ -99,7 +102,7 @@ export function ProfilePhotoCard({
         setTimeout(() => setProgress(0), 600);
       }
     },
-    [avatarPath, onChange, userId],
+    [avatarPath, onChange, userId, tr],
   );
 
   async function remove() {
@@ -116,7 +119,7 @@ export function ProfilePhotoCard({
       setPreview(null);
       onChange(null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Remove failed.");
+      setError(e instanceof Error ? e.message : tr("Remove failed."));
     } finally {
       setBusy(false);
     }
@@ -140,7 +143,7 @@ export function ProfilePhotoCard({
         <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Camera className="h-3.5 w-3.5" />
         </span>
-        Profile Photo
+        {tr("Profile Photo")}
       </h2>
 
       <div className="mt-6 flex flex-col items-center gap-6 sm:flex-row sm:items-start">
@@ -187,9 +190,12 @@ export function ProfilePhotoCard({
               <UploadCloud className="h-5 w-5 text-primary transition-transform duration-300 group-hover:scale-110" />
             </div>
             <p className="mt-3 text-sm font-medium">
-              Drag & drop or <span className="text-primary">browse</span>
+              {tr("Drag & drop or")}
+              <span className="text-primary">{tr("browse")}</span>
             </p>
-            <p className="mt-1 text-[11px] text-muted-foreground">JPG, PNG or WEBP · up to 5 MB</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              {tr("JPG, PNG or WEBP · up to 5 MB")}
+            </p>
             <input
               ref={inputRef}
               type="file"
@@ -219,7 +225,7 @@ export function ProfilePhotoCard({
               onClick={() => inputRef.current?.click()}
               className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary/20 disabled:opacity-50"
             >
-              <Camera className="h-3.5 w-3.5" /> {displayed ? "Change photo" : "Upload photo"}
+              <Camera className="h-3.5 w-3.5" /> {tr(displayed ? "Change photo" : "Upload photo")}
             </button>
             {displayed && (
               <button
@@ -228,12 +234,14 @@ export function ProfilePhotoCard({
                 onClick={remove}
                 className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 bg-destructive/10 px-4 py-1.5 text-xs font-medium text-destructive transition-all hover:bg-destructive/20 disabled:opacity-50"
               >
-                <Trash2 className="h-3.5 w-3.5" /> Remove
+                <Trash2 className="h-3.5 w-3.5" />
+                {tr("Remove")}
               </button>
             )}
             {!displayed && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary/60 px-3 py-1.5 text-[11px] text-muted-foreground">
-                <UserIcon className="h-3 w-3" /> Using default avatar
+                <UserIcon className="h-3 w-3" />
+                {tr("Using default avatar")}
               </span>
             )}
           </div>

@@ -1,3 +1,4 @@
+import { useUiText } from "@/lib/ui-text";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { useEffect, useState } from "react";
@@ -32,6 +33,8 @@ const FOCUS_OPTIONS = [
 ];
 
 function ClassBuilderPage() {
+  const tr = useUiText();
+
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const build = useServerFn(buildSpecializedClass);
@@ -59,7 +62,7 @@ function ClassBuilderPage() {
       setResult({ focus: r.focus, students: r.students });
       if (r.savedId) setSavedId(r.savedId);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Failed to build class.");
+      setErr(e instanceof Error ? e.message : tr("Failed to build class."));
     } finally {
       setRunning(false);
     }
@@ -71,11 +74,16 @@ function ClassBuilderPage() {
         <div className="mx-auto max-w-5xl">
           <header className="mb-8">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
-              <Wand2 className="h-3.5 w-3.5" /> AI Class Builder
+              <Wand2 className="h-3.5 w-3.5" />
+              {tr("AI Class Builder")}
             </div>
-            <h1 className="mt-3 text-3xl font-bold gradient-text">Create Specialized Class</h1>
+            <h1 className="mt-3 text-3xl font-bold gradient-text">
+              {tr("Create Specialized Class")}
+            </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Select a focus area — Abilitio recommends the best-matched students from your school.
+              {tr(
+                "Select a focus area — Abilitio recommends the best-matched students from your school.",
+              )}
             </p>
           </header>
 
@@ -83,7 +91,7 @@ function ClassBuilderPage() {
             <div className="grid gap-4 md:grid-cols-3">
               <div>
                 <label htmlFor="class-focus" className="text-xs text-muted-foreground">
-                  Focus area
+                  {tr("Focus area")}
                 </label>
                 <select
                   id="class-focus"
@@ -92,13 +100,15 @@ function ClassBuilderPage() {
                   className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
                 >
                   {FOCUS_OPTIONS.map((o) => (
-                    <option key={o}>{o}</option>
+                    <option key={o} value={o}>
+                      {tr(o)}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
                 <label htmlFor="class-size" className="text-xs text-muted-foreground">
-                  Class size
+                  {tr("Class size")}
                 </label>
                 <input
                   id="class-size"
@@ -121,26 +131,29 @@ function ClassBuilderPage() {
                   ) : (
                     <Wand2 className="h-4 w-4" />
                   )}{" "}
-                  Build
+                  {tr("Build")}
                 </button>
                 <button
                   onClick={() => run(true)}
                   disabled={running || !result}
                   className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-4 py-2 text-sm hover:bg-secondary/50 disabled:opacity-50"
                 >
-                  <Check className="h-4 w-4" /> Save
+                  <Check className="h-4 w-4" />
+                  {tr("Save")}
                 </button>
               </div>
             </div>
             {err && <p className="mt-3 text-xs text-destructive">{err}</p>}
-            {savedId && <p className="mt-3 text-xs text-primary">Class saved ✓</p>}
+            {savedId && <p className="mt-3 text-xs text-primary">{tr("Class saved ✓")}</p>}
           </div>
 
           {result && (
             <div className="panel mt-6 rounded-3xl p-6">
-              <h3 className="text-sm font-semibold">Recommended students — {result.focus} Class</h3>
+              <h3 className="text-sm font-semibold">
+                {tr("Recommended students —")} {result.focus} {tr("Class")}
+              </h3>
               <p className="text-xs text-muted-foreground">
-                Ranked by composite Personality + Cognitive + Interest fit.
+                {tr("Ranked by composite Personality + Cognitive + Interest fit.")}
               </p>
               <div className="mt-4 grid gap-2">
                 {result.students.length ? (
@@ -162,8 +175,9 @@ function ClassBuilderPage() {
                   ))
                 ) : (
                   <div className="rounded-2xl border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
-                    No students with matching profiles yet. Ask students to complete the Career
-                    Intelligence assessment.
+                    {tr(
+                      "No students with matching profiles yet. Ask students to complete the Career Intelligence assessment.",
+                    )}
                   </div>
                 )}
               </div>
@@ -172,7 +186,7 @@ function ClassBuilderPage() {
 
           <div className="mt-6 text-center">
             <Link to="/school/analytics" className="text-xs text-muted-foreground underline">
-              ← Back to analytics
+              {tr("← Back to analytics")}
             </Link>
           </div>
         </div>
