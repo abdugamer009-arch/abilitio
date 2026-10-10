@@ -1,3 +1,5 @@
+import { LocalizedLegalDocument } from "@/components/LocalizedLegalDocument";
+import { useI18n } from "@/lib/i18n";
 import { pageMeta } from "@/lib/seo";
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage, LegalSection, LegalList } from "@/components/LegalPage";
@@ -14,6 +16,8 @@ export const Route = createFileRoute("/terms")({
 });
 
 function TermsPage() {
+  const { lang } = useI18n();
+  if (lang !== "en") return <LocalizedLegalDocument kind="terms" />;
   return (
     <LegalPage
       title="Terms of Service"

@@ -1,4 +1,5 @@
 import { PageShell } from "@/components/PageShell";
+import { useI18n } from "@/lib/i18n";
 import { useWords } from "@/lib/editorial";
 import { ShieldCheck } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -24,6 +25,7 @@ export function LegalPage({
   children: React.ReactNode;
 }) {
   const w = useWords();
+  const { lang } = useI18n();
   return (
     <PageShell>
       <section className="relative px-6 pt-16 pb-24">
@@ -32,25 +34,30 @@ export function LegalPage({
         <div className="relative mx-auto max-w-3xl">
           <header className="text-left">
             <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
-              <Icon className="h-3.5 w-3.5" /> {eyebrow}
+              <Icon className="h-3.5 w-3.5" />{" "}
+              {eyebrow === "Legal" ? w("Legal", "Huquqiy", "Правовая информация") : eyebrow}
             </div>
             <h1 className="mt-5 text-5xl tracking-tight sm:text-6xl">{title}</h1>
             <p className="mt-6 max-w-xl text-base text-muted-foreground">{intro}</p>
             {showUpdated && (
               <p className="mt-3 text-xs text-muted-foreground">
-                Last updated: {LEGAL_LAST_UPDATED}
+                {w("Last updated", "Oxirgi yangilanish", "Последнее обновление")}:{" "}
+                {new Date(LEGAL_LAST_UPDATED).toLocaleDateString(
+                  lang === "uz" ? "uz-UZ" : lang === "ru" ? "ru-RU" : "en-US",
+                  { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" },
+                )}
               </p>
             )}
           </header>
 
           <p className="mt-8 text-xs text-muted-foreground">
             {w(
-              "Legal text is provided in English. Contact the team with translation questions.",
-              "Huquqiy matn ingliz tilida. Tarjima savollari bilan jamoaga yozing.",
-              "Юридический текст на английском. По вопросам перевода обратитесь к команде.",
+              "Contact the team with questions about this document.",
+              "Ushbu hujjat bo‘yicha savollar bilan jamoaga yozing.",
+              "По вопросам об этом документе обратитесь к команде.",
             )}
           </p>
-          <div lang="en" className="mt-10 border-t border-border pt-10">
+          <div lang={lang} className="mt-10 border-t border-border pt-10">
             <div className="space-y-8">{children}</div>
           </div>
         </div>
