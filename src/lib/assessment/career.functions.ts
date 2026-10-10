@@ -204,28 +204,24 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
 
     // Persist
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row, error } = await supabaseAdmin
-      .from("career_assessment_results")
-      .insert({
-        user_id: userId,
-        session_nonce: claim.nonce,
-        personality_type: personality.mbti,
-        work_style: personality.workStyle,
-        leadership_style: personality.leadershipStyle,
-        learning_style: personality.learningStyle,
-        team_style: personality.teamStyle,
-        cognitive_score: cognitive.score,
-        cognitive_tier: cognitive.tier,
-        cognitive_profile: cognitive.profile,
-        interests,
-        career_matches: careerMatches,
-        university_matches: universityMatches,
-        strengths,
-        improvements,
-      })
-      .select("*")
-      .single();
-    if (error) throw new Error(error.message);
+    const { persistAssessmentResult } = await import("./result-storage.server");
+    const row = await persistAssessmentResult(supabaseAdmin, {
+      user_id: userId,
+      session_nonce: claim.nonce,
+      personality_type: personality.mbti,
+      work_style: personality.workStyle,
+      leadership_style: personality.leadershipStyle,
+      learning_style: personality.learningStyle,
+      team_style: personality.teamStyle,
+      cognitive_score: cognitive.score,
+      cognitive_tier: cognitive.tier,
+      cognitive_profile: cognitive.profile,
+      interests,
+      career_matches: careerMatches,
+      university_matches: universityMatches,
+      strengths,
+      improvements,
+    });
 
     // Auto-join the community matching the #1 career. Best-effort: a failure
     // here must never fail the assessment itself. The joined community's name
