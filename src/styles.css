@@ -3396,3 +3396,11 @@ p[role="alert"] {
   svg {
   color: var(--white);
 }
+
+/* Content sections are not the standalone 3px divider. */
+.contact-layout.field-rule,
+.form-row.field-section.field-rule {
+  height: auto;
+  background: transparent;
+  border-top: 3px solid var(--ink);
+}
