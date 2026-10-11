@@ -542,9 +542,9 @@ function ResultsSection({
       {/* Top metrics row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricRing
-          label={tr("Reasoning / 10")}
+          label={tr("Reasoning / 9")}
           value={latest.iq_score}
-          max={10}
+          max={9}
           hint={tr(tIqLevel(latest.iq_level))}
           icon={Brain}
         />
@@ -699,7 +699,7 @@ function ResultsSection({
                 {new Date(r.created_at).toLocaleDateString()}
               </span>
               <span className="text-muted-foreground">
-                {tr("Reasoning / 10")}
+                {tr("Reasoning / 9")}
                 <span className="font-semibold text-foreground">{r.iq_score}</span>
               </span>
               <span className="text-muted-foreground">
@@ -1009,7 +1009,12 @@ function StatsSection({
                 ) : (
                   <div className="mt-3 text-2xl font-bold gradient-text tabular-nums">
                     {raw !== null ? (
-                      <CountUp value={raw} suffix={f.unit ?? ""} duration={1000} />
+                      <CountUp
+                        value={raw}
+                        decimals={f.key === "ielts_band" ? 1 : 0}
+                        suffix={f.unit ?? ""}
+                        duration={1000}
+                      />
                     ) : (
                       <span className="text-sm">
                         {w("Not recorded", "Qayd etilmagan", "Не записано")}
@@ -1528,7 +1533,7 @@ function WeeklyEmailNotice() {
       label={tr("Weekly digest email")}
       hint={tr("Email delivery is not connected.")}
     >
-      <span className="text-xs text-muted-foreground">Unavailable</span>
+      <span className="text-xs text-muted-foreground">{tr("Unavailable")}</span>
     </PrefRow>
   );
 }

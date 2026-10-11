@@ -10,9 +10,17 @@ const labels: Record<string, { uz: string; ru: string }> = {
     uz: "Profilingizni ko‘rish uchun birinchi baholashni yakunlang.",
     ru: "Пройдите первую оценку, чтобы увидеть свой профиль.",
   },
-  "Reasoning / 10": {
-    uz: "Mantiq / 10",
-    ru: "Мышление / 10",
+  "Reasoning / 9": {
+    uz: "Mantiq / 9",
+    ru: "Мышление / 9",
+  },
+  "Email delivery is not connected.": {
+    uz: "Email yuborish xizmati ulanmagan.",
+    ru: "Отправка писем не подключена.",
+  },
+  Unavailable: {
+    uz: "Mavjud emas",
+    ru: "Недоступно",
   },
   Personality: {
     uz: "Shaxsiyat",
