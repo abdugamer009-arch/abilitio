@@ -17,6 +17,8 @@ export type CognitiveQ = {
   prompt: string;
   options: string[];
   correct: number; // index
+  /** Server-only permutation: displayed position -> canonical option index. */
+  optionOrder?: number[];
 };
 
 // ── Interest test (projective) ──

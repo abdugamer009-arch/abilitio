@@ -469,6 +469,13 @@ function CareerAssessmentPage() {
               <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
                 <Shuffle className="h-3 w-3" /> {t.careerAssessment.questionsRefresh}
               </div>
+              <p className="mt-3 text-sm text-muted-foreground">
+                {w(
+                  "Each attempt shuffles 30 questions from a bank of 561. All 166 career profiles are compared when you save your results.",
+                  "Har urinishda 561 savollik bankdan 30 ta savol aralashtirib tanlanadi. Natija saqlanganda barcha 166 kasb profili solishtiriladi.",
+                  "Каждая попытка выбирает 30 перемешанных вопросов из банка 561. При сохранении сравниваются все 166 профилей профессий.",
+                )}
+              </p>
 
               <div className="mt-8 grid gap-4 md:grid-cols-3 text-left">
                 <Section

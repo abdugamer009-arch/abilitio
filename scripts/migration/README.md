@@ -20,7 +20,7 @@ Run from the repository:
 
 ```sh
 node scripts/migration/export-source.mjs /absolute/private/new-export-directory
-node --test scripts/migration/export-source.test.mjs
+node --test scripts/migration/export-source.checks.mjs
 ```
 
 The output directory must be new and outside the repository. The script creates a private database dump and storage manifest, traverses every listed bucket with pagination, and downloads current objects to hashed local filenames. It retains object names/metadata in the private manifest and records SHA-256 checksums. Errors leave `complete: false`; there is no silent skip or restricted-data fallback. Credentials and database errors are not printed.

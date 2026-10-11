@@ -1,3 +1,5 @@
+import { COGNITIVE_TRANSLATIONS } from "./cognitive-translations";
+
 // Translations for question bank prompts and options.
 // English is the source; fall back to English when a key is absent.
 
@@ -8,6 +10,7 @@ export type QT = {
 
 // ─── Career-assessment questions (personality p1–p280, cognitive, interest i1–i200) ───
 export const QUESTION_TRANSLATIONS: Record<string, QT> = {
+  ...COGNITIVE_TRANSLATIONS,
   // ── Personality (prompts only; likert labels come from i18n) ──
   p1: {
     ru: { prompt: "Вы чувствуете прилив энергии после общения в большой группе людей." },
@@ -2177,7 +2180,7 @@ export const QUESTION_TRANSLATIONS: Record<string, QT> = {
   },
 
   // ── Cognitive bank (language-neutral questions, hand-adapted; the session
-  //    picker only draws cognitive questions that appear here — see
+  //    expanded translations live in cognitive-translations.ts; see
   //    pickSessionQuestions — so RU/UZ users never see an untranslated item) ──
   iq14: {
     ru: {

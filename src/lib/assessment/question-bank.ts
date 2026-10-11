@@ -1,6 +1,7 @@
 import { SAMPLE_QUESTIONS } from "./sample-questions";
+import { COGNITIVE_REPAIRS } from "./cognitive-repairs";
 // Question Bank — master pool for all assessment questions.
-// Expandable: add more questions to each array; the session picker selects 10 from each.
+// Expandable: the session picker selects 12 personality, 9 cognitive and 9 interest items.
 
 import type { PersonalityQ, CognitiveQ, InterestQ, RiasecDim } from "./career-assessment";
 import { QUESTION_TRANSLATIONS } from "./question-translations";
@@ -2033,7 +2034,7 @@ export const PERSONALITY_BANK: PersonalityQ[] = [
 // IQ / COGNITIVE BANK  (target: 200 questions)
 // Currently: 260 questions (c1–c10, iq1–iq250)
 // ─────────────────────────────────────────────────────────────────────────────
-export const IQ_BANK: CognitiveQ[] = [
+const ORIGINAL_IQ_BANK: CognitiveQ[] = [
   ...SAMPLE_QUESTIONS,
   // ── Original cognitive questions ──
   {
@@ -3971,6 +3972,9 @@ export const IQ_BANK: CognitiveQ[] = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Current versions are picked for new attempts; originals remain gradable for signed older attempts.
+export const IQ_BANK: CognitiveQ[] = ORIGINAL_IQ_BANK.map((q) => COGNITIVE_REPAIRS[q.id] ?? q);
+
 // INTEREST BANK  (projective / symbolic)
 // Each question shows abstract choices — shapes, animals, lines, colours,
 // scenes — and never names a career. Every option carries a hidden RIASEC
@@ -4861,9 +4865,9 @@ export const INTEREST_BANK: InterestQ[] = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Session picker — called client-side on each assessment load
-// Returns 10 personality + 10 IQ + 10 interest questions (30 total)
-// Personality selection guarantees ≥2 questions per MBTI axis
+// Session picker — called server-side when issuing a signed assessment attempt
+// Returns 12 personality + 9 IQ + 9 interest questions (30 total).
+// Personality selection guarantees 3 questions per MBTI axis.
 // ─────────────────────────────────────────────────────────────────────────────
 export type SessionQuestions = {
   personality: PersonalityQ[];
@@ -4871,7 +4875,7 @@ export type SessionQuestions = {
   interest: InterestQ[];
 };
 
-function shuffle<T>(arr: T[]): T[] {
+export function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -4880,12 +4884,9 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-// Localization gate for the cognitive section. One picked session serves every
-// language (the client switches languages mid-test), so a question is only
-// eligible if it carries complete Russian AND Uzbek translations — prompt plus
-// a full options list. Questions built on English wordplay (anagrams, alphabet
-// positions, vocabulary) stay in the bank but out of the pool until someone
-// writes a proper adaptation. Enforced by src/lib/__tests__/localization.test.ts.
+// One session serves every language. All 260 cognitive items have localized
+// instructions and options; English wordplay explicitly retains its stimuli.
+// Fail closed if future content lacks translations rather than silently shrinking the pool.
 export const TRANSLATED_IQ_POOL: CognitiveQ[] = IQ_BANK.filter((q) => {
   const t = QUESTION_TRANSLATIONS[q.id];
   return (
@@ -4897,6 +4898,8 @@ export const TRANSLATED_IQ_POOL: CognitiveQ[] = IQ_BANK.filter((q) => {
 });
 
 export function pickSessionQuestions(): SessionQuestions {
+  if (TRANSLATED_IQ_POOL.length !== IQ_BANK.length)
+    throw new Error("assessment_content_incomplete: missing cognitive translations");
   // Personality: 12 questions with guaranteed 3 per axis (EI, SN, TF, JP)
   // 3 per axis = 12 fixed slots — no random padding needed
   const axes = ["EI", "SN", "TF", "JP"] as const;
@@ -4909,8 +4912,18 @@ export function pickSessionQuestions(): SessionQuestions {
 
   return {
     personality: shuffle(personality),
-    iq: shuffle(TRANSLATED_IQ_POOL).slice(0, 9),
-    interest: pickInterestQuestions(9),
+    iq: shuffle(TRANSLATED_IQ_POOL)
+      .slice(0, 9)
+      .map((q) => {
+        const optionOrder = shuffle(q.options.map((_, i) => i));
+        return {
+          ...q,
+          options: optionOrder.map((i) => q.options[i]),
+          correct: optionOrder.indexOf(q.correct),
+          optionOrder,
+        };
+      }),
+    interest: pickInterestQuestions(9).map((q) => ({ ...q, options: shuffle(q.options) })),
   };
 }
 
@@ -4940,7 +4953,11 @@ function pickInterestQuestions(n: number): InterestQ[] {
 
 // Server-side helper: look up correct answer index for an IQ question by id
 export function getIQCorrect(id: string): number | null {
-  return IQ_BANK.find((q) => q.id === id)?.correct ?? null;
+  return (
+    IQ_BANK.find((q) => q.id === id)?.correct ??
+    ORIGINAL_IQ_BANK.find((q) => q.id === id)?.correct ??
+    null
+  );
 }
 
 // Server-authoritative resolver: given an interest option id (what the client

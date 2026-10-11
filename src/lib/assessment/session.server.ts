@@ -10,8 +10,27 @@ export type SessionClaims = {
   expires: number;
   personality: string[];
   iq: string[];
+  iqOptionOrders?: number[][];
   interest: { id: string; options: string[] }[];
 };
+
+/** Translate the canonical key into the displayed order signed for this attempt. */
+export function sessionIQAnswerKeys(claim: SessionClaims, canonicalKeys: number[]): number[] {
+  if (!claim.iqOptionOrders) return canonicalKeys; // Attempts issued before option shuffling.
+  if (claim.iqOptionOrders.length !== claim.iq.length || canonicalKeys.length !== claim.iq.length)
+    throw new Error("invalid_session: option ordering");
+  return claim.iqOptionOrders.map((order, i) => {
+    if (
+      order.length !== 4 ||
+      new Set(order).size !== 4 ||
+      order.some((v) => !Number.isInteger(v) || v < 0 || v > 3)
+    )
+      throw new Error("invalid_session: option ordering");
+    const correct = order.indexOf(canonicalKeys[i]);
+    if (correct < 0) throw new Error("invalid_session: unknown cognitive question");
+    return correct;
+  });
+}
 export function signSession(input: Omit<SessionClaims, "nonce" | "expires">, now = Date.now()) {
   const claim: SessionClaims = {
     ...input,

@@ -46,6 +46,8 @@ function CareerResultsPage() {
   const [err, setErr] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showAllCareers, setShowAllCareers] = useState(false);
+  const [careerSearch, setCareerSearch] = useState("");
 
   useEffect(() => {
     if (loading) return;
@@ -470,53 +472,91 @@ function CareerResultsPage() {
                 "Соответствие для пробы: 0–100 сравнивает ответы с профилями профессий. Это не проценты, шанс успеха или доказательство способностей. Изучите причины и попробуйте занятие.",
               )}
             </p>
+            <label className="mt-4 block text-sm">
+              {w(
+                "Search all career matches",
+                "Barcha kasb mosliklaridan qidirish",
+                "Поиск по всем профессиям",
+              )}
+              <input
+                type="search"
+                value={careerSearch}
+                onChange={(event) => setCareerSearch(event.target.value)}
+                className="mt-2 w-full p-3"
+              />
+            </label>
+            <p role="status" className="mt-2 text-sm text-muted-foreground">
+              {r.career_matches.length}{" "}
+              {w("careers compared", "kasb solishtirildi", "профессий сравнено")}
+            </p>
             <div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {r.career_matches.map((m) => (
-                <div
-                  key={m.key}
-                  className="rounded-2xl border border-border bg-secondary/30 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:bg-secondary/50"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-semibold">{m.name}</div>
-                    <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                      <CountUp value={m.score} suffix="/100" />
-                    </span>
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground">{m.category}</p>
-                  {m.matchFields && m.matchFields.length > 0 && (
-                    <div className="mt-2 flex flex-wrap items-center gap-1">
-                      <span className="text-[10px] text-muted-foreground">
-                        {t.careerResults.alignedWith}:
+              {r.career_matches
+                .filter((m) =>
+                  `${m.name} ${m.category}`.toLowerCase().includes(careerSearch.toLowerCase()),
+                )
+                .slice(0, showAllCareers || careerSearch ? undefined : 15)
+                .map((m) => (
+                  <div
+                    key={m.key}
+                    className="rounded-2xl border border-border bg-secondary/30 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:bg-secondary/50"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm font-semibold">{m.name}</div>
+                      <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                        <CountUp value={m.score} suffix="/100" />
                       </span>
-                      {m.matchFields.map((f) => (
-                        <span
-                          key={f}
-                          className="rounded-full border border-accent/25 bg-accent/8 px-1.5 py-0.5 text-[10px] font-medium text-accent"
-                        >
-                          {fieldLabel(f)}
-                        </span>
-                      ))}
                     </div>
-                  )}
-                  {m.major && (
-                    <p className="mt-2 flex items-center gap-1.5 text-xs">
-                      <GraduationCap className="h-3.5 w-3.5 shrink-0 text-accent" />
-                      <span className="text-muted-foreground">{t.careerResults.studyMajor}:</span>
-                      <span className="font-medium text-foreground">{m.major}</span>
-                    </p>
-                  )}
-                  <div className="mt-2 h-1.5 rounded-full bg-secondary/60">
-                    <div
-                      className="h-full rounded-full bg-primary"
-                      style={{
-                        width: `${m.score}/100`,
-                        boxShadow: "4px 4px 0 var(--ink)",
-                      }}
-                    />
+                    <p className="mt-1 text-xs text-muted-foreground">{m.category}</p>
+                    {m.matchFields && m.matchFields.length > 0 && (
+                      <div className="mt-2 flex flex-wrap items-center gap-1">
+                        <span className="text-[10px] text-muted-foreground">
+                          {t.careerResults.alignedWith}:
+                        </span>
+                        {m.matchFields.map((f) => (
+                          <span
+                            key={f}
+                            className="rounded-full border border-accent/25 bg-accent/8 px-1.5 py-0.5 text-[10px] font-medium text-accent"
+                          >
+                            {fieldLabel(f)}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {m.major && (
+                      <p className="mt-2 flex items-center gap-1.5 text-xs">
+                        <GraduationCap className="h-3.5 w-3.5 shrink-0 text-accent" />
+                        <span className="text-muted-foreground">{t.careerResults.studyMajor}:</span>
+                        <span className="font-medium text-foreground">{m.major}</span>
+                      </p>
+                    )}
+                    <div className="mt-2 h-1.5 rounded-full bg-secondary/60">
+                      <div
+                        className="h-full rounded-full bg-primary"
+                        style={{
+                          width: `${m.score}%`,
+                          boxShadow: "4px 4px 0 var(--ink)",
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
+            {r.career_matches.length > 15 && !careerSearch && (
+              <button
+                type="button"
+                className="text-link mt-5"
+                aria-expanded={showAllCareers}
+                onClick={() => setShowAllCareers((value) => !value)}
+              >
+                {showAllCareers
+                  ? w("Show top 15", "Eng mos 15 tasini ko‘rsatish", "Показать лучшие 15")
+                  : w(
+                      `Show all ${r.career_matches.length} careers`,
+                      `Barcha ${r.career_matches.length} kasbni ko‘rsatish`,
+                      `Показать все ${r.career_matches.length} профессий`,
+                    )}
+              </button>
+            )}
           </Reveal>
 
           <Reveal className="panel mt-6 rounded-lg p-6">

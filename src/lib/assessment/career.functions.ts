@@ -20,6 +20,8 @@ import {
 } from "./career-engine";
 import {
   PERSONALITY_BANK,
+  IQ_BANK,
+  INTEREST_BANK,
   getIQCorrect,
   getInterestRiasec,
   pickSessionQuestions,
@@ -66,21 +68,46 @@ export const startCareerSession = createServerFn({ method: "GET" }).handler(
     const sessionToken = signSession({
       personality: s.personality.map((q) => q.id),
       iq: s.iq.map((q) => q.id),
+      iqOptionOrders: s.iq.map((q) => q.optionOrder!),
       interest: s.interest.map((q) => ({ id: q.id, options: q.options.map((o) => o.id) })),
     });
     return {
       sessionToken,
       personality: s.personality.map((q) => ({ id: q.id, prompt: lp(q.id, q.prompt) })),
-      iq: s.iq.map((q) => ({ id: q.id, prompt: lp(q.id, q.prompt), options: lo(q.id, q.options) })),
+      iq: s.iq.map((q) => {
+        const canonical = IQ_BANK.find((item) => item.id === q.id)!;
+        const labels = lo(q.id, canonical.options);
+        const order = q.optionOrder!;
+        return {
+          id: q.id,
+          prompt: lp(q.id, q.prompt),
+          options: {
+            en: order.map((i) => labels.en[i]),
+            ru: order.map((i) => labels.ru[i]),
+            uz: order.map((i) => labels.uz[i]),
+          },
+        };
+      }),
       interest: s.interest.map((q) => ({
         id: q.id,
         theme: q.theme,
         prompt: lp(q.id, q.prompt),
         options: q.options.map((o) => ({ id: o.id, visual: o.visual })),
-        labels: lo(
-          q.id,
-          q.options.map((o) => o.label),
-        ),
+        labels: (() => {
+          const canonical = INTEREST_BANK.find((item) => item.id === q.id)!;
+          const labels = lo(
+            q.id,
+            canonical.options.map((o) => o.label),
+          );
+          const order = q.options.map((o) =>
+            canonical.options.findIndex((item) => item.id === o.id),
+          );
+          return {
+            en: order.map((i) => labels.en[i]),
+            ru: order.map((i) => labels.ru[i]),
+            uz: order.map((i) => labels.uz[i]),
+          };
+        })(),
       })),
     };
   },
@@ -145,7 +172,8 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<CareerResultDTO> => {
     const { supabase, userId } = context;
     await ensureNotBanned(userId);
-    const { verifySession, validateSessionSubmission } = await import("./session.server");
+    const { verifySession, validateSessionSubmission, sessionIQAnswerKeys } =
+      await import("./session.server");
     const claim = verifySession(data.sessionToken);
     validateSessionSubmission(claim, data);
 
@@ -167,7 +195,10 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
     // Resolve IQ correct answers server-side (never sent to client). An unknown
     // question id yields an impossible sentinel (-999) — never -1, which is also
     // the "unanswered" answer value, so a bogus id can't be scored as correct.
-    const iqCorrect = data.iqQIds.map((id) => getIQCorrect(id) ?? -999);
+    const iqCorrect = sessionIQAnswerKeys(
+      claim,
+      data.iqQIds.map((id) => getIQCorrect(id) ?? -999),
+    );
 
     const personality = scorePersonality(
       data.personalityAnswers,
@@ -188,12 +219,23 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       supabase.from("careers").select("*"),
       supabase.from("university_majors").select("*"),
     ]);
-    const careerList = (careers ?? []) as unknown as Career[];
-    const majorList = (majors ?? []) as unknown as Major[];
+    const { CAREER_CATALOG, MAJOR_CATALOG, completeCatalog } = await import("./catalog.server");
+    const careerList = completeCatalog(CAREER_CATALOG, (careers ?? []) as unknown as Career[]);
+    const majorList = completeCatalog(MAJOR_CATALOG, (majors ?? []) as unknown as Major[]).map(
+      (major) => ({
+        ...major,
+        related_career_keys: [
+          ...new Set([
+            ...major.related_career_keys,
+            ...(MAJOR_CATALOG.find((item) => item.key === major.key)?.related_career_keys ?? []),
+          ]),
+        ],
+      }),
+    );
 
     const allMajorScores = matchMajors(majorList, personality, cognitive, interests);
     const careerMatches = attachMajorsToCareers(
-      matchCareers(careerList, personality, cognitive, interests).slice(0, 15),
+      matchCareers(careerList, personality, cognitive, interests),
       majorList,
       allMajorScores,
     );

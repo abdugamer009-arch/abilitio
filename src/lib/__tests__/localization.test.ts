@@ -3,6 +3,7 @@ import {
   PERSONALITY_BANK,
   INTEREST_BANK,
   TRANSLATED_IQ_POOL,
+  IQ_BANK,
   pickSessionQuestions,
 } from "../assessment/question-bank";
 import { QUESTION_TRANSLATIONS } from "../assessment/question-translations";
@@ -34,7 +35,8 @@ describe("assessment localization coverage", () => {
   });
 
   it("the cognitive pool is large enough for varied 9-question draws", () => {
-    expect(TRANSLATED_IQ_POOL.length).toBeGreaterThanOrEqual(40);
+    expect(IQ_BANK).toHaveLength(260);
+    expect(TRANSLATED_IQ_POOL.map((q) => q.id)).toEqual(IQ_BANK.map((q) => q.id));
   });
 
   it("every question in the cognitive pool has complete, order-aligned ru/uz options", () => {
