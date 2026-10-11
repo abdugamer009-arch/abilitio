@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { LogOut, Menu, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
@@ -10,6 +10,7 @@ import { useWords } from "@/lib/editorial";
 export function Navbar() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const w = useWords();
   const [open, setOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -45,7 +46,14 @@ export function Navbar() {
         <ul className="nav-links">
           {links.map((l) => (
             <li key={l.to}>
-              <Link to={l.to} hash={l.hash} activeOptions={{ exact: true }}>
+              <Link
+                to={l.to}
+                hash={l.hash}
+                activeOptions={{ exact: true }}
+                className={
+                  l.hash && location.pathname === "/roadmap" ? "nav-journey-active" : undefined
+                }
+              >
                 {l.label}
               </Link>
             </li>
@@ -85,6 +93,20 @@ export function Navbar() {
           </button>
         </div>
       </nav>
+      <svg
+        className="header-wave"
+        viewBox="0 0 1440 12"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M0 6Q60 0 120 6T240 6T360 6T480 6T600 6T720 6T840 6T960 6T1080 6T1200 6T1320 6T1440 6"
+          fill="none"
+          stroke="var(--ink)"
+          strokeWidth="3"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
       {open && (
         <div id="site-menu" className="nav-menu field-wrap">
           <LanguageSwitcher />

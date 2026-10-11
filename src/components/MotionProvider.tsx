@@ -11,11 +11,9 @@ export function MotionProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [completed, setCompleted] = useState(0);
-  const [cursor, setCursor] = useState("");
   const location = useLocation();
   const router = useRouter();
   const { lang } = useI18n();
-  const ring = useRef<HTMLDivElement>(null);
   const curtain = useRef<HTMLDivElement>(null);
   const introSeen = useRef(false);
   const active = allowed && choice !== false;
@@ -235,23 +233,9 @@ export function MotionProvider({ children }: { children: ReactNode }) {
           });
           gsap.set(curtain.current, { clipPath: "inset(100% 0 0 0)" });
         });
-        const xTo = gsap.quickTo(ring.current, "x", { duration: MOTION.quick, ease: "studioExpo" });
-        const yTo = gsap.quickTo(ring.current, "y", { duration: MOTION.quick, ease: "studioExpo" });
-        let lastContext = "";
         const pointer = (event: PointerEvent) => {
-          if (!fine || event.pointerType === "touch" || !ring.current) return;
+          if (!fine || event.pointerType === "touch") return;
           const target = event.target as HTMLElement;
-          const kind =
-            target.closest<HTMLElement>("[data-cursor]")?.dataset.cursor ||
-            (target.closest("a,button") ? "open" : "");
-          if (kind !== lastContext) {
-            lastContext = kind;
-            ring.current.dataset.context = kind;
-            setCursor(kind);
-          }
-          ring.current.style.opacity = "1";
-          xTo(event.clientX - 17);
-          yTo(event.clientY - 17);
           const magnet = target.closest<HTMLElement>("[data-magnetic]");
           if (magnet) {
             const r = magnet.getBoundingClientRect();
@@ -277,9 +261,6 @@ export function MotionProvider({ children }: { children: ReactNode }) {
               ease: "studioExpo",
               overwrite: true,
             });
-        };
-        const hide = () => {
-          if (ring.current) ring.current.style.opacity = "0";
         };
         let navigating = false;
         const navigate = (event: MouseEvent) => {
@@ -323,7 +304,6 @@ export function MotionProvider({ children }: { children: ReactNode }) {
         };
         document.addEventListener("pointermove", pointer, { passive: true });
         document.addEventListener("pointerout", leave);
-        document.addEventListener("mouseleave", hide);
         document.addEventListener("click", navigate, true);
         ScrollTrigger.refresh();
         dispose = () => {
@@ -334,13 +314,11 @@ export function MotionProvider({ children }: { children: ReactNode }) {
           clearTimeout(skewReset);
           document.removeEventListener("pointermove", pointer);
           document.removeEventListener("pointerout", leave);
-          document.removeEventListener("mouseleave", hide);
           document.removeEventListener("click", navigate, true);
-          gsap.killTweensOf([curtain.current, ring.current]);
+          gsap.killTweensOf(curtain.current);
           document
             .querySelectorAll<HTMLElement>("[data-magnetic]")
             .forEach((el) => gsap.set(el, { clearProps: "transform" }));
-          hide();
         };
       })
       .catch(() => {
@@ -394,9 +372,6 @@ export function MotionProvider({ children }: { children: ReactNode }) {
           <i style={{ width: `${(completed / 6) * 100}%` }} />
         </div>
       )}
-      <div ref={ring} className="cursor-ring" aria-hidden>
-        <span>{cursor}</span>
-      </div>
       <div ref={curtain} className="route-curtain" aria-hidden />
     </Context.Provider>
   );
