@@ -99,7 +99,7 @@ Tool configuration remains at the root where Vite, TypeScript, npm and Vercel ex
 
 ## Release status and honest limits
 
-The full question and career catalogs are deployed. **A code deployment does not apply database migrations.** The last production investigation found a missing result-storage column; authenticated save/reload remains unverified until an owner applies the required schema and checks the matching environment. Start with the [owner migration guide](docs/operations/OWNER_MIGRATIONS.md).
+The full question and career catalogs are deployed. **A code deployment does not apply database migrations.** The fresh Supabase project has all 25 migrations, 27 app tables, 166 careers and 52 study majors. Live SQL checks passed for persistence and scoped access; browser signup, authenticated save/reload and email delivery still need verification after deployment. See the [current setup record](docs/operations/SUPABASE_SETUP.md) and [owner migration guide](docs/operations/OWNER_MIGRATIONS.md).
 
 - Production still uses Supabase. Nhost work consists of source-backup preparation; no completed transfer is claimed.
 - Historical results preserve their original scores and saved career rankings. New results use scoring version `v2`.

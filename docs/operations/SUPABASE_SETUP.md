@@ -16,6 +16,6 @@ The first initialization rolled back on the historical Realtime migration's mana
 
 The Supabase Auth Site URL is `https://abilitio-xt4n.vercel.app`; its redirect allowlist includes `https://abilitio-xt4n.vercel.app/auth**` for login/recovery query parameters. No email provider configuration or delivery test is claimed.
 
-The server URL, public key, server-only service-role key and project reference have been updated in Vercel. The public `VITE_SUPABASE_*` entries are still in a legacy Secret format that Vercel rejects on update. Their replacement as Config values is awaiting owner approval. Production still uses the previous database until the public values are replaced and a deployment is verified.
+The server URL, public key, server-only service-role key and project reference have been updated in Vercel. The three public `VITE_SUPABASE_*` entries were replaced with Config values for the same project in Production and Preview after owner authorization. A fresh production deployment is required to activate the settings; verify its public bundle and authenticated flow before claiming the cutover is complete.
 
 Keep service-role/signing keys server-only. `supabase/config.toml` identifies the selected replacement project. Future releases must apply only missing migrations; never replay fresh initialization against existing accounts/tables.

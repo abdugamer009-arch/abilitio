@@ -32,7 +32,7 @@ Local verification includes the entire migration chain, repeatability, profile v
 
 ## Operational notes
 
-Apply schema before relying on the newly deployed class RPC and `scoring_version` / `riasec_profile` fields. Deploying code alone cannot repair the missing production column. No production database was changed, no email provider was configured, and no multilingual ABBI responses were fabricated. Historical assessments are not recalculated.
+Apply schema before relying on the newly deployed class RPC and `scoring_version` / `riasec_profile` fields. Deploying code alone cannot repair the missing production column. The fresh Supabase database was initialized as recorded in [SUPABASE_SETUP.md](SUPABASE_SETUP.md). No email provider was configured and no multilingual ABBI responses were fabricated. Historical assessments are not recalculated.
 
 ## Fresh-project compatibility
 
