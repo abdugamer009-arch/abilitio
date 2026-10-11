@@ -5,8 +5,8 @@ import {
   TRANSLATED_IQ_POOL,
   IQ_BANK,
   pickSessionQuestions,
-} from "../assessment/question-bank";
-import { QUESTION_TRANSLATIONS } from "../assessment/question-translations";
+} from "@/lib/assessment/question-bank";
+import { QUESTION_TRANSLATIONS } from "@/lib/assessment/question-translations";
 
 // Localization is a hard invariant: a session picked on the server serves every
 // language, so anything a session can contain must be fully translated into

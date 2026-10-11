@@ -1,13 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { INTEREST_BANK } from "../assessment/question-bank";
+import { INTEREST_BANK } from "@/lib/assessment/question-bank";
 import {
   DOMAIN_RIASEC,
   scoreInterests,
   deriveRiasecFromInterests,
   hollandCode,
-} from "../assessment/career-engine";
-import { INTEREST_KEYS, RIASEC_DIMS } from "../assessment/career-assessment";
-import { QUESTION_TRANSLATIONS } from "../assessment/question-translations";
+} from "@/lib/assessment/career-engine";
+import { INTEREST_KEYS, RIASEC_DIMS } from "@/lib/assessment/career-assessment";
+import { QUESTION_TRANSLATIONS } from "@/lib/assessment/question-translations";
 
 describe("DOMAIN_RIASEC coverage (#10)", () => {
   it("covers every interest field with valid, positive RIASEC dims", () => {

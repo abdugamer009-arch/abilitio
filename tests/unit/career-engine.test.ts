@@ -5,9 +5,9 @@ import {
   scoreInterests,
   matchCareers,
   communitySlugForCareer,
-} from "../assessment/career-engine";
-import type { PersonalityQ } from "../assessment/career-assessment";
-import type { Career } from "../assessment/career-engine";
+} from "@/lib/assessment/career-engine";
+import type { PersonalityQ } from "@/lib/assessment/career-assessment";
+import type { Career } from "@/lib/assessment/career-engine";
 
 const PERSONALITY_QS: PersonalityQ[] = [
   { id: "p1", section: "personality", prompt: "", axis: "EI", direction: 1 },

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { persistAssessmentResult } from "../assessment/result-storage.server";
+import { persistAssessmentResult } from "@/lib/assessment/result-storage.server";
 
 const input = { user_id: "test-owner", session_nonce: "signed-attempt" };
 const row = { id: "saved-result", ...input, cognitive_score: 6 };

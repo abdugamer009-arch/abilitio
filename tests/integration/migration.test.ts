@@ -1,5 +1,5 @@
-import { validateCatalog } from "../assessment/catalog";
-import { schoolBucket } from "../schools/school-model";
+import { validateCatalog } from "@/lib/assessment/catalog";
+import { schoolBucket } from "@/lib/schools/school-model";
 import { beforeAll, afterAll, describe, expect, it } from "vitest";
 import { PGlite } from "@electric-sql/pglite";
 import { readFileSync, readdirSync } from "node:fs";

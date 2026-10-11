@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { schoolBucket, SCHOOL_STRENGTHS } from "../schools/school-model";
+import { schoolBucket, SCHOOL_STRENGTHS } from "@/lib/schools/school-model";
 describe("school summary compatibility", () => {
   it("uses the category for expanded careers and does not invent a research fallback", () => {
     expect(schoolBucket({ name: "New cybersecurity role", category: "Technology" })).toBe(

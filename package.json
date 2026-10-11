@@ -11,7 +11,12 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:export": "node --test scripts/migration/export-source.checks.mjs",
+    "check": "npm run lint && npm run typecheck && npm test && npm run test:export"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

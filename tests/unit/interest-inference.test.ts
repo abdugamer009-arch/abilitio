@@ -3,15 +3,15 @@ import {
   INTEREST_BANK,
   getInterestRiasec,
   pickSessionQuestions,
-} from "../assessment/question-bank";
+} from "@/lib/assessment/question-bank";
 import {
   scoreInterests,
   matchCareers,
   scorePersonality,
   scoreCognitive,
   type Career,
-} from "../assessment/career-engine";
-import type { PersonalityQ, RiasecDim } from "../assessment/career-assessment";
+} from "@/lib/assessment/career-engine";
+import type { PersonalityQ, RiasecDim } from "@/lib/assessment/career-assessment";
 
 // Helper: find an option id in the bank by a substring of its id.
 function optId(sub: string): string {

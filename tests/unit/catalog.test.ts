@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateCatalog } from "../assessment/catalog";
+import { validateCatalog } from "@/lib/assessment/catalog";
 
 describe("assessment catalog", () => {
   it("rejects missing or empty catalogs before a result can be saved", () => {

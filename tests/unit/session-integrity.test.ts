@@ -3,7 +3,7 @@ import {
   signSession,
   verifySession,
   validateSessionSubmission,
-} from "../assessment/session.server";
+} from "@/lib/assessment/session.server";
 const questions = {
   personality: ["p1", "p2"],
   iq: ["i1", "i2"],

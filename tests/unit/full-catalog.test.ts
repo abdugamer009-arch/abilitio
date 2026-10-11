@@ -1,14 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { CAREER_CATALOG, MAJOR_CATALOG, completeCatalog } from "../assessment/catalog.server";
+import { CAREER_CATALOG, MAJOR_CATALOG, completeCatalog } from "@/lib/assessment/catalog.server";
 import {
   PERSONALITY_BANK,
   IQ_BANK,
   INTEREST_BANK,
   pickSessionQuestions,
   getIQCorrect,
-} from "../assessment/question-bank";
-import { matchCareers, attachMajorsToCareers, matchMajors } from "../assessment/career-engine";
-import { sessionIQAnswerKeys, signSession, verifySession } from "../assessment/session.server";
+} from "@/lib/assessment/question-bank";
+import { matchCareers, attachMajorsToCareers, matchMajors } from "@/lib/assessment/career-engine";
+import { sessionIQAnswerKeys, signSession, verifySession } from "@/lib/assessment/session.server";
 
 afterEach(() => vi.restoreAllMocks());
 

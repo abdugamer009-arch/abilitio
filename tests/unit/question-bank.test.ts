@@ -6,9 +6,9 @@ import {
   pickSessionQuestions,
   getIQCorrect,
   getInterestRiasec,
-} from "../assessment/question-bank";
-import { RIASEC_DIMS } from "../assessment/career-assessment";
-import { INTEREST_ICONS } from "../assessment/interest-icons";
+} from "@/lib/assessment/question-bank";
+import { RIASEC_DIMS } from "@/lib/assessment/career-assessment";
+import { INTEREST_ICONS } from "@/lib/assessment/interest-icons";
 
 describe("question banks", () => {
   it("has at least 200 personality questions", () => {

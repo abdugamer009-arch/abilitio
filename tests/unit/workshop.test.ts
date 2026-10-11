@@ -1,7 +1,7 @@
-import { buildRoadmap, scopedTaskState, type RoadmapTrack } from "../roadmap/roadmap-world";
+import { buildRoadmap, scopedTaskState, type RoadmapTrack } from "@/lib/roadmap/roadmap-world";
 import { describe, it, expect } from "vitest";
-import { IQ_BANK } from "../assessment/question-bank";
-import { SAMPLE_QUESTIONS, sampleRecord } from "../assessment/sample-questions";
+import { IQ_BANK } from "@/lib/assessment/question-bank";
+import { SAMPLE_QUESTIONS, sampleRecord } from "@/lib/assessment/sample-questions";
 describe("public workshop and authoritative question bank", () => {
   it("uses the same four questions without duplicate IDs", () => {
     for (const q of SAMPLE_QUESTIONS)

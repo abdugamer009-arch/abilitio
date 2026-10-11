@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readAll } from "../db-read";
+import { readAll } from "@/lib/db-read";
 
 describe("database pagination", () => {
   it("reads beyond API row limits", async () => {
