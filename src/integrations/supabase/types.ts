@@ -299,6 +299,7 @@ export type Database = {
           university_matches: Json | null;
           session_nonce?: string | null;
           scoring_version?: string;
+          riasec_profile?: Json | null;
           user_id: string;
           work_style: string | null;
         };
@@ -319,6 +320,7 @@ export type Database = {
           university_matches?: Json | null;
           session_nonce?: string | null;
           scoring_version?: string;
+          riasec_profile?: Json | null;
           user_id: string;
           work_style?: string | null;
         };
@@ -339,6 +341,7 @@ export type Database = {
           university_matches?: Json | null;
           session_nonce?: string | null;
           scoring_version?: string;
+          riasec_profile?: Json | null;
           user_id?: string;
           work_style?: string | null;
         };

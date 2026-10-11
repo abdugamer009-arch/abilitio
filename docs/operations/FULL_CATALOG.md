@@ -2,7 +2,7 @@
 
 New attempts select 30 questions from all 561 catalog items: 12 of 280 personality statements, 9 of 260 reasoning questions, and 9 of 21 interest questions. Personality selection retains three statements per axis; interest selection retains theme variety. Questions and reasoning/interest answer positions are shuffled. Repeats across different attempts remain possible; this is random selection, not a guaranteed no-repeat rotation.
 
-The previously excluded 209 reasoning questions now have Russian and Uzbek instructions and options. English wordplay retains its English stimulus with localized instructions. Twenty defective or incomplete reasoning items have corrected versions. Already-issued signed attempts can still use their original IDs and answer keys. This is not a professional validation of the assessment bank.
+The previously excluded 209 reasoning questions now have Russian and Uzbek instructions and options. English wordplay retains its English stimulus with localized instructions. Twenty-one defective or incomplete reasoning items have corrected versions. Already-issued signed attempts can still use their original IDs and answer keys. This is not a professional validation of the assessment bank.
 
 Answer permutations are included in the signed server session. The server maps submitted positions back to the appropriate correct answer. Correct answer keys and the full question bank are not sent to the browser.
 

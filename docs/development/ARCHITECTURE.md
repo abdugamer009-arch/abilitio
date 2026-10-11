@@ -62,6 +62,8 @@ The full bank and hidden answer keys stay on the server. Signed option permutati
 
 `result-storage.server.ts` uses the service-role client only after authentication, membership checks and server computation. A matching owner/nonce unique conflict recovers the saved result rather than creating another row. Other conflicts remain errors.
 
+`result-interest-profile.ts` reads the persisted six-dimension profile for new results. Historical rows without it use an explicitly labelled estimate from their stored field weights. `account-load.ts` discards cancelled result requests and the route gates state by the current account. Browser storage cleanup after an acknowledged save is best effort.
+
 ## Data and authorization boundaries
 
 - The public client uses the publishable key. Authenticated queries use user context and database RLS.

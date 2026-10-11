@@ -1,3 +1,4 @@
+import { loadOwnedSchool } from "./owned-school";
 import { readAllResult, requireData } from "../db-read";
 import { schoolBucket, SCHOOL_STRENGTHS } from "./school-model";
 import { createServerFn } from "@tanstack/react-start";
@@ -169,17 +170,7 @@ type StudentRow = {
 };
 
 async function loadPrincipalSchool(supabase: DbClient, userId: string) {
-  const school = requireData(
-    await supabase
-      .from("schools")
-      .select("*")
-      .eq("owner_user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-  );
-  if (!school) throw new Error("not_principal");
-  return school as SchoolDTO;
+  return (await loadOwnedSchool(supabase, userId)) as SchoolDTO;
 }
 
 async function loadStudentsForSchool(school: SchoolDTO): Promise<{

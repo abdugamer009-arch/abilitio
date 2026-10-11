@@ -95,6 +95,43 @@ describe("owner release migration", () => {
       { title: "Technology" },
     ]);
   });
+  it("stores exact profiles while retaining nullable historical rows and owner-only reads", async () => {
+    await db.exec("RESET ROLE; SELECT set_config('request.jwt.claim.role','service_role',false)");
+    const profile = { R: 0.5, I: 0.125, A: 1, S: 0.625, E: 0.875, C: 0.375 };
+    const inserted = await db.query<{ id: string }>(
+      "INSERT INTO public.career_assessment_results(user_id,riasec_profile) VALUES ($1,$2::jsonb) RETURNING id",
+      [student, JSON.stringify(profile)],
+    );
+    await db.query("INSERT INTO public.career_assessment_results(user_id) VALUES ($1)", [student]);
+    await db.exec(
+      readFileSync(
+        resolve("supabase/migrations/20261011140000_exact_interest_profile.sql"),
+        "utf8",
+      ),
+    );
+    await asUser(student);
+    const rows = await db.query<{ riasec_profile: unknown }>(
+      "SELECT riasec_profile FROM public.career_assessment_results WHERE id=$1",
+      [inserted.rows[0].id],
+    );
+    expect(rows.rows[0].riasec_profile).toEqual(profile);
+    expect(
+      (
+        await db.query(
+          "SELECT id FROM public.career_assessment_results WHERE riasec_profile IS NULL",
+        )
+      ).rows,
+    ).toHaveLength(1);
+    await asUser(outsider);
+    expect(
+      (
+        await db.query("SELECT id FROM public.career_assessment_results WHERE id=$1", [
+          inserted.rows[0].id,
+        ])
+      ).rows,
+    ).toEqual([]);
+  });
+
   it("blocks direct writes by banned users", async () => {
     await db.exec("RESET ROLE; SELECT set_config('request.jwt.claim.sub','',false);");
     await db.exec(`UPDATE public.profiles SET is_banned=true WHERE id='${student}'`);

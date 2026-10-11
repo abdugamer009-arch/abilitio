@@ -1125,7 +1125,7 @@ export const COGNITIVE_TRANSLATIONS: Record<string, QT> = {
       options: ["7", "8", "9", "10"],
     },
   },
-  iq135: {
+  iq135_v2: {
     ru: {
       prompt: "Сколько простых чисел строго между 10 и 30?",
       options: ["3", "4", "5", "6"],

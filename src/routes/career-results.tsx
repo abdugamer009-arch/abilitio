@@ -1,3 +1,4 @@
+import { loadForAccount, type AccountLoad } from "@/lib/account-load";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { useEffect, useState } from "react";
@@ -42,9 +43,12 @@ function CareerResultsPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const fetchResult = useServerFn(getMyCareerResult);
-  const [r, setR] = useState<CareerResultDTO | null>(null);
-  const [err, setErr] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState(false);
+  const [resultState, setResultState] = useState<AccountLoad<CareerResultDTO>>({
+    ownerId: null,
+    data: null,
+    error: null,
+    loaded: false,
+  });
   const [copied, setCopied] = useState(false);
   const [showAllCareers, setShowAllCareers] = useState(false);
   const [careerSearch, setCareerSearch] = useState("");
@@ -55,11 +59,13 @@ function CareerResultsPage() {
       navigate({ to: "/auth", search: { mode: "login", next: "/career-results" } });
       return;
     }
-    fetchResult()
-      .then(setR)
-      .catch((e) => setErr(String(e?.message ?? "")))
-      .finally(() => setLoaded(true));
+    return loadForAccount(user.id, fetchResult, setResultState);
   }, [user, loading, navigate, fetchResult]);
+
+  const ownsResult = !loading && resultState.ownerId === user?.id;
+  const r = ownsResult ? resultState.data : null;
+  const err = ownsResult ? resultState.error : null;
+  const loaded = ownsResult && resultState.loaded;
 
   if (!user) return null;
   if (err)
@@ -412,6 +418,15 @@ function CareerResultsPage() {
                   </ResponsiveContainer>
                 </div>
                 <div>
+                  {r.riasec_is_estimated && (
+                    <p className="mb-3 text-sm text-muted-foreground">
+                      {w(
+                        "Estimated from an older result. Take a new assessment for the exact interest profile.",
+                        "Eski natijadan taxmin qilingan. Aniq qiziqish profili uchun yangi baholashdan o‘ting.",
+                        "Оценка по старому результату. Пройдите новую оценку для точного профиля интересов.",
+                      )}
+                    </p>
+                  )}
                   {archetype && (
                     <div className="text-2xl font-bold gradient-text leading-tight">
                       {archetype}

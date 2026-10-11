@@ -12,8 +12,6 @@ import {
   deriveStrengths,
   deriveImprovements,
   RECOMMENDED_SKILLS_BY_PROFILE,
-  deriveRiasecFromInterests,
-  hollandCode,
   type Career,
   type Major,
   type RiasecProfile,
@@ -29,8 +27,10 @@ import {
 import { QUESTION_TRANSLATIONS } from "./question-translations";
 import type { RiasecDim, InterestVisual } from "./career-assessment";
 import { ensureNotBanned } from "../admin/admin.functions";
-import { readAll, readAllResult, requireData } from "../db-read";
+import { readAll, readAllResult } from "../db-read";
 import { validateCatalog } from "./catalog";
+import { resultInterestProfile } from "./result-interest-profile";
+import { loadOwnedSchool } from "../schools/owned-school";
 
 // ---------- Session start (server-authoritative question delivery) ----------
 // Questions are picked and translated on the server so the client never
@@ -115,17 +115,6 @@ export const startCareerSession = createServerFn({ method: "GET" }).handler(
   },
 );
 
-// Derive the RIASEC profile + Holland code (top-3 dimensions) from the persisted
-// field-interest weights, so both fresh and historical results carry them
-// without a stored column.
-function hollandFor(interests: { key: string; weight: number }[]): {
-  riasec_profile: RiasecProfile;
-  holland_code: string[];
-} {
-  const riasec_profile = deriveRiasecFromInterests(interests);
-  return { riasec_profile, holland_code: hollandCode(riasec_profile) };
-}
-
 export type CareerResultDTO = {
   id: string;
   personality_type: string | null;
@@ -138,6 +127,7 @@ export type CareerResultDTO = {
   cognitive_profile: string | null;
   interests: { key: string; weight: number }[];
   riasec_profile: RiasecProfile;
+  riasec_is_estimated: boolean;
   holland_code: string[];
   career_matches: {
     key: string;
@@ -215,7 +205,7 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       .flat()
       .map((optionId) => getInterestRiasec(optionId))
       .filter((v): v is Partial<Record<RiasecDim, number>> => v !== null);
-    const { interests } = scoreInterests(interestPicks);
+    const { interests, riasec } = scoreInterests(interestPicks);
 
     const [careers, majors] = await Promise.all([
       readAll((from, to) => supabase.from("careers").select("*").order("id").range(from, to)),
@@ -266,6 +256,7 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       cognitive_tier: cognitive.tier,
       cognitive_profile: cognitive.profile,
       interests,
+      riasec_profile: riasec,
       career_matches: careerMatches,
       university_matches: universityMatches,
       strengths,
@@ -304,7 +295,10 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       cognitive_tier: row.cognitive_tier,
       cognitive_profile: row.cognitive_profile,
       interests: row.interests as { key: string; weight: number }[],
-      ...hollandFor(row.interests as { key: string; weight: number }[]),
+      ...resultInterestProfile(
+        row.riasec_profile,
+        row.interests as { key: string; weight: number }[],
+      ),
       career_matches: row.career_matches as CareerResultDTO["career_matches"],
       university_matches: row.university_matches as CareerResultDTO["university_matches"],
       strengths: row.strengths as string[],
@@ -339,7 +333,10 @@ export const getMyCareerResult = createServerFn({ method: "GET" })
       cognitive_tier: data.cognitive_tier,
       cognitive_profile: data.cognitive_profile,
       interests: data.interests as { key: string; weight: number }[],
-      ...hollandFor(data.interests as { key: string; weight: number }[]),
+      ...resultInterestProfile(
+        data.riasec_profile,
+        data.interests as { key: string; weight: number }[],
+      ),
       career_matches: data.career_matches as CareerResultDTO["career_matches"],
       university_matches: data.university_matches as CareerResultDTO["university_matches"],
       strengths: data.strengths as string[],
@@ -376,10 +373,7 @@ export const getSchoolCareerOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<SchoolCareerOverviewDTO> => {
     const { supabase, userId } = context;
-    const school = requireData(
-      await supabase.from("schools").select("id").eq("owner_user_id", userId).maybeSingle(),
-    );
-    if (!school) throw new Error("not_principal");
+    const school = await loadOwnedSchool(supabase, userId);
 
     const { data: members } = await readAllResult((from, to) =>
       supabase
@@ -525,10 +519,7 @@ export const buildSpecializedClass = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const school = requireData(
-      await supabase.from("schools").select("id").eq("owner_user_id", userId).maybeSingle(),
-    );
-    if (!school) throw new Error("not_principal");
+    const school = await loadOwnedSchool(supabase, userId);
 
     type MatchEntry = { name: string; category: string; score: number };
     type StudentEntry = { user_id: string; name: string; matches: MatchEntry[] };

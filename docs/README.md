@@ -17,6 +17,7 @@ Start with the [project README](../README.md). This index separates current work
 | Guide                                                         | Status and purpose                                                                   |
 | ------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | [Owner migrations](operations/OWNER_MIGRATIONS.md)            | Current owner-run release procedure and staging checks                               |
+| [October 11 audit fixes](operations/AUDIT_FIXES.md)           | Five reproduced regressions, repairs and release requirements                        |
 | [Full catalog](operations/FULL_CATALOG.md)                    | Implemented 561-question/166-career behavior and validation limits                   |
 | [Results API investigation](operations/RESULTS_API_REPAIR.md) | Historical missing-column evidence; use the newer owner migration guide for releases |
 | [Source backup preparation](../scripts/migration/README.md)   | Database/storage export tooling; no completed provider transfer                      |

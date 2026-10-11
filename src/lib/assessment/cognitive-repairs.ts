@@ -2,6 +2,13 @@ import type { CognitiveQ } from "./career-assessment";
 
 // Version changed items so already-issued signed attempts retain their original key.
 export const COGNITIVE_REPAIRS: Record<string, CognitiveQ> = {
+  iq135: {
+    id: "iq135_v2",
+    section: "cognitive",
+    prompt: "How many prime numbers are between 10 and 30?",
+    options: ["3", "4", "5", "6"],
+    correct: 3,
+  },
   iq1: {
     id: "iq1_v2",
     section: "cognitive",

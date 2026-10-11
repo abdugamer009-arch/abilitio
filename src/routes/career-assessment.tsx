@@ -1,3 +1,4 @@
+import { rememberSavedAssessment } from "@/lib/assessment/saved-attempt";
 import { useWords } from "@/lib/editorial";
 import { isSupabaseConfigured } from "@/integrations/supabase/config";
 import { ChoiceOptions } from "@/components/ChoiceOptions";
@@ -349,12 +350,7 @@ function CareerAssessmentPage() {
           interestAnswers: answers.interest,
         },
       });
-      sessionStorage.setItem("career_last_result_id", result.id);
-      try {
-        localStorage.removeItem(PROGRESS_KEY);
-      } catch {
-        /* non-fatal */
-      }
+      rememberSavedAssessment(result.id, PROGRESS_KEY);
       track(AnalyticsEvent.AssessmentCompleted);
       track(AnalyticsEvent.ResultSaved);
       // The system placed them in a community during submit — say so, so
