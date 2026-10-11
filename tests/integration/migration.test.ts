@@ -28,9 +28,11 @@ describe("owner release migration", () => {
       CREATE TABLE storage.objects(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),bucket_id text,name text,owner uuid);
       CREATE FUNCTION storage.foldername(text) RETURNS text[] LANGUAGE sql AS $$ SELECT string_to_array($1,'/') $$;
       CREATE SCHEMA realtime; CREATE TABLE realtime.messages(id uuid);
+      ALTER TABLE realtime.messages ENABLE ROW LEVEL SECURITY;
+      GRANT SELECT ON realtime.messages TO authenticated;
       CREATE FUNCTION realtime.topic() RETURNS text LANGUAGE sql AS $$ SELECT current_setting('realtime.topic',true) $$;
       CREATE PUBLICATION supabase_realtime;
-      GRANT USAGE ON SCHEMA public,auth,storage TO authenticated,anon,service_role;
+      GRANT USAGE ON SCHEMA public,auth,storage,realtime TO authenticated,anon,service_role;
       GRANT SELECT ON auth.users TO authenticated;`);
     const dir = resolve("supabase/migrations");
     for (const file of readdirSync(dir).sort())
@@ -44,6 +46,36 @@ describe("owner release migration", () => {
     await db.close();
   });
 
+  it("retains managed Realtime protection and limits topics to community members", async () => {
+    expect(
+      (
+        await db.query(
+          "SELECT relrowsecurity FROM pg_class WHERE oid='realtime.messages'::regclass",
+        )
+      ).rows,
+    ).toEqual([{ relrowsecurity: true }]);
+    const community = (
+      await db.query<{ id: string; slug: string }>(
+        "SELECT id,slug FROM public.communities ORDER BY slug LIMIT 1",
+      )
+    ).rows[0];
+    await db.query("INSERT INTO public.community_members(community_id,user_id) VALUES ($1,$2)", [
+      community.id,
+      student,
+    ]);
+    await db.exec(
+      "INSERT INTO realtime.messages(id) VALUES ('00000000-0000-4000-8000-000000000099')",
+    );
+    await db.query("SELECT set_config('realtime.topic',$1,false)", [`community:${community.slug}`]);
+    await asUser(student);
+    expect((await db.query("SELECT id FROM realtime.messages")).rows).toHaveLength(1);
+    await asUser(outsider);
+    expect((await db.query("SELECT id FROM realtime.messages")).rows).toHaveLength(0);
+    await asUser(student);
+    await db.query("SELECT set_config('realtime.topic',$1,false)", ["community:unrelated"]);
+    expect((await db.query("SELECT id FROM realtime.messages")).rows).toHaveLength(0);
+    await db.exec("RESET ROLE");
+  });
   it("can be reapplied without losing existing rows", async () => {
     await db.exec(readFileSync(migration, "utf8"));
     expect((await db.query("SELECT count(*)::int AS n FROM public.profiles")).rows).toEqual([

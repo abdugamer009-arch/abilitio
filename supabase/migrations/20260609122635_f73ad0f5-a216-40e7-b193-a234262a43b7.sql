@@ -6,7 +6,13 @@ DROP POLICY IF EXISTS wallet_insert_own ON public.aura_wallets;
 -- 2. Realtime authorization: gate channel subscriptions to community members or admins.
 --    The realtime.messages table stores broadcast/presence messages; RLS here controls
 --    which authenticated users may subscribe to a given topic.
-ALTER TABLE IF EXISTS realtime.messages ENABLE ROW LEVEL SECURITY;
+-- Supabase owns this table and already enables RLS. The postgres dashboard role
+-- may manage its policies, but cannot ALTER the managed table.
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_class WHERE oid = 'realtime.messages'::regclass AND relrowsecurity) THEN
+    RAISE EXCEPTION 'Expected Supabase-managed RLS on realtime.messages';
+  END IF;
+END $$;
 
 DROP POLICY IF EXISTS "community_realtime_member_only" ON realtime.messages;
 CREATE POLICY "community_realtime_member_only"

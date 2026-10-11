@@ -1,6 +1,6 @@
 # Owner database handoff
 
-The code fixes are prepared for main. No remote database migration was applied by this change.
+This is the release procedure for existing and fresh projects. The selected replacement project and live initialization evidence are recorded in [Supabase setup](SUPABASE_SETUP.md). Do not infer deployment or account transfer from a GitHub link.
 
 ## Apply before production verification
 
@@ -33,3 +33,9 @@ Local verification includes the entire migration chain, repeatability, profile v
 ## Operational notes
 
 Apply schema before relying on the newly deployed class RPC and `scoring_version` / `riasec_profile` fields. Deploying code alone cannot repair the missing production column. No production database was changed, no email provider was configured, and no multilingual ABBI responses were fabricated. Historical assessments are not recalculated.
+
+## Fresh-project compatibility
+
+Fresh initialization on `cadbpdgljzxnbeamitnq` exposed an ownership error in the June 9 migration: Supabase already enables RLS on its managed `realtime.messages` table, and the dashboard PostgreSQL role cannot alter that table. The migration now checks the existing protection and retains its scoped policy. This historical-file correction is necessary because a fresh installation fails before later migrations can run. Existing installations need no replay of the June 9 migration.
+
+Reference: [Supabase managed Realtime ownership troubleshooting](https://supabase.com/docs/guides/troubleshooting/realtime-must-be-owner-of-table-messages).

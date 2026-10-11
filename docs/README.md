@@ -16,6 +16,7 @@ Start with the [project README](../README.md). This index separates current work
 
 | Guide                                                         | Status and purpose                                                                   |
 | ------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| [Supabase setup](operations/SUPABASE_SETUP.md)                | Selected project, live schema checks and deployment status                           |
 | [Owner migrations](operations/OWNER_MIGRATIONS.md)            | Current owner-run release procedure and staging checks                               |
 | [October 11 audit fixes](operations/AUDIT_FIXES.md)           | Five reproduced regressions, repairs and release requirements                        |
 | [Full catalog](operations/FULL_CATALOG.md)                    | Implemented 561-question/166-career behavior and validation limits                   |
