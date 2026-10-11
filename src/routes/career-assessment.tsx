@@ -49,7 +49,12 @@ const TOTAL = P_COUNT + IQ_COUNT + INT_COUNT; // 30
 // v3: the section order changed (IQ now leads); bumping discards saved v2
 // progress whose step index pointed into the old ordering.
 const PROGRESS_KEY = "abilitio.career_assessment.progress.v3";
-type SavedProgress = { session: ClientSession; step: number; answers: Answers };
+type SavedProgress = {
+  session: ClientSession;
+  step: number;
+  answers: Answers;
+  ownerId?: string | null;
+};
 
 type Answers = {
   personality: (number | null)[]; // 12 likert 1..5
@@ -92,6 +97,7 @@ function CareerAssessmentPage() {
   const [starting, setStarting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const submissionPending = useRef(false);
+  const sessionOwner = useRef<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Answers>(makeAnswers());
 
@@ -101,6 +107,7 @@ function CareerAssessmentPage() {
     setSubmitError(null);
     try {
       const s = await start();
+      sessionOwner.current = user?.id ?? null;
       setSession(s);
       setStep(0);
       setAnswers(makeAnswers());
@@ -110,15 +117,27 @@ function CareerAssessmentPage() {
     } finally {
       setStarting(false);
     }
-  }, [start, t]);
+  }, [start, t, user?.id]);
 
   // Restore an interrupted attempt on mount (client-only — localStorage is undefined during SSR).
   useEffect(() => {
+    if (loading) return;
+    setSession(null);
+    setStep(0);
+    setAnswers(makeAnswers());
     try {
       const raw = localStorage.getItem(PROGRESS_KEY);
       if (!raw) return;
       const saved = JSON.parse(raw) as SavedProgress;
       const s = saved?.session;
+      if (saved.ownerId && saved.ownerId !== user?.id) return;
+      const encoded = s?.sessionToken?.split(".")[0];
+      const claim = JSON.parse(atob(encoded.replace(/-/g, "+").replace(/_/g, "/")));
+      // UI expiry only; the server still verifies the signature and membership.
+      if (typeof claim.expires !== "number" || claim.expires <= Date.now()) {
+        localStorage.removeItem(PROGRESS_KEY);
+        return;
+      }
       const ok =
         typeof s?.sessionToken === "string" &&
         s?.personality?.length === P_COUNT &&
@@ -187,14 +206,15 @@ function CareerAssessmentPage() {
             Array.isArray(v) && v.length <= 1 && v.every((id: unknown) => typeof id === "string"),
         );
       if (ok && validAnswers) {
+        sessionOwner.current = user?.id ?? null;
         setSession(s);
-        setStep(typeof saved.step === "number" ? Math.min(Math.max(saved.step, 0), TOTAL - 1) : 0);
+        setStep(Number.isInteger(saved.step) ? Math.min(Math.max(saved.step, 0), TOTAL - 1) : 0);
         if (saved.answers) setAnswers(saved.answers);
       }
     } catch {
       // Corrupt or outdated payload — ignore and start fresh.
     }
-  }, []);
+  }, [loading, user?.id]);
 
   // Bring each new question into view. Without this the page keeps the previous
   // scroll offset, so the prompt sits above the viewport for all 30 steps.
@@ -213,16 +233,21 @@ function CareerAssessmentPage() {
 
   // Persist after every answer / step change while an attempt is in progress.
   useEffect(() => {
-    if (!session) return;
+    if (!session || loading || sessionOwner.current !== (user?.id ?? null)) return;
     try {
       localStorage.setItem(
         PROGRESS_KEY,
-        JSON.stringify({ session, step, answers } satisfies SavedProgress),
+        JSON.stringify({
+          session,
+          step,
+          answers,
+          ownerId: user?.id ?? null,
+        } satisfies SavedProgress),
       );
     } catch {
       // Storage full or unavailable — non-fatal.
     }
-  }, [session, step, answers]);
+  }, [session, step, answers, loading, user?.id]);
 
   const current = useMemo(() => {
     if (!session) return null;

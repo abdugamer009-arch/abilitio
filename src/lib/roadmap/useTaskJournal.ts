@@ -29,6 +29,19 @@ export function useTaskJournal(userId?: string) {
     if (!userId) return;
     let cancelled = false;
     let busy = false;
+    let syncing = false;
+    let retries = 0;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    const retry = () => {
+      if (cancelled || retryTimer) return;
+      retryTimer = setTimeout(
+        () => {
+          retryTimer = undefined;
+          void sync();
+        },
+        Math.min(30000, 1000 * 2 ** retries++),
+      );
+    };
     const cacheKey = `roadmap_tasks_v2_${userId}`;
     const queueKey = `roadmap_queue_v2_${userId}`;
     let legacy: Record<string, boolean> = {};
@@ -62,6 +75,8 @@ export function useTaskJournal(userId?: string) {
       }
       if (valid(queue)) preserveUnscoped(queue);
       pending.current = valid(queue) ? scopedTaskState(queue) : {};
+      current.current = { ...legacy, ...pending.current };
+      setTasks(current.current);
     } catch {
       /* optional storage */
     }
@@ -73,7 +88,7 @@ export function useTaskJournal(userId?: string) {
       }
     };
     const send = async () => {
-      if (busy || cancelled) return;
+      if (busy || syncing || cancelled) return;
       busy = true;
       try {
         while (Object.keys(pending.current).length && !cancelled) {
@@ -84,15 +99,23 @@ export function useTaskJournal(userId?: string) {
             if (pending.current[id] === value) delete pending.current[id];
           storeQueue();
         }
-        if (!cancelled) setSyncState("saved");
+        if (!cancelled) {
+          retries = 0;
+          setSyncState("saved");
+        }
       } catch {
-        if (!cancelled) setSyncState("local");
+        if (!cancelled) {
+          setSyncState("local");
+          retry();
+        }
       } finally {
         busy = false;
       }
     };
     flush.current = send;
     const sync = async () => {
+      if (syncing || busy || cancelled) return;
+      syncing = true;
       try {
         const original = await load();
         if (cancelled) return;
@@ -108,17 +131,40 @@ export function useTaskJournal(userId?: string) {
           /* optional storage */
         }
         storeQueue();
-        await send();
       } catch {
-        if (!cancelled) setSyncState("local");
+        if (!cancelled) {
+          setSyncState("local");
+          retry();
+          return;
+        }
+      } finally {
+        syncing = false;
       }
+      await send();
     };
     void sync();
     window.addEventListener("online", sync);
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== queueKey || !event.newValue) return;
+      try {
+        const incoming: unknown = JSON.parse(event.newValue);
+        if (valid(incoming)) {
+          pending.current = { ...pending.current, ...scopedTaskState(incoming) };
+          current.current = { ...current.current, ...pending.current };
+          setTasks(current.current);
+          void sync();
+        }
+      } catch {
+        /* ignore corrupt storage from another tab */
+      }
+    };
+    window.addEventListener("storage", onStorage);
     return () => {
       cancelled = true;
+      clearTimeout(retryTimer);
       flush.current = async () => {};
       window.removeEventListener("online", sync);
+      window.removeEventListener("storage", onStorage);
     };
   }, [userId, load, save]);
   const persist = (next: Record<string, boolean>) => {

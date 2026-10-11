@@ -25,6 +25,16 @@ const PERSONALITY_QS: PersonalityQ[] = [
 ];
 
 describe("scorePersonality", () => {
+  it("centers neutral answers and increases agreement monotonically", () => {
+    const neutral = scorePersonality(Array(12).fill(3), PERSONALITY_QS);
+    for (const weight of Object.values(neutral.letters)) expect(weight).toBe(0.5);
+    const weak = scorePersonality([4, 2, 4, 4, 2, 4, 4, 2, 4, 4, 2, 4], PERSONALITY_QS);
+    const strong = scorePersonality([5, 1, 5, 5, 1, 5, 5, 1, 5, 5, 1, 5], PERSONALITY_QS);
+    expect(weak.letters.E).toBeGreaterThan(0.5);
+    expect(strong.letters.E).toBe(1);
+    expect(strong.letters.I).toBe(0);
+    expect(strong.letters.E).toBeGreaterThan(weak.letters.E);
+  });
   it("returns ESTJ for strong agree on direction=1 E/S/T/J questions", () => {
     const answers = [5, 1, 5, 5, 1, 5, 5, 1, 5, 5, 1, 5];
     const result = scorePersonality(answers, PERSONALITY_QS);

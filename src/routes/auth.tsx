@@ -16,7 +16,13 @@ const searchSchema = z.object({
   // attacker-chosen site via a crafted link.
   next: z
     .string()
-    .regex(/^\/(?!\/)/)
+    .refine(
+      (value) =>
+        value.startsWith("/") &&
+        !value.startsWith("//") &&
+        !value.includes("\\") &&
+        [...value].every((char) => char.charCodeAt(0) >= 32 && char.charCodeAt(0) !== 127),
+    )
     .optional()
     .catch(undefined),
 });
@@ -110,7 +116,7 @@ function AuthPage() {
           email: ep.data,
           password: pp.data,
           options: {
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: `${window.location.origin}/auth?mode=login${next ? `&next=${encodeURIComponent(next)}` : ""}`,
             data: { name: name.trim(), surname: surname.trim() },
           },
         });

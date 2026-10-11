@@ -10,7 +10,7 @@ New results compare and retain all 166 canonical career profiles. A server catal
 
 ## Verification
 
-- 75 Vitest tests pass. A seeded coverage test runs 1,000 attempts and reaches every one of the 561 items, verifies 30 distinct IDs per attempt, personality balance, all 24 reasoning option permutations, signed shuffled scoring, and preserved interest-option membership.
+- 88 Vitest tests pass in the combined main verification suite. A seeded coverage test runs 1,000 attempts and reaches every one of the 561 items, verifies 30 distinct IDs per attempt, personality balance, all 24 reasoning option permutations, signed shuffled scoring, and preserved interest-option membership.
 - Catalog tests verify all 166 ranked careers, finite sorted scores, study-major links, database overrides, and missing-seed completion.
 - Five separate migration-export checks pass using `node --test scripts/migration/export-source.checks.mjs`.
 - TypeScript, lint and the Vercel production build pass.
@@ -18,4 +18,4 @@ New results compare and retain all 166 canonical career profiles. A server catal
 
 ## Production dependency
 
-These changes do not bypass authentication or result storage. The active production database still needs the repair described in `RESULTS_API_REPAIR.md`. Its missing `session_nonce` column has not been repaired remotely because owner access was unavailable. Actual authenticated save/reload and the complete results UI therefore remain unverified against the live backend. Do not deploy this branch until the schema and matching server environment are repaired and those flows pass. Nhost migration is also not complete; the branch includes backup preparation only.
+These changes do not bypass authentication or result storage. The active production database still needs the repair described in `RESULTS_API_REPAIR.md`. The previously observed missing `session_nonce` column has not been repaired remotely because owner access was unavailable. Actual authenticated save/reload and the complete results UI therefore remain unverified against the live backend. The combined code is being published at the owner's request; result persistence still requires the release migration in `OWNER_MIGRATIONS.md`, matching server environment and authenticated flow verification. Nhost migration is also not complete; the branch includes backup preparation only.

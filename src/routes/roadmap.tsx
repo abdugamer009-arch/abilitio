@@ -51,6 +51,9 @@ function RoadmapPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
+  const [careerError, setCareerError] = useState(false);
+  const [careerBusy, setCareerBusy] = useState(true);
+  const [retryCareer, setRetryCareer] = useState(0);
   const [topCareer, setTopCareer] = useState<string | null>(null);
   const [activePhase, setActivePhase] = useState<RoadmapPhase["index"]>(1);
   const {
@@ -69,18 +72,33 @@ function RoadmapPage() {
   // Load top career to personalize the track
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
+    setTopCareer(null);
+    setCareerError(false);
+    setCareerBusy(true);
     (async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("career_assessment_results")
         .select("career_matches")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
+      if (cancelled) return;
+      if (error) throw new Error("Career profile unavailable");
       const careers = (data?.career_matches ?? []) as { name: string }[];
       setTopCareer(careers[0]?.name ?? null);
-    })();
-  }, [user]);
+      setCareerBusy(false);
+    })().catch(() => {
+      if (!cancelled) {
+        setCareerError(true);
+        setCareerBusy(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, retryCareer]);
 
   const track: RoadmapTrack = useMemo(() => pickTrack(topCareer ?? undefined), [topCareer]);
   const phases = useMemo(() => buildRoadmap(track), [track]);
@@ -95,7 +113,22 @@ function RoadmapPage() {
     if (allDone) setCelebrating(p.index);
   }
 
-  if (loading || !user) {
+  if (careerError)
+    return (
+      <PageShell>
+        <div className="mx-auto max-w-xl p-10" role="alert">
+          <p>Could not load your career profile.</p>
+          <button
+            className="mt-4 rounded-xl bg-primary px-4 py-2 text-primary-foreground"
+            onClick={() => setRetryCareer((n) => n + 1)}
+          >
+            Retry
+          </button>
+        </div>
+      </PageShell>
+    );
+
+  if (loading || !user || careerBusy) {
     return (
       <PageShell>
         <p role="status" className="field-wrap pt-4 text-xs text-muted-foreground">

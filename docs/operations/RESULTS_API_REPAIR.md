@@ -1,3 +1,5 @@
+> Release update: use [OWNER_MIGRATIONS.md](OWNER_MIGRATIONS.md) and the October 10 release migration for the current code, including `scoring_version`. The standalone nonce repair below documents the earlier investigation.
+
 # Assessment results API repair
 
 The active production browser uses Supabase project `kxlmpctcaevmognfmalb`.

@@ -40,7 +40,7 @@ The four pages are **not pixel-identical** to the templates. Their visual tokens
 
 ## Files changed by this task
 
-- [CARTOON_REDESIGN.md](/home/umaraxmedov/Documents/ChatGPT/abilitio/CARTOON_REDESIGN.md)
+- [CARTOON_REDESIGN.md](CARTOON_REDESIGN.md)
 - [package-lock.json](/home/umaraxmedov/Documents/ChatGPT/abilitio/package-lock.json)
 - [package.json](/home/umaraxmedov/Documents/ChatGPT/abilitio/package.json)
 - [public/apple-touch-icon.png](/home/umaraxmedov/Documents/ChatGPT/abilitio/public/apple-touch-icon.png)

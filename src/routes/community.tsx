@@ -44,6 +44,8 @@ function CommunityPage() {
   const navigate = useNavigate();
   const getMine = useServerFn(getMyCommunities);
   const [data, setData] = useState<{ communities: CommunityDTO[]; isAdmin: boolean } | null>(null);
+  const [loadError, setLoadError] = useState(false);
+  const [reload, setReload] = useState(0);
   const [activeId, setActiveId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -52,11 +54,37 @@ function CommunityPage() {
       navigate({ to: "/auth", search: { mode: "login", next: "/community" } });
       return;
     }
-    getMine().then((d) => {
-      setData(d);
-      if (d.communities.length) setActiveId(d.communities[0].id);
-    });
-  }, [user, loading, navigate, getMine]);
+    let cancelled = false;
+    setData(null);
+    setLoadError(false);
+    getMine()
+      .then((d) => {
+        if (cancelled) return;
+        setData(d);
+        if (d.communities.length) setActiveId(d.communities[0].id);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, loading, navigate, getMine, reload]);
+
+  if (loadError)
+    return (
+      <PageShell>
+        <div className="mx-auto max-w-xl p-10" role="alert">
+          <p>Could not load community.</p>
+          <button
+            onClick={() => setReload((n) => n + 1)}
+            className="mt-4 rounded-xl bg-primary px-4 py-2 text-primary-foreground"
+          >
+            Retry
+          </button>
+        </div>
+      </PageShell>
+    );
 
   if (loading || !data) {
     // Skeleton mirrors the real layout (sidebar + header + chat) so the page
@@ -121,7 +149,12 @@ function CommunityPage() {
             setActive={setActiveId}
             isAdmin={data.isAdmin}
           />
-          <CommunityChat community={active} isAdmin={data.isAdmin} currentUserId={user!.id} />
+          <CommunityChat
+            key={active.id}
+            community={active}
+            isAdmin={data.isAdmin}
+            currentUserId={user!.id}
+          />
         </div>
       </section>
     </PageShell>
@@ -203,6 +236,11 @@ function CommunityChat({
   const [editingDaily, setEditingDaily] = useState(false);
   const [dailyDraft, setDailyDraft] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [cursor, setCursor] = useState<{ createdAt: string; id: string } | null>(null);
+  const [historyBusy, setHistoryBusy] = useState(false);
+  const [chatError, setChatError] = useState(false);
+  const [chatReload, setChatReload] = useState(0);
+  const prepending = useRef(false);
 
   // Known-author ids live in a ref (not state) because this runs inside
   // realtime callbacks whose closures capture a stale `authors` snapshot —
@@ -212,7 +250,7 @@ function CommunityChat({
     if (knownAuthorIds.current.has(uid)) return;
     knownAuthorIds.current.add(uid);
     try {
-      const res = await fetchAuthors({ data: { userIds: [uid] } });
+      const res = await fetchAuthors({ data: { communityId: community.id, userIds: [uid] } });
       setAuthors((a) => ({ ...a, ...Object.fromEntries(res.map((x) => [x.user_id, x])) }));
     } catch {
       // Allow a retry on the next message from this author.
@@ -224,17 +262,26 @@ function CommunityChat({
     setMessages([]);
     setAuthors({});
     knownAuthorIds.current = new Set();
+    let cancelled = false;
+    setChatError(false);
     (async () => {
       const [m, q] = await Promise.all([
         fetchMsgs({ data: { communityId: community.id } }),
         fetchDaily({ data: { communityId: community.id } }),
       ]);
+      if (cancelled) return;
+      setCursor(m.nextCursor);
       setMessages(m.messages);
       setAuthors(Object.fromEntries(m.authors.map((a) => [a.user_id, a])));
       knownAuthorIds.current = new Set(m.authors.map((a) => a.user_id));
       setDaily({ question: q.question });
-    })();
-  }, [community.id, fetchMsgs, fetchDaily]);
+    })().catch(() => {
+      if (!cancelled) setChatError(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [community.id, fetchMsgs, fetchDaily, chatReload]);
 
   // realtime
   useEffect(() => {
@@ -307,6 +354,10 @@ function CommunityChat({
   }, [community.id, currentUserId]);
 
   useEffect(() => {
+    if (prepending.current) {
+      prepending.current = false;
+      return;
+    }
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages.length]);
 
@@ -454,6 +505,42 @@ function CommunityChat({
       {/* Messages */}
       <div className="flex h-[58vh] flex-col rounded-3xl border border-border/60 bg-secondary/20 ">
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 sm:px-6">
+          {chatError && (
+            <div role="alert">
+              Could not load messages.{" "}
+              <button onClick={() => setChatReload((n) => n + 1)}>Retry</button>
+            </div>
+          )}
+          {cursor && (
+            <button
+              disabled={historyBusy}
+              className="mb-4 text-sm text-primary"
+              onClick={async () => {
+                setHistoryBusy(true);
+                try {
+                  const page = await fetchMsgs({
+                    data: { communityId: community.id, before: cursor },
+                  });
+                  prepending.current = true;
+                  setMessages((prev) => [
+                    ...page.messages.filter((m) => !prev.some((x) => x.id === m.id)),
+                    ...prev,
+                  ]);
+                  setAuthors((prev) => ({
+                    ...prev,
+                    ...Object.fromEntries(page.authors.map((a) => [a.user_id, a])),
+                  }));
+                  setCursor(page.nextCursor);
+                } catch {
+                  toast.error("Could not load older messages. Please retry.");
+                } finally {
+                  setHistoryBusy(false);
+                }
+              }}
+            >
+              {historyBusy ? "Loading…" : "Load older messages"}
+            </button>
+          )}
           {messages.length === 0 ? (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
               {t.community.beFirst}

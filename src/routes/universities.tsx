@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowUpRight, Bookmark } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { useWords } from "@/lib/editorial";
@@ -151,6 +151,31 @@ function Universities() {
   const [country, setCountry] = useState("");
   const [query, setQuery] = useState("");
   const [saved, setSaved] = useState<string[]>([]);
+  const [bookmarksReady, setBookmarksReady] = useState(false);
+  useEffect(() => {
+    try {
+      const value: unknown = JSON.parse(
+        localStorage.getItem("abilitio.university-bookmarks.v1") || "[]",
+      );
+      if (Array.isArray(value))
+        setSaved(
+          value.filter(
+            (v): v is string => typeof v === "string" && records.some((r) => r.name === v),
+          ),
+        );
+    } catch {
+      /* optional browser storage */
+    }
+    setBookmarksReady(true);
+  }, []);
+  useEffect(() => {
+    if (!bookmarksReady) return;
+    try {
+      localStorage.setItem("abilitio.university-bookmarks.v1", JSON.stringify(saved));
+    } catch {
+      /* optional browser storage */
+    }
+  }, [saved, bookmarksReady]);
   const filtered = useMemo(
     () =>
       records.filter(

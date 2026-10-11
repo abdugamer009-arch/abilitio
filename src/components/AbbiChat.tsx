@@ -8,12 +8,13 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { ABBI_SUGGESTIONS, abbiGreeting } from "@/lib/abbi/abbi-knowledge";
 import { generateAbbiMessage } from "@/lib/abbi/abbi.functions";
-import { useT } from "@/lib/i18n";
+import { useI18n, useT } from "@/lib/i18n";
 
 type ChatMsg = { id: string; role: "user" | "abbi"; content: string };
 
 export function AbbiChat() {
   const t = useT();
+  const { lang } = useI18n();
   const { user } = useAuth();
   const replyFn = useServerFn(generateAbbiMessage);
 
@@ -161,9 +162,16 @@ export function AbbiChat() {
             </div>
             <div>
               <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
-                ABBI <span className="gradient-text">AI</span>
+                ABBI <span className="gradient-text">Guide</span>
               </h2>
               <p className="text-xs text-muted-foreground">{t.abbiChat.tagline}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {lang === "uz"
+                  ? "Tayyorlangan qoʻllanma. Javoblar hozircha ingliz tilida."
+                  : lang === "ru"
+                    ? "Подготовленный справочник. Ответы пока на английском языке."
+                    : "Curated guide with English responses."}
+              </p>
             </div>
           </div>
         </div>

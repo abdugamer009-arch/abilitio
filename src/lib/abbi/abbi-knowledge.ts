@@ -701,10 +701,10 @@ export function generateAbbiReply(message: string, ctx: AbbiContext): string {
       top && career && top.name.toLowerCase().includes(career.name.toLowerCase().split(" ")[0]);
     if (career && top) {
       if (topMatchesTarget) {
-        return `${greet}**Yes** — ${career.name} is your **#1 assessment match (${top.match}%)**. Your profile aligns strongly with this path.\n\n${md(career)}`;
+        return `${greet}**Yes** — ${career.name} is your **#1 assessment match (${top.match}/100)**. This is an exploration suggestion, not a prediction of success. Try an activity before deciding.\n\n${md(career)}`;
       }
       return [
-        `${greet}${career.name} matches some of your traits, but your assessment shows stronger compatibility with **${top.name} (${top.match}%)**.`,
+        `${greet}${career.name} matches some of your traits, but your assessment shows a higher exploration score for **${top.name} (${top.match}/100)**.`,
         "",
         career.fitsMbti && ctx.mbtiType && career.fitsMbti.includes(ctx.mbtiType)
           ? `Your **${ctx.mbtiType}** personality is compatible with ${career.name}, so it's a viable secondary path.`
@@ -734,7 +734,7 @@ export function generateAbbiReply(message: string, ctx: AbbiContext): string {
           .slice(0, 3)
           .map(
             (c, i) =>
-              `**${i + 1}. ${c.name}** — ${c.match}% match${c.reason ? ` · ${c.reason}` : ""}`,
+              `**${i + 1}. ${c.name}** — ${c.match}/100 exploration fit${c.reason ? ` · ${c.reason}` : ""}`,
           ),
         "",
         ctx.mbtiType
@@ -782,7 +782,7 @@ export function generateAbbiReply(message: string, ctx: AbbiContext): string {
     return [
       `### ${greet}Career growth & transitions`,
       top
-        ? `Your strongest match is **${top.name} (${top.match}%)**. For a working adult, transitioning to a role like this typically takes **6–18 months** with focused upskilling.`
+        ? `Your strongest match is **${top.name} (${top.match}/100)**. For a working adult, transitioning to a role like this typically takes **6–18 months** with focused upskilling.`
         : "I'd love to give you a personalized roadmap — complete the assessment first.",
       "",
       "**Plan**",

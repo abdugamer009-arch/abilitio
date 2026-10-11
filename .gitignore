@@ -38,3 +38,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local verification captures and exported build bundles
+artifacts/
+delivery/
+coverage/

@@ -1,8 +1,8 @@
 # Nhost migration: source backup phase
 
-Status: migration preparation started on `codex/nhost-migration`. No live data has been exported or copied. Both provider dashboards require sign-in; the user declined the sign-in request. The source-owner credentials/export and a destination project remain unavailable. Production still uses Supabase.
+Status: source backup preparation is included in `main`. No live data has been exported or copied. Both provider dashboards require sign-in; the user declined the sign-in request. The source-owner credentials/export and a destination project remain unavailable. Production still uses Supabase.
 
-The branch starts from the prepared results API repair so its submission guards and retry handling can be retained during migration. Do not deploy this branch as a completed replacement.
+Production remains on Supabase. Backup tooling alone does not switch providers; retain the result submission guards and retry handling during any future migration.
 
 ## Export
 

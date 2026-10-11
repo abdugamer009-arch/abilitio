@@ -29,6 +29,8 @@ import {
 import { QUESTION_TRANSLATIONS } from "./question-translations";
 import type { RiasecDim, InterestVisual } from "./career-assessment";
 import { ensureNotBanned } from "../admin/admin.functions";
+import { readAll, readAllResult, requireData } from "../db-read";
+import { validateCatalog } from "./catalog";
 
 // ---------- Session start (server-authoritative question delivery) ----------
 // Questions are picked and translated on the server so the client never
@@ -215,23 +217,27 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       .filter((v): v is Partial<Record<RiasecDim, number>> => v !== null);
     const { interests } = scoreInterests(interestPicks);
 
-    const [{ data: careers }, { data: majors }] = await Promise.all([
-      supabase.from("careers").select("*"),
-      supabase.from("university_majors").select("*"),
+    const [careers, majors] = await Promise.all([
+      readAll((from, to) => supabase.from("careers").select("*").order("id").range(from, to)),
+      readAll((from, to) =>
+        supabase.from("university_majors").select("*").order("id").range(from, to),
+      ),
     ]);
     const { CAREER_CATALOG, MAJOR_CATALOG, completeCatalog } = await import("./catalog.server");
-    const careerList = completeCatalog(CAREER_CATALOG, (careers ?? []) as unknown as Career[]);
-    const majorList = completeCatalog(MAJOR_CATALOG, (majors ?? []) as unknown as Major[]).map(
-      (major) => ({
-        ...major,
-        related_career_keys: [
-          ...new Set([
-            ...major.related_career_keys,
-            ...(MAJOR_CATALOG.find((item) => item.key === major.key)?.related_career_keys ?? []),
-          ]),
-        ],
-      }),
+    const catalog = validateCatalog(
+      completeCatalog(CAREER_CATALOG, careers as unknown as Career[]),
+      completeCatalog(MAJOR_CATALOG, majors as unknown as Major[]),
     );
+    const careerList = catalog.careers;
+    const majorList = catalog.majors.map((major) => ({
+      ...major,
+      related_career_keys: [
+        ...new Set([
+          ...major.related_career_keys,
+          ...(MAJOR_CATALOG.find((item) => item.key === major.key)?.related_career_keys ?? []),
+        ]),
+      ],
+    }));
 
     const allMajorScores = matchMajors(majorList, personality, cognitive, interests);
     const careerMatches = attachMajorsToCareers(
@@ -250,6 +256,7 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
     const row = await persistAssessmentResult(supabaseAdmin, {
       user_id: userId,
       session_nonce: claim.nonce,
+      scoring_version: "v2",
       personality_type: personality.mbti,
       work_style: personality.workStyle,
       leadership_style: personality.leadershipStyle,
@@ -369,18 +376,20 @@ export const getSchoolCareerOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<SchoolCareerOverviewDTO> => {
     const { supabase, userId } = context;
-    const { data: school } = await supabase
-      .from("schools")
-      .select("id")
-      .eq("owner_user_id", userId)
-      .maybeSingle();
+    const school = requireData(
+      await supabase.from("schools").select("id").eq("owner_user_id", userId).maybeSingle(),
+    );
     if (!school) throw new Error("not_principal");
 
-    const { data: members } = await supabase
-      .from("school_members")
-      .select("user_id, role, class_id")
-      .eq("school_id", school.id)
-      .eq("role", "student");
+    const { data: members } = await readAllResult((from, to) =>
+      supabase
+        .from("school_members")
+        .select("user_id, role, class_id")
+        .eq("school_id", school.id)
+        .eq("role", "student")
+        .order("id")
+        .range(from, to),
+    );
 
     const userIds = (members ?? []).map((m) => m.user_id);
 
@@ -396,12 +405,33 @@ export const getSchoolCareerOverview = createServerFn({ method: "GET" })
       university_matches: { key: string; name: string; category: string; score: number }[] | null;
     };
     const [classesRes, profilesRes, resultsRes] = await Promise.all([
-      supabase.from("school_classes").select("id, name").eq("school_id", school.id),
+      readAllResult((from, to) =>
+        supabase
+          .from("school_classes")
+          .select("id, name")
+          .eq("school_id", school.id)
+          .order("id")
+          .range(from, to),
+      ),
       userIds.length
-        ? supabase.from("profiles").select("id, name, surname").in("id", userIds)
+        ? readAllResult((from, to) =>
+            supabase
+              .from("profiles")
+              .select("id, name, surname")
+              .in("id", userIds)
+              .order("id")
+              .range(from, to),
+          )
         : Promise.resolve({ data: [] as NameRow[] }),
       userIds.length
-        ? supabase.from("career_assessment_results").select("*").in("user_id", userIds)
+        ? readAllResult((from, to) =>
+            supabase
+              .from("career_assessment_results")
+              .select("*")
+              .in("user_id", userIds)
+              .order("id")
+              .range(from, to),
+          )
         : Promise.resolve({ data: [] }),
     ]);
     const classMap = new Map<string, string>();
@@ -495,11 +525,9 @@ export const buildSpecializedClass = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: school } = await supabase
-      .from("schools")
-      .select("id")
-      .eq("owner_user_id", userId)
-      .maybeSingle();
+    const school = requireData(
+      await supabase.from("schools").select("id").eq("owner_user_id", userId).maybeSingle(),
+    );
     if (!school) throw new Error("not_principal");
 
     type MatchEntry = { name: string; category: string; score: number };
@@ -507,16 +535,34 @@ export const buildSpecializedClass = createServerFn({ method: "POST" })
 
     const overview = await (async (): Promise<{ students: StudentEntry[] }> => {
       // inline minimal fetch
-      const { data: members } = await supabase
-        .from("school_members")
-        .select("user_id, role")
-        .eq("school_id", school.id)
-        .eq("role", "student");
+      const { data: members } = await readAllResult((from, to) =>
+        supabase
+          .from("school_members")
+          .select("user_id, role")
+          .eq("school_id", school.id)
+          .eq("role", "student")
+          .order("id")
+          .range(from, to),
+      );
       const userIds = (members ?? []).map((m) => m.user_id);
       if (!userIds.length) return { students: [] };
       const [profilesRes, resultsRes] = await Promise.all([
-        supabase.from("profiles").select("id, name, surname").in("id", userIds),
-        supabase.from("career_assessment_results").select("*").in("user_id", userIds),
+        readAllResult((from, to) =>
+          supabase
+            .from("profiles")
+            .select("id, name, surname")
+            .in("id", userIds)
+            .order("id")
+            .range(from, to),
+        ),
+        readAllResult((from, to) =>
+          supabase
+            .from("career_assessment_results")
+            .select("*")
+            .in("user_id", userIds)
+            .order("id")
+            .range(from, to),
+        ),
       ]);
       type NameRow = { id: string; name: string | null; surname: string | null };
       type ResultRow = { user_id: string; created_at: string; career_matches: MatchEntry[] | null };
@@ -553,7 +599,7 @@ export const buildSpecializedClass = createServerFn({ method: "POST" })
 
     let savedId: string | null = null;
     if (data.save && ranked.length) {
-      const { data: id } = await supabase.rpc("school_save_specialized_class", {
+      const { data: id, error } = await supabase.rpc("school_save_specialized_class", {
         _school: school.id,
         _title: `${data.focusCategory} Class`,
         _focus: data.focusCategory,
@@ -561,6 +607,7 @@ export const buildSpecializedClass = createServerFn({ method: "POST" })
         _reason: `Auto-built from Career Intelligence data; top ${ranked.length} students by ${data.focusCategory} fit.`,
         _students: ranked.map((r) => r.user_id),
       });
+      if (error) throw new Error("Class suggestion was not saved. Please retry.");
       savedId = (id as string | null) ?? null;
     }
 
