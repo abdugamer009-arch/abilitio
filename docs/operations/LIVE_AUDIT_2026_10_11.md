@@ -20,10 +20,18 @@ Dashboard reasoning labels and ring maximum used 10 although each attempt has ni
 
 After these changes, `npm run check` passed lint, TypeScript, 97 Vitest tests and five export checks. `VERCEL=1 npm run build` passed using the selected project's public settings.
 
+## Follow-up privileged checks
+
+- Registered a clearly labelled test school in the production browser and enrolled the existing synthetic assessment account through the authenticated join RPC. The principal dashboard displayed one student, one class and one completed assessment.
+- Before enrollment, the principal could not read the student result; after enrollment it could. An unrelated profile remained hidden.
+- Saved a synthetic class through the principal RPC; an invalid replacement referencing an unenrolled account was rejected and the previous class remained unchanged.
+- The production class-builder UI built and saved a Finance Class. An authenticated database read verified the saved class contains only the enrolled audit student.
+- A dedicated temporary administrator loaded the production analytics/user-management dashboard. Browser ban and unban succeeded on the synthetic assessment account. While banned, roadmap and community-message inserts returned HTTP 403; no test message was created. Unban was verified and the temporary admin role was revoked. Existing owner roles were untouched.
+
 ## Limits and follow-up
 
-- Custom SMTP is unconfigured. Public email delivery and password recovery are not verified. Weekly digest delivery is not implemented and is labelled unavailable.
-- Privileged admin/principal operations, enrollment flows, photo uploads, chat sending, and PDF/print export were not exercised end to end in this audit. Access denial is not proof of privileged workflows.
+- Custom SMTP is unconfigured. Public email delivery and password recovery are not verified. The owner registered Resend; its domain setup awaits an owned domain. See [email setup](AUTH_EMAIL_SETUP.md). Weekly digest delivery is not implemented and is labelled unavailable.
+- Admin analytics/moderation and principal enrollment/read/class-saving checks above passed. Full browser enrollment form submission, automatic multi-student grouping, photo uploads, successful chat sending, and PDF/print export remain unverified.
 - Some career, generated roadmap and ABBI content remains English when interface controls are Russian or Uzbek; this audit does not certify complete content localization.
 - Synthetic audit accounts and their clearly identified test data are retained for repeat checks. Credentials and screenshots stay outside Git. No existing human account or result was modified.
 - Browser signup form submission was not exercised: actual signup was verified through the public Auth API, followed by browser password login and assessment completion.
