@@ -1,53 +1,112 @@
+<p align="center">
+  <img src="public/og-image.png" alt="Abilitio — Find a career worth trying. Your next move, with reasons." width="100%" />
+</p>
+
 # Abilitio
 
-Career exploration for students and schools, built with React 19, TanStack Start, TypeScript and Supabase. The current interface uses illustrated SVG scenes, Tailwind, GSAP and Lenis. Assessment scores and suggestions are exploratory, not clinical or admission predictions.
+**A career direction should come with reasons—and something you can try.**
 
-## Development
+Abilitio helps students explore their interests, work preferences and reasoning, compare career directions, and turn a suggestion into a practical activity. Schools can support the same journey through student reports and class tools. The interface is available in English, Russian and Uzbek.
 
-Use Node 22 or later and the npm lockfile:
+[![Verify](https://github.com/abdugamer009-arch/abilitio/actions/workflows/verify.yml/badge.svg)](https://github.com/abdugamer009-arch/abilitio/actions/workflows/verify.yml)
+
+[Visit Abilitio](https://abilitio-xt4n.vercel.app/) · [Try the assessment](https://abilitio-xt4n.vercel.app/career-assessment) · [Architecture](docs/development/ARCHITECTURE.md) · [Documentation](docs/README.md)
+
+## The product, at a glance
+
+| Explore                   | What is in the repository                                                                                                             |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| **Find your signals**     | 561 catalog questions: 280 personality statements, 260 reasoning questions and 21 visual-interest questions. Each attempt selects 30. |
+| **Compare directions**    | All 166 canonical career profiles are ranked in new results, with explanations, search and a Show all careers control.                |
+| **Choose a next step**    | 52 seeded study-major profiles, career activities and a roadmap task journal.                                                         |
+| **Research universities** | 20 university entries and browser-local research bookmarks.                                                                           |
+| **Support a group**       | School enrollment, reports, analytics and class-building tools with owner-scoped access.                                              |
+
+These are catalog counts, not user-impact statistics. Results are exploratory descriptions, not clinical measurements, admission predictions or proof of ability. Some wordplay questions retain English stimuli with translated instructions.
+
+## From answers to action
+
+```mermaid
+flowchart LR
+    A[Start an attempt] --> B[30 shuffled questions]
+    B --> C[Sign in to save]
+    C --> D[Server verifies and scores]
+    D --> E[Compare 166 career profiles]
+    E --> F[Choose an activity]
+    F --> G[Track your next step]
+```
+
+An attempt contains **12 personality + 9 reasoning + 9 interest questions**. Questions and reasoning/interest answer positions shuffle; repeated questions across different attempts remain possible. Correct answers and scoring weights stay on the server. Signed attempts expire after 24 hours, and retrying a saved attempt returns its original result.
+
+## Run it locally
+
+Use **Node.js 22+** and npm. The committed npm lockfile is the dependency source of truth.
 
 ```sh
+git clone https://github.com/abdugamer009-arch/abilitio.git
+cd abilitio
 npm ci --legacy-peer-deps
 npm run dev
 ```
 
-Open http://localhost:8080. Copy `.env.example` to `.env` to configure Supabase. Public pages and anonymous assessment questions work without account credentials; saving results requires authentication and the owner-run schema migration.
+Open [localhost:8080](http://localhost:8080). Public pages and anonymous assessment questions work without backend credentials. For authenticated features, copy `.env.example` to `.env` and follow the [local setup guide](docs/development/LOCAL_SETUP.md).
 
 ```sh
-npm run lint
-npx tsc --noEmit
-npm test
-NITRO_PRESET=node-server npm run build
+npm run check                         # lint, types, application tests, export checks
+npm run test:unit                     # fast logic and contract checks
+npm run test:integration              # database migrations in local PGlite
+NITRO_PRESET=node-server npm run build # standalone Node deployment
 PORT=8090 node .output/server/index.mjs
 ```
 
-Vercel uses `vercel.json` and the `VERCEL=1` Nitro preset. Keep `SUPABASE_SERVICE_ROLE_KEY` and `ASSESSMENT_SIGNING_SECRET` server-only. Production requires a stable signing key or the service-role key; ephemeral development signing keys expire after a server restart. The active app and service-role credentials must reference the same Supabase project.
+Vercel uses `vercel.json`; `VERCEL=1 npm run build` selects the Vercel output. See [contributing](CONTRIBUTING.md) for the change and verification workflow.
 
-## Release and database handoff
+## A map of the code
 
-See [owner migration guide](docs/operations/OWNER_MIGRATIONS.md) before enabling result saves, moderation or class generation. The repository contains migrations; pushing code does not apply them to Supabase. New installations require the entire migration chain. Existing projects need the unapplied migrations, with the release repair providing repeatable result-storage and task-journal setup.
+```text
+abilitio/
+├── src/
+│   ├── routes/              # TanStack file-based pages and app shell
+│   ├── components/          # shared interface, illustrations and dashboard UI
+│   ├── lib/                 # feature logic, scoring, localization and server functions
+│   └── integrations/        # authenticated Supabase clients and database types
+├── tests/
+│   ├── unit/                # scoring, catalogs, localization and session contracts
+│   └── integration/         # migration, permissions and rollback checks
+├── public/                  # shipped images, fonts and site metadata
+├── supabase/
+│   ├── migrations/          # ordered database history
+│   └── fixes/               # focused repair SQL
+├── scripts/migration/       # source backup tooling; no provider cutover
+├── docs/
+│   ├── development/         # architecture, setup and routing
+│   ├── operations/          # release requirements and validation records
+│   └── design/              # historical design decisions and audits
+├── .github/                 # CI and pull request template
+├── AGENTS.md                # repository rules for future coding agents
+└── CONTRIBUTING.md          # human contributor workflow
+```
 
-Assessments shuffle 30 questions from all 561 catalog items: 12 personality, nine reasoning and nine interest questions. New results rank all 166 canonical careers, with search and a Show all careers control. Reasoning is displayed as correct answers out of nine. New results use scoring version `v2`; historical scores are preserved as `v1`. Signed attempts expire after 24 hours and repeated submission returns the original result.
+Tool configuration remains at the root where Vite, TypeScript, npm and Vercel expect it. `src/lib/` is organized by feature—assessment, schools, community, roadmap, admin and ABBI—so related server functions and domain logic stay together.
 
-Admin access comes from `user_roles`, matching database policies and community badges. Provision additional administrators in the database; the previous `ADMIN_EMAILS` application allowlist is no longer used.
+| Layer        | Choice                                                |
+| ------------ | ----------------------------------------------------- |
+| Application  | React 19, TypeScript, TanStack Start and Router       |
+| Interface    | Tailwind CSS, illustrated SVG scenes, GSAP and Lenis  |
+| Data         | Supabase authentication, PostgreSQL and storage       |
+| Delivery     | Vite, Nitro and Vercel                                |
+| Verification | Vitest, PGlite, ESLint, TypeScript and GitHub Actions |
 
-## Behavior and limits
+## Release status and honest limits
 
-- Account loaders surface failed reads instead of treating them as empty histories. Admin/catalog/school reads retrieve every page; community history uses a cursor.
-- Roadmap task journals use per-account local queues and cloud storage, with retry and online reconciliation. University research bookmarks persist on this browser.
-- ABBI is a curated English-language guide. Localized notices explain its language limitation. Match scores describe exploratory fit, not success probability.
-- Weekly digest delivery is unavailable until an email integration is implemented. No enabled switch promises delivery.
-- Fonts currently load through Google Fonts. Supabase recovery and confirmation URLs must allow the deployed origin.
+The full question and career catalogs are deployed. **A code deployment does not apply database migrations.** The last production investigation found a missing result-storage column; authenticated save/reload remains unverified until an owner applies the required schema and checks the matching environment. Start with the [owner migration guide](docs/operations/OWNER_MIGRATIONS.md).
 
-GitHub Actions runs lint, TypeScript, unit/database migration tests and the Node build. Local migration tests simulate Supabase-owned schemas with PGlite; they do not establish production schema state, real email delivery or live multi-account behavior.
+- Production still uses Supabase. Nhost work consists of source-backup preparation; no completed transfer is claimed.
+- Historical results preserve their original scores and saved career rankings. New results use scoring version `v2`.
+- ABBI is a curated English-language guide. Weekly email digest delivery has no configured implementation.
+- Local database tests simulate Supabase-owned schemas. Passing them does not prove production permissions, email delivery or real account persistence.
+- Never commit credentials or backups. Service-role and assessment-signing keys are server-only.
 
-## Repository layout
+## Where to go next
 
-- `src/`: routes, components, assessment logic and server functions.
-- `public/`: shipped images, fonts and site metadata.
-- `supabase/`: versioned database migrations and focused repair SQL.
-- `scripts/migration/`: source backup/export tooling and its separate checks.
-- `docs/operations/`: release requirements, API investigation and full-catalog validation.
-- `docs/design/`: design decisions and historical audits.
-
-Generated builds, local screenshots, logs and credentials stay outside Git. See [full catalog details](docs/operations/FULL_CATALOG.md) for coverage and verification limits.
+**Changing a feature?** Read the [architecture map](docs/development/ARCHITECTURE.md), then its module under `src/lib/` and relevant tests. **Preparing a release?** Read the [operations guides](docs/README.md#operations). **Understanding the interface?** Read the [design archive](docs/README.md#design-history). **Continuing work with a coding agent?** Start with [AGENTS.md](AGENTS.md).
