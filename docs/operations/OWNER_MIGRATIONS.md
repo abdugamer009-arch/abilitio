@@ -39,3 +39,7 @@ Apply schema before relying on the newly deployed class RPC and `scoring_version
 Fresh initialization on `cadbpdgljzxnbeamitnq` exposed an ownership error in the June 9 migration: Supabase already enables RLS on its managed `realtime.messages` table, and the dashboard PostgreSQL role cannot alter that table. The migration now checks the existing protection and retains its scoped policy. This historical-file correction is necessary because a fresh installation fails before later migrations can run. Existing installations need no replay of the June 9 migration.
 
 Reference: [Supabase managed Realtime ownership troubleshooting](https://supabase.com/docs/guides/troubleshooting/realtime-must-be-owner-of-table-messages).
+
+## Administrator identity after optional email confirmation
+
+Production signup no longer verifies email ownership. Apply `20261011180000_explicit_admin_provisioning.sql` before disabling confirmation in another environment. It keeps existing administrators and removes automatic grants from new signups. Provision future administrator roles only after verifying the specific account UUID and the owner's identity. Never use a claimed email or an automatically populated `email_confirmed_at` timestamp as proof of identity when autoconfirm is enabled. Do not rerun the historical founder-email backfills.

@@ -76,6 +76,27 @@ describe("owner release migration", () => {
     expect((await db.query("SELECT id FROM realtime.messages")).rows).toHaveLength(0);
     await db.exec("RESET ROLE");
   });
+  it("does not grant administrator access from a signup email", async () => {
+    await db.exec("RESET ROLE; BEGIN");
+    try {
+      await db.exec(`INSERT INTO auth.users(id,email,email_confirmed_at)
+        VALUES ('00000000-0000-4000-8000-000000000088','abdugamer009@gmail.com',now()),
+               ('00000000-0000-4000-8000-000000000089','umaraxmedov0175@gmail.com',null);`);
+      const roles = await db.query<{ role: string }>(
+        "SELECT role::text FROM public.user_roles WHERE user_id IN ('00000000-0000-4000-8000-000000000088','00000000-0000-4000-8000-000000000089') ORDER BY user_id",
+      );
+      expect(roles.rows).toEqual([{ role: "user" }, { role: "user" }]);
+      expect(
+        (
+          await db.query(
+            "SELECT id FROM public.profiles WHERE id IN ('00000000-0000-4000-8000-000000000088','00000000-0000-4000-8000-000000000089')",
+          )
+        ).rows,
+      ).toHaveLength(2);
+    } finally {
+      await db.exec("ROLLBACK");
+    }
+  });
   it("can be reapplied without losing existing rows", async () => {
     await db.exec(readFileSync(migration, "utf8"));
     expect((await db.query("SELECT count(*)::int AS n FROM public.profiles")).rows).toEqual([

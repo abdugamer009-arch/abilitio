@@ -19,3 +19,11 @@ The Supabase Auth Site URL is `https://abilitio-xt4n.vercel.app`; its redirect a
 The server URL, public key, server-only service-role key and project reference have been updated in Vercel. The three public `VITE_SUPABASE_*` entries were replaced with Config values for the same project in Production and Preview after owner authorization. Production deployment `CbZ6YAaT6M4uH9Qf6TZPFzqtwS8o` from main commit `cba839e` reached Ready and received the production domain. Its published auth page and eight linked JavaScript bundles use only `https://cadbpdgljzxnbeamitnq.supabase.co` and the matching public key. No service-role text was found in those bundles. The new project’s public Auth settings and career catalog APIs returned HTTP 200, and the production assessment successfully loaded a server-generated question. Browser signup, authenticated save/reload and email delivery remain unverified.
 
 Keep service-role/signing keys server-only. `supabase/config.toml` identifies the selected replacement project. Future releases must apply only missing migrations; never replay fresh initialization against existing accounts/tables.
+
+## Signup without email confirmation
+
+At the owner's explicit request, **Confirm email is disabled** in production. The live Auth settings endpoint reports `mailer_autoconfirm: true`, `disable_signup: false` and email authentication enabled. New signups can receive a session immediately; their email ownership is not verified. Password recovery still requires working email delivery, and custom SMTP remains unconfigured.
+
+Before this setting changed, migration `20261011180000_explicit_admin_provisioning.sql` was applied and recorded in the live migration history. It removes the historical email-based admin signup bootstrap: new accounts receive only the `user` role. Existing role assignments are preserved. Future administrator provisioning must use an owner-verified account UUID, not a claimed email address. Do not replay old founder bootstrap/backfill migrations against accounts created without email verification.
+
+The live function definition check confirmed no admin grant remains in the signup trigger. Local `npm run check` passed 97 tests plus five export checks, lint and TypeScript. A real browser signup and authenticated assessment save/reload have not yet been verified.
