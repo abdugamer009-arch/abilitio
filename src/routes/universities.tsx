@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowUpRight, Bookmark } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { useWords } from "@/lib/editorial";
+import { useAuth } from "@/lib/auth-context";
 import { pageMeta } from "@/lib/seo";
 export const Route = createFileRoute("/universities")({
   head: () =>
@@ -150,32 +151,35 @@ function Universities() {
     })[country] ?? country;
   const [country, setCountry] = useState("");
   const [query, setQuery] = useState("");
-  const [saved, setSaved] = useState<string[]>([]);
-  const [bookmarksReady, setBookmarksReady] = useState(false);
+  const { user, loading } = useAuth();
+  const bookmarkKey = `abilitio.university-bookmarks.v2:${user?.id ?? "guest"}`;
+  const [bookmarkState, setBookmarkState] = useState<{ key: string; values: string[] }>({
+    key: "",
+    values: [],
+  });
+  const saved = bookmarkState.key === bookmarkKey ? bookmarkState.values : [];
   useEffect(() => {
+    if (loading) return;
+    let values: string[] = [];
     try {
-      const value: unknown = JSON.parse(
-        localStorage.getItem("abilitio.university-bookmarks.v1") || "[]",
-      );
+      const value: unknown = JSON.parse(localStorage.getItem(bookmarkKey) || "[]");
       if (Array.isArray(value))
-        setSaved(
-          value.filter(
-            (v): v is string => typeof v === "string" && records.some((r) => r.name === v),
-          ),
+        values = value.filter(
+          (v): v is string => typeof v === "string" && records.some((r) => r.name === v),
         );
     } catch {
-      /* optional browser storage */
+      /* Browser storage is optional. */
     }
-    setBookmarksReady(true);
-  }, []);
-  useEffect(() => {
-    if (!bookmarksReady) return;
+    setBookmarkState({ key: bookmarkKey, values });
+  }, [bookmarkKey, loading]);
+  function setSaved(values: string[]) {
+    setBookmarkState({ key: bookmarkKey, values });
     try {
-      localStorage.setItem("abilitio.university-bookmarks.v1", JSON.stringify(saved));
+      localStorage.setItem(bookmarkKey, JSON.stringify(values));
     } catch {
-      /* optional browser storage */
+      /* Browser storage is optional. */
     }
-  }, [saved, bookmarksReady]);
+  }
   const filtered = useMemo(
     () =>
       records.filter(

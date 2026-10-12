@@ -3,7 +3,7 @@
 export const SITE_NAME = "Abilitio";
 // Canonical production origin (no trailing slash). Used for absolute URLs in
 // social meta tags, the sitemap, and structured data.
-export const SITE_URL = "https://abilitio.app";
+export const SITE_URL = "https://abilitio-xt4n.vercel.app";
 export const OG_IMAGE_URL = `${SITE_URL}/og-image.png`;
 export const CONTACT_EMAIL = "ibodullayevabdurahmon95@gmail.com";
 export const CONTACT_PHONE = "+998 88 048 18 81";

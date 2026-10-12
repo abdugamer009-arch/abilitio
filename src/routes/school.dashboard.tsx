@@ -1,5 +1,6 @@
 import { useSchoolInsight } from "@/lib/school-text";
 import { useUiText } from "@/lib/ui-text";
+import { useWords } from "@/lib/editorial";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
@@ -10,6 +11,7 @@ import {
   getPrincipalDashboard,
   generateSpecializedClasses,
   listSpecializedClasses,
+  renewSchoolInvitation,
   type PrincipalDashboardDTO,
   type SpecializedClassDTO,
 } from "@/lib/schools/schools.functions";
@@ -62,6 +64,7 @@ const COLORS = [
 ];
 
 function PrincipalDashboard() {
+  const w = useWords();
   const insight = useSchoolInsight();
   const tr = useUiText();
   const t = useT();
@@ -70,6 +73,22 @@ function PrincipalDashboard() {
   const fetchDashboard = useServerFn(getPrincipalDashboard);
   const generate = useServerFn(generateSpecializedClasses);
   const listSpec = useServerFn(listSpecializedClasses);
+  const renewInvite = useServerFn(renewSchoolInvitation);
+  const [renewingInvite, setRenewingInvite] = useState(false);
+
+  async function onRenewInvite() {
+    setRenewingInvite(true);
+    try {
+      const invite = await renewInvite();
+      setData((current) =>
+        current ? { ...current, school: { ...current.school, code: invite.code } } : current,
+      );
+    } catch (error) {
+      setErr(error instanceof Error ? error.message : "Please retry.");
+    } finally {
+      setRenewingInvite(false);
+    }
+  }
 
   const [data, setData] = useState<PrincipalDashboardDTO | null>(null);
   const [specClasses, setSpecClasses] = useState<SpecializedClassDTO[]>([]);
@@ -156,6 +175,17 @@ function PrincipalDashboard() {
                 {t.school.plan}{" "}
                 <span className="capitalize text-foreground">{data.school.plan}</span>
               </p>
+              <button
+                className="mt-2 text-sm underline"
+                onClick={onRenewInvite}
+                disabled={renewingInvite}
+              >
+                {w(
+                  "Renew join code (30 days)",
+                  "Kirish kodini yangilash (30 kun)",
+                  "Обновить код приглашения (30 дней)",
+                )}
+              </button>
             </div>
             {/* The analytics and class-builder tools are otherwise unreachable
                 from here — a principal landing on this page had no way to find

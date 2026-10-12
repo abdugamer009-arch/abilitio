@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useI18n } from "./i18n";
+import { catalogLabel } from "./catalog-labels";
 /** Existing UI phrases only; stored values remain unchanged. */
 const labels: Record<string, { uz: string; ru: string }> = {
   "No assessment yet": {
@@ -755,7 +756,8 @@ const labels: Record<string, { uz: string; ru: string }> = {
 export function useUiText() {
   const { lang } = useI18n();
   return useCallback(
-    (english: string) => (lang === "en" ? english : (labels[english]?.[lang] ?? english)),
+    (english: string) =>
+      lang === "en" ? english : (labels[english]?.[lang] ?? catalogLabel(english, lang)),
     [lang],
   );
 }

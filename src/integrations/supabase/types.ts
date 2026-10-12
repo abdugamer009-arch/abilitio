@@ -1059,6 +1059,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      renew_school_invitation: {
+        Args: { _school_id: string };
+        Returns: string;
+      };
       replace_school_specialized_classes: {
         Args: { _school: string; _classes: Json };
         Returns: number;

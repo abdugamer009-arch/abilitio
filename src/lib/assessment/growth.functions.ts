@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { isInCurrentUtcWeek } from "./utc-week";
 
 export type GrowthState = {
   assessmentsCompleted: number;
@@ -23,12 +24,10 @@ export const getMyGrowthState = createServerFn({ method: "GET" })
       .eq("user_id", userId)
       .eq("completed", true);
     if (error) throw new Error(error.message);
-    const weekStart = new Date();
-    weekStart.setUTCHours(0, 0, 0, 0);
-    weekStart.setUTCDate(weekStart.getUTCDate() - ((weekStart.getUTCDay() + 6) % 7));
+    const now = new Date();
     return {
       tasksCompleted: tasks?.length ?? 0,
-      tasksThisWeek: (tasks ?? []).filter((t) => new Date(t.updated_at) >= weekStart).length,
+      tasksThisWeek: (tasks ?? []).filter((t) => isInCurrentUtcWeek(t.updated_at, now)).length,
       assessmentsCompleted: assessRes.count ?? 0,
     };
   });

@@ -1,3 +1,4 @@
+import { catalogLabel } from "@/lib/catalog-labels";
 import { readAllResult } from "@/lib/db-read";
 import { useUiText } from "@/lib/ui-text";
 import { toast } from "sonner";
@@ -98,7 +99,7 @@ type TabKey = "results" | "stats" | "skills" | "weekly" | "universities" | "abbi
 function DashboardPage() {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
-  const { t, tCareer, tTrait, tIqLevel } = useI18n();
+  const { lang, t, tCareer, tTrait, tIqLevel } = useI18n();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [results, setResults] = useState<Result[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -274,7 +275,7 @@ function DashboardPage() {
             avatarUrl={stats?.avatar_url ?? null}
             level={level}
             levelProgress={levelProgress}
-            tagline={tagline}
+            tagline={stats?.tagline ? tagline : catalogLabel(tagline, lang)}
           />
 
           {/* HORIZONTAL TABS */}
@@ -732,6 +733,7 @@ function CareerCard({
   tCareer: (n: string) => { name: string; reason: string };
 }) {
   const w = useWords();
+  const { lang } = useI18n();
   const tc = tCareer(career.name);
   return (
     <div
@@ -758,7 +760,7 @@ function CareerCard({
       </div>
       <h4 className="relative mt-3 text-lg font-semibold">{tc.name}</h4>
       <p className="relative mt-2 line-clamp-3 text-xs text-muted-foreground">
-        {tc.reason || career.reason}
+        {tc.reason || catalogLabel(career.reason, lang)}
       </p>
       <div className="relative mt-4 h-1.5 overflow-hidden rounded-full bg-secondary/60">
         <div
@@ -994,7 +996,7 @@ function StatsSection({
                   <input
                     type="number"
                     aria-label={tr(f.label)}
-                    min={0}
+                    min={f.key === "sat_score" ? 400 : 0}
                     max={f.max}
                     step={f.key === "ielts_band" ? 0.5 : 1}
                     value={raw ?? ""}

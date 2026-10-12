@@ -77,4 +77,6 @@ export const AnalyticsEvent = {
   FirstTask: "first_task_completed",
   BrainFallback: "brain_fallback",
   SchoolRegistered: "school_registered",
+  SchoolContact: "school_contact_submitted",
+  ContactSubmitted: "contact_submitted",
 } as const;

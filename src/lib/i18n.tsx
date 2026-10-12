@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { catalogLabel } from "./catalog-labels";
 
 export type Lang = "en" | "ru" | "uz";
 export const LANGS: { code: Lang; label: string }[] = [
@@ -3104,9 +3105,15 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLang,
     t: translations[lang] as Dict,
     tQuestion: (id) => QUESTIONS[lang][id] ?? QUESTIONS.en[id],
-    tCareer: (name) => CAREERS_T[lang][name] ?? CAREERS_T.en[name] ?? { name, reason: "" },
-    tTrait: (name) => (translations[lang].traits as Record<string, string>)[name] ?? name,
-    tIqLevel: (level) => (translations[lang].iqLevels as Record<string, string>)[level] ?? level,
+    tCareer: (name) =>
+      CAREERS_T[lang][name] ?? {
+        name: catalogLabel(name, lang),
+        reason: lang === "en" ? (CAREERS_T.en[name]?.reason ?? "") : "",
+      },
+    tTrait: (name) =>
+      (translations[lang].traits as Record<string, string>)[name] ?? catalogLabel(name, lang),
+    tIqLevel: (level) =>
+      (translations[lang].iqLevels as Record<string, string>)[level] ?? catalogLabel(level, lang),
   };
 
   return <LangContext.Provider value={value}>{children}</LangContext.Provider>;

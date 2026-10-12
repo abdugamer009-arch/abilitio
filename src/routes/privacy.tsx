@@ -101,7 +101,7 @@ function PrivacyPage() {
           items={[
             <>
               <strong className="text-foreground">Supabase</strong> — authentication, database, and
-              file storage hosting.
+              file storage hosting. The current database region is Tokyo, Japan.
             </>,
             <>
               <strong className="text-foreground">Formspree</strong> — processes messages submitted
@@ -109,6 +109,11 @@ function PrivacyPage() {
             </>,
           ]}
         />
+        <p>
+          Vercel hosts the website and server functions. Google Fonts supplies web fonts. Plausible
+          analytics loads only when configured by the operator. ABBI uses a curated, rule-based
+          guide; chat messages are not sent to an external AI provider.
+        </p>
         <p>We do not sell your personal information to anyone.</p>
       </LegalSection>
 
@@ -146,17 +151,21 @@ function PrivacyPage() {
       <LegalSection heading="8. Cookies and local storage">
         <p>
           We use your browser's storage to keep you signed in and to save your in-progress
-          assessments so a reload never loses your work. We do not use third-party advertising
-          cookies.
+          assessments where browser storage is available. Clearing or blocking storage can remove
+          unsaved progress. University bookmarks are stored per account in this browser. ABBI keeps
+          up to 50 messages for the current UTC day; older local chat history is removed when you
+          next open or save a chat, and you can clear it manually. We do not use third-party
+          advertising cookies.
         </p>
       </LegalSection>
 
       <LegalSection heading="9. Security">
         <p>
           Data is transmitted over encrypted connections, and access to student records is
-          restricted at the database level so that only you, and the school you join, can see your
-          results. No method of transmission or storage is perfectly secure, but we work to protect
-          your information using current best practices.
+          restricted at the database level. You, authorized staff of a school you join, and platform
+          administrators with operational access may access your results. No method of transmission
+          or storage is perfectly secure, but we work to protect your information using current best
+          practices.
         </p>
       </LegalSection>
 

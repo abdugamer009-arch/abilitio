@@ -37,7 +37,9 @@ export const saveTaskJournal = createServerFn({ method: "POST" })
       updated_at: new Date().toISOString(),
     }));
     if (!rows.length) return;
-    const { error } = await context.supabase
+    // Only this authenticated, catalog-validated path may write journal rows.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
       .from("roadmap_task_events")
       .upsert(rows, { onConflict: "user_id,task_id" });
     if (error) throw new Error(error.message);

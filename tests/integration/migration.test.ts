@@ -24,7 +24,7 @@ describe("owner release migration", () => {
       CREATE SCHEMA auth; CREATE TABLE auth.users(id uuid PRIMARY KEY,email text,email_confirmed_at timestamptz,raw_user_meta_data jsonb DEFAULT '{}');
       CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
       CREATE FUNCTION auth.role() RETURNS text LANGUAGE sql AS $$ SELECT current_setting('request.jwt.claim.role',true) $$;
-      CREATE SCHEMA storage; CREATE TABLE storage.buckets(id text PRIMARY KEY,name text,public boolean);
+      CREATE SCHEMA storage; CREATE TABLE storage.buckets(id text PRIMARY KEY,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
       CREATE TABLE storage.objects(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),bucket_id text,name text,owner uuid);
       CREATE FUNCTION storage.foldername(text) RETURNS text[] LANGUAGE sql AS $$ SELECT string_to_array($1,'/') $$;
       CREATE SCHEMA realtime; CREATE TABLE realtime.messages(id uuid);
@@ -46,6 +46,120 @@ describe("owner release migration", () => {
     await db.close();
   });
 
+  it("rejects impossible recorded scores while allowing empty and boundary scores", async () => {
+    await db.exec("RESET ROLE; BEGIN");
+    try {
+      await db.query("INSERT INTO public.user_stats(user_id) VALUES ($1)", [student]);
+      for (const [sat, ielts] of [
+        [400, 0],
+        [1600, 9],
+        [null, null],
+      ]) {
+        await db.query("UPDATE public.user_stats SET sat_score=$1,ielts_band=$2 WHERE user_id=$3", [
+          sat,
+          ielts,
+          student,
+        ]);
+      }
+      for (const [sat, ielts] of [
+        [100, 7],
+        [-10, 20],
+        [1601, 8],
+        [1200, 7.2],
+      ]) {
+        await db.exec("SAVEPOINT invalid_score");
+        await expect(
+          db.query("UPDATE public.user_stats SET sat_score=$1,ielts_band=$2 WHERE user_id=$3", [
+            sat,
+            ielts,
+            student,
+          ]),
+        ).rejects.toThrow(/check constraint/);
+        await db.exec("ROLLBACK TO SAVEPOINT invalid_score");
+      }
+    } finally {
+      await db.exec("ROLLBACK");
+    }
+  });
+  it("configures private avatars with server upload limits", async () => {
+    const bucket = await db.query(
+      "SELECT public,file_size_limit::int,allowed_mime_types FROM storage.buckets WHERE id='avatars'",
+    );
+    expect(bucket.rows).toEqual([
+      {
+        public: false,
+        file_size_limit: 5242880,
+        allowed_mime_types: ["image/jpeg", "image/png", "image/webp"],
+      },
+    ]);
+  });
+  it("expires and renews owner-scoped invitations and counts unsuccessful joins", async () => {
+    await db.exec("RESET ROLE; BEGIN");
+    try {
+      await asUser(outsider);
+      await db.exec("SAVEPOINT bad_invite");
+      await expect(db.query("SELECT public.renew_school_invitation($1)", [school])).rejects.toThrow(
+        /not_principal/,
+      );
+      await db.exec("ROLLBACK TO SAVEPOINT bad_invite");
+    } finally {
+      await db.exec("RESET ROLE; ROLLBACK");
+    }
+    await db.exec("BEGIN");
+    try {
+      await asUser(owner);
+      const code = (
+        await db.query<{ code: string }>("SELECT public.renew_school_invitation($1) AS code", [
+          school,
+        ])
+      ).rows[0].code;
+      expect(code).toMatch(/^NVS-[A-F0-9]{32}$/);
+      await asUser(outsider);
+      for (let i = 0; i < 10; i++)
+        expect(
+          (
+            await db.query<{ id: string | null }>(
+              "SELECT public.join_school('wrong','AUDIT1') AS id",
+            )
+          ).rows[0].id,
+        ).toBeNull();
+      expect(
+        (
+          await db.query<{ id: string | null }>("SELECT public.join_school($1,'AUDIT1') AS id", [
+            code,
+          ])
+        ).rows[0].id,
+      ).toBeNull();
+      await db.exec("RESET ROLE");
+      await db.query(
+        "UPDATE public.school_join_attempts SET window_started_at=now()-interval '2 hours' WHERE user_id=$1",
+        [outsider],
+      );
+      await asUser(outsider);
+      expect(
+        (
+          await db.query<{ id: string | null }>("SELECT public.join_school($1,'AUDIT1') AS id", [
+            code,
+          ])
+        ).rows[0].id,
+      ).toBe(school);
+      await db.exec("RESET ROLE");
+      await db.query(
+        "UPDATE public.schools SET invite_expires_at=now()-interval '1 second' WHERE id=$1",
+        [school],
+      );
+      await asUser(student);
+      expect(
+        (
+          await db.query<{ id: string | null }>("SELECT public.join_school($1,'AUDIT1') AS id", [
+            code,
+          ])
+        ).rows[0].id,
+      ).toBeNull();
+    } finally {
+      await db.exec("RESET ROLE; ROLLBACK");
+    }
+  });
   it("retains managed Realtime protection and limits topics to community members", async () => {
     expect(
       (
@@ -76,6 +190,29 @@ describe("owner release migration", () => {
     expect((await db.query("SELECT id FROM realtime.messages")).rows).toHaveLength(0);
     await db.exec("RESET ROLE");
   });
+  it("removes stats and achievements when their account is deleted", async () => {
+    await db.exec("RESET ROLE; BEGIN");
+    try {
+      await db.query("INSERT INTO public.user_stats(user_id) VALUES ($1)", [outsider]);
+      await db.query(
+        "INSERT INTO public.user_achievements(user_id,title) VALUES ($1,'Cleanup fixture')",
+        [outsider],
+      );
+      await db.query("DELETE FROM auth.users WHERE id=$1", [outsider]);
+      expect(
+        (await db.query("SELECT user_id FROM public.user_stats WHERE user_id=$1", [outsider])).rows,
+      ).toHaveLength(0);
+      expect(
+        (
+          await db.query("SELECT user_id FROM public.user_achievements WHERE user_id=$1", [
+            outsider,
+          ])
+        ).rows,
+      ).toHaveLength(0);
+    } finally {
+      await db.exec("ROLLBACK");
+    }
+  });
   it("does not grant administrator access from a signup email", async () => {
     await db.exec("RESET ROLE; BEGIN");
     try {
@@ -99,6 +236,10 @@ describe("owner release migration", () => {
   });
   it("can be reapplied without losing existing rows", async () => {
     await db.exec(readFileSync(migration, "utf8"));
+    // Restore later authorization changes after exercising this older repair.
+    await db.exec(
+      readFileSync(resolve("supabase/migrations/20261012101000_server_task_writes.sql"), "utf8"),
+    );
     expect((await db.query("SELECT count(*)::int AS n FROM public.profiles")).rows).toEqual([
       { n: 3 },
     ]);
@@ -117,6 +258,11 @@ describe("owner release migration", () => {
   });
   it("rejects fabricated score writes and arbitrary retired currency awards", async () => {
     await asUser(student);
+    await expect(
+      db.exec(
+        `INSERT INTO public.roadmap_task_events(user_id,task_id) VALUES ('${student}','AUDIT_INVALID_TASK')`,
+      ),
+    ).rejects.toThrow(/permission denied|row-level security/);
     await expect(
       db.exec(
         `INSERT INTO public.career_assessment_results(user_id,cognitive_score) VALUES ('${student}',9)`,
@@ -193,7 +339,7 @@ describe("owner release migration", () => {
       db.exec(
         `INSERT INTO public.roadmap_task_events(user_id,task_id) VALUES ('${student}','test-task')`,
       ),
-    ).rejects.toThrow(/account_banned/);
+    ).rejects.toThrow(/permission denied/);
     await expect(
       db.query("SELECT public.replace_school_specialized_classes($1,'[]')", [school]),
     ).rejects.toThrow(/forbidden/);

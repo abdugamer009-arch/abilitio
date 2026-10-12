@@ -118,7 +118,19 @@ export const joinSchool = createServerFn({ method: "POST" })
       _class_name: data.className.toUpperCase(),
     });
     if (error) throw new Error(error.message);
+    if (!schoolId) throw new Error("invalid_code_or_expired_or_rate_limited");
     return { schoolId: schoolId as string };
+  });
+
+export const renewSchoolInvitation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const school = await loadOwnedSchool(context.supabase, context.userId);
+    const { data, error } = await context.supabase.rpc("renew_school_invitation", {
+      _school_id: school.id,
+    });
+    if (error) throw new Error(error.message);
+    return { code: data };
   });
 
 export const getMySchoolContext = createServerFn({ method: "GET" })

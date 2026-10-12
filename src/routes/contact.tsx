@@ -1,3 +1,4 @@
+import { track, AnalyticsEvent } from "@/lib/analytics";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { ArrowUpRight, Check } from "lucide-react";
@@ -42,6 +43,7 @@ function Contact() {
       });
       if (!response.ok) throw new Error("submission_failed");
       setStatus("success");
+      track(school ? AnalyticsEvent.SchoolContact : AnalyticsEvent.ContactSubmitted);
       form.reset();
     } catch {
       setStatus("error");

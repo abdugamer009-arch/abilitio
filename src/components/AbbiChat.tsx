@@ -6,13 +6,13 @@ import { Sparkles, Send, Bot, User as UserIcon } from "lucide-react";
 import { GlowBlob } from "@/components/GlowBlob";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
-import { ABBI_SUGGESTIONS, abbiGreeting } from "@/lib/abbi/abbi-knowledge";
+import { guidePrompts, guideGreeting } from "@/lib/abbi/localized-guide";
 import { generateAbbiMessage } from "@/lib/abbi/abbi.functions";
 import { useI18n, useT } from "@/lib/i18n";
 
 type ChatMsg = { id: string; role: "user" | "abbi"; content: string };
 
-export function AbbiChat() {
+function AbbiSession() {
   const t = useT();
   const { lang } = useI18n();
   const { user } = useAuth();
@@ -20,7 +20,7 @@ export function AbbiChat() {
 
   const [ctx, setCtx] = useState<Record<string, unknown>>({});
   const [messages, setMessages] = useState<ChatMsg[]>([
-    { id: "welcome", role: "abbi", content: abbiGreeting() },
+    { id: "welcome", role: "abbi", content: guideGreeting(lang) },
   ]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
@@ -40,32 +40,61 @@ export function AbbiChat() {
     return `abbi_history_${userId}_${new Date().toISOString().slice(0, 10)}`;
   }
 
-  // Load chat history from localStorage on mount
-  useEffect(() => {
-    if (!user || typeof window === "undefined") return;
-    const raw = localStorage.getItem(historyKey(user.id));
-    if (raw) {
-      try {
-        const saved: ChatMsg[] = JSON.parse(raw);
-        if (saved.length > 0) setMessages(saved);
-      } catch {
-        /* corrupt data — keep welcome message */
+  function purgeHistory(userId: string, keep?: string) {
+    const prefix = `abbi_history_${userId}_`;
+    try {
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key?.startsWith(prefix) && key !== keep) localStorage.removeItem(key);
       }
+    } catch {
+      /* Browser storage is optional. */
+    }
+  }
+
+  useEffect(() => {
+    if (!user) return;
+    purgeHistory(user.id, historyKey(user.id));
+    try {
+      const raw: unknown = JSON.parse(localStorage.getItem(historyKey(user.id)) || "[]");
+      if (Array.isArray(raw)) {
+        const saved = raw
+          .filter(
+            (m): m is ChatMsg =>
+              m &&
+              typeof m.id === "string" &&
+              typeof m.content === "string" &&
+              (m.role === "user" || m.role === "abbi"),
+          )
+          .slice(-50);
+        if (saved.length) setMessages(saved);
+      }
+    } catch {
+      /* Corrupt or unavailable storage keeps the welcome message. */
     }
   }, [user]);
 
-  // Save chat history to localStorage on message changes
   useEffect(() => {
-    if (!user || typeof window === "undefined" || messages.length <= 1) return;
-    const trimmed = messages.slice(-50);
-    localStorage.setItem(historyKey(user.id), JSON.stringify(trimmed));
+    if (!user || messages.length <= 1) return;
+    try {
+      purgeHistory(user.id, historyKey(user.id));
+      localStorage.setItem(historyKey(user.id), JSON.stringify(messages.slice(-50)));
+    } catch {
+      /* The conversation can continue without persistence. */
+    }
   }, [messages, user]);
 
   function clearHistory() {
-    if (!user || typeof window === "undefined") return;
-    localStorage.removeItem(historyKey(user.id));
-    setMessages([{ id: "welcome", role: "abbi", content: abbiGreeting() }]);
+    if (!user) return;
+    purgeHistory(user.id);
+    setMessages([{ id: "welcome", role: "abbi", content: guideGreeting(lang) }]);
   }
+
+  useEffect(() => {
+    setMessages((current) =>
+      current.map((m) => (m.id === "welcome" ? { ...m, content: guideGreeting(lang) } : m)),
+    );
+  }, [lang]);
 
   // Load career-assessment context (best-effort; safe if no result yet).
   useEffect(() => {
@@ -128,7 +157,7 @@ export function AbbiChat() {
 
     try {
       // Fetch reply from server (Claude API or template fallback)
-      const { reply } = await replyFn({ data: { message: content, ctx } });
+      const { reply } = await replyFn({ data: { message: content, ctx, lang } });
       // Thinking pause so the response feels natural, not instant
       await new Promise((r) => setTimeout(r, 400 + Math.random() * 400));
 
@@ -162,14 +191,17 @@ export function AbbiChat() {
             </div>
             <div>
               <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
-                ABBI <span className="gradient-text">Guide</span>
+                ABBI{" "}
+                <span className="gradient-text">
+                  {lang === "uz" ? "Yo‘lko‘rsatkich" : lang === "ru" ? "Справочник" : "Guide"}
+                </span>
               </h2>
               <p className="text-xs text-muted-foreground">{t.abbiChat.tagline}</p>
               <p className="mt-1 text-xs text-muted-foreground">
                 {lang === "uz"
-                  ? "Tayyorlangan qoʻllanma. Javoblar hozircha ingliz tilida."
+                  ? "Tayyorlangan kasb va o‘qish qo‘llanmasi."
                   : lang === "ru"
-                    ? "Подготовленный справочник. Ответы пока на английском языке."
+                    ? "Подготовленный справочник по профессиям и учёбе."
                     : "Curated guide with English responses."}
               </p>
             </div>
@@ -199,16 +231,18 @@ export function AbbiChat() {
               {t.abbiChat.suggested}
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
-              {ABBI_SUGGESTIONS.slice(0, 8).map((s) => (
-                <button
-                  key={s}
-                  onClick={() => handleSend(s)}
-                  disabled={typing}
-                  className="rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-[11px] text-muted-foreground transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/10 hover:text-primary disabled:opacity-50"
-                >
-                  {s}
-                </button>
-              ))}
+              {guidePrompts(lang)
+                .slice(0, 8)
+                .map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => handleSend(s)}
+                    disabled={typing}
+                    className="rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-[11px] text-muted-foreground transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/10 hover:text-primary disabled:opacity-50"
+                  >
+                    {s}
+                  </button>
+                ))}
             </div>
           </div>
         )}
@@ -332,4 +366,11 @@ function TypingBubble() {
       </div>
     </div>
   );
+}
+
+// Remount on account changes so an outgoing account's messages cannot be saved
+// under the incoming account's key during an auth transition.
+export function AbbiChat() {
+  const { user } = useAuth();
+  return user ? <AbbiSession key={user.id} /> : null;
 }

@@ -90,8 +90,8 @@ export const legalTranslations = {
         ],
         items: [
           [
-            "Supabase — autentifikatsiya, ma’lumotlar bazasi va fayllarni saqlash xizmati.",
-            "Supabase — аутентификация, база данных и хранение файлов.",
+            "Supabase — autentifikatsiya, ma’lumotlar bazasi va fayllarni saqlash xizmati. Joriy baza hududi: Tokio, Yaponiya.",
+            "Supabase — аутентификация, база данных и хранение файлов. Текущий регион базы: Токио, Япония.",
           ],
           [
             "Formspree — aloqa formasi orqali yuborilgan xabarlarni qayta ishlaydi. ABBI qoidalarga asoslangan javoblardan foydalanadi.",
@@ -99,6 +99,10 @@ export const legalTranslations = {
           ],
         ],
         after: [
+          [
+            "Vercel sayt va server funksiyalarini joylashtiradi. Google Fonts shriftlarni yetkazadi. Plausible tahlili faqat operator sozlaganda yuklanadi. ABBI qoidalarga asoslangan qo‘llanma; xabarlar tashqi sun’iy intellekt xizmatiga yuborilmaydi.",
+            "Vercel размещает сайт и серверные функции. Google Fonts предоставляет шрифты. Аналитика Plausible загружается только при настройке оператором. ABBI — справочник на основе правил; сообщения не отправляются внешнему ИИ-провайдеру.",
+          ],
           [
             "Shaxsiy ma’lumotlaringizni hech kimga sotmaymiz.",
             "Мы никому не продаём ваши личные данные.",
@@ -145,8 +149,8 @@ export const legalTranslations = {
         heading: ["8. Cookie va mahalliy saqlash", "8. Cookie и локальное хранилище"],
         paragraphs: [
           [
-            "Hisobga kirishni saqlash va davom etayotgan baholashlarni saqlash uchun brauzer xotirasidan foydalanamiz, shunda sahifani qayta yuklash ishlaringizni yo‘qotmaydi. Uchinchi tomon reklama cookielaridan foydalanmaymiz.",
-            "Мы используем хранилище браузера для сохранения входа и незавершённых оценок, чтобы перезагрузка не приводила к потере работы. Мы не используем рекламные cookie третьих лиц.",
+            "Hisobga kirishni saqlash va davom etayotgan baholashlarni saqlash uchun brauzer xotirasidan foydalanamiz, agar brauzer xotirasi mavjud bo‘lsa. Xotirani tozalash yoki bloklash saqlanmagan ishni yo‘qotishi mumkin. Universitet xatcho‘plari shu brauzerda hisob bo‘yicha saqlanadi. ABBI joriy UTC kuni uchun 50 tagacha xabar saqlaydi; eski tarix keyingi ochish yoki saqlashda o‘chiriladi, uni qo‘lda ham tozalash mumkin. Uchinchi tomon reklama cookielaridan foydalanmaymiz.",
+            "Мы используем хранилище браузера для сохранения входа и незавершённых оценок, если хранилище доступно. Очистка или блокировка хранилища может удалить несохранённую работу. Закладки университетов хранятся в этом браузере отдельно для аккаунтов. ABBI хранит до 50 сообщений за текущий день UTC; старая история удаляется при следующем открытии или сохранении чата, её можно очистить вручную. Мы не используем рекламные cookie третьих лиц.",
           ],
         ],
       },
@@ -154,8 +158,8 @@ export const legalTranslations = {
         heading: ["9. Xavfsizlik", "9. Безопасность"],
         paragraphs: [
           [
-            "Ma’lumotlar shifrlangan ulanishlar orqali yuboriladi. O‘quvchilar yozuvlariga kirish ma’lumotlar bazasi darajasida cheklangan, shunda natijalaringizni faqat siz va siz qo‘shilgan maktab ko‘ra oladi. Uzatish yoki saqlashning hech bir usuli mutlaqo xavfsiz emas, lekin ma’lumotlaringizni zamonaviy ilg‘or usullar bilan himoya qilishga harakat qilamiz.",
-            "Данные передаются по зашифрованным соединениям, а доступ к записям учеников ограничен на уровне базы данных, чтобы результаты видели только вы и школа, к которой вы присоединились. Ни один способ передачи или хранения не абсолютно безопасен, но мы защищаем данные с помощью современных практик.",
+            "Ma’lumotlar shifrlangan ulanishlar orqali yuboriladi. O‘quvchilar yozuvlariga kirish ma’lumotlar bazasi darajasida cheklangan, natijalaringizni siz, qo‘shilgan maktabingizning vakolatli xodimlari va operatsion ruxsatga ega platforma administratorlari ko‘rishi mumkin. Uzatish yoki saqlashning hech bir usuli mutlaqo xavfsiz emas, lekin ma’lumotlaringizni zamonaviy ilg‘or usullar bilan himoya qilishga harakat qilamiz.",
+            "Данные передаются по зашифрованным соединениям, а доступ к записям учеников ограничен на уровне базы данных, результаты могут видеть вы, уполномоченные сотрудники вашей школы и администраторы платформы с операционным доступом. Ни один способ передачи или хранения не абсолютно безопасен, но мы защищаем данные с помощью современных практик.",
           ],
         ],
       },

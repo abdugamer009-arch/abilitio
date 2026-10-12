@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://abilitio.app/sitemap.xml
+Sitemap: https://abilitio-xt4n.vercel.app/sitemap.xml
