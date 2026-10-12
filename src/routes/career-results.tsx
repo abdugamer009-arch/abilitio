@@ -160,7 +160,7 @@ function CareerResultsPage() {
     // "My Career Profile" label
     ctx.fillStyle = color("--muted-foreground");
     ctx.font = `500 24px ${bodyFont}`;
-    ctx.fillText("MY CAREER PROFILE · ABILITIO", 80, 80);
+    ctx.fillText(`${t.careerResults.title.toLocaleUpperCase()} · ABILITIO`, 80, 80);
 
     // MBTI type
     ctx.font = `800 100px ${displayFont}`;
@@ -171,7 +171,7 @@ function CareerResultsPage() {
     ctx.font = `500 28px ${bodyFont}`;
     ctx.fillStyle = color("--body-text");
     ctx.fillText(
-      `${tr(r.cognitive_tier)} · ${tr(r.cognitive_profile)} Thinker · Cognitive Score ${r.cognitive_score}/9`,
+      `${tr(r.cognitive_tier)} · ${tr(r.cognitive_profile)} ${t.careerResults.thinker} · ${t.careerResults.cognitiveProfile} ${r.cognitive_score}/9`,
       80,
       250,
     );
@@ -254,7 +254,8 @@ function CareerResultsPage() {
               </div>
               <h1 className="mt-3 text-4xl font-bold gradient-text">{t.careerResults.title}</h1>
               <p className="text-xs text-muted-foreground">
-                Generated {new Date(r.created_at).toLocaleDateString()}
+                {w("Generated", "Yaratilgan", "Создано")}{" "}
+                {new Date(r.created_at).toLocaleDateString()}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">

@@ -68,3 +68,7 @@ Generated build directories are ignored. Use the configured Vercel deployment fo
 | UI shows no account data after an API failure                      | Retain the visible error; do not hide it as an empty history                  |
 
 Verify real saved results with disposable staging accounts: finish, save, reload, sign out/in, retry, and check that another user cannot read the row. Report these separately from local tests.
+
+## Password recovery availability
+
+`VITE_PASSWORD_RECOVERY_ENABLED` defaults to false. Configure SMTP, verify signup/recovery redirects and test delivery to an ordinary public user before enabling it and rebuilding. This flag only controls the recovery request interface; it does not disable sign-in, signup or processing a valid recovery link. See the prelaunch repair ledger for remaining email and release checks.

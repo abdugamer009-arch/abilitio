@@ -1,3 +1,4 @@
+import { PASSWORD_RECOVERY_ENABLED, CONTACT_EMAIL } from "@/lib/constants";
 import { catalogLabel } from "@/lib/catalog-labels";
 import { readAllResult } from "@/lib/db-read";
 import { useUiText } from "@/lib/ui-text";
@@ -1325,6 +1326,7 @@ function SettingsSection({
 }) {
   const tr = useUiText();
 
+  const w = useWords();
   const profilePending = useRef(false);
   const resetPending = useRef(false);
   const [editing, setEditing] = useState(false);
@@ -1366,7 +1368,7 @@ function SettingsSection({
     }
   }
   async function changePassword() {
-    if (resetPending.current) return;
+    if (resetPending.current || !PASSWORD_RECOVERY_ENABLED) return;
     resetPending.current = true;
     setMsg(null);
     try {
@@ -1498,10 +1500,17 @@ function SettingsSection({
         <GlassCard className="p-7">
           <SectionTitle icon={KeyRound}>{tr("Security")}</SectionTitle>
           <p className="mt-3 text-sm text-muted-foreground">
-            {tr("Reset your password — we'll send a secure link to your email.")}
+            {PASSWORD_RECOVERY_ENABLED
+              ? tr("Reset your password — we'll send a secure link to your email.")
+              : w(
+                  `Password recovery email is not connected yet. Contact ${CONTACT_EMAIL} for help.`,
+                  `Parolni tiklash emaili hali ulanmagan. Yordam uchun ${CONTACT_EMAIL} manziliga yozing.`,
+                  `Письма восстановления пароля пока не подключены. Для помощи напишите на ${CONTACT_EMAIL}.`,
+                )}
           </p>
           <button
             onClick={changePassword}
+            disabled={!PASSWORD_RECOVERY_ENABLED}
             className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary hover:bg-primary/20"
           >
             <KeyRound className="h-3.5 w-3.5" />

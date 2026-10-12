@@ -1,3 +1,4 @@
+import { PASSWORD_RECOVERY_ENABLED, CONTACT_EMAIL } from "@/lib/constants";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { useEffect, useRef, useState } from "react";
@@ -154,6 +155,16 @@ function AuthPage() {
   }, []);
   async function forgot() {
     if (pending.current) return;
+    if (!PASSWORD_RECOVERY_ENABLED) {
+      setErr(
+        w(
+          `Password recovery email is not connected yet. Contact ${CONTACT_EMAIL} for help.`,
+          `Parolni tiklash emaili hali ulanmagan. Yordam uchun ${CONTACT_EMAIL} manziliga yozing.`,
+          `Письма восстановления пароля пока не подключены. Для помощи напишите на ${CONTACT_EMAIL}.`,
+        ),
+      );
+      return;
+    }
     setErr(null);
     setInfo(null);
     const ep = emailSchema.safeParse(email.trim());

@@ -875,6 +875,7 @@ export type Database = {
         Row: {
           city: string | null;
           code: string;
+          invite_expires_at: string;
           country: string | null;
           created_at: string;
           email: string;
@@ -890,6 +891,7 @@ export type Database = {
         Insert: {
           city?: string | null;
           code: string;
+          invite_expires_at?: string;
           country?: string | null;
           created_at?: string;
           email: string;
@@ -905,6 +907,7 @@ export type Database = {
         Update: {
           city?: string | null;
           code?: string;
+          invite_expires_at?: string;
           country?: string | null;
           created_at?: string;
           email?: string;
