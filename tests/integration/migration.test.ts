@@ -46,6 +46,25 @@ describe("owner release migration", () => {
     await db.close();
   });
 
+  it("caches auth identity in the plan while preserving student profile isolation", async () => {
+    const policyQuery =
+      "SELECT schemaname,tablename,policyname,roles,cmd,permissive,qual,with_check FROM pg_policies WHERE schemaname IN ('public','storage') ORDER BY schemaname,tablename,policyname";
+    const before = await db.query(policyQuery);
+    await db.exec(
+      readFileSync(resolve("supabase/migrations/20261012111000_rls_auth_initplans.sql"), "utf8"),
+    );
+    expect((await db.query(policyQuery)).rows).toEqual(before.rows);
+    await asUser(student);
+    try {
+      const visible = await db.query<{ id: string }>("SELECT id FROM public.profiles");
+      expect(visible.rows.map((row) => row.id)).toEqual([student]);
+      const plan = await db.query("EXPLAIN (FORMAT JSON) SELECT id FROM public.profiles");
+      expect(JSON.stringify(plan.rows)).toContain("InitPlan");
+    } finally {
+      await db.exec("RESET ROLE");
+    }
+  });
+
   it("rejects impossible recorded scores while allowing empty and boundary scores", async () => {
     await db.exec("RESET ROLE; BEGIN");
     try {

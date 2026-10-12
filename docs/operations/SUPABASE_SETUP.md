@@ -27,3 +27,7 @@ At the owner's explicit request, **Confirm email is disabled** in production. Th
 Before this setting changed, migration `20261011180000_explicit_admin_provisioning.sql` was applied and recorded in the live migration history. It removes the historical email-based admin signup bootstrap: new accounts receive only the `user` role. Existing role assignments are preserved. Future administrator provisioning must use an owner-verified account UUID, not a claimed email address. Do not replay old founder bootstrap/backfill migrations against accounts created without email verification.
 
 The live function definition check confirmed no admin grant remains in the signup trigger. Local `npm run check` passed 97 tests plus five export checks, lint and TypeScript. The subsequent [live audit](LIVE_AUDIT_2026_10_11.md) verified signup through the public Auth API, browser password login, authenticated assessment saving and reload. Browser signup form submission and email delivery remain unverified.
+
+## October 12 repair release
+
+The initialization counts above describe the original setup. Eight later repair migrations (`20261012100000` through `20261012111000`) add recorded-score constraints, trusted task writes, personal-record foreign keys, private avatar storage, invitation controls, FK indexes and RLS identity caching. The school join-attempt table adds one public app table. See [the repair ledger](PRELAUNCH_REPAIRS_2026_10_12.md) for live evidence and remaining release limits.

@@ -21,7 +21,7 @@ This follows the report-only audit. It records repair scope and verification lim
 
 ## Release verification
 
-- `npm run check`: 108 application tests, five export checks, lint and TypeScript passed including the privacy copy and recovery availability guard.
+- `npm run check`: 109 application tests, five export checks, lint and TypeScript passed including the privacy copy and recovery availability guard.
 - `VERCEL=1 npm run build`: passed, including the privacy-copy update.
 - Local university page: guest bookmark survived reload; Russian and Uzbek controls updated the page after hydration.
 - Firefox-specific report: not reproduced. Connected browser inventory does not expose Firefox; exact URL was requested.
@@ -30,7 +30,7 @@ This follows the report-only audit. It records repair scope and verification lim
 ## Production verification
 
 - Commit `065baf2d2b3a13e0af6d45e019215599e5ac1b77`: Vercel reported success; production HTTP delivered the CSP, framing, referrer and permissions headers.
-- All seven 20261012 migrations applied. Live SELECT confirmed authenticated task INSERT/UPDATE privileges are false, avatar bucket is private with a 5,242,880-byte limit and three MIME types, and all seven FK indexes exist.
+- All eight 20261012 migrations applied. Live SELECT confirmed authenticated task INSERT/UPDATE privileges are false, avatar bucket is private with a 5,242,880-byte limit and three MIME types, and all seven FK indexes exist.
 - Existing temporary test account was supplied by the user; no account was created in this repair batch.
 - SAT 100 failed browser validity. SAT 1600 / IELTS 9 saved and survived reload; both were restored to blank afterward.
 - Russian ABBI prompt returned Russian guidance through the authenticated server function.
@@ -46,9 +46,17 @@ This follows the report-only audit. It records repair scope and verification lim
 
 ## Still open
 
-Email provider/domain and recovery delivery (A01), backup and restore proof (A07), language-addressable SEO (A10), consent/legal review (A13), UTM attribution/provider delivery (A14), unavailable digest (A15), remaining performance-policy/load work (A16; seven missing FK indexes repaired), historical raw-answer reconstruction (A17), and remaining authenticated/lifecycle/security/load release checks (A18).
+Email provider/domain and recovery delivery (A01), backup and restore proof (A07), language-addressable SEO (A10), consent/legal review (A13), UTM attribution/provider delivery (A14), unavailable digest (A15), remaining overlapping-policy/managed-Realtime warnings and load verification (A16), historical raw-answer reconstruction (A17), and remaining authenticated/lifecycle/security/load release checks (A18).
 
 Historical raw answers were not stored; they cannot be reconstructed honestly. No real user is deleted merely because their name resembles an audit fixture (A20).
+
+## Performance advisor follow-up
+
+- The missing-FK suggestions are gone; seven new indexes are reported unused on the current small dataset. They are retained for FK coverage.
+- `20261012111000_rls_auth_initplans.sql` caches the fixed request identity with scalar subqueries, following [Supabase's RLS guidance](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select).
+- Before/after live policy metadata: 62 policies, unchanged roles/operations/permissive settings. No unwrapped `auth.uid()` calls remain in public/storage policy expressions.
+- Local EXPLAIN contains InitPlan; local student profile isolation and idempotent reapplication passed. Live dashboard reloaded its own saved result afterward.
+- Performance advisor: zero errors, warnings reduced from 70 at the audit to 13. Remaining findings concern managed Realtime and overlapping permissive policies; representative load performance is not proven.
 
 ## Final verification additions
 
@@ -62,7 +70,9 @@ Historical raw answers were not stored; they cannot be reconstructed honestly. N
 3. Apply `20261012101000_server_task_writes.sql` and `20261012104000_school_invitation_security.sql` in the production project.
 4. Verify database privileges/functions and authenticated saving. A Git push alone does not apply SQL.
 
-Applied: `20261012100000`, `20261012101000`, `20261012102000`, `20261012103000`, `20261012104000`, `20261012105000`, `20261012106000`.
+Applied: `20261012100000`, `20261012101000`, `20261012102000`, `20261012103000`, `20261012104000`, `20261012105000`, `20261012110000`, `20261012111000`.
+
+Migration identifiers for the last two repairs were normalized from `20261012106000`/`20261012107000` to valid timestamps `20261012110000`/`20261012111000`; only migration metadata changes, not application records.
 
 ## Changed files
 
@@ -101,10 +111,13 @@ Applied: `20261012100000`, `20261012101000`, `20261012102000`, `20261012103000`,
 - [supabase/migrations/20261012103000_avatar_bucket.sql](../../supabase/migrations/20261012103000_avatar_bucket.sql)
 - [supabase/migrations/20261012104000_school_invitation_security.sql](../../supabase/migrations/20261012104000_school_invitation_security.sql)
 - [supabase/migrations/20261012105000_foreign_key_indexes.sql](../../supabase/migrations/20261012105000_foreign_key_indexes.sql)
-- [supabase/migrations/20261012106000_validate_recorded_scores.sql](../../supabase/migrations/20261012106000_validate_recorded_scores.sql)
+- [supabase/migrations/20261012110000_validate_recorded_scores.sql](../../supabase/migrations/20261012110000_validate_recorded_scores.sql)
+- [supabase/migrations/20261012111000_rls_auth_initplans.sql](../../supabase/migrations/20261012111000_rls_auth_initplans.sql)
 - [tests/integration/migration.test.ts](../../tests/integration/migration.test.ts)
 - [tests/unit/abbi-age.test.ts](../../tests/unit/abbi-age.test.ts)
 - [tests/unit/abbi-history.test.ts](../../tests/unit/abbi-history.test.ts)
 - [tests/unit/catalog-localization.test.ts](../../tests/unit/catalog-localization.test.ts)
 - [tests/unit/utc-week.test.ts](../../tests/unit/utc-week.test.ts)
 - [vercel.json](../../vercel.json)
+
+- [docs/operations/SUPABASE_SETUP.md](../../docs/operations/SUPABASE_SETUP.md)
