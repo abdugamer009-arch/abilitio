@@ -1,3 +1,4 @@
+import { appendDailyMessage } from "@/lib/abbi/history";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import ReactMarkdown from "react-markdown";
@@ -24,6 +25,7 @@ function AbbiSession() {
   ]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
+  const messageDay = useRef(new Date().toISOString().slice(0, 10));
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -54,6 +56,7 @@ function AbbiSession() {
 
   useEffect(() => {
     if (!user) return;
+    messageDay.current = new Date().toISOString().slice(0, 10);
     purgeHistory(user.id, historyKey(user.id));
     try {
       const raw: unknown = JSON.parse(localStorage.getItem(historyKey(user.id)) || "[]");
@@ -76,13 +79,20 @@ function AbbiSession() {
 
   useEffect(() => {
     if (!user || messages.length <= 1) return;
+    const today = new Date().toISOString().slice(0, 10);
+    if (messageDay.current !== today) {
+      messageDay.current = today;
+      purgeHistory(user.id);
+      setMessages([{ id: "welcome", role: "abbi", content: guideGreeting(lang) }]);
+      return;
+    }
     try {
       purgeHistory(user.id, historyKey(user.id));
       localStorage.setItem(historyKey(user.id), JSON.stringify(messages.slice(-50)));
     } catch {
       /* The conversation can continue without persistence. */
     }
-  }, [messages, user]);
+  }, [messages, user, lang]);
 
   function clearHistory() {
     if (!user) return;
@@ -144,30 +154,39 @@ function AbbiSession() {
 
   const canSend = !typing && input.trim().length > 0;
 
+  function appendMessage(message: ChatMsg) {
+    const now = new Date();
+    const previousDay = messageDay.current;
+    const today = now.toISOString().slice(0, 10);
+    if (user && previousDay !== today) purgeHistory(user.id);
+    messageDay.current = today;
+    const welcome: ChatMsg = { id: "welcome", role: "abbi", content: guideGreeting(lang) };
+    setMessages(
+      (previous) => appendDailyMessage(previous, message, previousDay, now, welcome).messages,
+    );
+  }
+
   async function handleSend(text?: string) {
     const content = (text ?? input).trim();
     if (!content || typing) return;
 
     // Optimistic user message
     const userMsg: ChatMsg = { id: crypto.randomUUID(), role: "user", content };
-    setMessages((prev) => [...prev, userMsg]);
+    appendMessage(userMsg);
     setInput("");
     if (inputRef.current) inputRef.current.style.height = "auto";
     setTyping(true);
 
     try {
-      // Fetch reply from server (Claude API or template fallback)
+      // Fetch an authenticated reply from the curated guide.
       const { reply } = await replyFn({ data: { message: content, ctx, lang } });
       // Thinking pause so the response feels natural, not instant
       await new Promise((r) => setTimeout(r, 400 + Math.random() * 400));
 
-      setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "abbi", content: reply }]);
+      appendMessage({ id: crypto.randomUUID(), role: "abbi", content: reply });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong.";
-      setMessages((prev) => [
-        ...prev,
-        { id: crypto.randomUUID(), role: "abbi", content: `⚠️ ${msg}` },
-      ]);
+      appendMessage({ id: crypto.randomUUID(), role: "abbi", content: `⚠️ ${msg}` });
     } finally {
       setTyping(false);
     }
