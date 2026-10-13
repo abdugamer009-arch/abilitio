@@ -28,7 +28,7 @@ export type Major = {
 };
 
 export type PersonalityScore = {
-  mbti: string; // 4 letters
+  mbti: string; // Four axes; X means balanced answers, not a measured preference.
   letters: Record<string, number>; // E/I/S/N/T/F/J/P 0..1 confidence
   workStyle: string;
   leadershipStyle: string;
@@ -39,7 +39,7 @@ export type PersonalityScore = {
 export type CognitiveScore = {
   score: number; // Correct answers out of nine; never a clinical IQ score.
   tier: "Exceptional" | "Advanced" | "Competent" | "Developing" | "Basic";
-  profile: "Analytical" | "Strategic" | "Practical" | "Research" | "Innovative";
+  profile: "Analytical" | "Strategic" | "Practical" | "Research" | "Innovative" | "Exploring";
 };
 
 export type Match = { key: string; name: string; category: string; score: number };
@@ -53,11 +53,10 @@ export function scorePersonality(answers: number[], questions: PersonalityQ[]): 
     sums[q.axis] += v * q.direction;
     capacity[q.axis] += 2;
   });
-  const mbti =
-    (sums.EI > 0 ? "E" : "I") +
-    (sums.SN > 0 ? "S" : "N") +
-    (sums.TF > 0 ? "T" : "F") +
-    (sums.JP > 0 ? "J" : "P");
+  // A tied axis carries no directional evidence. Never turn a tie into I/N/F/P.
+  const mbti = (["EI", "SN", "TF", "JP"] as const)
+    .map((axis) => (sums[axis] === 0 ? "X" : axis[sums[axis] > 0 ? 0 : 1]))
+    .join("");
 
   const letters: Record<string, number> = {};
   for (const k of ["EI", "SN", "TF", "JP"] as const) {
@@ -78,18 +77,22 @@ export function scorePersonality(answers: number[], questions: PersonalityQ[]): 
 }
 
 function workStyleFor(m: string): string {
+  if (m[0] === "X" || m[3] === "X") return "Mixed preferences";
   if (m[3] === "J") return m[0] === "I" ? "Focused & Structured" : "Driven & Organized";
   return m[0] === "I" ? "Flexible & Reflective" : "Dynamic & Adaptive";
 }
 function leadershipStyleFor(m: string): string {
+  if (m[2] === "X" || m[3] === "X") return "Mixed preferences";
   if (m[2] === "T") return m[3] === "J" ? "Strategic Commander" : "Visionary Analyst";
   return m[3] === "J" ? "Empathetic Organizer" : "Inspirational Mentor";
 }
 function learningStyleFor(m: string): string {
+  if (m[1] === "X" || m[2] === "X") return "Mixed preferences";
   if (m[1] === "N") return m[2] === "T" ? "Conceptual & Theoretical" : "Imaginative & Reflective";
   return m[2] === "T" ? "Hands-on & Logical" : "Practical & Personal";
 }
 function teamStyleFor(m: string): string {
+  if (m[0] === "X" || m[2] === "X") return "Mixed preferences";
   if (m[0] === "E") return m[2] === "F" ? "Collaborative Connector" : "Bold Initiator";
   return m[2] === "F" ? "Supportive Listener" : "Independent Specialist";
 }
@@ -115,7 +118,8 @@ export function scoreCognitive(
 
   // profile derived from MBTI × tier
   let profile: CognitiveScore["profile"];
-  if (mbti[1] === "N" && mbti[2] === "T" && score >= 7) profile = "Strategic";
+  if (mbti.includes("X")) profile = "Exploring";
+  else if (mbti[1] === "N" && mbti[2] === "T" && score >= 7) profile = "Strategic";
   else if (mbti[1] === "N" && score >= 7) profile = "Innovative";
   else if (mbti[2] === "T" && score >= 5) profile = "Analytical";
   else if (mbti[1] === "N" && mbti[3] === "P") profile = "Research";
@@ -383,6 +387,7 @@ export function deriveImprovements(p: PersonalityScore, c: CognitiveScore): stri
 }
 
 export const RECOMMENDED_SKILLS_BY_PROFILE: Record<string, string[]> = {
+  Exploring: ["Critical reasoning", "Project management", "Design thinking"],
   Analytical: ["Data analysis", "Statistics", "Critical reasoning", "SQL / Python"],
   Strategic: ["Strategic planning", "Systems thinking", "Negotiation", "Decision frameworks"],
   Practical: ["Project management", "Technical craftsmanship", "Hands-on labs", "Operations"],

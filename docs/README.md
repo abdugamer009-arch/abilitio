@@ -16,6 +16,7 @@ Start with the [project README](../README.md). This index separates current work
 
 | Guide                                                                       | Status and purpose                                                                          |
 | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [Review and self-review, October 13](operations/REVIEW_2026_10_13.md)       | Original findings, corrected interpretation, repairs and verification limits                |
 | [Prelaunch repairs, October 12](operations/PRELAUNCH_REPAIRS_2026_10_12.md) | Current repairs, live verification and launch blockers                                      |
 | [Live production audit](operations/LIVE_AUDIT_2026_10_11.md)                | Real signup, saved results, account isolation, UI repairs and remaining verification limits |
 | [Auth email setup](operations/AUTH_EMAIL_SETUP.md)                          | Resend domain verification, SMTP connection and recovery acceptance checks                  |

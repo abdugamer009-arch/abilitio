@@ -3,6 +3,18 @@ import { useI18n } from "./i18n";
 import { catalogLabel } from "./catalog-labels";
 /** Existing UI phrases only; stored values remain unchanged. */
 const labels: Record<string, { uz: string; ru: string }> = {
+  "Mixed preferences": {
+    uz: "Aralash afzalliklar",
+    ru: "Смешанные предпочтения",
+  },
+  Exploring: {
+    uz: "Izlanish",
+    ru: "Исследование направлений",
+  },
+  "Balanced preferences": {
+    uz: "Muvozanatli afzalliklar",
+    ru: "Сбалансированные предпочтения",
+  },
   "No assessment yet": {
     uz: "Hali baholash yo‘q",
     ru: "Оценки пока нет",

@@ -132,7 +132,7 @@ function AbbiSession() {
           .sort((a, b) => b.weight - a.weight)
           .slice(0, 3)
           .map((i) => i.key);
-        next.mbtiType = result.personality_type as string;
+        next.mbtiType = result.personality_type?.includes("X") ? null : result.personality_type;
         next.iqScore = null;
         next.topStrengths = (result.strengths as string[]) ?? [];
         next.topInterests = topInterests;

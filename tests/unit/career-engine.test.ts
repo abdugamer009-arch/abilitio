@@ -4,6 +4,8 @@ import {
   scoreCognitive,
   scoreInterests,
   matchCareers,
+  deriveStrengths,
+  deriveImprovements,
   communitySlugForCareer,
 } from "@/lib/assessment/career-engine";
 import type { PersonalityQ } from "@/lib/assessment/career-assessment";
@@ -25,6 +27,27 @@ const PERSONALITY_QS: PersonalityQ[] = [
 ];
 
 describe("scorePersonality", () => {
+  it("leaves neutral axes open without inventing personality claims", () => {
+    const p = scorePersonality(Array(12).fill(3), PERSONALITY_QS);
+    const c = scoreCognitive(Array(9).fill(-1), Array(9).fill(0), p.mbti);
+    expect(p.mbti).toBe("XXXX");
+    expect([p.workStyle, p.leadershipStyle, p.learningStyle, p.teamStyle]).toEqual(
+      Array(4).fill("Mixed preferences"),
+    );
+    expect(c.profile).toBe("Exploring");
+    expect(deriveStrengths(p, c)).toEqual([]);
+    expect(deriveImprovements(p, c)).not.toContain("Practice public speaking to amplify ideas");
+  });
+  it("keeps directional evidence on other axes when one axis is tied", () => {
+    const p = scorePersonality([3, 3, 3, 5, 1, 5, 5, 1, 5, 5, 1, 5], PERSONALITY_QS);
+    expect(p.mbti).toBe("XSTJ");
+    expect(p.workStyle).toBe("Mixed preferences");
+    expect(p.leadershipStyle).toBe("Strategic Commander");
+    expect(p.letters.S).toBe(1);
+    expect(deriveStrengths(p, scoreCognitive([], [], p.mbti))).not.toContain(
+      "Deep focus & introspection",
+    );
+  });
   it("centers neutral answers and increases agreement monotonically", () => {
     const neutral = scorePersonality(Array(12).fill(3), PERSONALITY_QS);
     for (const weight of Object.values(neutral.letters)) expect(weight).toBe(0.5);

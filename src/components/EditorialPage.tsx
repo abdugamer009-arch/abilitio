@@ -201,6 +201,30 @@ export function EditorialPage({ kind }: { kind: Kind }) {
           "Правиловый алгоритм связывает сигналы с профессиями. Баллы — внутренняя мера сходства, не вероятность. Независимая прогнозная валидация не заявляется.",
         ),
       ],
+      [
+        w(
+          "Balanced answers stay open",
+          "Muvozanatli javoblar ochiq qoladi",
+          "Сбалансированные ответы остаются открытыми",
+        ),
+        w(
+          "If answers balance both sides of a work-preference axis, we do not assign that preference. Related style descriptions remain mixed, and we do not infer a cognitive profile from a tied personality axis. Historical saved results keep their original descriptions.",
+          "Ish afzalligi yo‘nalishida ikki tomon teng bo‘lsa, birini belgilamaymiz. Tegishli uslub tavsiflari aralash qoladi va teng yo‘nalishdan kognitiv profil chiqarmaymiz. Oldin saqlangan natijalar o‘z tavsiflarini saqlaydi.",
+          "Если ответы уравновешивают обе стороны рабочего предпочтения, мы не выбираем одну из них. Связанные описания остаются смешанными; из сбалансированного направления не выводится когнитивный профиль. Старые результаты сохраняют исходные описания.",
+        ),
+      ],
+      [
+        w(
+          "What the reasoning score changes",
+          "Mantiq bali nimani o‘zgartiradi",
+          "Что меняет балл за мышление",
+        ),
+        w(
+          "The formula combines work preferences (40%), reasoning and profile alignment (35%), and visual interests (25%). Within the same profile, more correct reasoning answers raise every career’s underlying score equally. The profile can also change at score thresholds. Relative differences come from preferences, interests and profile alignment, with a small demand adjustment. These weights have not been independently validated as predictions.",
+          "Formula ish afzalliklari (40%), mantiq va profil mosligi (35%), vizual qiziqishlarni (25%) birlashtiradi. Profil bir xil bo‘lsa, ko‘proq to‘g‘ri javob barcha kasblarning asosiy balini teng oshiradi. Ball chegaralarida profil ham o‘zgarishi mumkin. Farqlar afzalliklar, qiziqishlar, profil mosligi va talab bo‘yicha kichik tuzatishdan keladi. Bu vaznlar mustaqil bashorat tekshiruvidan o‘tmagan.",
+          "Формула объединяет рабочие предпочтения (40%), мышление и соответствие профилю (35%), визуальные интересы (25%). При одном профиле больше верных ответов одинаково повышает исходные баллы всех профессий. На порогах балла профиль также может меняться. Различия связаны с предпочтениями, интересами и профилем с небольшой поправкой на спрос. Независимая проверка этих весов как прогноза не выполнена.",
+        ),
+      ],
     ];
   }
   if (kind === "mentors" || kind === "success-stories") {

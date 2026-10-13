@@ -102,7 +102,7 @@ Tool configuration remains at the root where Vite, TypeScript, npm and Vercel ex
 The full question and career catalogs are deployed. **A code deployment does not apply database migrations.** The fresh Supabase project has all 26 migrations, 27 app tables, 166 careers and 52 study majors. Live signup API, browser login, assessment save/reload and cross-account result isolation passed the [October 11 production audit](docs/operations/LIVE_AUDIT_2026_10_11.md). Admin moderation and principal enrollment/class saving also passed dedicated live checks. Email delivery and password recovery still need an owned sender domain and SMTP configuration. See the [current setup record](docs/operations/SUPABASE_SETUP.md) and [owner migration guide](docs/operations/OWNER_MIGRATIONS.md).
 
 - Production still uses Supabase. Nhost work consists of source-backup preparation; no completed transfer is claimed.
-- Historical results preserve their original scores and saved career rankings. New results use scoring version `v2`.
+- Historical results preserve their original scores and saved career rankings. New results use scoring version `v3`: tied personality axes remain open, without inventing a personality type or cognitive profile.
 - ABBI is a curated English-language guide. Weekly email digest delivery has no configured implementation.
 - Local database tests simulate Supabase-owned schemas. Passing them does not prove production permissions, email delivery or real account persistence.
 - Never commit credentials or backups. Service-role and assessment-signing keys are server-only.

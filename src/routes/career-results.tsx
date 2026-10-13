@@ -165,7 +165,11 @@ function CareerResultsPage() {
     // MBTI type
     ctx.font = `800 100px ${displayFont}`;
     ctx.fillStyle = color("--red");
-    ctx.fillText(r.personality_type ?? "—", 80, 200);
+    ctx.fillText(
+      tr(r.personality_type?.includes("X") ? "Mixed preferences" : r.personality_type),
+      80,
+      200,
+    );
 
     // Cognitive tier
     ctx.font = `500 28px ${bodyFont}`;
@@ -294,7 +298,18 @@ function CareerResultsPage() {
           {/* Top: personality + cognitive + interests */}
           <div className="grid gap-4 md:grid-cols-3">
             <Card icon={<Brain className="h-4 w-4" />} title={t.careerResults.personalityType}>
-              <div className="text-4xl font-bold gradient-text">{r.personality_type}</div>
+              <div className="text-4xl font-bold gradient-text">
+                {tr(r.personality_type?.includes("X") ? "Mixed preferences" : r.personality_type)}
+              </div>
+              {r.personality_type?.includes("X") && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {w(
+                    "Some answers balance both preferences. We leave those axes open rather than assign a personality type.",
+                    "Ba’zi javoblarda ikki afzallik muvozanatli. Bu yo‘nalishlarni ochiq qoldiramiz va shaxsiyat turini belgilamaymiz.",
+                    "Часть ответов сбалансирована между двумя предпочтениями. Мы оставляем эти направления открытыми и не назначаем тип личности.",
+                  )}
+                </p>
+              )}
               <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
                 <li>
                   <span className="text-foreground/80">{t.careerResults.work}:</span>{" "}
@@ -365,6 +380,15 @@ function CareerResultsPage() {
           {/* Strengths / improvements / skills */}
           <div className="mt-4 grid gap-4 md:grid-cols-3">
             <Card icon={<TrendingUp className="h-4 w-4" />} title={t.careerResults.topStrengths}>
+              {r.strengths.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  {w(
+                    "No clear strength signal from this attempt. Try an activity and reflect on what felt natural.",
+                    "Bu urinishda aniq kuchli tomon belgisi yo‘q. Bir faoliyatni sinab, nima tabiiy tuyulganini o‘ylang.",
+                    "В этой попытке нет явного сигнала сильной стороны. Попробуйте занятие и подумайте, что давалось естественно.",
+                  )}
+                </p>
+              )}
               <ul className="space-y-1.5 text-sm">
                 {r.strengths.map((s) => (
                   <li key={s} className="flex items-start gap-2">
@@ -493,6 +517,22 @@ function CareerResultsPage() {
                 "Соответствие для пробы: 0–100 сравнивает ответы с профилями профессий. Это не проценты, шанс успеха или доказательство способностей. Изучите причины и попробуйте занятие.",
               )}
             </p>
+            <details className="mt-3 text-sm text-muted-foreground">
+              <summary className="cursor-pointer text-foreground">
+                {w(
+                  "How reasoning affects these scores",
+                  "Mantiq ballarga qanday ta’sir qiladi",
+                  "Как мышление влияет на баллы",
+                )}
+              </summary>
+              <p className="mt-2">
+                {w(
+                  "The formula combines work preferences (40%), reasoning and profile alignment (35%), and visual interests (25%). Within the same profile, more correct reasoning answers raise every career’s underlying score equally. The profile can also change at score thresholds. Differences come from preferences, interests and profile alignment, with a small demand adjustment. These weights are exploratory rules, not validated predictions.",
+                  "Formula ish afzalliklari (40%), mantiq va profil mosligi (35%), vizual qiziqishlarni (25%) birlashtiradi. Profil bir xil bo‘lsa, ko‘proq to‘g‘ri javob barcha kasblarning asosiy balini teng oshiradi. Ball chegaralarida profil ham o‘zgarishi mumkin. Farqlar afzalliklar, qiziqishlar, profil mosligi va talab bo‘yicha kichik tuzatishdan keladi. Bu vaznlar izlanish qoidalari, tasdiqlangan bashorat emas.",
+                  "Формула объединяет рабочие предпочтения (40%), мышление и соответствие профилю (35%), визуальные интересы (25%). При одном профиле больше верных ответов одинаково повышает исходные баллы всех профессий. На порогах балла профиль также может меняться. Различия связаны с предпочтениями, интересами и профилем с небольшой поправкой на спрос. Это исследовательские правила, не проверенный прогноз.",
+                )}
+              </p>
+            </details>
             <label className="mt-4 block text-sm">
               {w(
                 "Search all career matches",

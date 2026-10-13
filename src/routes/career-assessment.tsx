@@ -454,50 +454,60 @@ function CareerAssessmentPage() {
                 />
               </div>
               <h1 className="mt-6 text-4xl font-bold gradient-text">{t.careerAssessment.title}</h1>
-              <p className="mt-3 text-muted-foreground">{t.careerAssessment.subtitle}</p>
-              {accountNotice}
-
-              <div className="assessment-instructions mt-6 text-left text-sm">
-                <p>
-                  {w(
-                    "Set aside about 15 minutes as a planning estimate, not a measured completion time. Take longer if you need.",
-                    "Reja uchun taxminan 15 daqiqa ajrating; bu o‘lchangan tugatish vaqti emas. Kerak bo‘lsa ko‘proq vaqt oling.",
-                    "Для планирования выделите примерно 15 минут; это не измеренное время прохождения. При необходимости потратьте больше.",
-                  )}
-                </p>
-                <p>
-                  {w(
-                    "Answer reasoning questions, then work-style statements, then visual preferences. There are no right or wrong answers in the preference sections.",
-                    "Mantiq savollari, ish uslubi fikrlari va vizual afzalliklarga javob bering. Afzallik bo‘limlarida to‘g‘ri yoki noto‘g‘ri javob yo‘q.",
-                    "Ответьте на задачи, утверждения о стиле работы и визуальные предпочтения. В разделах предпочтений нет правильных или неправильных ответов.",
-                  )}
-                </p>
-                <p>
-                  {w(
-                    "There is no timer. You can pause and return in this browser. Results require a free account; your answers are kept here while you sign up or sign in. Cloud saving happens after submission, not while answering.",
-                    "Taymer yo‘q. Shu brauzerda tanaffus qilib qaytishingiz mumkin. Natija uchun bepul hisob kerak; ro‘yxatdan o‘tish yoki kirish paytida javoblar shu yerda qoladi. Bulutga saqlash yuborilgandan keyin bo‘ladi.",
-                    "Таймера нет. Можно сделать паузу и вернуться в этом браузере. Для результатов нужен бесплатный аккаунт; ответы остаются здесь во время регистрации или входа. В аккаунт они сохраняются после отправки.",
-                  )}
-                </p>
-                <p>
-                  {w(
-                    "You receive career ideas, suggested study subjects and activities to explore. University links are research starting points, not admission or scholarship eligibility decisions.",
-                    "Kasb g‘oyalari, o‘qish yo‘nalishlari va sinash faoliyatlari olasiz. Universitet havolalari izlanish boshlanishi, qabul yoki stipendiya qarori emas.",
-                    "Вы получите идеи профессий, учебных направлений и занятий. Ссылки вузов — начало исследования, не решение о приёме или стипендии.",
-                  )}
-                </p>
-              </div>
-              <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
-                <Shuffle className="h-3 w-3" /> {t.careerAssessment.questionsRefresh}
-              </div>
-              <p className="mt-3 text-sm text-muted-foreground">
+              <p className="mt-3 text-muted-foreground">
                 {w(
-                  "Each attempt shuffles 30 questions from a bank of 561. All 166 career profiles are compared when you save your results.",
-                  "Har urinishda 561 savollik bankdan 30 ta savol aralashtirib tanlanadi. Natija saqlanganda barcha 166 kasb profili solishtiriladi.",
-                  "Каждая попытка выбирает 30 перемешанных вопросов из банка 561. При сохранении сравниваются все 166 профилей профессий.",
+                  "30 questions. No timer. Pause and return in this browser.",
+                  "30 ta savol. Taymer yo‘q. Shu brauzerda tanaffus qilib qayting.",
+                  "30 вопросов. Без таймера. Можно сделать паузу и вернуться в этом браузере.",
                 )}
               </p>
+              {accountNotice}
 
+              <details className="mt-6 text-left text-sm">
+                <summary className="cursor-pointer font-medium">
+                  {w("Before you start", "Boshlashdan oldin", "Перед началом")}
+                </summary>
+                <div className="assessment-instructions mt-3">
+                  <p>
+                    {w(
+                      "Set aside about 15 minutes as a planning estimate, not a measured completion time. Take longer if you need.",
+                      "Reja uchun taxminan 15 daqiqa ajrating; bu o‘lchangan tugatish vaqti emas. Kerak bo‘lsa ko‘proq vaqt oling.",
+                      "Для планирования выделите примерно 15 минут; это не измеренное время прохождения. При необходимости потратьте больше.",
+                    )}
+                  </p>
+                  <p>
+                    {w(
+                      "Answer reasoning questions, then work-style statements, then visual preferences. There are no right or wrong answers in the preference sections.",
+                      "Mantiq savollari, ish uslubi fikrlari va vizual afzalliklarga javob bering. Afzallik bo‘limlarida to‘g‘ri yoki noto‘g‘ri javob yo‘q.",
+                      "Ответьте на задачи, утверждения о стиле работы и визуальные предпочтения. В разделах предпочтений нет правильных или неправильных ответов.",
+                    )}
+                  </p>
+                  <p>
+                    {w(
+                      "Your draft stays in this browser for up to 24 hours. Cloud saving happens after submission, not while answering.",
+                      "Javoblar shu brauzerda 24 soatgacha qoladi. Bulutga saqlash yuborilgandan keyin bo‘ladi.",
+                      "Черновик остаётся в этом браузере до 24 часов. В аккаунт он сохраняется после отправки, не во время ответов.",
+                    )}
+                  </p>
+                  <p>
+                    {w(
+                      "You receive career ideas, suggested study subjects and activities to explore. University links are research starting points, not admission or scholarship eligibility decisions.",
+                      "Kasb g‘oyalari, o‘qish yo‘nalishlari va sinash faoliyatlari olasiz. Universitet havolalari izlanish boshlanishi, qabul yoki stipendiya qarori emas.",
+                      "Вы получите идеи профессий, учебных направлений и занятий. Ссылки вузов — начало исследования, не решение о приёме или стипендии.",
+                    )}
+                  </p>
+                </div>
+                <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
+                  <Shuffle className="h-3 w-3" /> {t.careerAssessment.questionsRefresh}
+                </div>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  {w(
+                    "Each attempt shuffles 30 questions from a bank of 561. All 166 career profiles are compared when you save your results.",
+                    "Har urinishda 561 savollik bankdan 30 ta savol aralashtirib tanlanadi. Natija saqlanganda barcha 166 kasb profili solishtiriladi.",
+                    "Каждая попытка выбирает 30 перемешанных вопросов из банка 561. При сохранении сравниваются все 166 профилей профессий.",
+                  )}
+                </p>
+              </details>
               <div className="mt-8 grid gap-4 md:grid-cols-3 text-left">
                 <Section
                   icon={<Target className="h-4 w-4" />}

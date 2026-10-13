@@ -1,6 +1,7 @@
 import { catalogLabel, catalogLabels } from "../catalog-labels";
 import type { AbbiContext } from "./abbi-knowledge";
 import { abbiGreeting, ABBI_SUGGESTIONS } from "./abbi-knowledge";
+import { careerGuideReply } from "./career-guides";
 type Lang = "en" | "uz" | "ru";
 const prompts = [
   ["Dasturiy ta’minot muhandisi nima qiladi?", "Что делает инженер программного обеспечения?"],
@@ -59,6 +60,8 @@ export function localizedGuideReply(message: string, ctx: AbbiContext, lang: "uz
       "Universitetlar bo‘limidagi rasmiy havolalardan boshlang. Bakalavriat dasturi, fuqarolik talablari, muddatlar va barcha xarajatlarni tekshiring. Moliyaviy yordamni faqat universitet tasdiqlagan taklif asosida hisoblang. Abilitio qabul ehtimolini baholamaydi.",
       "Начните с официальных ссылок в разделе университетов. Проверьте программу бакалавриата, требования к гражданству, сроки и полную стоимость. Учитывайте финансовую помощь только по подтверждённому предложению университета. Abilitio не оценивает вероятность поступления.",
     );
+  const careerReply = careerGuideReply(message, lang);
+  if (careerReply) return careerReply + "\n\n" + caution;
   if (
     /improv|weak|rivoj|ko‘nik|ko'nik|leadership|yetakchi|rahbar|навык|развив|улучш|лидер/.test(q)
   ) {

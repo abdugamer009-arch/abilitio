@@ -552,8 +552,12 @@ function ResultsSection({
         />
         <MetricCard
           label={tr("Personality")}
-          value={latest.mbti_type}
-          hint={tr(MBTI_DESCRIPTIONS[latest.mbti_type] ?? "Unique mind")}
+          value={tr(latest.mbti_type.includes("X") ? "Mixed preferences" : latest.mbti_type)}
+          hint={tr(
+            latest.mbti_type.includes("X")
+              ? "Balanced preferences"
+              : (MBTI_DESCRIPTIONS[latest.mbti_type] ?? "Unique mind"),
+          )}
           icon={Sparkles}
         />
         <MetricCard
@@ -706,7 +710,9 @@ function ResultsSection({
               </span>
               <span className="text-muted-foreground">
                 {tr("Type")}
-                <span className="font-semibold text-foreground">{r.mbti_type}</span>
+                <span className="font-semibold text-foreground">
+                  {tr(r.mbti_type.includes("X") ? "Mixed preferences" : r.mbti_type)}
+                </span>
               </span>
               <span className="text-muted-foreground">
                 {tr("Top:")}{" "}

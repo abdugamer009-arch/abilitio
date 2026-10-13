@@ -238,7 +238,6 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
     const universityMatches = allMajorScores.slice(0, 10);
     const strengths = deriveStrengths(personality, cognitive);
     const improvements = deriveImprovements(personality, cognitive);
-    const recommendedSkills = RECOMMENDED_SKILLS_BY_PROFILE[cognitive.profile] ?? [];
 
     // Persist
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -246,7 +245,7 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
     const row = await persistAssessmentResult(supabaseAdmin, {
       user_id: userId,
       session_nonce: claim.nonce,
-      scoring_version: "v2",
+      scoring_version: "v3",
       personality_type: personality.mbti,
       work_style: personality.workStyle,
       leadership_style: personality.leadershipStyle,
@@ -303,7 +302,8 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       university_matches: row.university_matches as CareerResultDTO["university_matches"],
       strengths: row.strengths as string[],
       improvements: row.improvements as string[],
-      recommended_skills: recommendedSkills,
+      // A retry can recover a historical row: keep its saved profile authoritative.
+      recommended_skills: RECOMMENDED_SKILLS_BY_PROFILE[row.cognitive_profile ?? ""] ?? [],
       created_at: row.created_at,
       joined_community: joinedCommunity,
     };

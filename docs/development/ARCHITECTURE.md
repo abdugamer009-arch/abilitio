@@ -58,6 +58,8 @@ sequenceDiagram
 
 The full bank and hidden answer keys stay on the server. Signed option permutations map displayed positions back to canonical answer keys. Repaired questions have versioned IDs so older signed attempts remain gradable. New results include all 166 canonical careers; historical stored rankings are not rewritten.
 
+Scoring version `v3` represents a tied personality axis as `X`, retains its continuous letter weights at 0.5, and suppresses styles depending on that axis. Results/dashboard display Mixed preferences; a partial or fully tied type yields the neutral Exploring cognitive profile. No new numerical uncertainty cutoff or career weighting scheme is introduced. Saved `v1`/`v2` results are retained; retries return skills from the recovered row's profile.
+
 `catalog.server.ts` is derived from SQL seed content. Database records override matching keys and additional records remain available. Reads still surface errors, and `catalog.ts` validates the combined records before matching. Changes to canonical seed content must keep the SQL and server catalog consistent.
 
 `result-storage.server.ts` uses the service-role client only after authentication, membership checks and server computation. A matching owner/nonce unique conflict recovers the saved result rather than creating another row. Other conflicts remain errors.
