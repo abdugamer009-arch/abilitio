@@ -502,6 +502,11 @@ async function audit(page, active) {
             await page.locator("main h1").waitFor();
             await page.locator("main input[type=search]").waitFor();
             await capture("result");
+            const evidence = page.locator("[data-evidence-coverage]");
+            if (await evidence.count()) {
+              await evidence.scrollIntoViewIfNeeded();
+              await page.screenshot({ path: path.join(out, `${run}-evidence.png`) });
+            }
             if (mixedSignals && age === "teen_adult") {
               const note = page.locator("strong").filter({ hasText: "Mixed signals" });
               await note.waitFor();

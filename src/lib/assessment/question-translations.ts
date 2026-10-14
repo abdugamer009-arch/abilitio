@@ -1,5 +1,6 @@
 import { COGNITIVE_TRANSLATIONS } from "./cognitive-translations";
 import { CHILD_TRANSLATIONS } from "./child-questions";
+import { ADULT_ACTIVITY_TRANSLATIONS } from "./activity-questions";
 
 // Translations for question bank prompts and options.
 // English is the source; fall back to English when a key is absent.
@@ -12,6 +13,7 @@ export type QT = {
 // ─── Career-assessment questions (personality p1–p280, cognitive, interest i1–i200) ───
 export const QUESTION_TRANSLATIONS: Record<string, QT> = {
   ...CHILD_TRANSLATIONS,
+  ...ADULT_ACTIVITY_TRANSLATIONS,
   ...COGNITIVE_TRANSLATIONS,
   // ── Personality (prompts only; likert labels come from i18n) ──
   p1: {

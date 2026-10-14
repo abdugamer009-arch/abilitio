@@ -660,7 +660,7 @@ function CareerAssessmentPage() {
                             "Выбирай игры и занятия, которые тебе нравятся. Правильных и неправильных ответов нет.",
                           )
                         : w(
-                            "Answer reasoning questions, then work-style statements, then visual preferences. There are no right or wrong answers in the preference sections.",
+                            "Answer reasoning questions, then work-style statements, then choose activities and subjects. There are no right or wrong answers in the preference sections.",
                             "Mantiq savollari, ish uslubi fikrlari va vizual afzalliklarga javob bering. Afzallik bo‘limlarida to‘g‘ri yoki noto‘g‘ri javob yo‘q.",
                             "Ответьте на задачи, утверждения о стиле работы и визуальные предпочтения. В разделах предпочтений нет правильных или неправильных ответов.",
                           )}

@@ -2,7 +2,8 @@ import { describe, it, expect } from "vitest";
 import { buildFixtures } from "../../scripts/mobile-qa-data";
 import type { ClientSession } from "@/lib/assessment/career.functions";
 import { verifySession, validateSessionSubmission } from "@/lib/assessment/session.server";
-import { PERSONALITY_BANK, IQ_BANK, INTEREST_BANK } from "@/lib/assessment/question-bank";
+import { PERSONALITY_BANK, IQ_BANK } from "@/lib/assessment/question-bank";
+import { ADULT_ACTIVITY_BANK } from "@/lib/assessment/activity-questions";
 import { CHILD_INTEREST } from "@/lib/assessment/child-questions";
 import { QUESTION_TRANSLATIONS } from "@/lib/assessment/question-translations";
 
@@ -41,7 +42,7 @@ describe("repeatable mobile QA fixtures", () => {
         ).toHaveLength(3);
       const child = fixtures.sessions.child as ClientSession;
       for (const [selected, pool] of [
-        [session, INTEREST_BANK],
+        [session, ADULT_ACTIVITY_BANK],
         [child, CHILD_INTEREST],
       ] as const) {
         const locale = lang as "en" | "ru" | "uz";

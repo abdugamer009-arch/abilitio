@@ -10,6 +10,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth-context";
 import { useWords } from "@/lib/editorial";
 import { getMyCareerResult, type CareerResultDTO } from "@/lib/assessment/career.functions";
+import { scoringMethodology } from "@/lib/assessment/scoring-config";
 
 import { Reveal } from "@/components/Reveal";
 import { GlowBlob } from "@/components/GlowBlob";
@@ -629,9 +630,9 @@ function CareerResultsPage() {
 
             <p className="mt-6 text-sm text-muted-foreground">
               {w(
-                "This profile summarizes your answers today. Personality types and visual preferences are descriptions, not a diagnosis or proof of skill. Your preferences may change.",
-                "Profil bugungi javoblaringiz xulosasi. Shaxs turi va vizual afzallik tavsif, tashxis yoki ko‘nikma isboti emas. Afzalliklaringiz o‘zgarishi mumkin.",
-                "Профиль отражает сегодняшние ответы. Тип личности и визуальные предпочтения — описания, не диагноз и не доказательство навыков. Предпочтения могут меняться.",
+                "This profile summarizes your answers today. Work and activity preferences are descriptions, not a diagnosis or proof of skill. Your preferences may change.",
+                "Profil bugungi javoblaringiz xulosasi. Ish va mashg‘ulot afzalliklari tavsif, tashxis yoki ko‘nikma isboti emas. Afzalliklaringiz o‘zgarishi mumkin.",
+                "Профиль отражает сегодняшние ответы. Рабочие предпочтения и интерес к занятиям — описания, не диагноз и не доказательство навыков. Предпочтения могут меняться.",
               )}
             </p>
             {/* Career matches */}
@@ -649,16 +650,29 @@ function CareerResultsPage() {
                   "Соответствие для пробы: 0–100 сравнивает ответы с профилями профессий. Это не проценты, шанс успеха или доказательство способностей. Изучите причины и попробуйте занятие.",
                 )}
               </p>
+              <p
+                className="mt-3 text-sm text-muted-foreground"
+                role="status"
+                data-evidence-coverage={r.evidence_coverage}
+              >
+                {r.evidence_coverage === "direct"
+                  ? w(
+                      "Evidence: direct activities and subjects, with limited certainty from one sitting.",
+                      "Dalil: aniq mashg‘ulot va fanlar; bir urinish natijasi cheklangan.",
+                      "Основа: конкретные занятия и предметы; вывод по одной попытке ограничен.",
+                    )
+                  : w(
+                      "Limited evidence: this report used older visual choices or predates the current method. Try a new assessment for activity-based suggestions.",
+                      "Cheklangan dalil: bu hisobot eski vizual tanlovlardan foydalangan yoki hozirgi usuldan oldin yaratilgan. Mashg‘ulotlarga asoslangan tavsiyalar uchun yangi testni sinang.",
+                      "Основа ограничена: в этом отчёте использованы прежние визуальные выборы или прежний метод. Пройдите тест заново для подсказок на основе занятий.",
+                    )}
+              </p>
               <details className="mt-3 text-sm text-muted-foreground">
                 <summary className="cursor-pointer text-foreground">
                   {w(
-                    childResult
-                      ? "Where your ideas come from"
-                      : "How reasoning affects these scores",
-                    childResult
-                      ? "G‘oyalar qayerdan keladi"
-                      : "Mantiq ballarga qanday ta’sir qiladi",
-                    childResult ? "Откуда берутся идеи" : "Как мышление влияет на баллы",
+                    childResult ? "Where your ideas come from" : "How career ranking works",
+                    childResult ? "G‘oyalar qayerdan keladi" : "Kasblar tartibi qanday tuziladi",
+                    childResult ? "Откуда берутся идеи" : "Как формируется рейтинг профессий",
                   )}
                 </summary>
                 <p className="mt-2">
@@ -668,11 +682,7 @@ function CareerResultsPage() {
                         "G‘oyalar sen tanlagan o‘yinlar va mashg‘ulotlardan kelib chiqadi. Matematika yoki qobiliyat bali ishlatilmaydi. Bular sinab ko‘rish uchun g‘oyalar, xohlagan payting yangi narsani sinab ko‘r.",
                         "Идеи основаны на выбранных играх и занятиях. Баллы за математику или способности не используются. Это занятия для знакомства, и ты всегда можешь попробовать что-то новое.",
                       )
-                    : w(
-                        "The formula combines work preferences (40%), reasoning and profile alignment (35%), and visual interests (25%). Within the same profile, more correct reasoning answers raise every career’s underlying score equally. The profile can also change at score thresholds. Differences come from preferences, interests and profile alignment, with a small demand adjustment. These weights are exploratory rules, not validated predictions.",
-                        "Formula ish afzalliklari (40%), mantiq va profil mosligi (35%), vizual qiziqishlarni (25%) birlashtiradi. Profil bir xil bo‘lsa, ko‘proq to‘g‘ri javob barcha kasblarning asosiy balini teng oshiradi. Ball chegaralarida profil ham o‘zgarishi mumkin. Farqlar afzalliklar, qiziqishlar, profil mosligi va talab bo‘yicha kichik tuzatishdan keladi. Bu vaznlar izlanish qoidalari, tasdiqlangan bashorat emas.",
-                        "Формула объединяет рабочие предпочтения (40%), мышление и соответствие профилю (35%), визуальные интересы (25%). При одном профиле больше верных ответов одинаково повышает исходные баллы всех профессий. На порогах балла профиль также может меняться. Различия связаны с предпочтениями, интересами и профилем с небольшой поправкой на спрос. Это исследовательские правила, не проверенный прогноз.",
-                      )}
+                    : scoringMethodology("teen_adult", lang)}
                 </p>
               </details>
               <label className="mt-4 block text-sm">

@@ -9,11 +9,12 @@ import {
 } from "@/lib/assessment/question-bank";
 import { matchCareers, attachMajorsToCareers, matchMajors } from "@/lib/assessment/career-engine";
 import { sessionIQAnswerKeys, signSession, verifySession } from "@/lib/assessment/session.server";
+import { ADULT_ACTIVITY_BANK } from "@/lib/assessment/activity-questions";
 
 afterEach(() => vi.restoreAllMocks());
 
 describe("full assessment coverage", () => {
-  it("can deliver all 561 items with balanced, non-duplicated attempts and varied option orders", () => {
+  it("can deliver the active adult pool with balanced, non-duplicated attempts and varied option orders", () => {
     let seed = 37491;
     vi.spyOn(Math, "random").mockImplementation(() => {
       seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
@@ -51,14 +52,15 @@ describe("full assessment coverage", () => {
         orders.add(q.optionOrder!.join());
       });
       for (const q of session.interest) {
-        const original = INTEREST_BANK.find((item) => item.id === q.id)!;
+        const original = ADULT_ACTIVITY_BANK.find((item) => item.id === q.id)!;
         expect(q.options.map((o) => o.id).sort()).toEqual(original.options.map((o) => o.id).sort());
       }
     }
     expect(seen).toEqual(
-      new Set([...PERSONALITY_BANK, ...IQ_BANK, ...INTEREST_BANK].map((q) => q.id)),
+      new Set([...PERSONALITY_BANK, ...IQ_BANK, ...ADULT_ACTIVITY_BANK].map((q) => q.id)),
     );
-    expect(seen.size).toBe(561);
+    expect(seen.size).toBe(PERSONALITY_BANK.length + IQ_BANK.length + ADULT_ACTIVITY_BANK.length);
+    expect(INTEREST_BANK.every((q) => !seen.has(q.id))).toBe(true);
     expect(orders.size).toBe(24);
   });
 

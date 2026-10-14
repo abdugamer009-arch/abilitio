@@ -370,6 +370,7 @@ export const CHILD_INTEREST: InterestQ[] = prompts.map(([theme, prompt], i) => (
   theme,
   prompt,
   select: "one",
+  evidenceKind: "activity",
   ageGroups: ["child"],
   addedBy: "feature-age",
   options: activitiesFor(i).map(([label, , , icon, dim], j) => ({

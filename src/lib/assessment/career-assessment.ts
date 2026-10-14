@@ -65,6 +65,7 @@ export type InterestQ = AgeMetadata & {
   section: "interest";
   prompt: string;
   theme: InterestTheme;
+  evidenceKind?: "activity" | "visual";
   select: "one"; // projective: pick the single option that draws you
   options: InterestOption[];
 };

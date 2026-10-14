@@ -18,8 +18,10 @@ import {
   type CognitiveScore,
 } from "./career-engine";
 import {
-  EVIDENCE_SCORING_VERSION,
-  EVIDENCE_PREFERENCES_VERSION,
+  DIRECT_SCORING_VERSION,
+  DIRECT_PREFERENCES_VERSION,
+  LEGACY_VISUAL_VERSION,
+  evidenceCoverage,
   presentationSummary,
 } from "./summary-integrity";
 import {
@@ -32,6 +34,7 @@ import {
 } from "./question-bank";
 import { QUESTION_TRANSLATIONS } from "./question-translations";
 import { CHILD_PERSONALITY, CHILD_INTEREST } from "./child-questions";
+import { ADULT_ACTIVITY_BANK } from "./activity-questions";
 import type { AgeGroup } from "./career-assessment";
 import type { RiasecDim, InterestVisual } from "./career-assessment";
 import { ensureNotBanned } from "../admin/admin.functions";
@@ -103,7 +106,9 @@ async function deliverSession(age: AgeGroup): Promise<ClientSession> {
       prompt: lp(q.id, q.prompt),
       options: q.options.map((o) => ({ id: o.id, visual: o.visual })),
       labels: (() => {
-        const canonical = [...INTEREST_BANK, ...CHILD_INTEREST].find((item) => item.id === q.id)!;
+        const canonical = [...INTEREST_BANK, ...CHILD_INTEREST, ...ADULT_ACTIVITY_BANK].find(
+          (item) => item.id === q.id,
+        )!;
         const labels = lo(
           q.id,
           canonical.options.map((o) => o.label),
@@ -153,6 +158,7 @@ export type CareerResultDTO = {
   strengths: string[];
   improvements: string[];
   summary_unverified?: boolean;
+  evidence_coverage: "direct" | "limited" | "historical";
   recommended_skills: string[];
   created_at: string;
   /** Name of the community the submit auto-joined, so the UI can say so.
@@ -217,11 +223,20 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
     // Interests: the client submits the ids of the symbols it chose. We resolve
     // each id to its hidden RIASEC vector server-side (authoritative), then the
     // engine aggregates and infers concrete field interests.
-    const interestPicks: Partial<Record<RiasecDim, number>>[] = data.interestAnswers
-      .flat()
-      .map((optionId) => getInterestRiasec(optionId))
-      .filter((v): v is Partial<Record<RiasecDim, number>> => v !== null);
-    const { interests, riasec } = scoreInterests(interestPicks);
+    const directQuestionIds = new Set([...ADULT_ACTIVITY_BANK, ...CHILD_INTEREST].map((q) => q.id));
+    const directPicks: Partial<Record<RiasecDim, number>>[] = [];
+    const visualPicks: Partial<Record<RiasecDim, number>>[] = [];
+    data.interestQIds.forEach((id, index) => {
+      for (const optionId of data.interestAnswers[index]) {
+        const vector = getInterestRiasec(optionId);
+        if (vector) (directQuestionIds.has(id) ? directPicks : visualPicks).push(vector);
+      }
+    });
+    const directScore = scoreInterests(directPicks);
+    const displayScore = directPicks.length ? directScore : scoreInterests(visualPicks);
+    const { interests, riasec } = displayScore;
+    const matchInterests = directScore.interests;
+    const hasDirectEvidence = directPicks.length > 0;
 
     const [careers, majors] = await Promise.all([
       readAll((from, to) => supabase.from("careers").select("*").order("id").range(from, to)),
@@ -249,11 +264,11 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       majorList,
       personality,
       cognitive,
-      interests,
+      matchInterests,
       preferencesOnly,
     );
     const careerMatches = attachMajorsToCareers(
-      matchCareers(careerList, personality, cognitive, interests, preferencesOnly),
+      matchCareers(careerList, personality, cognitive, matchInterests, preferencesOnly),
       majorList,
       allMajorScores,
     );
@@ -281,7 +296,11 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
     const row = await persistAssessmentResult(supabaseAdmin, {
       user_id: userId,
       session_nonce: claim.nonce,
-      scoring_version: preferencesOnly ? EVIDENCE_PREFERENCES_VERSION : EVIDENCE_SCORING_VERSION,
+      scoring_version: hasDirectEvidence
+        ? preferencesOnly
+          ? DIRECT_PREFERENCES_VERSION
+          : DIRECT_SCORING_VERSION
+        : LEGACY_VISUAL_VERSION,
       personality_type: personality.mbti,
       work_style: personality.workStyle,
       leadership_style: personality.leadershipStyle,
@@ -323,6 +342,7 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       id: row.id,
       personality_type: row.personality_type,
       ...presentationSummary(row),
+      evidence_coverage: evidenceCoverage(row.scoring_version),
       cognitive_score: row.cognitive_score,
       cognitive_tier: row.cognitive_tier,
       cognitive_profile: row.cognitive_profile,
@@ -357,6 +377,7 @@ export const getMyCareerResult = createServerFn({ method: "GET" })
       id: data.id,
       personality_type: data.personality_type,
       ...presentationSummary(data),
+      evidence_coverage: evidenceCoverage(data.scoring_version),
       cognitive_score: data.cognitive_score,
       cognitive_tier: data.cognitive_tier,
       cognitive_profile: data.cognitive_profile,

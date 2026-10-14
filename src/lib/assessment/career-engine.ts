@@ -1,7 +1,8 @@
 // Career matching engine — runs server-side inside the submit fn.
-// Formula: 40% personality fit + 35% cognitive fit + 25% interest fit.
+// Career ranking weights are shared with the Methodology page.
 
 import { INTEREST_KEYS, RIASEC_DIMS, type PersonalityQ, type RiasecDim } from "./career-assessment";
+import { SCORING_WEIGHTS } from "./scoring-config";
 
 export type Career = {
   key: string;
@@ -286,11 +287,14 @@ export type CareerMatch = Match & { matchFields: string[] };
 export function matchCareers(
   careers: Career[],
   personality: PersonalityScore,
-  cognitive: CognitiveScore,
+  _cognitive: CognitiveScore,
   interests: { key: string; weight: number }[],
   preferencesOnly = false,
+  _visualInterests: { key: string; weight: number }[] = [],
 ): CareerMatch[] {
   const interestMap = new Map(interests.map((i) => [i.key, i.weight]));
+  const weights = SCORING_WEIGHTS[preferencesOnly ? "child" : "teen_adult"];
+  const hasDirectEvidence = interests.some((interest) => interest.weight > 0);
   return careers
     .map((c) => {
       // personality fit: weighted by trait letter confidence
@@ -303,22 +307,18 @@ export function matchCareers(
       }
       const pFit = pCount ? pSum / pCount : 0.5;
 
-      // cognitive fit
-      const cogNorm = cognitive.score / 9;
-      const profileMatch = c.required_profile?.includes(cognitive.profile) ? 1 : 0.5;
-      const cFit = cogNorm * 0.6 + profileMatch * 0.4;
-
       // interest fit
       const req = c.required_interests ?? [];
       const iFit = req.length
         ? req.reduce((s, k) => s + (interestMap.get(k) ?? 0), 0) / req.length
         : 0.5;
 
-      const raw = preferencesOnly
-        ? (pFit * 0.4 + iFit * 0.25) / 0.65
-        : pFit * 0.4 + cFit * 0.35 + iFit * 0.25;
-      // demand multiplier nudge (small)
-      const score = Math.round(Math.min(99, raw * 100 + (c.demand_score - 75) * 0.05));
+      // Old signed sessions may contain only visual choices. In those cases
+      // rank from work preferences alone; never promote the visual signal.
+      const raw = hasDirectEvidence
+        ? pFit * weights.personality + iFit * weights.directInterest
+        : pFit;
+      const score = Math.round(Math.min(99, raw * 100));
       // The field interests this career needs that the user actually leans
       // toward (top few) — powers a concrete "why this fits" on the results page.
       const matchFields = req
@@ -361,11 +361,14 @@ export function attachMajorsToCareers<T extends Match>(
 export function matchMajors(
   majors: Major[],
   personality: PersonalityScore,
-  cognitive: CognitiveScore,
+  _cognitive: CognitiveScore,
   interests: { key: string; weight: number }[],
   preferencesOnly = false,
+  _visualInterests: { key: string; weight: number }[] = [],
 ): Match[] {
   const interestMap = new Map(interests.map((i) => [i.key, i.weight]));
+  const weights = SCORING_WEIGHTS[preferencesOnly ? "child" : "teen_adult"];
+  const hasDirectEvidence = interests.some((interest) => interest.weight > 0);
   return majors
     .map((m) => {
       let pSum = 0,
@@ -375,16 +378,13 @@ export function matchMajors(
         pCount += weight ?? 1;
       }
       const pFit = pCount ? pSum / pCount : 0.5;
-      const cogNorm = cognitive.score / 9;
-      const profileMatch = m.required_profile?.includes(cognitive.profile) ? 1 : 0.5;
-      const cFit = cogNorm * 0.6 + profileMatch * 0.4;
       const req = m.required_interests ?? [];
       const iFit = req.length
         ? req.reduce((s, k) => s + (interestMap.get(k) ?? 0), 0) / req.length
         : 0.5;
-      const raw = preferencesOnly
-        ? (pFit * 0.4 + iFit * 0.25) / 0.65
-        : pFit * 0.4 + cFit * 0.35 + iFit * 0.25;
+      const raw = hasDirectEvidence
+        ? pFit * weights.personality + iFit * weights.directInterest
+        : pFit;
       return {
         key: m.key,
         name: m.name,

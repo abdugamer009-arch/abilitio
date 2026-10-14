@@ -4,6 +4,7 @@ import { useWords } from "@/lib/editorial";
 import { SchoolReportPreview } from "./SchoolReportPreview";
 import { FOUNDERS, FounderPortrait } from "./FounderPortrait";
 import { PageShell } from "./PageShell";
+import { scoringMethodology } from "@/lib/assessment/scoring-config";
 import {
   CartoonIllustration,
   CartoonRowIcon,
@@ -180,17 +181,21 @@ export function EditorialPage({ kind }: { kind: Kind }) {
       [
         w("9 reasoning questions", "9 mantiqiy savol", "9 вопросов на мышление"),
         w(
-          "Correct answers contribute to a 0–9 aptitude scale used by the recommendation engine. Language, prior practice and familiarity affect performance. We do not convert it into IQ.",
-          "To‘g‘ri javoblar tavsiya tizimidagi 0–9 qobiliyat shkalasiga hissa qo‘shadi. Til, mashq va tanishlik ta’sir qiladi. IQga aylantirmaymiz.",
-          "Правильные ответы формируют шкалу способностей 0–9. Влияют язык, практика и знакомство с задачами. В IQ она не переводится.",
+          "Correct answers are shown separately as a score out of nine. Language, practice and familiarity affect the score. It is not used to rank careers or converted into IQ.",
+          "To‘g‘ri javoblar to‘qqiztadan alohida ko‘rsatiladi. Til, mashq va tanishlik natijaga ta’sir qiladi. U kasblar tartibiga ta’sir qilmaydi va IQga aylantirilmaydi.",
+          "Число верных ответов показано отдельно из девяти. Язык, практика и знакомство с заданиями влияют на результат. Он не используется для ранжирования профессий и не переводится в IQ.",
         ),
       ],
       [
-        w("9 visual interest choices", "9 vizual qiziqish tanlovi", "9 выборов интересов"),
         w(
-          "Your visual choices describe preferences across six interest themes: practical, investigative, creative, social, enterprising and organized work. They do not prove skill or future ability.",
-          "Vizual tanlovlar amaliy, tadqiqot, ijodiy, ijtimoiy, tashabbuskor va tartibli ish afzalliklarini tasvirlaydi. Ko‘nikma yoki kelajak qobiliyatini isbotlamaydi.",
-          "Визуальные выборы описывают интерес к практической, исследовательской, творческой, социальной, предпринимательской и организованной работе. Это не доказательство навыков или будущих способностей.",
+          "9 activity and subject choices",
+          "9 mashg‘ulot va fan tanlovi",
+          "9 выборов занятий и предметов",
+        ),
+        w(
+          "Concrete activity and subject choices describe interests across practical, investigative, creative, social, enterprising and organized work. They do not prove skill or future ability.",
+          "Aniq mashg‘ulot va fan tanlovlari amaliy, tadqiqot, ijodiy, ijtimoiy, tashabbuskor va tartibli ishga qiziqishni tasvirlaydi. Ular ko‘nikma yoki kelajak qobiliyatini isbotlamaydi.",
+          "Выбор конкретных занятий и предметов описывает интерес к практической, исследовательской, творческой, социальной, предпринимательской и организованной работе. Это не доказательство навыков или будущих способностей.",
         ),
       ],
       [
@@ -220,9 +225,9 @@ export function EditorialPage({ kind }: { kind: Kind }) {
           "Что меняет балл за мышление",
         ),
         w(
-          "The formula combines work preferences (40%), reasoning and profile alignment (35%), and visual interests (25%). Within the same profile, more correct reasoning answers raise every career’s underlying score equally. The profile can also change at score thresholds. Relative differences come from preferences, interests and profile alignment, with a small demand adjustment. These weights have not been independently validated as predictions.",
-          "Formula ish afzalliklari (40%), mantiq va profil mosligi (35%), vizual qiziqishlarni (25%) birlashtiradi. Profil bir xil bo‘lsa, ko‘proq to‘g‘ri javob barcha kasblarning asosiy balini teng oshiradi. Ball chegaralarida profil ham o‘zgarishi mumkin. Farqlar afzalliklar, qiziqishlar, profil mosligi va talab bo‘yicha kichik tuzatishdan keladi. Bu vaznlar mustaqil bashorat tekshiruvidan o‘tmagan.",
-          "Формула объединяет рабочие предпочтения (40%), мышление и соответствие профилю (35%), визуальные интересы (25%). При одном профиле больше верных ответов одинаково повышает исходные баллы всех профессий. На порогах балла профиль также может меняться. Различия связаны с предпочтениями, интересами и профилем с небольшой поправкой на спрос. Независимая проверка этих весов как прогноза не выполнена.",
+          scoringMethodology("teen_adult", "en"),
+          scoringMethodology("teen_adult", "uz"),
+          scoringMethodology("teen_adult", "ru"),
         ),
       ],
     ];

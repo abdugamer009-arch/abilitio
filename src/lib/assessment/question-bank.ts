@@ -1,6 +1,7 @@
 import { SAMPLE_QUESTIONS } from "./sample-questions";
 import { COGNITIVE_REPAIRS } from "./cognitive-repairs";
 import { CHILD_PERSONALITY, CHILD_INTEREST } from "./child-questions";
+import { ADULT_ACTIVITY_BANK } from "./activity-questions";
 import type { AgeGroup } from "./career-assessment";
 // Question Bank — master pool for all assessment questions.
 // Expandable: the session picker selects 12 personality, 9 cognitive and 9 interest items.
@@ -4905,7 +4906,7 @@ for (const q of [...PERSONALITY_BANK, ...IQ_BANK, ...INTEREST_BANK]) q.ageGroups
 export function validateAgePools(warn: (message: string) => void = console.warn) {
   for (const age of ["child", "teen_adult"] as const) {
     const p = age === "child" ? CHILD_PERSONALITY : PERSONALITY_BANK;
-    const interests = age === "child" ? CHILD_INTEREST : INTEREST_BANK;
+    const interests = age === "child" ? CHILD_INTEREST : ADULT_ACTIVITY_BANK;
     if (
       ["EI", "SN", "TF", "JP"].some((axis) => p.filter((q) => q.axis === axis).length < 3) ||
       interests.length < (age === "child" ? 18 : 9) ||
@@ -4938,7 +4939,7 @@ export function pickSessionQuestions(age: AgeGroup = "teen_adult"): SessionQuest
     if (byAxis[ax].length < 3) throw new Error("assessment_content_incomplete: personality pool");
     personality.push(...byAxis[ax].slice(0, 3));
   }
-  const interestPool = (age === "child" ? CHILD_INTEREST : INTEREST_BANK).filter((q) =>
+  const interestPool = (age === "child" ? CHILD_INTEREST : ADULT_ACTIVITY_BANK).filter((q) =>
     q.ageGroups?.includes(age),
   );
   const interestCount = age === "child" ? 18 : 9;
@@ -5003,7 +5004,7 @@ export function getIQCorrect(id: string): number | null {
 // the client can't inflate or fabricate orientation weights.
 const INTEREST_OPTION_RIASEC: Map<string, Partial<Record<RiasecDim, number>>> = (() => {
   const m = new Map<string, Partial<Record<RiasecDim, number>>>();
-  for (const q of [...INTEREST_BANK, ...CHILD_INTEREST])
+  for (const q of [...INTEREST_BANK, ...CHILD_INTEREST, ...ADULT_ACTIVITY_BANK])
     for (const o of q.options) m.set(o.id, o.riasec);
   return m;
 })();

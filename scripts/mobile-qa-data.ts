@@ -2,10 +2,10 @@
 import {
   PERSONALITY_BANK,
   IQ_BANK,
-  INTEREST_BANK,
   pickSessionQuestions,
 } from "../src/lib/assessment/question-bank";
 import { CHILD_PERSONALITY, CHILD_INTEREST } from "../src/lib/assessment/child-questions";
+import { ADULT_ACTIVITY_BANK } from "../src/lib/assessment/activity-questions";
 import { QUESTION_TRANSLATIONS } from "../src/lib/assessment/question-translations";
 import { signSession } from "../src/lib/assessment/session.server";
 import { CAREER_CATALOG, MAJOR_CATALOG } from "../src/lib/assessment/catalog.server";
@@ -50,7 +50,7 @@ export function buildFixtures(lang: string, mode: "longest" | "random") {
   const longest: Record<string, unknown> = {};
   for (const age of ["child", "teen_adult"] as AgeGroup[]) {
     const pPool = age === "child" ? CHILD_PERSONALITY : PERSONALITY_BANK;
-    const iPool = age === "child" ? CHILD_INTEREST : INTEREST_BANK;
+    const iPool = age === "child" ? CHILD_INTEREST : ADULT_ACTIVITY_BANK;
     const s = pickSessionQuestions(age);
     if (mode === "longest") {
       s.personality = ["EI", "SN", "TF", "JP"].flatMap((axis) =>
@@ -132,6 +132,7 @@ export function buildFixtures(lang: string, mode: "longest" | "random") {
     const { interests, riasec } = scoreInterests(s.interest.map((q) => q.options[0].riasec));
     results[age] = {
       id: `mobile-${age}`,
+      evidence_coverage: "direct",
       personality_type: personality.mbti,
       work_style: personality.workStyle,
       leadership_style: personality.leadershipStyle,
