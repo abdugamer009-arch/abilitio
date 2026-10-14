@@ -41,6 +41,7 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { MBTI_DESCRIPTIONS } from "@/lib/assessment/mbti-descriptions";
 import { presentationSummary } from "@/lib/assessment/summary-integrity";
+import { reasoningCaveat } from "@/lib/assessment/reasoning-copy";
 import { useWords } from "@/lib/editorial";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -66,7 +67,6 @@ type Career = { name: string; match: number; reason: string };
 type Result = {
   id: string;
   iq_score: number;
-  iq_level: string;
   mbti_type: string;
   top_strengths: string[];
   weaknesses?: string[];
@@ -101,7 +101,7 @@ type TabKey = "results" | "stats" | "skills" | "weekly" | "universities" | "abbi
 function DashboardPage() {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
-  const { lang, t, tCareer, tTrait, tIqLevel } = useI18n();
+  const { lang, t, tCareer, tTrait } = useI18n();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [results, setResults] = useState<Result[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -168,7 +168,6 @@ function DashboardPage() {
           return {
             id: row.id as string,
             iq_score: cog,
-            iq_level: (row.cognitive_tier as string) ?? "—",
             mbti_type: (row.personality_type as string) ?? "—",
             top_strengths: summary.strengths,
             weaknesses: summary.improvements,
@@ -296,7 +295,6 @@ function DashboardPage() {
                 latest={latest}
                 tCareer={tCareer}
                 tTrait={tTrait}
-                tIqLevel={tIqLevel}
                 t={t}
               />
             )}
@@ -512,17 +510,16 @@ function ResultsSection({
   latest,
   tCareer,
   tTrait,
-  tIqLevel,
   t,
 }: {
   results: Result[];
   latest: Result | undefined;
   tCareer: (n: string) => { name: string; reason: string };
   tTrait: (n: string) => string;
-  tIqLevel: (l: string) => string;
   t: ReturnType<typeof useI18n>["t"];
 }) {
   const tr = useUiText();
+  const { lang } = useI18n();
 
   const w = useWords();
   if (!latest) {
@@ -553,7 +550,7 @@ function ResultsSection({
           label={tr("Reasoning / 9")}
           value={latest.iq_score}
           max={9}
-          hint={tr(tIqLevel(latest.iq_level))}
+          hint={reasoningCaveat(lang)}
           icon={Brain}
         />
         <MetricCard

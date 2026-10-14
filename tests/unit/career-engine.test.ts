@@ -34,7 +34,7 @@ describe("scorePersonality", () => {
     expect([p.workStyle, p.leadershipStyle, p.learningStyle, p.teamStyle]).toEqual(
       Array(4).fill("Mixed preferences"),
     );
-    expect(c.profile).toBe("Exploring");
+    expect(c.profile).toBe("Not inferred");
     expect(deriveStrengths(p, c, Array(12).fill(3), PERSONALITY_QS)).toEqual([]);
     expect(deriveImprovements(p, c, Array(12).fill(3), PERSONALITY_QS)).not.toContain(
       "Practice public speaking to amplify ideas",
@@ -95,19 +95,19 @@ describe("scorePersonality", () => {
 });
 
 describe("scoreCognitive", () => {
-  it("scores 9/9 as Exceptional", () => {
+  it("scores 9/9 without an ability tier", () => {
     const correct = [0, 1, 2, 3, 0, 1, 2, 3, 0];
     const result = scoreCognitive(correct, correct, "INTJ");
     expect(result.score).toBe(9);
-    expect(result.tier).toBe("Exceptional");
+    expect(result.tier).toBe("Attempt score");
   });
 
-  it("scores 0/9 as Basic", () => {
+  it("scores 0/9 without an ability tier", () => {
     const correct = [0, 1, 2, 3, 0, 1, 2, 3, 0];
     const wrong = [3, 0, 1, 2, 3, 0, 1, 2, 3];
     const result = scoreCognitive(wrong, correct, "ESTP");
     expect(result.score).toBe(0);
-    expect(result.tier).toBe("Basic");
+    expect(result.tier).toBe("Attempt score");
   });
 
   it("does not count unanswered (-1) as correct", () => {
@@ -117,10 +117,10 @@ describe("scoreCognitive", () => {
     expect(result.score).toBe(0);
   });
 
-  it("assigns Strategic profile for NT + score >= 7", () => {
+  it("does not infer a thinker profile from reasoning score and personality", () => {
     const correct = [0, 1, 2, 3, 0, 1, 2, 0, 0];
     const result = scoreCognitive(correct, correct, "INTJ");
-    expect(result.profile).toBe("Strategic");
+    expect(result.profile).toBe("Not inferred");
   });
 });
 

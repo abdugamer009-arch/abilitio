@@ -11,6 +11,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useWords } from "@/lib/editorial";
 import { getMyCareerResult, type CareerResultDTO } from "@/lib/assessment/career.functions";
 import { scoringMethodology } from "@/lib/assessment/scoring-config";
+import { formatReasoningScore, reasoningCaveat } from "@/lib/assessment/reasoning-copy";
 
 import { Reveal } from "@/components/Reveal";
 import { GlowBlob } from "@/components/GlowBlob";
@@ -191,13 +192,13 @@ function CareerResultsPage() {
       200,
     );
 
-    // Cognitive tier
+    // Reasoning is an attempt count, never an ability classification.
     ctx.font = `500 28px ${bodyFont}`;
     ctx.fillStyle = color("--body-text");
     ctx.fillText(
       childResult
         ? w("Explore what you enjoy", "Qiziqishlaringni kashf qil", "Узнай, что тебе нравится")
-        : `${tr(r.cognitive_tier)} · ${tr(r.cognitive_profile)} ${t.careerResults.thinker} · ${t.careerResults.cognitiveProfile} ${r.cognitive_score}/9`,
+        : formatReasoningScore(r.cognitive_score, lang),
       80,
       250,
     );
@@ -416,7 +417,11 @@ function CareerResultsPage() {
                 title={
                   childResult
                     ? w("Play and discover", "O‘yna va kashf qil", "Играй и узнавай")
-                    : t.careerResults.cognitiveProfile
+                    : w(
+                        "Reasoning on this attempt",
+                        "Bu urinishdagi mantiq",
+                        "Результат заданий в этой попытке",
+                      )
                 }
               >
                 {childResult ? (
@@ -436,10 +441,10 @@ function CareerResultsPage() {
                       />
                       /9
                     </div>
-                    <div className="mt-2 text-sm font-medium">{tr(r.cognitive_tier)}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {tr(r.cognitive_profile)} {t.careerResults.thinker}
+                    <div className="mt-2 text-sm font-medium">
+                      {formatReasoningScore(r.cognitive_score, lang)}
                     </div>
+                    <p className="mt-2 text-sm text-muted-foreground">{reasoningCaveat(lang)}</p>
                   </>
                 )}
               </Card>

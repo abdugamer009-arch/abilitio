@@ -31,8 +31,14 @@ export function presentationSummary(input: {
     Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
   return {
     summary_unverified: !verified,
-    strengths: verified ? strings(input.strengths) : [],
-    improvements: verified ? strings(input.improvements) : [],
+    strengths: verified
+      ? strings(input.strengths).filter((claim) => claim !== "Strong analytical reasoning")
+      : [],
+    improvements: verified
+      ? strings(input.improvements).filter(
+          (claim) => claim !== "Build problem-solving habits with daily logic puzzles",
+        )
+      : [],
     work_style: verified ? (input.work_style ?? null) : "Mixed preferences",
     leadership_style: verified ? (input.leadership_style ?? null) : "Mixed preferences",
     learning_style: verified ? (input.learning_style ?? null) : "Mixed preferences",

@@ -503,7 +503,15 @@ export const getSchoolCareerOverview = createServerFn({ method: "GET" })
       const prof = profileMap.get(m.user_id) ?? { name: "Student", surname: "" };
       if (r) {
         personalityCounts[r.personality_type] = (personalityCounts[r.personality_type] ?? 0) + 1;
-        cognitiveCounts[r.cognitive_tier] = (cognitiveCounts[r.cognitive_tier] ?? 0) + 1;
+        const scoreBand =
+          r.cognitive_score == null
+            ? "Not assessed"
+            : r.cognitive_score <= 2
+              ? "0–2 of 9"
+              : r.cognitive_score <= 5
+                ? "3–5 of 9"
+                : "6–9 of 9";
+        cognitiveCounts[scoreBand] = (cognitiveCounts[scoreBand] ?? 0) + 1;
         if (top) {
           careerCounts[top.category] = careerCounts[top.category] ?? {
             count: 0,
@@ -523,7 +531,7 @@ export const getSchoolCareerOverview = createServerFn({ method: "GET" })
         class_name: className,
         mbti: r?.personality_type ?? null,
         cognitive_score: r?.cognitive_score ?? null,
-        cognitive_profile: r?.cognitive_profile ?? null,
+        cognitive_profile: null,
         top_career: top ? { name: top.name, score: top.score } : null,
         top_major: topU ? { name: topU.name, score: topU.score } : null,
         career_matches: r?.career_matches ?? [],

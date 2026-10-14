@@ -39,8 +39,22 @@ export type PersonalityScore = {
 
 export type CognitiveScore = {
   score: number; // Correct answers out of nine; never a clinical IQ score.
-  tier: "Exceptional" | "Advanced" | "Competent" | "Developing" | "Basic" | "Not assessed";
-  profile: "Analytical" | "Strategic" | "Practical" | "Research" | "Innovative" | "Exploring";
+  tier:
+    | "Attempt score"
+    | "Not assessed"
+    | "Exceptional"
+    | "Advanced"
+    | "Competent"
+    | "Developing"
+    | "Basic";
+  profile:
+    | "Not inferred"
+    | "Analytical"
+    | "Strategic"
+    | "Practical"
+    | "Research"
+    | "Innovative"
+    | "Exploring";
 };
 
 export type Match = { key: string; name: string; category: string; score: number };
@@ -131,31 +145,11 @@ function teamStyleFor(m: string): string {
 export function scoreCognitive(
   answers: number[],
   correctIndexes: number[],
-  mbti: string,
+  _mbti: string,
 ): CognitiveScore {
   let score = 0;
   for (let i = 0; i < correctIndexes.length; i++) if (answers[i] === correctIndexes[i]) score++;
-  const tier =
-    score >= 9
-      ? "Exceptional"
-      : score >= 7
-        ? "Advanced"
-        : score >= 5
-          ? "Competent"
-          : score >= 3
-            ? "Developing"
-            : "Basic";
-
-  // profile derived from MBTI × tier
-  let profile: CognitiveScore["profile"];
-  if (mbti.includes("X")) profile = "Exploring";
-  else if (mbti[1] === "N" && mbti[2] === "T" && score >= 7) profile = "Strategic";
-  else if (mbti[1] === "N" && score >= 7) profile = "Innovative";
-  else if (mbti[2] === "T" && score >= 5) profile = "Analytical";
-  else if (mbti[1] === "N" && mbti[3] === "P") profile = "Research";
-  else profile = "Practical";
-
-  return { score, tier, profile };
+  return { score, tier: "Attempt score", profile: "Not inferred" };
 }
 
 // ---------- Interests ----------
@@ -414,12 +408,11 @@ export const MIXED_SIGNALS_NOTE = "Mixed signals: some answers point in differen
 
 export function deriveStrengths(
   _p: PersonalityScore,
-  c: CognitiveScore,
+  _c: CognitiveScore,
   answers: number[],
   questions: PersonalityQ[],
 ): string[] {
   const out: string[] = [];
-  if (c.tier === "Exceptional" || c.tier === "Advanced") out.push("Strong analytical reasoning");
   let mixed = false;
   for (const axis of ["EI", "SN", "TF", "JP"] as const) {
     const signals = axisSignals(answers, questions, axis);
@@ -438,13 +431,11 @@ export function deriveStrengths(
 
 export function deriveImprovements(
   _p: PersonalityScore,
-  c: CognitiveScore,
+  _c: CognitiveScore,
   answers: number[],
   questions: PersonalityQ[],
 ): string[] {
   const out: string[] = [];
-  if (c.tier === "Developing" || c.tier === "Basic")
-    out.push("Build problem-solving habits with daily logic puzzles");
   const ei = supportedPole(axisSignals(answers, questions, "EI"));
   const jp = supportedPole(axisSignals(answers, questions, "JP"));
   if (ei === -1) out.push("Practice public speaking to amplify ideas");
