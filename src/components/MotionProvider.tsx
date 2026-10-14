@@ -42,6 +42,31 @@ export function MotionProvider({ children }: { children: ReactNode }) {
     if (!active) return;
     let cancelled = false;
     let dispose = () => {};
+    // Assessment owns its reading scroll area. No Lenis, pinning, parallax or
+    // route-wide masks may capture touch/focus inside that area.
+    if (
+      ["/career-assessment", "/career-results", "/assessment", "/iq-test", "/results"].includes(
+        location.pathname,
+      )
+    ) {
+      Promise.all([import("gsap"), import("gsap/CustomEase")])
+        .then(([{ gsap }, { CustomEase }]) => {
+          if (cancelled) return;
+          gsap.registerPlugin(CustomEase);
+          CustomEase.create("studioExpo", MOTION.entrance);
+          CustomEase.create("studioFlow", MOTION.transition);
+          gsap.set(".page-plane", { clearProps: "clipPath,transform" });
+          gsap.set(curtain.current, { clipPath: "inset(100% 0 0 0)" });
+          document.documentElement.dataset.intro = "done";
+          setReady(true);
+        })
+        .catch(() => {
+          if (!cancelled) setAllowed(false);
+        });
+      return () => {
+        cancelled = true;
+      };
+    }
     const first = location.pathname === "/" && !introSeen.current;
     setCompleted(0);
     if (first) setLoading(true);

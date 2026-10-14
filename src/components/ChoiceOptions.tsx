@@ -1,4 +1,5 @@
 import { Check, X, ArrowUpRight } from "lucide-react";
+import "./choice-options.css";
 
 /** Shared by the actual assessment and public workshop. Native radios retain keyboard behavior. */
 export function ChoiceOptions({
@@ -27,8 +28,8 @@ export function ChoiceOptions({
           <span className="choice-letter" aria-hidden>
             {String.fromCharCode(65 + i)}
           </span>
-          <span>{option}</span>
-          <span className="choice-check" aria-hidden>
+          <span className="choice-copy">{option}</span>
+          <span className="choice-check" aria-hidden="true">
             {feedback !== undefined && i === correct ? (
               <Check size={24} />
             ) : feedback !== undefined && i === feedback ? (

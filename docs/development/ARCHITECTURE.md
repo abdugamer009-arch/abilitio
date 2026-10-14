@@ -44,9 +44,9 @@ sequenceDiagram
     participant BANK as Banks and engine
     participant DB as Supabase
     UI->>FN: Start anonymous attempt
-    FN->>BANK: Pick balanced 12/9/9 questions and shuffle options
-    FN-->>UI: Localized question DTO and signed session
-    Note over UI: Answers/draft stay in this browser during sign-in
+    FN->>BANK: Pick older 12/9/9 and child 12/0/18 variants; shuffle options
+    FN-->>UI: Both localized DTOs and signed sessions in one response
+    Note over UI: Chosen profile and draft stay in this tab during sign-in
     UI->>FN: Submit answers with authenticated session
     FN->>FN: Verify signature, expiry, membership and ban status
     FN->>BANK: Resolve keys and compute scores
@@ -58,7 +58,17 @@ sequenceDiagram
 
 The full bank and hidden answer keys stay on the server. Signed option permutations map displayed positions back to canonical answer keys. Repaired questions have versioned IDs so older signed attempts remain gradable. New results include all 166 canonical careers; historical stored rankings are not rewritten.
 
+The assessment has its own reading layout in `src/styles/assessment.css`. Below 1024px, the frame uses dynamic viewport height and safe-area padding, with a compact header, internally scrolling question region and a persistent bottom action. VisualViewport changes resize the frame for keyboards. Choice copy has zero minimum inline size and wraps inside single-column cards; shared cognitive options use `src/components/choice-options.css`. Phone profile choices also stack so enlarged text cannot be trapped behind the primary action. Keep answer/input text at least 16px and retain native radio semantics.
+
+Assessment/result routes bypass the editorial Lenis, ScrollTrigger and page-mask setup in MotionProvider. Question transitions use short transform/opacity motion and respect reduced motion. The existing brain component is an SVG poster, not a WebGL renderer, and is not mounted behind the assessment. The daily browser matrix lives in `scripts/mobile-qa.cjs`; Node-only fixture generation strips hidden catalog data before browser delivery. See the README for complete, random and stress checks.
+
+The pre-test chooser stores one `{gender, ageGroup}` profile and its draft in sessionStorage, never localStorage or server demographic fields. Valid pre-feature v3 drafts are migrated from localStorage to the session: answers are preserved, the older group is selected, and gender remains required before continuing. `startProfileSessions` delivers both signed variants in the same request; the browser chooses locally. Older attempts retain 12 personality / 9 reasoning / 9 interest items. Child attempts use 12 simple personality / 18 concrete activity questions, drawn from 36 new localized items. Child matching renormalizes personality and interest contributions without a cognitive component; saved cognitive score is null, tier is `Not assessed`, and scoring version is `v4-preferences`. Submitted question membership inherently reveals which variant was used, although no demographic profile is submitted. Both remain exploratory, with no claim of validated child psychometrics.
+
+`result-rules.ts` lists all 166 career keys with rules for each gender. The default neutral factor 1 retains opportunity and preference-based scoring; actor, teacher and dancer have grammatical wording overrides. The presentation engine supports soft downweights, exclusions and a nonempty fallback. These adjustments are browser presentation only: canonical server rankings, community assignment and school reporting remain unchanged. A session-only profile is bound to the saved result ID and account ID, preventing it from styling another person's history. Missing profiles display canonical results. Reset clears the draft and result profile; changing age confirms and starts a new attempt; changing gender retains answers. GSAP panel unsealing reuses `MOTION` and the existing motion provider, cleans up on every transition and respects reduced motion.
+
 Scoring version `v3` represents a tied personality axis as `X`, retains its continuous letter weights at 0.5, and suppresses styles depending on that axis. Results/dashboard display Mixed preferences; a partial or fully tied type yields the neutral Exploring cognitive profile. No new numerical uncertainty cutoff or career weighting scheme is introduced. Saved `v1`/`v2` results are retained; retries return skills from the recovered row's profile.
+
+`v5-evidence` and `v5-preferences-evidence` keep ranking separate from descriptive claims. A new categorical strength or style requires at least two supporting personality answers, a net signal of two, and no opposing answer on that axis. Conflicting answers yield a localized Mixed signals note. Improvements use the same evidence gate. Earlier rows lack retained item-level answers, so their categorical strengths/styles are hidden on presentation and labelled unverified until the student retakes the assessment. The saved record remains intact.
 
 `catalog.server.ts` is derived from SQL seed content. Database records override matching keys and additional records remain available. Reads still surface errors, and `catalog.ts` validates the combined records before matching. Changes to canonical seed content must keep the SQL and server catalog consistent.
 

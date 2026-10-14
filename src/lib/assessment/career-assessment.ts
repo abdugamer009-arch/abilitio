@@ -3,7 +3,10 @@
 // The actual question content is server-authoritative and lives in
 // question-bank.ts; this file only defines the shapes it's built from.
 
-export type PersonalityQ = {
+export type AgeGroup = "child" | "teen_adult";
+export type AgeMetadata = { ageGroups?: AgeGroup[]; addedBy?: "feature-age" };
+
+export type PersonalityQ = AgeMetadata & {
   id: string;
   section: "personality";
   prompt: string;
@@ -11,7 +14,7 @@ export type PersonalityQ = {
   direction: 1 | -1; // 1 = agree pushes toward first letter, -1 = second
 };
 
-export type CognitiveQ = {
+export type CognitiveQ = AgeMetadata & {
   id: string;
   section: "cognitive";
   prompt: string;
@@ -57,7 +60,7 @@ export type InterestTheme =
   | "material"
   | "motion";
 
-export type InterestQ = {
+export type InterestQ = AgeMetadata & {
   id: string;
   section: "interest";
   prompt: string;

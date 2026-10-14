@@ -35,8 +35,10 @@ describe("scorePersonality", () => {
       Array(4).fill("Mixed preferences"),
     );
     expect(c.profile).toBe("Exploring");
-    expect(deriveStrengths(p, c)).toEqual([]);
-    expect(deriveImprovements(p, c)).not.toContain("Practice public speaking to amplify ideas");
+    expect(deriveStrengths(p, c, Array(12).fill(3), PERSONALITY_QS)).toEqual([]);
+    expect(deriveImprovements(p, c, Array(12).fill(3), PERSONALITY_QS)).not.toContain(
+      "Practice public speaking to amplify ideas",
+    );
   });
   it("keeps directional evidence on other axes when one axis is tied", () => {
     const p = scorePersonality([3, 3, 3, 5, 1, 5, 5, 1, 5, 5, 1, 5], PERSONALITY_QS);
@@ -44,9 +46,14 @@ describe("scorePersonality", () => {
     expect(p.workStyle).toBe("Mixed preferences");
     expect(p.leadershipStyle).toBe("Strategic Commander");
     expect(p.letters.S).toBe(1);
-    expect(deriveStrengths(p, scoreCognitive([], [], p.mbti))).not.toContain(
-      "Deep focus & introspection",
-    );
+    expect(
+      deriveStrengths(
+        p,
+        scoreCognitive([], [], p.mbti),
+        [3, 3, 3, 5, 1, 5, 5, 1, 5, 5, 1, 5],
+        PERSONALITY_QS,
+      ),
+    ).not.toContain("Deep focus & introspection");
   });
   it("centers neutral answers and increases agreement monotonically", () => {
     const neutral = scorePersonality(Array(12).fill(3), PERSONALITY_QS);

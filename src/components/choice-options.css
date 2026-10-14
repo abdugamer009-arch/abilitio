@@ -1,0 +1,26 @@
+/* Text must shrink between the decorative letter and state icon. Page clipping
+   must never be used to conceal min-content overflow in a choice card. */
+.choice-options:has(.choice-copy),
+.choice-options .choice-option {
+  min-inline-size: 0;
+}
+.choice-option .choice-copy {
+  flex: 1 1 0%;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+.choice-option .choice-check {
+  flex: 0 0 20px;
+  display: grid;
+  place-items: center;
+  inline-size: 20px;
+  block-size: 24px;
+  margin-inline-start: 0;
+}
+@media (max-width: 767px) {
+  .choice-options:has(.choice-copy) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+}

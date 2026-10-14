@@ -40,6 +40,7 @@ import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { MBTI_DESCRIPTIONS } from "@/lib/assessment/mbti-descriptions";
+import { presentationSummary } from "@/lib/assessment/summary-integrity";
 import { useWords } from "@/lib/editorial";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -152,6 +153,11 @@ function DashboardPage() {
       setProfile(p ?? null);
       const mapped: Result[] = ((r as unknown as Array<Record<string, unknown>>) ?? []).map(
         (row) => {
+          const summary = presentationSummary({
+            scoring_version: row.scoring_version as string | null,
+            strengths: row.strengths as string[] | null,
+            improvements: row.improvements as string[] | null,
+          });
           const cog = (row.cognitive_score as number | null) ?? 0;
           const matches =
             (row.career_matches as Array<{
@@ -164,8 +170,8 @@ function DashboardPage() {
             iq_score: cog,
             iq_level: (row.cognitive_tier as string) ?? "—",
             mbti_type: (row.personality_type as string) ?? "—",
-            top_strengths: (row.strengths as string[]) ?? [],
-            weaknesses: (row.improvements as string[]) ?? [],
+            top_strengths: summary.strengths,
+            weaknesses: summary.improvements,
             careers: matches.map((c) => ({
               name: c.name,
               match: Math.round(c.score),

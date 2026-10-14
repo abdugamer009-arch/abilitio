@@ -1,3 +1,9 @@
+@import "@fontsource-variable/bricolage-grotesque/wght.css";
+@import "@fontsource-variable/dm-sans/wght.css";
+@import "@fontsource-variable/rubik/wght.css";
+@import "@fontsource-variable/onest/wght.css";
+@import "@fontsource/caveat/600.css";
+@import "@fontsource/caveat/700.css";
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
@@ -6,8 +12,8 @@
 
 /* One palette for the site, illustration paths, exports and both themes. */
 @theme inline {
-  --font-sans: "DM Sans", "Onest", sans-serif;
-  --font-display: "Bricolage Grotesque", "Rubik", sans-serif;
+  --font-sans: "DM Sans Variable", "Onest Variable", sans-serif;
+  --font-display: "Bricolage Grotesque Variable", "Rubik Variable", sans-serif;
   --font-hand: "Caveat", cursive;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -185,8 +191,8 @@ h2 {
   letter-spacing: -0.035em;
 }
 html[lang="ru"] {
-  --font-display: "Rubik", "Bricolage Grotesque", sans-serif;
-  --font-sans: "Onest", "DM Sans", sans-serif;
+  --font-display: "Rubik Variable", "Bricolage Grotesque Variable", sans-serif;
+  --font-sans: "Onest Variable", "DM Sans Variable", sans-serif;
 }
 button,
 input,

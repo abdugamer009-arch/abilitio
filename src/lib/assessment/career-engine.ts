@@ -38,11 +38,34 @@ export type PersonalityScore = {
 
 export type CognitiveScore = {
   score: number; // Correct answers out of nine; never a clinical IQ score.
-  tier: "Exceptional" | "Advanced" | "Competent" | "Developing" | "Basic";
+  tier: "Exceptional" | "Advanced" | "Competent" | "Developing" | "Basic" | "Not assessed";
   profile: "Analytical" | "Strategic" | "Practical" | "Research" | "Innovative" | "Exploring";
 };
 
 export type Match = { key: string; name: string; category: string; score: number };
+
+function axisSignals(
+  answers: number[],
+  questions: PersonalityQ[],
+  axis: PersonalityQ["axis"],
+): number[] {
+  return questions.flatMap((question, index) =>
+    question.axis === axis ? [((answers[index] ?? 3) - 3) * question.direction] : [],
+  );
+}
+
+function supportedPole(signals: number[]): 1 | -1 | 0 {
+  for (const pole of [1, -1] as const) {
+    const oriented = signals.map((signal) => signal * pole);
+    if (
+      oriented.filter((signal) => signal >= 1).length >= 2 &&
+      oriented.reduce((sum, signal) => sum + signal, 0) >= 2 &&
+      !oriented.some((signal) => signal < 0)
+    )
+      return pole;
+  }
+  return 0;
+}
 
 // ---------- Personality ----------
 export function scorePersonality(answers: number[], questions: PersonalityQ[]): PersonalityScore {
@@ -57,6 +80,12 @@ export function scorePersonality(answers: number[], questions: PersonalityQ[]): 
   const mbti = (["EI", "SN", "TF", "JP"] as const)
     .map((axis) => (sums[axis] === 0 ? "X" : axis[sums[axis] > 0 ? 0 : 1]))
     .join("");
+  const summaryType = (["EI", "SN", "TF", "JP"] as const)
+    .map((axis) => {
+      const pole = supportedPole(axisSignals(answers, questions, axis));
+      return pole === 0 ? "X" : axis[pole === 1 ? 0 : 1];
+    })
+    .join("");
 
   const letters: Record<string, number> = {};
   for (const k of ["EI", "SN", "TF", "JP"] as const) {
@@ -69,10 +98,10 @@ export function scorePersonality(answers: number[], questions: PersonalityQ[]): 
   return {
     mbti,
     letters,
-    workStyle: workStyleFor(mbti),
-    leadershipStyle: leadershipStyleFor(mbti),
-    learningStyle: learningStyleFor(mbti),
-    teamStyle: teamStyleFor(mbti),
+    workStyle: workStyleFor(summaryType),
+    leadershipStyle: leadershipStyleFor(summaryType),
+    learningStyle: learningStyleFor(summaryType),
+    teamStyle: teamStyleFor(summaryType),
   };
 }
 
@@ -259,6 +288,7 @@ export function matchCareers(
   personality: PersonalityScore,
   cognitive: CognitiveScore,
   interests: { key: string; weight: number }[],
+  preferencesOnly = false,
 ): CareerMatch[] {
   const interestMap = new Map(interests.map((i) => [i.key, i.weight]));
   return careers
@@ -284,7 +314,9 @@ export function matchCareers(
         ? req.reduce((s, k) => s + (interestMap.get(k) ?? 0), 0) / req.length
         : 0.5;
 
-      const raw = pFit * 0.4 + cFit * 0.35 + iFit * 0.25;
+      const raw = preferencesOnly
+        ? (pFit * 0.4 + iFit * 0.25) / 0.65
+        : pFit * 0.4 + cFit * 0.35 + iFit * 0.25;
       // demand multiplier nudge (small)
       const score = Math.round(Math.min(99, raw * 100 + (c.demand_score - 75) * 0.05));
       // The field interests this career needs that the user actually leans
@@ -331,6 +363,7 @@ export function matchMajors(
   personality: PersonalityScore,
   cognitive: CognitiveScore,
   interests: { key: string; weight: number }[],
+  preferencesOnly = false,
 ): Match[] {
   const interestMap = new Map(interests.map((i) => [i.key, i.weight]));
   return majors
@@ -349,7 +382,9 @@ export function matchMajors(
       const iFit = req.length
         ? req.reduce((s, k) => s + (interestMap.get(k) ?? 0), 0) / req.length
         : 0.5;
-      const raw = pFit * 0.4 + cFit * 0.35 + iFit * 0.25;
+      const raw = preferencesOnly
+        ? (pFit * 0.4 + iFit * 0.25) / 0.65
+        : pFit * 0.4 + cFit * 0.35 + iFit * 0.25;
       return {
         key: m.key,
         name: m.name,
@@ -361,27 +396,61 @@ export function matchMajors(
 }
 
 // ---------- Strengths / improvements ----------
-export function deriveStrengths(p: PersonalityScore, c: CognitiveScore): string[] {
+const STRENGTH_TRAITS: {
+  claim: string;
+  axis: PersonalityQ["axis"];
+  pole: 1 | -1;
+}[] = [
+  { claim: "Confident communicator", axis: "EI", pole: 1 },
+  { claim: "Deep focus & introspection", axis: "EI", pole: -1 },
+  { claim: "Big-picture thinking", axis: "SN", pole: -1 },
+  { claim: "Logical decision-making", axis: "TF", pole: 1 },
+  { claim: "Emotional intelligence", axis: "TF", pole: -1 },
+  { claim: "Organized & disciplined", axis: "JP", pole: 1 },
+  { claim: "Flexible & adaptive", axis: "JP", pole: -1 },
+];
+
+export const MIXED_SIGNALS_NOTE = "Mixed signals: some answers point in different directions.";
+
+export function deriveStrengths(
+  _p: PersonalityScore,
+  c: CognitiveScore,
+  answers: number[],
+  questions: PersonalityQ[],
+): string[] {
   const out: string[] = [];
   if (c.tier === "Exceptional" || c.tier === "Advanced") out.push("Strong analytical reasoning");
-  if (p.mbti[1] === "N") out.push("Big-picture thinking");
-  if (p.mbti[2] === "T") out.push("Logical decision-making");
-  if (p.mbti[2] === "F") out.push("Emotional intelligence");
-  if (p.mbti[3] === "J") out.push("Organized & disciplined");
-  if (p.mbti[3] === "P") out.push("Flexible & adaptive");
-  if (p.mbti[0] === "E") out.push("Confident communicator");
-  if (p.mbti[0] === "I") out.push("Deep focus & introspection");
-  return out.slice(0, 6);
+  let mixed = false;
+  for (const axis of ["EI", "SN", "TF", "JP"] as const) {
+    const signals = axisSignals(answers, questions, axis);
+    // Any opposing item blocks a categorical claim. Mixed answers are shown
+    // as uncertainty instead of being hidden by the axis average.
+    const claim = STRENGTH_TRAITS.find(
+      ({ axis: traitAxis, pole }) => traitAxis === axis && supportedPole(signals) === pole,
+    );
+    if (claim) out.push(claim.claim);
+    else if (signals.some((signal) => signal > 0) && signals.some((signal) => signal < 0))
+      mixed = true;
+  }
+  if (mixed) out.push(MIXED_SIGNALS_NOTE);
+  return out;
 }
 
-export function deriveImprovements(p: PersonalityScore, c: CognitiveScore): string[] {
+export function deriveImprovements(
+  _p: PersonalityScore,
+  c: CognitiveScore,
+  answers: number[],
+  questions: PersonalityQ[],
+): string[] {
   const out: string[] = [];
   if (c.tier === "Developing" || c.tier === "Basic")
     out.push("Build problem-solving habits with daily logic puzzles");
-  if (p.mbti[0] === "I") out.push("Practice public speaking to amplify ideas");
-  if (p.mbti[0] === "E") out.push("Develop deep-work sessions for focus");
-  if (p.mbti[3] === "P") out.push("Use structured planning tools");
-  if (p.mbti[3] === "J") out.push("Stay open to changing plans when new data arrives");
+  const ei = supportedPole(axisSignals(answers, questions, "EI"));
+  const jp = supportedPole(axisSignals(answers, questions, "JP"));
+  if (ei === -1) out.push("Practice public speaking to amplify ideas");
+  if (ei === 1) out.push("Develop deep-work sessions for focus");
+  if (jp === -1) out.push("Use structured planning tools");
+  if (jp === 1) out.push("Stay open to changing plans when new data arrives");
   out.push("Develop cross-disciplinary skills outside your strength");
   return out.slice(0, 5);
 }

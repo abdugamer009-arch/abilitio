@@ -15,7 +15,13 @@ import {
   type Career,
   type Major,
   type RiasecProfile,
+  type CognitiveScore,
 } from "./career-engine";
+import {
+  EVIDENCE_SCORING_VERSION,
+  EVIDENCE_PREFERENCES_VERSION,
+  presentationSummary,
+} from "./summary-integrity";
 import {
   PERSONALITY_BANK,
   IQ_BANK,
@@ -25,6 +31,8 @@ import {
   pickSessionQuestions,
 } from "./question-bank";
 import { QUESTION_TRANSLATIONS } from "./question-translations";
+import { CHILD_PERSONALITY, CHILD_INTEREST } from "./child-questions";
+import type { AgeGroup } from "./career-assessment";
 import type { RiasecDim, InterestVisual } from "./career-assessment";
 import { ensureNotBanned } from "../admin/admin.functions";
 import { readAll, readAllResult } from "../db-read";
@@ -63,57 +71,61 @@ function lo(id: string, en: string[]): LangOpts {
 
 // Public (no auth): anonymous users can take the assessment, then sign in to
 // submit. Correct answers and RIASEC weights are never included.
-export const startCareerSession = createServerFn({ method: "GET" }).handler(
-  async (): Promise<ClientSession> => {
-    const s = pickSessionQuestions();
-    const { signSession } = await import("./session.server");
-    const sessionToken = signSession({
-      personality: s.personality.map((q) => q.id),
-      iq: s.iq.map((q) => q.id),
-      iqOptionOrders: s.iq.map((q) => q.optionOrder!),
-      interest: s.interest.map((q) => ({ id: q.id, options: q.options.map((o) => o.id) })),
-    });
-    return {
-      sessionToken,
-      personality: s.personality.map((q) => ({ id: q.id, prompt: lp(q.id, q.prompt) })),
-      iq: s.iq.map((q) => {
-        const canonical = IQ_BANK.find((item) => item.id === q.id)!;
-        const labels = lo(q.id, canonical.options);
-        const order = q.optionOrder!;
-        return {
-          id: q.id,
-          prompt: lp(q.id, q.prompt),
-          options: {
-            en: order.map((i) => labels.en[i]),
-            ru: order.map((i) => labels.ru[i]),
-            uz: order.map((i) => labels.uz[i]),
-          },
-        };
-      }),
-      interest: s.interest.map((q) => ({
+async function deliverSession(age: AgeGroup): Promise<ClientSession> {
+  const s = pickSessionQuestions(age);
+  const { signSession } = await import("./session.server");
+  const sessionToken = signSession({
+    personality: s.personality.map((q) => q.id),
+    iq: s.iq.map((q) => q.id),
+    iqOptionOrders: s.iq.map((q) => q.optionOrder!),
+    interest: s.interest.map((q) => ({ id: q.id, options: q.options.map((o) => o.id) })),
+  });
+  return {
+    sessionToken,
+    personality: s.personality.map((q) => ({ id: q.id, prompt: lp(q.id, q.prompt) })),
+    iq: s.iq.map((q) => {
+      const canonical = IQ_BANK.find((item) => item.id === q.id)!;
+      const labels = lo(q.id, canonical.options);
+      const order = q.optionOrder!;
+      return {
         id: q.id,
-        theme: q.theme,
         prompt: lp(q.id, q.prompt),
-        options: q.options.map((o) => ({ id: o.id, visual: o.visual })),
-        labels: (() => {
-          const canonical = INTEREST_BANK.find((item) => item.id === q.id)!;
-          const labels = lo(
-            q.id,
-            canonical.options.map((o) => o.label),
-          );
-          const order = q.options.map((o) =>
-            canonical.options.findIndex((item) => item.id === o.id),
-          );
-          return {
-            en: order.map((i) => labels.en[i]),
-            ru: order.map((i) => labels.ru[i]),
-            uz: order.map((i) => labels.uz[i]),
-          };
-        })(),
-      })),
-    };
-  },
+        options: {
+          en: order.map((i) => labels.en[i]),
+          ru: order.map((i) => labels.ru[i]),
+          uz: order.map((i) => labels.uz[i]),
+        },
+      };
+    }),
+    interest: s.interest.map((q) => ({
+      id: q.id,
+      theme: q.theme,
+      prompt: lp(q.id, q.prompt),
+      options: q.options.map((o) => ({ id: o.id, visual: o.visual })),
+      labels: (() => {
+        const canonical = [...INTEREST_BANK, ...CHILD_INTEREST].find((item) => item.id === q.id)!;
+        const labels = lo(
+          q.id,
+          canonical.options.map((o) => o.label),
+        );
+        const order = q.options.map((o) => canonical.options.findIndex((item) => item.id === o.id));
+        return {
+          en: order.map((i) => labels.en[i]),
+          ru: order.map((i) => labels.ru[i]),
+          uz: order.map((i) => labels.uz[i]),
+        };
+      })(),
+    })),
+  };
+}
+export const startCareerSession = createServerFn({ method: "GET" }).handler(() =>
+  deliverSession("teen_adult"),
 );
+// Identical request for every visitor: demographic selections never cross this boundary.
+export const startProfileSessions = createServerFn({ method: "GET" }).handler(async () => ({
+  child: await deliverSession("child"),
+  teen_adult: await deliverSession("teen_adult"),
+}));
 
 export type CareerResultDTO = {
   id: string;
@@ -140,6 +152,7 @@ export type CareerResultDTO = {
   university_matches: { key: string; name: string; category: string; score: number }[];
   strengths: string[];
   improvements: string[];
+  summary_unverified?: boolean;
   recommended_skills: string[];
   created_at: string;
   /** Name of the community the submit auto-joined, so the UI can say so.
@@ -151,11 +164,11 @@ const submitSchema = z.object({
   sessionToken: z.string().min(1).max(12000),
   personalityQIds: z.array(z.string()).length(12),
   personalityAnswers: z.array(z.number().int().min(1).max(5)).length(12),
-  iqQIds: z.array(z.string()).length(9),
-  iqAnswers: z.array(z.number().int().min(-1).max(3)).length(9),
-  interestQIds: z.array(z.string()).length(9),
+  iqQIds: z.array(z.string()).max(9),
+  iqAnswers: z.array(z.number().int().min(-1).max(3)).max(9),
+  interestQIds: z.array(z.string()).min(9).max(18),
   // Each interest question is single-select, so at most one option id per question.
-  interestAnswers: z.array(z.array(z.string()).max(1)).length(9),
+  interestAnswers: z.array(z.array(z.string()).max(1)).min(9).max(18),
 });
 
 export const submitCareerAssessment = createServerFn({ method: "POST" })
@@ -175,7 +188,7 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
     // remaining answer against the wrong question; duplicates would let a
     // crafted client weight one axis 12 times.
     const personalityQs = data.personalityQIds.map((id) =>
-      PERSONALITY_BANK.find((q) => q.id === id),
+      [...PERSONALITY_BANK, ...CHILD_PERSONALITY].find((q) => q.id === id),
     );
     if (
       personalityQs.some((q) => q === undefined) ||
@@ -196,7 +209,10 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       data.personalityAnswers,
       personalityQs as NonNullable<(typeof PERSONALITY_BANK)[number]>[],
     );
-    const cognitive = scoreCognitive(data.iqAnswers, iqCorrect, personality.mbti);
+    const preferencesOnly = claim.iq.length === 0;
+    const cognitive: CognitiveScore = preferencesOnly
+      ? { score: 0, tier: "Not assessed", profile: "Exploring" }
+      : scoreCognitive(data.iqAnswers, iqCorrect, personality.mbti);
 
     // Interests: the client submits the ids of the symbols it chose. We resolve
     // each id to its hidden RIASEC vector server-side (authoritative), then the
@@ -229,15 +245,35 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       ],
     }));
 
-    const allMajorScores = matchMajors(majorList, personality, cognitive, interests);
+    const allMajorScores = matchMajors(
+      majorList,
+      personality,
+      cognitive,
+      interests,
+      preferencesOnly,
+    );
     const careerMatches = attachMajorsToCareers(
-      matchCareers(careerList, personality, cognitive, interests),
+      matchCareers(careerList, personality, cognitive, interests, preferencesOnly),
       majorList,
       allMajorScores,
     );
     const universityMatches = allMajorScores.slice(0, 10);
-    const strengths = deriveStrengths(personality, cognitive);
-    const improvements = deriveImprovements(personality, cognitive);
+    const strengths = preferencesOnly
+      ? []
+      : deriveStrengths(
+          personality,
+          cognitive,
+          data.personalityAnswers,
+          personalityQs as NonNullable<(typeof PERSONALITY_BANK)[number]>[],
+        );
+    const improvements = preferencesOnly
+      ? []
+      : deriveImprovements(
+          personality,
+          cognitive,
+          data.personalityAnswers,
+          personalityQs as NonNullable<(typeof PERSONALITY_BANK)[number]>[],
+        );
 
     // Persist
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -245,13 +281,13 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
     const row = await persistAssessmentResult(supabaseAdmin, {
       user_id: userId,
       session_nonce: claim.nonce,
-      scoring_version: "v3",
+      scoring_version: preferencesOnly ? EVIDENCE_PREFERENCES_VERSION : EVIDENCE_SCORING_VERSION,
       personality_type: personality.mbti,
       work_style: personality.workStyle,
       leadership_style: personality.leadershipStyle,
       learning_style: personality.learningStyle,
       team_style: personality.teamStyle,
-      cognitive_score: cognitive.score,
+      cognitive_score: preferencesOnly ? null : cognitive.score,
       cognitive_tier: cognitive.tier,
       cognitive_profile: cognitive.profile,
       interests,
@@ -286,10 +322,7 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
     return {
       id: row.id,
       personality_type: row.personality_type,
-      work_style: row.work_style,
-      leadership_style: row.leadership_style,
-      learning_style: row.learning_style,
-      team_style: row.team_style,
+      ...presentationSummary(row),
       cognitive_score: row.cognitive_score,
       cognitive_tier: row.cognitive_tier,
       cognitive_profile: row.cognitive_profile,
@@ -300,8 +333,6 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       ),
       career_matches: row.career_matches as CareerResultDTO["career_matches"],
       university_matches: row.university_matches as CareerResultDTO["university_matches"],
-      strengths: row.strengths as string[],
-      improvements: row.improvements as string[],
       // A retry can recover a historical row: keep its saved profile authoritative.
       recommended_skills: RECOMMENDED_SKILLS_BY_PROFILE[row.cognitive_profile ?? ""] ?? [],
       created_at: row.created_at,
@@ -325,10 +356,7 @@ export const getMyCareerResult = createServerFn({ method: "GET" })
     return {
       id: data.id,
       personality_type: data.personality_type,
-      work_style: data.work_style,
-      leadership_style: data.leadership_style,
-      learning_style: data.learning_style,
-      team_style: data.team_style,
+      ...presentationSummary(data),
       cognitive_score: data.cognitive_score,
       cognitive_tier: data.cognitive_tier,
       cognitive_profile: data.cognitive_profile,
@@ -339,8 +367,6 @@ export const getMyCareerResult = createServerFn({ method: "GET" })
       ),
       career_matches: data.career_matches as CareerResultDTO["career_matches"],
       university_matches: data.university_matches as CareerResultDTO["university_matches"],
-      strengths: data.strengths as string[],
-      improvements: data.improvements as string[],
       recommended_skills: RECOMMENDED_SKILLS_BY_PROFILE[data.cognitive_profile ?? ""] ?? [],
       created_at: data.created_at,
     };

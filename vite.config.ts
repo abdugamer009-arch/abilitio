@@ -21,6 +21,8 @@ export default defineConfig({
     server: {
       host: "0.0.0.0",
       port: 8080,
+      // QA galleries must not trigger full-page reloads in concurrent flows.
+      watch: { ignored: ["**/mobile-report/**", "**/artifacts/**"] },
     },
   },
 });

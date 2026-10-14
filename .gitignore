@@ -43,3 +43,6 @@ dist-ssr
 artifacts/
 delivery/
 coverage/
+mobile-report/
+baseline/
+.npm-cache/

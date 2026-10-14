@@ -65,8 +65,16 @@ export function validateSessionSubmission(
     iqQIds: string[];
     interestQIds: string[];
     interestAnswers: string[][];
+    personalityAnswers?: number[];
+    iqAnswers?: number[];
   },
 ) {
+  // Counts are determined by the signed membership, never a submitted demographic field.
+  if (
+    (data.personalityAnswers && data.personalityAnswers.length !== claim.personality.length) ||
+    (data.iqAnswers && data.iqAnswers.length !== claim.iq.length)
+  )
+    throw new Error("invalid_session: section counts");
   const same = (actual: string[], expected: string[]) =>
     actual.length === expected.length &&
     new Set(actual).size === actual.length &&

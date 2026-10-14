@@ -1,5 +1,7 @@
 import { SAMPLE_QUESTIONS } from "./sample-questions";
 import { COGNITIVE_REPAIRS } from "./cognitive-repairs";
+import { CHILD_PERSONALITY, CHILD_INTEREST } from "./child-questions";
+import type { AgeGroup } from "./career-assessment";
 // Question Bank — master pool for all assessment questions.
 // Expandable: the session picker selects 12 personality, 9 cognitive and 9 interest items.
 
@@ -4897,22 +4899,55 @@ export const TRANSLATED_IQ_POOL: CognitiveQ[] = IQ_BANK.filter((q) => {
   );
 });
 
-export function pickSessionQuestions(): SessionQuestions {
+// Existing content is conservatively older-only; child content has been reviewed separately.
+for (const q of [...PERSONALITY_BANK, ...IQ_BANK, ...INTEREST_BANK]) q.ageGroups = ["teen_adult"];
+
+export function validateAgePools(warn: (message: string) => void = console.warn) {
+  for (const age of ["child", "teen_adult"] as const) {
+    const p = age === "child" ? CHILD_PERSONALITY : PERSONALITY_BANK;
+    const interests = age === "child" ? CHILD_INTEREST : INTEREST_BANK;
+    if (
+      ["EI", "SN", "TF", "JP"].some((axis) => p.filter((q) => q.axis === axis).length < 3) ||
+      interests.length < (age === "child" ? 18 : 9) ||
+      (age === "teen_adult" && TRANSLATED_IQ_POOL.length < 9)
+    )
+      warn(`[assessment] ${age} pool below minimum question coverage; results are exploratory.`);
+  }
+}
+validateAgePools();
+
+export function pickSessionQuestions(age: AgeGroup = "teen_adult"): SessionQuestions {
   if (TRANSLATED_IQ_POOL.length !== IQ_BANK.length)
     throw new Error("assessment_content_incomplete: missing cognitive translations");
   // Personality: 12 questions with guaranteed 3 per axis (EI, SN, TF, JP)
   // 3 per axis = 12 fixed slots — no random padding needed
   const axes = ["EI", "SN", "TF", "JP"] as const;
   const byAxis = Object.fromEntries(
-    axes.map((ax) => [ax, shuffle(PERSONALITY_BANK.filter((q) => q.axis === ax))]),
+    axes.map((ax) => [
+      ax,
+      shuffle(
+        (age === "child" ? CHILD_PERSONALITY : PERSONALITY_BANK).filter(
+          (q) => q.axis === ax && q.ageGroups?.includes(age),
+        ),
+      ),
+    ]),
   ) as Record<(typeof axes)[number], PersonalityQ[]>;
 
   const personality: PersonalityQ[] = [];
-  for (const ax of axes) personality.push(byAxis[ax][0], byAxis[ax][1], byAxis[ax][2]);
+  for (const ax of axes) {
+    if (byAxis[ax].length < 3) throw new Error("assessment_content_incomplete: personality pool");
+    personality.push(...byAxis[ax].slice(0, 3));
+  }
+  const interestPool = (age === "child" ? CHILD_INTEREST : INTEREST_BANK).filter((q) =>
+    q.ageGroups?.includes(age),
+  );
+  const interestCount = age === "child" ? 18 : 9;
+  if (interestPool.length < interestCount)
+    throw new Error("assessment_content_incomplete: interest pool");
 
   return {
     personality: shuffle(personality),
-    iq: shuffle(TRANSLATED_IQ_POOL)
+    iq: shuffle(age === "child" ? [] : TRANSLATED_IQ_POOL.filter((q) => q.ageGroups?.includes(age)))
       .slice(0, 9)
       .map((q) => {
         const optionOrder = shuffle(q.options.map((_, i) => i));
@@ -4923,16 +4958,19 @@ export function pickSessionQuestions(): SessionQuestions {
           optionOrder,
         };
       }),
-    interest: pickInterestQuestions(9).map((q) => ({ ...q, options: shuffle(q.options) })),
+    interest: pickInterestQuestions(interestCount, interestPool).map((q) => ({
+      ...q,
+      options: shuffle(q.options),
+    })),
   };
 }
 
 // Interest picker: draw 9 projective questions, spread across themes so a
 // sitting doesn't stack several shape (or animal) questions in a row. We take
 // one question per theme in random theme order first, then top up if short.
-function pickInterestQuestions(n: number): InterestQ[] {
+function pickInterestQuestions(n: number, pool = INTEREST_BANK): InterestQ[] {
   const byTheme = new Map<string, InterestQ[]>();
-  for (const q of shuffle(INTEREST_BANK)) {
+  for (const q of shuffle(pool)) {
     const list = byTheme.get(q.theme) ?? [];
     list.push(q);
     byTheme.set(q.theme, list);
@@ -4965,7 +5003,8 @@ export function getIQCorrect(id: string): number | null {
 // the client can't inflate or fabricate orientation weights.
 const INTEREST_OPTION_RIASEC: Map<string, Partial<Record<RiasecDim, number>>> = (() => {
   const m = new Map<string, Partial<Record<RiasecDim, number>>>();
-  for (const q of INTEREST_BANK) for (const o of q.options) m.set(o.id, o.riasec);
+  for (const q of [...INTEREST_BANK, ...CHILD_INTEREST])
+    for (const o of q.options) m.set(o.id, o.riasec);
   return m;
 })();
 

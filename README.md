@@ -102,10 +102,22 @@ Tool configuration remains at the root where Vite, TypeScript, npm and Vercel ex
 The full question and career catalogs are deployed. **A code deployment does not apply database migrations.** The fresh Supabase project has all 26 migrations, 27 app tables, 166 careers and 52 study majors. Live signup API, browser login, assessment save/reload and cross-account result isolation passed the [October 11 production audit](docs/operations/LIVE_AUDIT_2026_10_11.md). Admin moderation and principal enrollment/class saving also passed dedicated live checks. Email delivery and password recovery still need an owned sender domain and SMTP configuration. See the [current setup record](docs/operations/SUPABASE_SETUP.md) and [owner migration guide](docs/operations/OWNER_MIGRATIONS.md).
 
 - Production still uses Supabase. Nhost work consists of source-backup preparation; no completed transfer is claimed.
-- Historical results preserve their original scores and saved career rankings. New results use scoring version `v3`: tied personality axes remain open, without inventing a personality type or cognitive profile.
+- Historical results preserve their original scores and saved career rankings. Older-age results use scoring version `v3`; child preference results use `v4-preferences` and assess no cognitive ability. Tied personality axes remain open, without inventing a personality type or cognitive profile.
 - ABBI is a curated English-language guide. Weekly email digest delivery has no configured implementation.
 - Local database tests simulate Supabase-owned schemas. Passing them does not prove production permissions, email delivery or real account persistence.
 - Never commit credentials or backups. Service-role and assessment-signing keys are server-only.
+
+## Daily mobile regression check
+
+Run `npm run test:mobile` before changing the assessment. It completes longest-text and randomized 30-question attempts plus representative stress cases in English, Russian and Uzbek, for both age groups, on nine phone/landscape/tablet profiles plus a 1440px desktop comparison. Open `mobile-report/index.html` for the results and filterable screenshot galleries. A failed run exits with a nonzero status and names the element and viewport. Generated reports are ignored by Git.
+
+The runner uses installed Chrome or Edge automatically; alternatively run `npx playwright install chromium`. Set `BROWSER_EXE` to choose another Chromium executable and `QA_ORIGIN` to use an existing development server (default `http://127.0.0.1:8080`). Without a server, the runner starts and stops Vite itself. This harness intercepts development modules, so use the development server rather than a production build.
+
+Vite excludes generated `mobile-report/` and `artifacts/` files from its watcher. Keep that exclusion: writing the gallery must never reload another test's page. Language suites use independent browsers and reports, then merge into the overview. A focused filter replaces the overview with that smaller run, and the report states its expected case count.
+
+The stress phase checks representative question types with 200% text, 200% zoom reflow, orientation and keyboard-sized viewport changes, warm-asset 3G and 4× CPU throttling. Run `npm run test:mobile:stress` to repeat only that phase, or `node scripts/mobile-qa.cjs --stress` to stress every question. For a focused pre-commit check, use `npm run test:mobile -- --quick --device=android-small --lang=ru`; keep the complete command in CI. In CI install Chromium first, run the checks, and upload `mobile-report/` even on failure.
+
+These are Chromium device emulations with touch events, not native Safari or physical-device keyboard tests. Accounts and result delivery are mocked; catalog selection, signed fixtures and scoring use the real code. This does not validate live account saving. Progress remains on the device, while completing an authenticated test still submits answers to the existing server grader.
 
 ## Where to go next
 
