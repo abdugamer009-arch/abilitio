@@ -1,11 +1,43 @@
 // Public-route smoke and browser error gate. Issue-specific flows are added
 // here as each repair lands; mobile-qa covers signed assessment/results flows.
 const { chromium, devices } = require("playwright");
+const { spawn } = require("node:child_process");
 const origin = process.env.QA_ORIGIN || "http://127.0.0.1:8080";
 const chrome = process.env.BROWSER_EXE || "C:/Program Files/Google/Chrome/Application/chrome.exe";
 const routes = ["/", "/career-assessment", "/career-battles", "/universities", "/methodology"];
 
 (async () => {
+  let server;
+  try {
+    await fetch(origin);
+  } catch {
+    server = spawn(
+      process.execPath,
+      [
+        "node_modules/vite/bin/vite.js",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        new URL(origin).port || "8080",
+        "--strictPort",
+      ],
+      { stdio: "ignore", windowsHide: true },
+    );
+    let ready = false;
+    for (let n = 0; n < 100; n++) {
+      try {
+        await fetch(origin);
+        ready = true;
+        break;
+      } catch {
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      }
+    }
+    if (!ready) {
+      server.kill();
+      throw new Error(`Local test server did not start at ${origin}`);
+    }
+  }
   const browser = await chromium.launch({ headless: true, executablePath: chrome });
   let checked = 0;
   try {
@@ -44,6 +76,7 @@ const routes = ["/", "/career-assessment", "/career-battles", "/universities", "
     }
   } finally {
     await browser.close();
+    server?.kill();
   }
   console.log(
     `${checked}/${routes.length * 2} public route checks passed with no console or request errors`,
