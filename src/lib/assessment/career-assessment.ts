@@ -4,7 +4,12 @@
 // question-bank.ts; this file only defines the shapes it's built from.
 
 export type AgeGroup = "child" | "teen_adult";
-export type AgeMetadata = { ageGroups?: AgeGroup[]; addedBy?: "feature-age" };
+export type AgeMetadata = {
+  ageGroups?: AgeGroup[];
+  addedBy?: "feature-age";
+  trait?: string;
+  similarityGroup?: string;
+};
 
 export type PersonalityQ = AgeMetadata & {
   id: string;

@@ -1,5 +1,6 @@
 import type { PersonalityQ, InterestQ, InterestTheme, RiasecDim } from "./career-assessment";
 import type { QT } from "./question-translations";
+import { tagInterest, tagPersonality } from "./question-metadata";
 
 // All new content is concrete preference content: no answer keys, math or skill tests.
 const statements: [PersonalityQ["axis"], 1 | -1, string, string, string][] = [
@@ -355,31 +356,35 @@ const prompts: [InterestTheme, string, string, string][] = [
   ],
 ];
 
-export const CHILD_PERSONALITY: PersonalityQ[] = statements.map(([axis, direction, prompt], i) => ({
-  id: `cp${i + 1}`,
-  section: "personality",
-  prompt,
-  axis,
-  direction,
-  ageGroups: ["child"],
-  addedBy: "feature-age",
-}));
-export const CHILD_INTEREST: InterestQ[] = prompts.map(([theme, prompt], i) => ({
-  id: `ci${i + 1}`,
-  section: "interest",
-  theme,
-  prompt,
-  select: "one",
-  evidenceKind: "activity",
-  ageGroups: ["child"],
-  addedBy: "feature-age",
-  options: activitiesFor(i).map(([label, , , icon, dim], j) => ({
-    id: `ci${i + 1}_${j}`,
-    label,
-    visual: { kind: "icon", icon },
-    riasec: { [dim]: 3 },
-  })),
-}));
+export const CHILD_PERSONALITY: PersonalityQ[] = statements.map(([axis, direction, prompt], i) =>
+  tagPersonality({
+    id: `cp${i + 1}`,
+    section: "personality",
+    prompt,
+    axis,
+    direction,
+    ageGroups: ["child"],
+    addedBy: "feature-age",
+  }),
+);
+export const CHILD_INTEREST: InterestQ[] = prompts.map(([theme, prompt], i) =>
+  tagInterest({
+    id: `ci${i + 1}`,
+    section: "interest",
+    theme,
+    prompt,
+    select: "one",
+    evidenceKind: "activity",
+    ageGroups: ["child"],
+    addedBy: "feature-age",
+    options: activitiesFor(i).map(([label, , , icon, dim], j) => ({
+      id: `ci${i + 1}_${j}`,
+      label,
+      visual: { kind: "icon", icon },
+      riasec: { [dim]: 3 },
+    })),
+  }),
+);
 export const CHILD_TRANSLATIONS: Record<string, QT> = Object.fromEntries([
   ...statements.map(([, , , ru, uz], i) => [
     `cp${i + 1}`,

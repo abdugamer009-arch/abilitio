@@ -8,6 +8,7 @@ import type { AgeGroup } from "./career-assessment";
 
 import type { PersonalityQ, CognitiveQ, InterestQ, RiasecDim } from "./career-assessment";
 import { QUESTION_TRANSLATIONS } from "./question-translations";
+import { tagCognitive, tagInterest, tagPersonality } from "./question-metadata";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PERSONALITY BANK  (target: 200 questions)
@@ -4887,6 +4888,20 @@ export function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+function pickUniqueGroups<T extends { similarityGroup?: string }>(pool: T[], count: number): T[] {
+  const seen = new Set<string>();
+  const picked: T[] = [];
+  for (const question of shuffle(pool)) {
+    const group = question.similarityGroup;
+    if (!group || seen.has(group)) continue;
+    seen.add(group);
+    picked.push(question);
+    if (picked.length === count) break;
+  }
+  if (picked.length < count) throw new Error("assessment_content_incomplete: similarity coverage");
+  return picked;
+}
+
 // One session serves every language. All 260 cognitive items have localized
 // instructions and options; English wordplay explicitly retains its stimuli.
 // Fail closed if future content lacks translations rather than silently shrinking the pool.
@@ -4901,7 +4916,18 @@ export const TRANSLATED_IQ_POOL: CognitiveQ[] = IQ_BANK.filter((q) => {
 });
 
 // Existing content is conservatively older-only; child content has been reviewed separately.
-for (const q of [...PERSONALITY_BANK, ...IQ_BANK, ...INTEREST_BANK]) q.ageGroups = ["teen_adult"];
+for (const q of PERSONALITY_BANK) {
+  q.ageGroups = ["teen_adult"];
+  tagPersonality(q);
+}
+for (const q of IQ_BANK) {
+  q.ageGroups = ["teen_adult"];
+  tagCognitive(q);
+}
+for (const q of INTEREST_BANK) {
+  q.ageGroups = ["teen_adult"];
+  tagInterest(q);
+}
 
 export function validateAgePools(warn: (message: string) => void = console.warn) {
   for (const age of ["child", "teen_adult"] as const) {
@@ -4926,10 +4952,11 @@ export function pickSessionQuestions(age: AgeGroup = "teen_adult"): SessionQuest
   const byAxis = Object.fromEntries(
     axes.map((ax) => [
       ax,
-      shuffle(
+      pickUniqueGroups(
         (age === "child" ? CHILD_PERSONALITY : PERSONALITY_BANK).filter(
           (q) => q.axis === ax && q.ageGroups?.includes(age),
         ),
+        3,
       ),
     ]),
   ) as Record<(typeof axes)[number], PersonalityQ[]>;
@@ -4948,17 +4975,21 @@ export function pickSessionQuestions(age: AgeGroup = "teen_adult"): SessionQuest
 
   return {
     personality: shuffle(personality),
-    iq: shuffle(age === "child" ? [] : TRANSLATED_IQ_POOL.filter((q) => q.ageGroups?.includes(age)))
-      .slice(0, 9)
-      .map((q) => {
-        const optionOrder = shuffle(q.options.map((_, i) => i));
-        return {
-          ...q,
-          options: optionOrder.map((i) => q.options[i]),
-          correct: optionOrder.indexOf(q.correct),
-          optionOrder,
-        };
-      }),
+    iq: (age === "child"
+      ? []
+      : pickUniqueGroups(
+          TRANSLATED_IQ_POOL.filter((q) => q.ageGroups?.includes(age)),
+          9,
+        )
+    ).map((q) => {
+      const optionOrder = shuffle(q.options.map((_, i) => i));
+      return {
+        ...q,
+        options: optionOrder.map((i) => q.options[i]),
+        correct: optionOrder.indexOf(q.correct),
+        optionOrder,
+      };
+    }),
     interest: pickInterestQuestions(interestCount, interestPool).map((q) => ({
       ...q,
       options: shuffle(q.options),
@@ -4982,7 +5013,8 @@ function pickInterestQuestions(n: number, pool = INTEREST_BANK): InterestQ[] {
   let round = 0;
   while (picked.length < n && buckets.some((b) => b.length > round)) {
     for (const b of buckets) {
-      if (b.length > round) picked.push(b[round]);
+      if (b.length > round && !picked.some((q) => q.similarityGroup === b[round].similarityGroup))
+        picked.push(b[round]);
       if (picked.length >= n) break;
     }
     round++;

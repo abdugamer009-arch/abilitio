@@ -1,5 +1,6 @@
 import type { InterestQ, InterestTheme, RiasecDim } from "./career-assessment";
 import type { QT } from "./question-translations";
+import { tagInterest } from "./question-metadata";
 
 type Translated = [en: string, ru: string, uz: string];
 type Activity = [...Translated, dim: RiasecDim, icon: string];
@@ -430,21 +431,23 @@ const sets: Set[] = [
   },
 ];
 
-export const ADULT_ACTIVITY_BANK: InterestQ[] = sets.map((set, index) => ({
-  id: `ai${index + 1}`,
-  section: "interest",
-  theme: set.theme,
-  prompt: set.prompt[0],
-  select: "one",
-  evidenceKind: "activity",
-  ageGroups: ["teen_adult"],
-  options: set.choices.map(([label, , , dim, icon], optionIndex) => ({
-    id: `ai${index + 1}_${optionIndex}`,
-    label,
-    visual: { kind: "icon", icon },
-    riasec: { [dim]: 3 },
-  })),
-}));
+export const ADULT_ACTIVITY_BANK: InterestQ[] = sets.map((set, index) =>
+  tagInterest({
+    id: `ai${index + 1}`,
+    section: "interest",
+    theme: set.theme,
+    prompt: set.prompt[0],
+    select: "one",
+    evidenceKind: "activity",
+    ageGroups: ["teen_adult"],
+    options: set.choices.map(([label, , , dim, icon], optionIndex) => ({
+      id: `ai${index + 1}_${optionIndex}`,
+      label,
+      visual: { kind: "icon", icon },
+      riasec: { [dim]: 3 },
+    })),
+  }),
+);
 
 export const ADULT_ACTIVITY_TRANSLATIONS: Record<string, QT> = Object.fromEntries(
   sets.map((set, index) => [
