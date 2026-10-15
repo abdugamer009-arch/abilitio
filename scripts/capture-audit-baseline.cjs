@@ -5,7 +5,7 @@ const path = require("node:path");
 const { chromium, devices } = require("playwright");
 
 const origin = process.env.QA_ORIGIN || "http://127.0.0.1:8080";
-const chrome = process.env.BROWSER_EXE || "C:/Program Files/Google/Chrome/Application/chrome.exe";
+const chrome = process.env.BROWSER_EXE;
 const out = path.resolve("baseline");
 const profiles = [
   ["desktop", 1440, 1000, null],
@@ -26,7 +26,10 @@ const routes = [
 
 (async () => {
   await fs.mkdir(out, { recursive: true });
-  const browser = await chromium.launch({ headless: true, executablePath: chrome });
+  const browser = await chromium.launch({
+    headless: true,
+    ...(chrome ? { executablePath: chrome } : {}),
+  });
   const records = [];
   try {
     for (const [profile, width, height, device] of profiles) {

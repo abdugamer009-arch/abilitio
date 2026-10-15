@@ -3,7 +3,7 @@
 const { chromium, devices } = require("playwright");
 const { spawn } = require("node:child_process");
 const origin = process.env.QA_ORIGIN || "http://127.0.0.1:8080";
-const chrome = process.env.BROWSER_EXE || "C:/Program Files/Google/Chrome/Application/chrome.exe";
+const chrome = process.env.BROWSER_EXE;
 const routes = ["/", "/career-assessment", "/career-battles", "/universities", "/methodology"];
 
 (async () => {
@@ -38,7 +38,10 @@ const routes = ["/", "/career-assessment", "/career-battles", "/universities", "
       throw new Error(`Local test server did not start at ${origin}`);
     }
   }
-  const browser = await chromium.launch({ headless: true, executablePath: chrome });
+  const browser = await chromium.launch({
+    headless: true,
+    ...(chrome ? { executablePath: chrome } : {}),
+  });
   let checked = 0;
   try {
     for (const [name, viewport, profile] of [
