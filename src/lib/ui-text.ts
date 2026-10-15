@@ -59,9 +59,9 @@ const labels: Record<string, { uz: string; ru: string }> = {
     uz: "Rivojlanish yo‘nalishlari",
     ru: "Направления развития",
   },
-  "All round excellence.": {
-    uz: "Har tomonlama rivojlanish.",
-    ru: "Всестороннее развитие.",
+  "No answer-supported growth areas recorded.": {
+    uz: "Javoblar bilan tasdiqlangan rivojlanish yo‘nalishi qayd etilmagan.",
+    ru: "Подтверждённые ответами направления развития не записаны.",
   },
   "No career data yet.": {
     uz: "Hali kasb ma’lumotlari yo‘q.",
@@ -71,9 +71,9 @@ const labels: Record<string, { uz: string; ru: string }> = {
     uz: "Kasblarni solishtiring",
     ru: "Сравнить профессии",
   },
-  "Compare your top careers side-by-side with AI insights": {
-    uz: "Asosiy kasblaringizni AI izohlari bilan solishtiring",
-    ru: "Сравните свои основные профессии с пояснениями ИИ",
+  "Compare saved careers and practical experiments": {
+    uz: "Saqlangan kasblar va amaliy tajribalarni solishtiring",
+    ru: "Сравните сохранённые профессии и практические опыты",
   },
   "Assessment History": {
     uz: "Baholashlar tarixi",

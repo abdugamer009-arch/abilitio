@@ -1,3 +1,5 @@
+import { historyLabel } from "@/lib/assessment/report-tools";
+import { requestPasswordRecovery } from "@/lib/auth/recovery.functions";
 import { PASSWORD_RECOVERY_ENABLED, CONTACT_EMAIL } from "@/lib/constants";
 import { catalogLabel } from "@/lib/catalog-labels";
 import { readAllResult } from "@/lib/db-read";
@@ -33,13 +35,11 @@ import {
   KeyRound,
   ChevronRight,
   Crown,
-  Mail,
   Swords,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
-import { MBTI_DESCRIPTIONS } from "@/lib/assessment/mbti-descriptions";
 import { presentationSummary } from "@/lib/assessment/summary-integrity";
 import { reasoningCaveat } from "@/lib/assessment/reasoning-copy";
 import { useWords } from "@/lib/editorial";
@@ -66,7 +66,7 @@ export const Route = createFileRoute("/dashboard")({
 type Career = { name: string; match: number; reason: string };
 type Result = {
   id: string;
-  iq_score: number;
+  iq_score: number | null;
   mbti_type: string;
   top_strengths: string[];
   weaknesses?: string[];
@@ -158,7 +158,7 @@ function DashboardPage() {
             strengths: row.strengths as string[] | null,
             improvements: row.improvements as string[] | null,
           });
-          const cog = (row.cognitive_score as number | null) ?? 0;
+          const cog = row.cognitive_score as number | null;
           const matches =
             (row.career_matches as Array<{
               name: string;
@@ -207,12 +207,8 @@ function DashboardPage() {
 
   const tagline = useMemo(() => {
     if (stats?.tagline) return stats.tagline;
-    if (!latest) return "Future Builder";
-    const m = latest.mbti_type;
-    if (m?.startsWith("INT") || m?.startsWith("ENT")) return "Analytical Thinker";
-    if (m?.includes("F")) return "Creative Strategist";
     return "Growth Explorer";
-  }, [stats, latest]);
+  }, [stats]);
 
   // level derives from activity: assessments + achievements
   const activityXp = results.length * 50 + achievements.length * 25;
@@ -405,18 +401,18 @@ function ProfileHeader({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="truncate text-2xl font-bold tracking-tight sm:text-3xl">{fullName}</h1>
-            <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary">
+            <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-sm font-medium text-primary">
               <Sparkles className="h-3 w-3" />{" "}
               {w("Activity level", "Faollik darajasi", "Уровень активности")} {level}
             </span>
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">{email}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{email}</p>
           <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-1 text-sm font-medium">
             <Star className="h-3.5 w-3.5 text-accent" />
             <span className="gradient-text">{tagline}</span>
           </p>
 
-          <p className="mt-3 text-xs text-muted-foreground">
+          <p className="mt-3 text-sm text-muted-foreground">
             {w(
               "Activity points come from saved assessments (50 each) and recorded achievements (25 each). A level is not a measure of skill or career readiness.",
               "Faollik ballari saqlangan baholash (50) va qayd etilgan yutuqdan (25) keladi. Daraja ko‘nikma yoki kasbga tayyorlik o‘lchovi emas.",
@@ -425,7 +421,7 @@ function ProfileHeader({
           </p>
           {/* Level progress */}
           <div className="mt-5 max-w-md">
-            <div className="mb-1.5 flex items-center justify-between text-[11px] text-muted-foreground">
+            <div className="mb-1.5 flex items-center justify-between text-sm text-muted-foreground">
               <span>
                 {w("Activity toward level", "Keyingi faollik darajasi", "До уровня активности")}{" "}
                 {level + 1}
@@ -463,7 +459,7 @@ function TabBar({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
       label: w("Universities", "Universitetlar", "Университеты"),
       icon: GraduationCap,
     },
-    { key: "abbi", label: "ABBI AI", icon: Sparkles },
+    { key: "abbi", label: "ABBI Guide", icon: Sparkles },
     { key: "settings", label: w("Settings", "Sozlamalar", "Настройки"), icon: SettingsIcon },
   ];
   return (
@@ -477,7 +473,7 @@ function TabBar({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
               key={tt.key}
               onClick={() => setTab(tt.key)}
               aria-pressed={active}
-              className={`dashboard-tab group relative flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 py-2.5 text-[12px] font-medium transition-all sm:flex-1 sm:text-sm ${
+              className={`dashboard-tab group relative flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm font-medium transition-all sm:flex-1 sm:text-sm ${
                 active ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -520,6 +516,7 @@ function ResultsSection({
 }) {
   const tr = useUiText();
   const { lang } = useI18n();
+  const [compare, setCompare] = useState<string[]>([]);
 
   const w = useWords();
   if (!latest) {
@@ -556,10 +553,10 @@ function ResultsSection({
         <MetricCard
           label={tr("Personality")}
           value={tr(latest.mbti_type.includes("X") ? "Mixed preferences" : latest.mbti_type)}
-          hint={tr(
-            latest.mbti_type.includes("X")
-              ? "Balanced preferences"
-              : (MBTI_DESCRIPTIONS[latest.mbti_type] ?? "Unique mind"),
+          hint={w(
+            "Work preferences on this attempt; not a fixed identity.",
+            "Bu urinishdagi ish afzalliklari; o‘zgarmas shaxsiyat emas.",
+            "Рабочие предпочтения в этой попытке, а не неизменная личность.",
           )}
           icon={Sparkles}
         />
@@ -607,7 +604,7 @@ function ResultsSection({
                 {latest.top_strengths.map((s) => (
                   <span
                     key={s}
-                    className="rounded-full border border-primary/20 bg-mint text-ink px-3 py-1.5 text-xs font-medium"
+                    className="rounded-full border border-primary/20 bg-mint text-ink px-3 py-1.5 text-sm font-medium"
                   >
                     {tTrait(s)}
                   </span>
@@ -624,14 +621,16 @@ function ResultsSection({
                 {latest.weaknesses.map((s) => (
                   <span
                     key={s}
-                    className="rounded-full border border-accent/20 bg-card px-3 py-1.5 text-xs font-medium text-accent/80"
+                    className="rounded-full border border-accent/20 bg-card px-3 py-1.5 text-sm font-medium text-accent/80"
                   >
                     {tTrait(s)}
                   </span>
                 ))}
               </div>
             ) : (
-              <p className="mt-3 text-sm text-muted-foreground">{tr("All round excellence.")}</p>
+              <p className="mt-3 text-sm text-muted-foreground">
+                {tr("No answer-supported growth areas recorded.")}
+              </p>
             )}
           </GlassCard>
         </div>
@@ -677,8 +676,8 @@ function ResultsSection({
               </div>
               <div>
                 <div className="text-sm font-semibold">{tr("Try Career Battles")}</div>
-                <div className="text-xs text-muted-foreground">
-                  {tr("Compare your top careers side-by-side with AI insights")}
+                <div className="text-sm text-muted-foreground">
+                  {tr("Compare saved careers and practical experiments")}
                 </div>
               </div>
             </div>
@@ -707,16 +706,23 @@ function ResultsSection({
                 )}
                 {new Date(r.created_at).toLocaleDateString()}
               </span>
-              <span className="text-muted-foreground">
-                {tr("Reasoning / 9")}
-                <span className="font-semibold text-foreground">{r.iq_score}</span>
-              </span>
-              <span className="text-muted-foreground">
-                {tr("Type")}
-                <span className="font-semibold text-foreground">
-                  {tr(r.mbti_type.includes("X") ? "Mixed preferences" : r.mbti_type)}
-                </span>
-              </span>
+              <span>{historyLabel(r.iq_score, r.mbti_type, lang)}</span>
+              <Link className="field-button" to="/career-results" search={{ resultId: r.id }}>
+                {w("View result", "Natijani ko‘rish", "Открыть результат")}
+              </Link>
+              <label className="flex items-center gap-2 min-h-11">
+                <input
+                  type="checkbox"
+                  checked={compare.includes(r.id)}
+                  disabled={!compare.includes(r.id) && compare.length >= 2}
+                  onChange={(e) =>
+                    setCompare((c) =>
+                      e.target.checked ? [...c, r.id] : c.filter((id) => id !== r.id),
+                    )
+                  }
+                />
+                {w("Compare attempt", "Urinishni solishtirish", "Сравнить попытку")}
+              </label>
               <span className="text-muted-foreground">
                 {tr("Top:")}{" "}
                 <span className="font-semibold text-foreground">
@@ -726,6 +732,72 @@ function ResultsSection({
             </li>
           ))}
         </ul>
+        {compare.length === 2 && (
+          <section className="mt-5" aria-live="polite">
+            <h3>{w("Compare attempts", "Urinishlarni solishtirish", "Сравнение попыток")}</h3>
+            <p className="mt-2">
+              {w(
+                "Question sets, difficulty, language and method versions may differ. Changes are descriptions of attempts, not measured growth in ability.",
+                "Savollar to‘plami, qiyinligi, til va usul versiyalari farq qilishi mumkin. O‘zgarishlar urinish tavsifi, qobiliyat o‘sishining o‘lchovi emas.",
+                "Наборы вопросов, сложность, язык и версии метода могут отличаться. Изменения описывают попытки, а не измеренный рост способностей.",
+              )}
+            </p>
+            <div className="grid gap-4 md:grid-cols-2 mt-4">
+              {compare.map((id) => {
+                const a = results.find((r) => r.id === id)!;
+                return (
+                  <article key={id} className="border border-border rounded-xl p-4">
+                    <h4>{new Date(a.created_at).toLocaleDateString(lang)}</h4>
+                    <p>{historyLabel(a.iq_score, a.mbti_type, lang)}</p>
+                    <ol className="list-decimal pl-5">
+                      {a.careers.slice(0, 3).map((c) => (
+                        <li key={c.name}>
+                          {tCareer(c.name).name}: {c.match}/100
+                        </li>
+                      ))}
+                    </ol>
+                    <Link
+                      className="field-button mt-3"
+                      to="/career-results"
+                      search={{ resultId: id }}
+                    >
+                      {w("View result", "Natijani ko‘rish", "Открыть результат")}
+                    </Link>
+                  </article>
+                );
+              })}
+            </div>
+            <p className="mt-3">
+              {w(
+                "Top direction changed:",
+                "Birinchi yo‘nalish o‘zgardi:",
+                "Первое направление изменилось:",
+              )}{" "}
+              {results.find((r) => r.id === compare[0])?.careers[0]?.name ===
+              results.find((r) => r.id === compare[1])?.careers[0]?.name
+                ? w("No", "Yo‘q", "Нет")
+                : w("Yes", "Ha", "Да")}
+            </p>
+            <p className="mt-3">
+              {w(
+                "Reasoning difference (second selected minus first):",
+                "Mantiqiy natija farqi (ikkinchi tanlangan minus birinchi):",
+                "Разница заданий на мышление (вторая выбранная минус первая):",
+              )}{" "}
+              {(() => {
+                const a = results.find((r) => r.id === compare[0])!.iq_score;
+                const b = results.find((r) => r.id === compare[1])!.iq_score;
+                return a == null || b == null
+                  ? w(
+                      "Not comparable: reasoning was not assessed in one attempt.",
+                      "Solishtirib bo‘lmaydi: bir urinishda mantiqiy savollar baholanmagan.",
+                      "Не сравнивается: в одной попытке не было заданий на мышление.",
+                    )
+                  : `${b - a >= 0 ? "+" : ""}${b - a}/9`;
+              })()}
+            </p>
+          </section>
+        )}
       </GlassCard>
     </div>
   );
@@ -759,7 +831,7 @@ function CareerCard({
       )}
       <div className="relative flex items-center justify-between">
         <span
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-sm font-bold uppercase tracking-wider ${
             featured ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
           }`}
         >
@@ -769,7 +841,7 @@ function CareerCard({
         <span className="text-2xl font-bold gradient-text tabular-nums">{career.match}/100</span>
       </div>
       <h4 className="relative mt-3 text-lg font-semibold">{tc.name}</h4>
-      <p className="relative mt-2 line-clamp-3 text-xs text-muted-foreground">
+      <p className="relative mt-2 line-clamp-3 text-sm text-muted-foreground">
         {tc.reason || catalogLabel(career.reason, lang)}
       </p>
       <div className="relative mt-4 h-1.5 overflow-hidden rounded-full bg-secondary/60">
@@ -790,18 +862,18 @@ function MetricRing({
   icon: Icon,
 }: {
   label: string;
-  value: number;
+  value: number | null;
   max: number;
   hint: string;
   icon: LucideIcon;
 }) {
-  const pct = Math.min(100, (value / max) * 100);
+  const pct = Math.min(100, ((value ?? 0) / max) * 100);
   const circumference = 2 * Math.PI * 30;
   const offset = circumference - (pct / 100) * circumference;
   return (
     <GlassCard className="p-5 transition-all hover:-translate-y-0.5">
       <div className="flex items-center justify-between">
-        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+        <div className="text-sm uppercase tracking-wider text-muted-foreground">{label}</div>
         <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Icon className="h-3 w-3" />
         </span>
@@ -828,11 +900,11 @@ function MetricRing({
             <defs></defs>
           </svg>
           <div className="absolute inset-0 flex items-center justify-center text-xl font-bold tabular-nums">
-            {value}
+            {value ?? "—"}
           </div>
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-[11px] font-medium text-muted-foreground line-clamp-2">{hint}</div>
+          <div className="text-sm font-medium text-muted-foreground line-clamp-2">{hint}</div>
         </div>
       </div>
     </GlassCard>
@@ -853,13 +925,13 @@ function MetricCard({
   return (
     <GlassCard className="p-5 transition-all hover:-translate-y-0.5">
       <div className="flex items-center justify-between">
-        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+        <div className="text-sm uppercase tracking-wider text-muted-foreground">{label}</div>
         <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Icon className="h-3 w-3" />
         </span>
       </div>
       <div className="mt-3 text-3xl font-bold gradient-text">{value}</div>
-      <div className="mt-1 line-clamp-2 text-[11px] text-muted-foreground">{hint}</div>
+      <div className="mt-1 line-clamp-2 text-sm text-muted-foreground">{hint}</div>
     </GlassCard>
   );
 }
@@ -954,7 +1026,7 @@ function StatsSection({
           </SectionTitle>
           <button
             onClick={() => (editing ? saveStats() : setEditing(true))}
-            className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary/20"
+            className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary transition-all hover:bg-primary/20"
           >
             {editing ? (
               <>
@@ -998,7 +1070,7 @@ function StatsSection({
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                     <Icon className="h-3 w-3" />
                   </span>
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <span className="text-sm uppercase tracking-wider text-muted-foreground">
                     {tr(f.label)}
                   </span>
                 </div>
@@ -1034,7 +1106,7 @@ function StatsSection({
                     )}
                   </div>
                 )}
-                <p className="mt-3 text-xs text-muted-foreground">
+                <p className="mt-3 text-sm text-muted-foreground">
                   {w("Scale", "Shkala", "Шкала")}: {f.max} ·{" "}
                   {w("Entered by you", "O‘zingiz kiritgan", "Введено вами")}
                 </p>
@@ -1049,7 +1121,7 @@ function StatsSection({
                 setDraft(current);
                 setEditing(false);
               }}
-              className="rounded-full border border-border px-4 py-1.5 text-xs hover:bg-secondary"
+              className="rounded-full border border-border px-4 py-1.5 text-sm hover:bg-secondary"
             >
               {tr("Cancel")}
             </button>
@@ -1167,7 +1239,7 @@ function AchievementsBlock({
             setAdding(true);
             setDraft({ title: "", description: "" });
           }}
-          className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary/20"
+          className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary transition-all hover:bg-primary/20"
         >
           <Plus className="h-3.5 w-3.5" />
           {tr("Add")}
@@ -1189,19 +1261,19 @@ function AchievementsBlock({
             placeholder={tr("Short description (optional)")}
             value={draft.description}
             onChange={(e) => setDraft({ ...draft, description: e.target.value })}
-            className="mt-2 w-full resize-none bg-transparent text-xs text-muted-foreground outline-none placeholder:text-muted-foreground/60"
+            className="mt-2 w-full resize-none bg-transparent text-sm text-muted-foreground outline-none placeholder:text-muted-foreground/60"
             rows={2}
           />
           <div className="mt-3 flex items-center justify-end gap-2">
             <button
               onClick={() => setAdding(false)}
-              className="rounded-full border border-border px-3 py-1 text-[11px] hover:bg-secondary"
+              className="rounded-full border border-border px-3 py-1 text-sm hover:bg-secondary"
             >
               {tr("Cancel")}
             </button>
             <button
               onClick={addOne}
-              className="rounded-full bg-primary px-3 py-1 text-[11px] font-medium text-primary-foreground hover:-translate-y-0.5 transition-all"
+              className="rounded-full bg-primary px-3 py-1 text-sm font-medium text-primary-foreground hover:-translate-y-0.5 transition-all"
             >
               {tr("Save")}
             </button>
@@ -1241,7 +1313,7 @@ function AchievementsBlock({
                       <textarea
                         value={draft.description}
                         onChange={(e) => setDraft({ ...draft, description: e.target.value })}
-                        className="mt-2 w-full resize-none bg-transparent text-xs outline-none ring-1 ring-border/60 rounded px-2 py-1 focus:ring-primary/50"
+                        className="mt-2 w-full resize-none bg-transparent text-sm outline-none ring-1 ring-border/60 rounded px-2 py-1 focus:ring-primary/50"
                         rows={2}
                       />
                     </>
@@ -1249,7 +1321,7 @@ function AchievementsBlock({
                     <>
                       <h4 className="truncate text-sm font-semibold">{a.title}</h4>
                       {a.description && (
-                        <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                           {a.description}
                         </p>
                       )}
@@ -1381,11 +1453,14 @@ function SettingsSection({
     resetPending.current = true;
     setMsg(null);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + "/auth?mode=recovery",
-      });
-      if (error) throw error;
-      setMsg(tr("Password reset link sent to your email."));
+      await requestPasswordRecovery({ data: { email } });
+      setMsg(
+        w(
+          "If this address has an account, check its inbox for a recovery link.",
+          "Bu manzilda hisob bo‘lsa, tiklash havolasi uchun pochtani tekshiring.",
+          "Если у адреса есть аккаунт, проверьте почту для ссылки восстановления.",
+        ),
+      );
     } catch {
       setMsg(t.auth.errGeneric);
     } finally {
@@ -1408,11 +1483,11 @@ function SettingsSection({
                 <Crown className="h-6 w-6" />
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wider text-accent">
+                <div className="text-sm uppercase tracking-wider text-accent">
                   {tr("Founder access")}
                 </div>
                 <div className="text-lg font-bold gradient-text">{tr("Open Admin Dashboard")}</div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-sm text-muted-foreground">
                   {tr("Analytics and user management")}
                 </div>
               </div>
@@ -1465,13 +1540,13 @@ function SettingsSection({
                       setDraft({ name: profile?.name ?? "", surname: profile?.surname ?? "" });
                       setEditing(false);
                     }}
-                    className="rounded-full border border-border px-4 py-1.5 text-xs hover:bg-secondary"
+                    className="rounded-full border border-border px-4 py-1.5 text-sm hover:bg-secondary"
                   >
                     {tr("Cancel")}
                   </button>
                   <button
                     onClick={saveProfile}
-                    className="rounded-full bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground hover:-translate-y-0.5 transition-all"
+                    className="rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:-translate-y-0.5 transition-all"
                   >
                     {tr("Save")}
                   </button>
@@ -1483,7 +1558,7 @@ function SettingsSection({
                 <Field label={tr("Last name")} value={profile?.surname ?? ""} disabled />
                 <button
                   onClick={() => setEditing(true)}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary hover:bg-primary/20"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary hover:bg-primary/20"
                 >
                   <Pencil className="h-3.5 w-3.5" />
                   {tr("Edit profile")}
@@ -1502,7 +1577,6 @@ function SettingsSection({
             <PrefRow icon={Moon} label={tr("Appearance")} hint={tr("Light or dark theme")}>
               <ThemeToggle />
             </PrefRow>
-            <WeeklyEmailNotice />
           </div>
         </GlassCard>
 
@@ -1520,12 +1594,12 @@ function SettingsSection({
           <button
             onClick={changePassword}
             disabled={!PASSWORD_RECOVERY_ENABLED}
-            className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary hover:bg-primary/20"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary hover:bg-primary/20"
           >
             <KeyRound className="h-3.5 w-3.5" />
             {tr("Send reset link")}
           </button>
-          {msg && <p className="mt-3 text-xs text-muted-foreground">{msg}</p>}
+          {msg && <p className="mt-3 text-sm text-muted-foreground">{msg}</p>}
         </GlassCard>
 
         <GlassCard className="p-7">
@@ -1535,26 +1609,13 @@ function SettingsSection({
           </p>
           <button
             onClick={onLogout}
-            className="mt-4 inline-flex items-center gap-2 rounded-full border border-destructive/30 bg-destructive/10 px-4 py-2 text-xs font-medium text-destructive transition-all hover:bg-destructive/20"
+            className="mt-4 inline-flex items-center gap-2 rounded-full border border-destructive/30 bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive transition-all hover:bg-destructive/20"
           >
             <LogOut className="h-3.5 w-3.5" /> {t.dashboard.logout}
           </button>
         </GlassCard>
       </div>
     </div>
-  );
-}
-
-function WeeklyEmailNotice() {
-  const tr = useUiText();
-  return (
-    <PrefRow
-      icon={Mail}
-      label={tr("Weekly digest email")}
-      hint={tr("Email delivery is not connected.")}
-    >
-      <span className="text-xs text-muted-foreground">{tr("Unavailable")}</span>
-    </PrefRow>
   );
 }
 
@@ -1574,7 +1635,7 @@ function Field({
     <div>
       <label
         htmlFor={id}
-        className="mb-1 block text-[10px] uppercase tracking-wider text-muted-foreground"
+        className="mb-1 block text-sm uppercase tracking-wider text-muted-foreground"
       >
         {label}
       </label>
@@ -1608,7 +1669,7 @@ function PrefRow({
         </div>
         <div className="min-w-0">
           <div className="truncate text-sm font-medium">{label}</div>
-          <div className="truncate text-[11px] text-muted-foreground">{hint}</div>
+          <div className="truncate text-sm text-muted-foreground">{hint}</div>
         </div>
       </div>
       <div className="pref-control shrink-0">{children}</div>
