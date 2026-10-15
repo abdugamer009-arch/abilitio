@@ -41,7 +41,7 @@ focused pre-commit checks, browser setup and CI artifact upload.
 
 ## October 15 complete audit gate
 
-`npm run test:all` runs `check`, public smoke routes, feature checks (PDF/image, search, full-catalog comparisons, opt-in membership and history), explicit-Next/rapid-input/draft controls, a mock-mailer recovery UI, WCAG A/AA axe checks, the language/theme/width screenshot matrix, four age/gender combinations with real anonymous signed delivery, and the full longest/random/stress mobile runner. All browser request failures, HTTP 4xx/5xx, console errors and page exceptions fail their flow. Mock account/result/membership/mail delivery is explicitly labelled in evidence; no production records are written.
+`npm run test:all` runs `check`, public smoke routes, feature checks (PDF/image, search, full-catalog comparisons, opt-in membership and history), explicit-Next/rapid-input/draft controls, a mock-mailer recovery UI, WCAG A/AA axe checks, the language/theme/width screenshot matrix, four age/gender combinations with real anonymous signed delivery, six complete dark-mode attempts, and the full longest/random/stress mobile runner. All browser request failures, HTTP 4xx/5xx, console errors and page exceptions fail their flow. Mock account/result/membership/mail delivery is explicitly labelled in evidence; no production records are written.
 
 Useful focused commands:
 
@@ -53,3 +53,5 @@ Useful focused commands:
 - `node scripts/check-links.mjs --flagged`: dated classifications for the audit's external URLs. Without the flag, check all extracted public source URLs. Bot protection and timeouts are unresolved, not assumed dead.
 
 `baseline/original-fc16fe5/` was captured from a separate source archive of the production baseline, with development network fixtures and shared installed dependencies. The only archive configuration adjustment permits those local dependency/font paths; it does not change UI source. Random fixture inputs are seeded for repeatable before/after comparison. Private source archives, captures and PDF/image test downloads are excluded from Git.
+
+- `node scripts/qa-dark-flows.cjs`: all 30 questions in dark mode for both ages in EN/UZ/RU; mocked accounts/results, strict console/request gate.

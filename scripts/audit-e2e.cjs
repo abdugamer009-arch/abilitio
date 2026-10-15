@@ -94,6 +94,7 @@ const routes = ["/", "/career-assessment", "/career-battles", "/universities", "
         code === 0 ? resolve() : reject(new Error("Four-profile browser regression failed")),
       );
     });
+    await require("./qa-dark-flows.cjs").runDarkFlows(origin);
   } finally {
     await browser.close();
     server?.kill();
