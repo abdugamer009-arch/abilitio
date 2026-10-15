@@ -1,3 +1,4 @@
+import { buildCareerEvidence, type DirectAnswer, type CareerEvidence } from "./career-evidence";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -153,6 +154,7 @@ export type CareerResultDTO = {
     score: number;
     major?: string | null;
     matchFields?: string[];
+    evidence?: CareerEvidence;
   }[];
   university_matches: { key: string; name: string; category: string; score: number }[];
   strengths: string[];
@@ -224,12 +226,29 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
     // each id to its hidden RIASEC vector server-side (authoritative), then the
     // engine aggregates and infers concrete field interests.
     const directQuestionIds = new Set([...ADULT_ACTIVITY_BANK, ...CHILD_INTEREST].map((q) => q.id));
+    const selectedEvidence: DirectAnswer[] = [];
     const directPicks: Partial<Record<RiasecDim, number>>[] = [];
     const visualPicks: Partial<Record<RiasecDim, number>>[] = [];
     data.interestQIds.forEach((id, index) => {
       for (const optionId of data.interestAnswers[index]) {
         const vector = getInterestRiasec(optionId);
         if (vector) (directQuestionIds.has(id) ? directPicks : visualPicks).push(vector);
+        if (vector && directQuestionIds.has(id)) {
+          const question = [...ADULT_ACTIVITY_BANK, ...CHILD_INTEREST].find((q) => q.id === id)!;
+          const index = question.options.findIndex((o) => o.id === optionId);
+          const labels = lo(
+            id,
+            question.options.map((o) => o.label),
+          );
+          selectedEvidence.push({
+            questionId: id,
+            prompt: lp(id, question.prompt),
+            answer: { en: labels.en[index], ru: labels.ru[index], uz: labels.uz[index] },
+            fields: scoreInterests([vector])
+              .interests.filter((f) => f.weight >= 0.5)
+              .map((f) => f.key),
+          });
+        }
       }
     });
     const directScore = scoreInterests(directPicks);
@@ -267,11 +286,18 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       matchInterests,
       preferencesOnly,
     );
-    const careerMatches = attachMajorsToCareers(
+    const rankedCareers = attachMajorsToCareers(
       matchCareers(careerList, personality, cognitive, matchInterests, preferencesOnly),
       majorList,
       allMajorScores,
     );
+    const careerMatches = rankedCareers.map((c) => ({
+      ...c,
+      evidence: buildCareerEvidence(
+        careerList.find((item) => item.key === c.key)?.required_interests ?? [],
+        selectedEvidence,
+      ),
+    }));
     const universityMatches = allMajorScores.slice(0, 10);
     const strengths = preferencesOnly
       ? []

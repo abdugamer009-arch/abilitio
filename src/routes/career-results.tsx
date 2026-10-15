@@ -1,4 +1,5 @@
 import "@/styles/assessment.css";
+import { CareerReasons } from "@/components/CareerReasons";
 import { readResultProfile, resetAttempt } from "@/lib/assessment/attempt-profile";
 import { applyResultRules } from "@/lib/assessment/result-rules";
 import { useUiText } from "@/lib/ui-text";
@@ -751,6 +752,7 @@ function CareerResultsPage() {
                           <span className="font-medium text-foreground">{tr(m.major)}</span>
                         </p>
                       )}
+                      <CareerReasons category={m.category} evidence={m.evidence} />
                       <div className="mt-2 h-1.5 rounded-full bg-secondary/60">
                         <div
                           className="h-full rounded-full bg-primary"

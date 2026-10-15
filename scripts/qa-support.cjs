@@ -28,6 +28,7 @@ async function install(
         data,
         age,
         guest,
+        user: { id: "qa-owner", email: "qa@example.invalid" },
         members: [],
         calls: [],
         history: [
@@ -49,7 +50,7 @@ async function install(
       response: res,
       body: (await res.text()).replace(
         "return useContext(Ctx);",
-        'const original=useContext(Ctx); return original.loading?original:{...original,user:window.__qa.guest?null:{id:"qa-owner",email:"qa@example.invalid"},loading:false};',
+        "const original=useContext(Ctx); return original.loading?original:{...original,user:window.__qa.guest?null:window.__qa.user,loading:false};",
       ),
     });
   });
