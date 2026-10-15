@@ -1,3 +1,4 @@
+import { draftIsCurrent } from "@/lib/assessment/draft-expiry";
 import "@/styles/assessment.css";
 import { AssessmentProfileChooser } from "@/components/AssessmentProfileChooser";
 import { useMotion } from "@/components/MotionProvider";
@@ -240,10 +241,8 @@ function CareerAssessmentPage() {
       const interestCount = saved.profile.ageGroup === "child" ? 18 : 9;
       const s = saved?.session;
       if (saved.ownerId && saved.ownerId !== user?.id) return;
-      const encoded = s?.sessionToken?.split(".")[0];
-      const claim = JSON.parse(atob(encoded.replace(/-/g, "+").replace(/_/g, "/")));
-      // UI expiry only; the server still verifies the signature and membership.
-      if (typeof claim.expires !== "number" || claim.expires <= Date.now()) {
+      // UI expiry only; signed membership and expiry remain server-authoritative.
+      if (!s?.sessionToken || !draftIsCurrent(s.sessionToken)) {
         sessionStorage.removeItem(PROGRESS_KEY);
         return;
       }
@@ -389,9 +388,26 @@ function CareerAssessmentPage() {
     return answers.interest[current.idx];
   }, [current, answers]);
 
+  const transitionBusy = useRef(false);
+  const [transitioning, setTransitioning] = useState(false);
+  const transitionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (transitionTimer.current) clearTimeout(transitionTimer.current);
+    },
+    [],
+  );
+  function beginTransition() {
+    transitionBusy.current = true;
+    setTransitioning(true);
+    transitionTimer.current = setTimeout(() => {
+      transitionBusy.current = false;
+      setTransitioning(false);
+    }, 220);
+  }
   const setValue = useCallback(
     (v: number | string[]) => {
-      if (!current) return;
+      if (!current || transitionBusy.current) return;
       setAnswers((a) => {
         const next = { ...a };
         if (current.kind === "p") {
@@ -417,42 +433,20 @@ function CareerAssessmentPage() {
     current?.kind === "i" ? (value as string[])?.length > 0 : value !== null && value !== undefined;
 
   function goNext() {
-    if (!canNext || submitting) return;
-    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+    if (!canNext || submitting || transitionBusy.current) return;
+    beginTransition();
     setStep((s) => (s === step ? Math.min(TOTAL - 1, s + 1) : s));
   }
   function goBack() {
+    if (transitionBusy.current) return;
+    beginTransition();
     if (step === 0) {
-      if (advanceTimer.current) clearTimeout(advanceTimer.current);
       setChoosing(true);
     } else setStep((s) => (s === step ? Math.max(0, s - 1) : s));
   }
 
-  // Interest questions are single-select gut picks — auto-advance so the section
-  // feels like a snappy quiz. Never on the final step; guarded against a manual
-  // Back/Next during the delay causing a surprise double-jump.
-  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(
-    () => () => {
-      if (advanceTimer.current) clearTimeout(advanceTimer.current);
-    },
-    [],
-  );
-  const selectInterest = useCallback(
-    (optId: string) => {
-      setValue([optId]);
-      if (advanceTimer.current) clearTimeout(advanceTimer.current);
-      if (window.matchMedia("(max-width: 1023px)").matches) return;
-      if (step < TOTAL - 1) {
-        const from = step;
-        advanceTimer.current = setTimeout(
-          () => setStep((s) => (s === from && s < TOTAL - 1 ? s + 1 : s)),
-          260,
-        );
-      }
-    },
-    [step, setValue, TOTAL],
-  );
+  // Every question uses explicit Next, including desktop interest questions.
+  const selectInterest = useCallback((optId: string) => setValue([optId]), [setValue]);
 
   const finish = useCallback(async () => {
     if (submissionPending.current) return;
@@ -563,11 +557,9 @@ function CareerAssessmentPage() {
   );
   // ── Intro screen ──
   function editProfile() {
-    if (advanceTimer.current) clearTimeout(advanceTimer.current);
     setChoosing(true);
   }
   function restartTest() {
-    if (advanceTimer.current) clearTimeout(advanceTimer.current);
     setSession(null);
     setAnswers(makeAnswers());
     setStep(0);
@@ -588,7 +580,6 @@ function CareerAssessmentPage() {
         )
       )
         return;
-      if (advanceTimer.current) clearTimeout(advanceTimer.current);
       setSession(null);
       setStep(0);
       setAnswers(
@@ -677,7 +668,7 @@ function CareerAssessmentPage() {
                       )}
                     </p>
                   </div>
-                  <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
+                  <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm text-primary">
                     <Shuffle className="h-3 w-3" /> {t.careerAssessment.questionsRefresh}
                   </div>
                   <p className="mt-3 text-sm text-muted-foreground">
@@ -731,7 +722,7 @@ function CareerAssessmentPage() {
                 </div>
 
                 {submitError && (
-                  <div className="mt-6 rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-2 text-xs text-destructive">
+                  <div className="mt-6 rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-2 text-sm text-destructive">
                     {submitError}
                   </div>
                 )}
@@ -765,7 +756,7 @@ function CareerAssessmentPage() {
                 )}
                 <Link
                   to="/methodology"
-                  className="mt-2 inline-block text-xs text-primary/80 hover:text-primary hover:underline"
+                  className="mt-2 inline-block text-sm text-primary/80 hover:text-primary hover:underline"
                 >
                   {t.careerAssessment.howItWorks}
                 </Link>
@@ -798,7 +789,7 @@ function CareerAssessmentPage() {
                 <button
                   aria-label={t.careerAssessment.back}
                   onClick={goBack}
-                  disabled={submitting}
+                  disabled={submitting || transitioning}
                   className="field-button assessment-mobile-back"
                 >
                   <ArrowLeft className="h-5 w-5" />
@@ -807,7 +798,7 @@ function CareerAssessmentPage() {
                 <button
                   aria-label={w("Change choices", "Tanlovlarni o‘zgartirish", "Изменить выбор")}
                   onClick={editProfile}
-                  disabled={submitting}
+                  disabled={submitting || transitioning}
                   className="field-button"
                 >
                   <Settings2 className="h-5 w-5" />
@@ -825,7 +816,7 @@ function CareerAssessmentPage() {
               </div>
               <div className="assessment-desktop-only">
                 {" "}
-                <p className="text-xs text-muted-foreground mb-4">
+                <p className="text-sm text-muted-foreground mb-4">
                   {step >= IQ_COUNT
                     ? w(
                         "Preference questions: choose what feels closest to you. There is no correct answer.",
@@ -854,7 +845,7 @@ function CareerAssessmentPage() {
                           >
                             {done ? <Check className="h-3 w-3" /> : <Icon className="h-3 w-3" />}
                           </span>
-                          <span className="hidden text-xs font-medium sm:inline">{ph.label}</span>
+                          <span className="hidden text-sm font-medium sm:inline">{ph.label}</span>
                         </div>
                         {i < phases.length - 1 && (
                           <div
@@ -897,10 +888,19 @@ function CareerAssessmentPage() {
                 aria-labelledby="assessment-question"
                 tabIndex={0}
               >
+                <p className="assessment-save-note text-sm" role="status">
+                  {w(
+                    "Saved in this browser tab for up to 24 hours. Saved to your account only after submission.",
+                    "24 soatgacha shu brauzer oynasida saqlanadi. Hisobingizga faqat yuborilgandan keyin saqlanadi.",
+                    "Сохранено в этой вкладке до 24 часов. В аккаунт сохраняется только после отправки.",
+                  )}
+                </p>
                 {current && (
                   <div
                     key={step}
                     data-question-index={step}
+                    data-transitioning={transitioning}
+                    aria-busy={transitioning}
                     className="assessment-question-content"
                   >
                     <h2
@@ -911,7 +911,10 @@ function CareerAssessmentPage() {
                       {prompt}
                     </h2>
 
-                    <div className="mt-6">
+                    <fieldset
+                      disabled={transitioning || submitting}
+                      className="mt-6 min-w-0 border-0 p-0"
+                    >
                       {current.kind === "p" && (
                         <div
                           role="radiogroup"
@@ -972,7 +975,7 @@ function CareerAssessmentPage() {
                                   <span className="visual-choice-check" aria-hidden="true">
                                     <Check size={16} />
                                   </span>
-                                  <span className="text-xs font-medium text-foreground">
+                                  <span className="text-sm font-medium text-foreground">
                                     {current.q.labels[l][optIdx]}
                                   </span>
                                 </div>
@@ -981,14 +984,14 @@ function CareerAssessmentPage() {
                           })}
                         </div>
                       )}
-                    </div>
+                    </fieldset>
                   </div>
                 )}
               </div>
               <div className="assessment-actions mt-8 flex items-center justify-between">
                 <button
                   onClick={goBack}
-                  disabled={submitting}
+                  disabled={submitting || transitioning}
                   className="assessment-bottom-back inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-5 py-2 text-sm text-primary/80 disabled:opacity-40 hover:border-primary/50 hover:bg-primary/10 transition-all"
                 >
                   <ArrowLeft className="h-4 w-4" /> {t.careerAssessment.back}
@@ -997,7 +1000,7 @@ function CareerAssessmentPage() {
                   <button
                     data-mobile-primary
                     onClick={goNext}
-                    disabled={!canNext}
+                    disabled={!canNext || transitioning}
                     className="cta-sheen relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-primary px-6 py-2 text-sm text-primary-foreground transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
                   >
                     {t.careerAssessment.next} <ArrowRight className="h-4 w-4" />
@@ -1005,7 +1008,7 @@ function CareerAssessmentPage() {
                 ) : (
                   <div className="flex flex-col items-end gap-2">
                     {submitError && (
-                      <div className="assessment-submit-error rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-2 text-xs text-destructive max-w-xs text-right">
+                      <div className="assessment-submit-error rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-2 text-sm text-destructive max-w-xs text-right">
                         {submitError}
                       </div>
                     )}
@@ -1015,7 +1018,7 @@ function CareerAssessmentPage() {
                         setSubmitError(null);
                         finish();
                       }}
-                      disabled={!canNext || submitting}
+                      disabled={!canNext || submitting || transitioning}
                       className="cta-sheen relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-primary px-6 py-2 text-sm text-primary-foreground transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
                     >
                       {submitting ? (
@@ -1036,7 +1039,7 @@ function CareerAssessmentPage() {
               </div>
             </div>
 
-            <div className="keyboard-hint mt-3 hidden items-center justify-center gap-1.5 text-[11px] text-muted-foreground sm:flex">
+            <div className="keyboard-hint mt-3 hidden items-center justify-center gap-1.5 text-sm text-muted-foreground sm:flex">
               <Keyboard className="h-3.5 w-3.5" /> {t.careerAssessment.keyboardHint}
             </div>
           </div>
@@ -1096,9 +1099,9 @@ function Section({
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           {icon}
         </span>
-        <span className="text-xs font-semibold">{title}</span>
+        <span className="text-sm font-semibold">{title}</span>
       </div>
-      <p className="relative mt-2 text-xs text-muted-foreground">{caption}</p>
+      <p className="relative mt-2 text-sm text-muted-foreground">{caption}</p>
     </div>
   );
 }
