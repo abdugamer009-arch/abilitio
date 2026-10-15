@@ -206,8 +206,7 @@ async function audit(page, active) {
             if (m.type() === "error") errors.push(m.text());
           });
           page.on("requestfailed", (req) => {
-            if (!req.failure()?.errorText.includes("ERR_ABORTED"))
-              failedRequests.push(req.url() + " " + req.failure()?.errorText);
+            failedRequests.push(req.url() + " " + req.failure()?.errorText);
           });
           page.on("response", (res) => {
             if (res.status() >= 400) failedRequests.push(res.url() + " HTTP " + res.status());
@@ -433,7 +432,9 @@ async function audit(page, active) {
                     document.querySelector("[data-question-index]")
                       ? Number(
                           document.querySelector("[data-question-index]").dataset.questionIndex,
-                        ) === n
+                        ) === n &&
+                        document.querySelector("[data-question-index]").dataset.transitioning !==
+                          "true"
                       : true,
                   n,
                 );
@@ -497,7 +498,7 @@ async function audit(page, active) {
                 break;
               }
               if (!quick) {
-                const automatic = (age === "child" ? n >= 12 : n >= 21) && w >= 1024;
+                const automatic = false;
                 if (!automatic) await touch(page.locator("[data-mobile-primary]"));
                 await page.waitForFunction(
                   (n) =>

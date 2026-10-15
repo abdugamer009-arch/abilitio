@@ -35,6 +35,12 @@ assert(widths.every((width) => [1440, 390].includes(width)));
           page.on("console", (m) => {
             if (m.type() === "error") errors.push(m.text());
           });
+          page.on("requestfailed", (r) =>
+            errors.push(`request: ${r.url()} ${r.failure()?.errorText}`),
+          );
+          page.on("response", (r) => {
+            if (r.status() >= 400) errors.push(`HTTP ${r.status()}: ${r.url()}`);
+          });
           const catalog = await fs.readFile("src/lib/assessment/catalog.server.ts", "utf8");
           const matches = [
             ...catalog
@@ -83,6 +89,16 @@ assert(widths.every((width) => [1440, 390].includes(width)));
               "const original = useContext(Ctx); return original.loading ? original : {...original, user: window.__qaUser, loading: false};",
             );
             await route.fulfill({ response, body });
+          });
+          await page.route("**/src/lib/community/community.functions.ts*", async (route) => {
+            const res = await route.fetch();
+            await route.fulfill({
+              response: res,
+              body: (await res.text()).replace(
+                /export const getCommunityChoice = [\s\S]*?;(?=\n)/g,
+                "export const getCommunityChoice=async()=>({suggested:null,memberships:[]});",
+              ),
+            });
           });
           await page.route("**/src/lib/assessment/career.functions.ts*", async (route) => {
             const response = await route.fetch();
@@ -205,6 +221,9 @@ assert(widths.every((width) => [1440, 390].includes(width)));
           // Complete using keyboard on desktop, touch on mobile.
           for (let i = 0; i < 30; i++) {
             await page.getByText(`${i + 1} / 30`, { exact: true }).waitFor();
+            await page
+              .locator(`[data-question-index="${i}"][data-transitioning="false"]`)
+              .waitFor();
             if (width === 1440) {
               await page.locator("h2").click();
               await page.keyboard.press("1");
@@ -214,7 +233,7 @@ assert(widths.every((width) => [1440, 390].includes(width)));
                 .filter({ has: page.locator("input[type=radio]") })
                 .first()
                 .tap();
-            if (i < 29 && (width === 390 || i < (ageGroup === "child" ? 12 : 21))) {
+            if (i < 29) {
               if (width === 1440) {
                 await page.getByRole("button", { name: "Next", exact: true }).focus();
                 await page.keyboard.press("Enter");

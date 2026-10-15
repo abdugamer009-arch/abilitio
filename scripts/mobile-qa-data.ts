@@ -1,3 +1,6 @@
+import { generateAbbiReply } from "../src/lib/abbi/abbi-knowledge";
+import { localizedGuideReply } from "../src/lib/abbi/localized-guide";
+import { buildCareerEvidence, type DirectAnswer } from "../src/lib/assessment/career-evidence";
 // Node-only QA fixture builder. Hidden banks/keys are never passed to the browser.
 import {
   PERSONALITY_BANK,
@@ -130,6 +133,19 @@ export function buildFixtures(lang: string, mode: "longest" | "random") {
       personality.mbti,
     );
     const { interests, riasec } = scoreInterests(s.interest.map((q) => q.options[0].riasec));
+    const selectedEvidence: DirectAnswer[] = s.interest.map((q) => {
+      const canonical = iPool.find((item) => item.id === q.id)!;
+      const index = canonical.options.findIndex((o) => o.id === q.options[0].id);
+      const labels = lo(canonical);
+      return {
+        questionId: q.id,
+        prompt: lp(q),
+        answer: { en: labels.en[index], ru: labels.ru[index], uz: labels.uz[index] },
+        fields: scoreInterests([q.options[0].riasec])
+          .interests.filter((f) => f.weight >= 0.5)
+          .map((f) => f.key),
+      };
+    });
     results[age] = {
       id: `mobile-${age}`,
       evidence_coverage: "direct",
@@ -154,7 +170,13 @@ export function buildFixtures(lang: string, mode: "longest" | "random") {
         cognitive,
         interests,
         age === "child",
-      ),
+      ).map((c) => ({
+        ...c,
+        evidence: buildCareerEvidence(
+          CAREER_CATALOG.find((item) => item.key === c.key)?.required_interests ?? [],
+          selectedEvidence,
+        ),
+      })),
       university_matches: matchMajors(
         MAJOR_CATALOG,
         personality,
@@ -174,5 +196,14 @@ export function buildFixtures(lang: string, mode: "longest" | "random") {
       interest: s.interest[0].id,
     };
   }
-  return { sessions, results, longest };
+  return {
+    sessions,
+    results,
+    longest,
+    abbiReplies: {
+      en: generateAbbiReply("Software Engineer", { ageGroup: "teen" }),
+      ru: localizedGuideReply("Software Engineer", { ageGroup: "teen" }, "ru"),
+      uz: localizedGuideReply("Software Engineer", { ageGroup: "teen" }, "uz"),
+    },
+  };
 }

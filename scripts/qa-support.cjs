@@ -4,7 +4,7 @@ const fs = require("node:fs/promises");
 const { build } = require("esbuild");
 async function fixtures() {
   await fs.mkdir("artifacts/qa", { recursive: true });
-  const dest = path.resolve("artifacts/qa/fixtures.cjs");
+  const dest = path.resolve(`artifacts/qa/fixtures-${process.pid}.cjs`);
   await build({
     entryPoints: ["scripts/mobile-qa-data.ts"],
     bundle: true,
@@ -13,23 +13,39 @@ async function fixtures() {
     outfile: dest,
   });
   delete require.cache[dest];
-  return require(dest).buildFixtures("en", "random");
+  const originalRandom = Math.random;
+  let seed = 731;
+  Math.random = () => (seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296;
+  try {
+    return require(dest).buildFixtures("en", "random");
+  } finally {
+    Math.random = originalRandom;
+  }
 }
 async function install(
   context,
   data,
-  { lang = "en", theme = "light", age = "teen_adult", guest = false } = {},
+  { lang = "en", theme = "light", age = "teen_adult", guest = false, legacy = false } = {},
 ) {
   await context.addInitScript(
-    ({ data, lang, theme, age, guest }) => {
+    ({ data, lang, theme, age, guest, legacy }) => {
       localStorage.setItem("abilitio_lang", lang);
-      localStorage.setItem("theme", theme);
+      localStorage.setItem("abilitio-theme", theme);
       window.__qa = {
         data,
         age,
         guest,
         user: { id: "qa-owner", email: "qa@example.invalid" },
-        members: [],
+        members: legacy
+          ? [
+              {
+                id: "33333333-3333-4333-8333-333333333333",
+                name: "Technology",
+                slug: "software-engineering",
+                consented_at: null,
+              },
+            ]
+          : [],
         calls: [],
         history: [
           { ...data.results[age], id: "11111111-1111-4111-8111-111111111111" },
@@ -42,7 +58,7 @@ async function install(
         ],
       };
     },
-    { data, lang, theme, age, guest },
+    { data, lang, theme, age, guest, legacy },
   );
   await context.route("**/src/lib/auth-context.tsx*", async (route) => {
     const res = await route.fetch();
@@ -50,7 +66,7 @@ async function install(
       response: res,
       body: (await res.text()).replace(
         "return useContext(Ctx);",
-        "const original=useContext(Ctx); return original.loading?original:{...original,user:window.__qa.guest?null:window.__qa.user,loading:false};",
+        "const original=useContext(Ctx); return original.loading?original:{...original,user:window.__qa.guest&&!sessionStorage.getItem('qa.recovery-session')?null:window.__qa.user,loading:false};",
       ),
     });
   });
@@ -66,7 +82,7 @@ async function install(
  done({data:one?rows[0]??null:rows,error:null,count:rows.length});};
  return (...args)=>{if(key==='single'||key==='maybeSingle')one=true;if(key==='eq')filters[args[0]]=args[1];return chain;};
  }});return chain;}
- export const supabase={from:query,auth:{onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}}),getSession:async()=>({data:{session:null}}),signOut:async()=>({error:null})},channel:()=>({on(){return this},subscribe(){return this},unsubscribe(){}}),removeChannel(){},storage:{from:()=>({createSignedUrl:async()=>({data:null,error:null})})}};
+ export const supabase={from:query,auth:{onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}}),getSession:async()=>({data:{session:null}}),signOut:async()=>({error:null}),updateUser:async({password})=>{if(!sessionStorage.getItem('qa.recovery-session'))return {error:new Error('Recovery session expired')};if(password.length<8)return {error:new Error('Password too short')};sessionStorage.setItem('qa.mock-updated','yes');sessionStorage.setItem('qa.mock-used','yes');return {error:null};}},channel:()=>({on(){return this},subscribe(){return this},unsubscribe(){}}),removeChannel(){},storage:{from:()=>({createSignedUrl:async()=>({data:null,error:null})})}};
  `,
     }),
   );
@@ -102,6 +118,16 @@ async function install(
       );
     await route.fulfill({ response: res, body });
   });
+  await context.route("**/src/lib/abbi/abbi.functions.ts*", async (route) => {
+    const res = await route.fetch();
+    await route.fulfill({
+      response: res,
+      body: (await res.text()).replace(
+        /export const generateAbbiMessage = [\s\S]*?;(?=\n)/g,
+        "export const generateAbbiMessage=async(args)=>({reply:window.__qa.data.abbiReplies[args.data.lang]});",
+      ),
+    });
+  });
   await context.route("**/src/lib/community/community.functions.ts*", async (route) => {
     const res = await route.fetch();
     let body = await res.text();
@@ -110,7 +136,7 @@ async function install(
       getCommunityChoice:
         '({suggested:{id:"33333333-3333-4333-8333-333333333333",name:"Technology",slug:"software-engineering"},memberships:window.__qa.members})',
       joinCommunity:
-        '(window.__qa.members=[{id:"33333333-3333-4333-8333-333333333333",name:"Technology",slug:"software-engineering"}],null)',
+        '(window.__qa.members=[{id:"33333333-3333-4333-8333-333333333333",name:"Technology",slug:"software-engineering",consented_at:"2026-10-15T00:00:00Z"}],null)',
       leaveCommunity: "(window.__qa.members=[],null)",
     };
     for (const [name, value] of Object.entries(replacements))
@@ -128,8 +154,7 @@ function errors(page) {
     if (m.type() === "error") list.push(m.text());
   });
   page.on("requestfailed", (r) => {
-    if (!r.failure()?.errorText.includes("ERR_ABORTED"))
-      list.push(r.url() + " " + r.failure()?.errorText);
+    list.push(r.url() + " " + r.failure()?.errorText);
   });
   page.on("response", (r) => {
     if (r.status() >= 400) list.push(r.url() + " HTTP " + r.status());

@@ -60,8 +60,7 @@ const routes = ["/", "/career-assessment", "/career-battles", "/universities", "
         if (message.type() === "error") errors.push(`console: ${message.text()}`);
       });
       page.on("requestfailed", (request) => {
-        if (!request.failure()?.errorText?.includes("ERR_ABORTED"))
-          errors.push(`request: ${request.url()} ${request.failure()?.errorText}`);
+        errors.push(`request: ${request.url()} ${request.failure()?.errorText}`);
       });
       page.on("response", (response) => {
         if (response.status() >= 400) errors.push(`HTTP ${response.status()}: ${response.url()}`);
@@ -77,6 +76,24 @@ const routes = ["/", "/career-assessment", "/career-battles", "/universities", "
       }
       await context.close();
     }
+    await require("./qa-features.cjs").runFeatureChecks(origin);
+    await require("./qa-export-locales.cjs").runExportLocaleChecks(origin);
+    await require("./qa-controls.cjs").runControlChecks(origin);
+    await require("./qa-recovery.cjs").runRecoveryChecks(origin);
+    await require("./qa-accessibility.cjs").runAccessibility(origin);
+    await require("./qa-matrix.cjs").runMatrix(origin);
+    await require("./qa-keyboard.cjs").runKeyboardChecks(origin);
+    await require("./qa-copy.cjs").runCopyChecks(origin);
+    await new Promise((resolve, reject) => {
+      const child = spawn(process.execPath, ["scripts/verify-profile-flow.cjs"], {
+        stdio: "inherit",
+        env: { ...process.env, QA_ORIGIN: origin },
+      });
+      child.once("error", reject);
+      child.once("exit", (code) =>
+        code === 0 ? resolve() : reject(new Error("Four-profile browser regression failed")),
+      );
+    });
   } finally {
     await browser.close();
     server?.kill();

@@ -26,7 +26,9 @@ const { fixtures, install, errors } = require("./qa-support.cjs");
         universities: "/universities",
         settings: "/dashboard",
       })) {
-        await page.goto("http://127.0.0.1:8080" + route, { waitUntil: "networkidle" });
+        await page.goto((process.env.QA_ORIGIN || "http://127.0.0.1:8080") + route, {
+          waitUntil: "networkidle",
+        });
         await page.locator("main").waitFor();
         if (name === "settings") await page.getByRole("button", { name: /^Settings$/ }).click();
         await page.screenshot({ path: out + "/" + width + "-" + name + ".png", fullPage: true });
@@ -38,6 +40,21 @@ const { fixtures, install, errors } = require("./qa-support.cjs");
           fixture: true,
         });
       }
+      await page.goto((process.env.QA_ORIGIN || "http://127.0.0.1:8080") + "/career-assessment", {
+        waitUntil: "networkidle",
+      });
+      await page.locator('label:has(input[value="male"])').click();
+      await page.locator('label:has(input[value="teen_adult"])').click();
+      await page.locator("[data-mobile-primary]").click();
+      await page.locator('[data-question-index="0"]').waitFor();
+      await page.screenshot({ path: out + "/" + width + "-question.png", fullPage: true });
+      report.push({
+        width,
+        name: "question",
+        path: out + "/" + width + "-question.png",
+        errors: [...faults],
+        fixture: true,
+      });
       await context.close();
     }
   } finally {
