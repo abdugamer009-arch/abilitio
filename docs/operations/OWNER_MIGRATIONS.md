@@ -43,3 +43,13 @@ Reference: [Supabase managed Realtime ownership troubleshooting](https://supabas
 ## Administrator identity after optional email confirmation
 
 Production signup no longer verifies email ownership. Apply `20261011180000_explicit_admin_provisioning.sql` before disabling confirmation in another environment. It keeps existing administrators and removes automatic grants from new signups. Provision future administrator roles only after verifying the specific account UUID and the owner's identity. Never use a claimed email or an automatically populated `email_confirmed_at` timestamp as proof of identity when autoconfirm is enabled. Do not rerun the historical founder-email backfills.
+
+## October 15 consent release
+
+Before releasing the audit continuation, apply `20261015120000_community_consent.sql` to the intended Supabase project. It preserves existing memberships/messages, adds nullable `consented_at`, revokes both legacy assignment entry points from public/anonymous/authenticated callers, and grants explicit consent/leave operations. This repository change has **not** applied production SQL. PGlite is a simulated migration check only.
+
+In an authorized disposable account verify: assessment save creates zero memberships; opening communities creates zero memberships; the invitation describes name/avatar/message visibility; Join alone creates consented membership; Leave removes only the caller's selected membership. Confirm an old member gets a review notice, and a second account cannot leave that membership. Keep the existing assessment nonce and ownership checks.
+
+Recovery requires both flags and external delivery proof in [email setup](AUTH_EMAIL_SETUP.md). School program enrollment remains gated until approved terms in `src/lib/schools/school-agreement.ts`. The new local exports require no server secrets or additional provider.
+
+`node scripts/cleanup-qa.mjs --manifest=/private/manifest.json` is a read-only ownership-checked dry run. The manifest requires `ownerId`, exact `resultIds`, and exact `communityIds` UUID arrays; names/emails are never used to guess QA data. Apply only after explicit human confirmation of that exact manifest, with `--apply` and `QA_CLEANUP_CONFIRM` equal to that owner UUID. Server-only `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are required. The tool does not delete accounts, messages or unrelated results. No production cleanup has been performed by this continuation.

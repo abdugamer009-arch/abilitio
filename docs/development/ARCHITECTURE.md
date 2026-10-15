@@ -99,3 +99,16 @@ Vercel uses the configured production branch and the `VERCEL=1` Nitro preset. St
 - `.github/workflows/verify.yml`: `npm run check` and the standalone Node build.
 
 See [local setup](LOCAL_SETUP.md) for commands and [owner migrations](../operations/OWNER_MIGRATIONS.md) for actual staging/production verification. Local and simulated database checks do not establish live persistence.
+
+## October 15 audit continuation
+
+- New matching uses the single `SCORING_WEIGHTS` config in `assessment/scoring-config.ts`: direct interests/work preferences are 70/30 for older students and 75/25 for children; visual preferences and reasoning carry no career-ranking weight. These are exploratory product rules, not validated predictive coefficients. The methodology reads that same config.
+- New `career_matches` JSON entries include public selected-answer evidence. `career-evidence.ts` strips hidden mapping fields; historical rows without this evidence explicitly remain unavailable. No historical answers are reconstructed. Grading/signatures, owner/nonce retry behavior and all canonical rankings remain server-authoritative.
+- Result lookup accepts an optional UUID and always filters by authenticated owner. Dashboard history opens the stored report rather than regenerating a score. Comparison warns about different question sets/difficulties/methods. Career comparison starts with three saved recommendations and the public directory; selectors exclude other selected keys.
+- `ResultExports` draws local PDF pages and a local image preview with the app's loaded fonts. No private report is sent to an export service. Native sharing is attempted only after the user previews and presses Share. Raster PDF text is visually readable but is not selectable/accessibly tagged; the on-screen report remains the accessible text version.
+- Community reads and assessment saves create no membership. `20261015120000_community_consent.sql` retires legacy auto-assignment RPC grants and introduces explicit consent/leave RPCs. Legacy membership rows retain NULL `consented_at`, receive a one-time review notice, and are preserved until the owner leaves. Messages are not silently deleted.
+- Career roadmap task IDs are `career:<key>:p<phase>_t1`, separate from earlier track IDs. Existing marks remain saved and are not attributed to rewritten tasks. Canonical keys are known locally; extra database catalog keys are checked on the authenticated server before writes.
+- Child review metadata now uses `addedBy: "age-feature"`. The chooser is tab-local; submitting question membership still necessarily reveals the selected question variant. Minimum age/parental permission remains an explicit owner/legal decision.
+- School registration is gated by the owner-reviewed `SCHOOL_AGREEMENT`. Null fields are visible draft placeholders; existing school accounts remain available. Do not enable registration until scope, payer and student-permission responsibilities are approved.
+
+The browser gate in `npm run test:all` exercises simulated accounts and network fixtures, alongside actual signed-question delivery in the profile runner and separate server/domain/database contract tests. It is not live Supabase, SMTP, native Safari or physical-device validation. Screenshots, baseline copies, local exports and test logs remain ignored by Git.

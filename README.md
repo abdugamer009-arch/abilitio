@@ -14,13 +14,13 @@ Abilitio helps students explore their interests, work preferences and reasoning,
 
 ## The product, at a glance
 
-| Explore                   | What is in the repository                                                                                                             |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| **Find your signals**     | 561 catalog questions: 280 personality statements, 260 reasoning questions and 21 visual-interest questions. Each attempt selects 30. |
-| **Compare directions**    | All 166 canonical career profiles are ranked in new results, with explanations, search and a Show all careers control.                |
-| **Choose a next step**    | 52 seeded study-major profiles, career activities and a roadmap task journal.                                                         |
-| **Research universities** | 20 university entries and browser-local research bookmarks.                                                                           |
-| **Support a group**       | School enrollment, reports, analytics and class-building tools with owner-scoped access.                                              |
+| Explore                   | What is in the repository                                                                                                                                                       |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Find your signals**     | 606 retained items: the original 280 preference, 260 reasoning and 21 legacy visual questions, nine direct-activity questions, and 36 child questions. Each attempt selects 30. |
+| **Compare directions**    | All 166 canonical career profiles are ranked in new results, with explanations, search and a Show all careers control.                                                          |
+| **Choose a next step**    | 52 seeded study-major profiles, career activities and a roadmap task journal.                                                                                                   |
+| **Research universities** | 20 university entries and browser-local research bookmarks.                                                                                                                     |
+| **Support a group**       | School enrollment, reports, analytics and class-building tools with owner-scoped access.                                                                                        |
 
 These are catalog counts, not user-impact statistics. Results are exploratory descriptions, not clinical measurements, admission predictions or proof of ability. Some wordplay questions retain English stimuli with translated instructions.
 
@@ -36,7 +36,7 @@ flowchart LR
     F --> G[Track your next step]
 ```
 
-An attempt contains **12 personality + 9 reasoning + 9 interest questions**. Questions and reasoning/interest answer positions shuffle; repeated questions across different attempts remain possible. Correct answers and scoring weights stay on the server. Signed attempts expire after 24 hours, and retrying a saved attempt returns its original result.
+Older-student attempts contain **12 preference + 9 reasoning + 9 direct-activity questions**. Child attempts contain **12 simple preferences + 18 concrete activity choices**, with no reasoning score. Questions and reasoning/interest answer positions shuffle; repeated questions across different attempts remain possible. Correct answers and scoring weights stay on the server. Signed attempts expire after 24 hours, and retrying a saved attempt returns its original result.
 
 ## Run it locally
 
@@ -102,8 +102,8 @@ Tool configuration remains at the root where Vite, TypeScript, npm and Vercel ex
 The full question and career catalogs are deployed. **A code deployment does not apply database migrations.** The fresh Supabase project has all 26 migrations, 27 app tables, 166 careers and 52 study majors. Live signup API, browser login, assessment save/reload and cross-account result isolation passed the [October 11 production audit](docs/operations/LIVE_AUDIT_2026_10_11.md). Admin moderation and principal enrollment/class saving also passed dedicated live checks. Email delivery and password recovery still need an owned sender domain and SMTP configuration. See the [current setup record](docs/operations/SUPABASE_SETUP.md) and [owner migration guide](docs/operations/OWNER_MIGRATIONS.md).
 
 - Production still uses Supabase. Nhost work consists of source-backup preparation; no completed transfer is claimed.
-- Historical results preserve their original scores and saved career rankings. Older-age results use scoring version `v3`; child preference results use `v4-preferences` and assess no cognitive ability. Tied personality axes remain open, without inventing a personality type or cognitive profile.
-- ABBI is a curated English-language guide. Weekly email digest delivery has no configured implementation.
+- Historical results preserve their original scores and saved career rankings. New older-age results use `v6-direct-interests`; child results use `v6-direct-preferences` and assess no cognitive ability. Tied personality axes remain open, without inventing a personality type or cognitive profile.
+- ABBI is a curated, rule-based guide with English/Russian/Uzbek responses and explicitly limited coverage. Weekly email digest delivery has no configured implementation.
 - Local database tests simulate Supabase-owned schemas. Passing them does not prove production permissions, email delivery or real account persistence.
 - Never commit credentials or backups. Service-role and assessment-signing keys are server-only.
 
@@ -122,3 +122,5 @@ These are Chromium device emulations with touch events, not native Safari or phy
 ## Where to go next
 
 **Changing a feature?** Read the [architecture map](docs/development/ARCHITECTURE.md), then its module under `src/lib/` and relevant tests. **Preparing a release?** Read the [operations guides](docs/README.md#operations). **Understanding the interface?** Read the [design archive](docs/README.md#design-history). **Continuing work with a coding agent?** Start with [AGENTS.md](AGENTS.md).
+
+Recovery delivery is gated by **both** `PASSWORD_RECOVERY_ENABLED=true` (server) and `VITE_PASSWORD_RECOVERY_ENABLED=true` (browser), using the existing `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY`. Configure the verified sender and SMTP credentials in Supabase Auth first; follow [email setup](docs/operations/AUTH_EMAIL_SETUP.md). Keep both flags false until an external mailbox, expiring/single-use link and password update have been verified. Weekly digest has no active settings control while delivery is absent.
