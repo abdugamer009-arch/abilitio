@@ -37,6 +37,7 @@ export function CareerWorkshop({
   const [track, setTrack] = useState<RoadmapTrack | "">("");
   const [done, setDone] = useState<Record<string, boolean>>({});
   const [preference, setPreference] = useState("");
+  const [practiceOpen, setPracticeOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const panel = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -257,6 +258,7 @@ export function CareerWorkshop({
           <button
             key={i}
             className={`stage-choice stage-${i} ${stage === i ? "is-active" : ""}`}
+            aria-label={name}
             aria-pressed={stage === i}
             onClick={() => {
               onStage(i);
@@ -267,7 +269,18 @@ export function CareerWorkshop({
             <StageBadge stage={i} />
             <span>
               <span className="micro">0{i + 1}</span>
-              <strong>{name}</strong>
+              <strong>
+                <span className="stage-name-full">{name}</span>
+                <span className="stage-name-compact">
+                  {
+                    [
+                      w("Practice", "Mashq", "Проба"),
+                      w("Choose", "Tanlov", "Выбор"),
+                      w("Activity", "Vazifa", "Опыт"),
+                    ][i]
+                  }
+                </span>
+              </strong>
               <span className="stage-brand">
                 {
                   [
@@ -298,7 +311,19 @@ export function CareerWorkshop({
           </span>
         </div>
         <div className="bench-body">
-          <aside className="bench-index" data-detail>
+          <button
+            className="bench-index-toggle field-button"
+            aria-expanded={practiceOpen}
+            aria-controls="practice-index"
+            onClick={() => setPracticeOpen((v) => !v)}
+          >
+            {w("Practice overview", "Mashq ko‘rinishi", "Обзор практики")}
+          </button>
+          <aside
+            id="practice-index"
+            className={`bench-index ${practiceOpen ? "is-expanded" : ""}`}
+            data-detail
+          >
             <h3>{w("Practice questions", "Mashq savollari", "Вопросы для практики")}</h3>
             <p>
               {w(

@@ -144,7 +144,7 @@ function SchoolAnalytics() {
         <div className="mx-auto max-w-6xl">
           <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm text-primary">
                 <GraduationCap className="h-3.5 w-3.5" /> {t.school.schoolAnalytics}
               </div>
               <h1 className="mt-3 text-3xl font-bold gradient-text">
@@ -189,8 +189,8 @@ function SchoolAnalytics() {
                 <ResponsiveContainer>
                   <BarChart data={d.careerDistribution.slice(0, 10)}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                    <XAxis dataKey="name" stroke="var(--muted-foreground)" fontSize={11} />
-                    <YAxis stroke="var(--muted-foreground)" fontSize={11} allowDecimals={false} />
+                    <XAxis dataKey="name" stroke="var(--muted-foreground)" fontSize={14} />
+                    <YAxis stroke="var(--muted-foreground)" fontSize={14} allowDecimals={false} />
                     <Tooltip
                       contentStyle={{
                         background: "var(--card)",
@@ -229,7 +229,7 @@ function SchoolAnalytics() {
                         borderRadius: 12,
                       }}
                     />
-                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                    <Legend wrapperStyle={{ fontSize: 14 }} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -240,8 +240,8 @@ function SchoolAnalytics() {
                 <ResponsiveContainer>
                   <BarChart data={d.cognitiveDistribution}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                    <XAxis dataKey="tier" stroke="var(--muted-foreground)" fontSize={11} />
-                    <YAxis stroke="var(--muted-foreground)" fontSize={11} allowDecimals={false} />
+                    <XAxis dataKey="tier" stroke="var(--muted-foreground)" fontSize={14} />
+                    <YAxis stroke="var(--muted-foreground)" fontSize={14} allowDecimals={false} />
                     <Tooltip
                       contentStyle={{
                         background: "var(--card)",
@@ -266,11 +266,11 @@ function SchoolAnalytics() {
                     className="flex items-center justify-between rounded-xl bg-secondary/30 px-3 py-2"
                   >
                     <span>{m.name}</span>
-                    <span className="text-xs font-medium text-primary">{m.count}</span>
+                    <span className="text-sm font-medium text-primary">{m.count}</span>
                   </li>
                 ))}
                 {!d.universityDistribution.length && (
-                  <li className="text-xs text-muted-foreground">{t.school.noData}</li>
+                  <li className="text-sm text-muted-foreground">{t.school.noData}</li>
                 )}
               </ul>
             </Glass>
@@ -279,7 +279,7 @@ function SchoolAnalytics() {
           {/* Heatmap */}
           <div className="panel mt-6 rounded-3xl p-6">
             <h3 className="text-sm font-semibold">{t.school.talentHeatmap}</h3>
-            <p className="text-xs text-muted-foreground">{t.school.talentHeatmapSub}</p>
+            <p className="text-sm text-muted-foreground">{t.school.talentHeatmapSub}</p>
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               {d.classHeatmap.map((row) => (
                 <div
@@ -293,7 +293,7 @@ function SchoolAnalytics() {
                     {Object.entries(row.buckets)
                       .sort((a, b) => b[1] - a[1])
                       .map(([cat, n]) => (
-                        <li key={cat} className="flex items-center gap-2 text-xs">
+                        <li key={cat} className="flex items-center gap-2 text-sm">
                           <span className="w-32 truncate">
                             {lang === "en" ? cat : tr(cat.charAt(0).toUpperCase() + cat.slice(1))}
                           </span>
@@ -310,7 +310,7 @@ function SchoolAnalytics() {
                 </div>
               ))}
               {!d.classHeatmap.length && (
-                <div className="rounded-2xl border border-dashed border-border p-6 text-center text-xs text-muted-foreground md:col-span-2">
+                <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground md:col-span-2">
                   {t.school.noClassData}
                 </div>
               )}
@@ -323,17 +323,17 @@ function SchoolAnalytics() {
               <AlertTriangle className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold">{t.school.atRiskTitle}</h3>
             </div>
-            <p className="text-xs text-muted-foreground">{t.school.atRiskSub}</p>
+            <p className="text-sm text-muted-foreground">{t.school.atRiskSub}</p>
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               {atRisk.length ? (
                 atRisk.map((s) => (
                   <div key={s.user_id} className="rounded-2xl border border-border bg-butter p-4">
                     <div className="text-sm font-semibold">{s.name}</div>
-                    <div className="mt-1 text-xs text-muted-foreground">
+                    <div className="mt-1 text-sm text-muted-foreground">
                       {t.school.currently}{" "}
                       <span className="text-foreground/80">{s.class_name}</span>
                     </div>
-                    <div className="text-xs">
+                    <div className="text-sm">
                       {t.school.recommendedLabel}{" "}
                       <span className="text-primary font-medium">{s.top_career?.name}</span> ·{" "}
                       {s.top_career?.score}% {t.school.confidence}
@@ -341,7 +341,7 @@ function SchoolAnalytics() {
                   </div>
                 ))
               ) : (
-                <div className="rounded-2xl border border-dashed border-border p-6 text-center text-xs text-muted-foreground md:col-span-2">
+                <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground md:col-span-2">
                   {t.school.noMisalignments}
                 </div>
               )}
@@ -398,7 +398,7 @@ function Stat({
   return (
     <div className="panel rounded-2xl p-5">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">{label}</span>
+        <span className="text-sm text-muted-foreground">{label}</span>
         <Icon className="h-4 w-4 text-primary" />
       </div>
       <div className="mt-2 text-2xl font-bold gradient-text">{value}</div>
@@ -418,7 +418,7 @@ function Glass({
   return (
     <div className="panel rounded-3xl p-6">
       <h3 className="text-sm font-semibold">{title}</h3>
-      <p className="text-xs text-muted-foreground">{subtitle}</p>
+      <p className="text-sm text-muted-foreground">{subtitle}</p>
       <div className="mt-4">{children}</div>
     </div>
   );

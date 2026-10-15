@@ -127,7 +127,7 @@
   --space-8: 64px;
   --space-10: 80px;
   --space-12: 96px;
-  --text-xs: 12px;
+  --text-xs: 14px;
   --text-sm: 14px;
   --text-base: 16px;
   --text-lg: 20px;
@@ -255,7 +255,7 @@ fieldset {
 }
 .micro,
 .section-number {
-  font: 800 13px/1.3 var(--font-sans);
+  font: 800 14px/1.3 var(--font-sans);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted-foreground);
@@ -297,7 +297,7 @@ fieldset {
   background: var(--card);
   color: var(--foreground);
   box-shadow: 3px 3px 0 var(--ink);
-  font-size: 12px;
+  font-size: 14px;
 }
 .panel,
 .glass {
@@ -722,7 +722,7 @@ td {
   border: 0;
   background: transparent;
   color: var(--illustration-ink);
-  font: 800 13px/1 var(--font-sans);
+  font: 800 14px/1 var(--font-sans);
   letter-spacing: 0.06em;
   border-radius: 999px;
 }
@@ -852,7 +852,7 @@ td {
   border-radius: 999px;
   padding: 8px 14px;
   box-shadow: 3px 3px 0 var(--ink);
-  font-size: 12px;
+  font-size: 14px;
 }
 .studio-hero-grid {
   display: flex;
@@ -960,14 +960,14 @@ td {
 .instrument-label .micro {
   margin: 0;
   color: var(--foreground);
-  font-size: 12px;
+  font-size: 14px;
 }
 .instrument-label > span:last-child {
   flex: none;
   padding: 5px 8px;
   border: 2px solid var(--ink);
   border-radius: 8px;
-  font: 800 12px/1 var(--font-sans);
+  font: 800 14px/1 var(--font-sans);
   color: var(--muted-foreground);
 }
 .brain-frame {
@@ -1004,7 +1004,7 @@ td {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: 14px;
   letter-spacing: 0;
   color: var(--foreground);
 }
@@ -1040,7 +1040,7 @@ td {
     background-color 0.25s ease;
 }
 .instrument-signals button > span {
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.08em;
 }
 .instrument-signals button[aria-pressed="true"] {
@@ -1235,10 +1235,10 @@ td {
   color: var(--illustration-ink);
 }
 .founder-pair figcaption strong {
-  font: 800 12px/1.2 var(--font-sans);
+  font: 800 14px/1.2 var(--font-sans);
 }
 .founder-pair figcaption span {
-  font: 500 12px/1.3 var(--font-sans);
+  font: 500 14px/1.3 var(--font-sans);
 }
 
 .studio-workshop {
@@ -1323,7 +1323,7 @@ td {
   color: var(--illustration-ink);
   border: 2px solid var(--ink);
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.1em;
 }
 .stage-choice strong {
@@ -1445,7 +1445,7 @@ td {
 }
 .item-tile small {
   flex-basis: 100%;
-  font: 800 11px/1.3 var(--font-sans);
+  font: 800 14px/1.3 var(--font-sans);
   letter-spacing: 0.06em;
 }
 .item-tile[aria-pressed="true"] {
@@ -1474,7 +1474,7 @@ td {
   font-weight: 800;
 }
 .item-status {
-  font: 800 11px/1.2 var(--font-sans);
+  font: 800 14px/1.2 var(--font-sans);
 }
 .difficulty-introductory {
   background: var(--mint);
@@ -1509,7 +1509,7 @@ td {
 }
 .bench-index > small {
   display: block;
-  font: 500 13px/1.5 var(--font-sans);
+  font: 500 14px/1.5 var(--font-sans);
   color: var(--muted-foreground);
 }
 .bench-count {
@@ -1606,7 +1606,7 @@ td {
   gap: 10px;
 }
 .question-label .micro {
-  font-size: 12px;
+  font-size: 14px;
 }
 .free-label {
   padding: 7px 12px;
@@ -1614,7 +1614,7 @@ td {
   border-radius: 999px;
   background: var(--mint);
   color: var(--mint-text);
-  font: 800 12px/1 var(--font-sans);
+  font: 800 14px/1 var(--font-sans);
   letter-spacing: 0.06em;
 }
 .question-prompt {
@@ -1798,7 +1798,7 @@ td {
 .assessment-composition > p {
   flex-basis: 100%;
   margin: 0 0 8px;
-  font: 800 13px/1.3 var(--font-sans);
+  font: 800 14px/1.3 var(--font-sans);
   letter-spacing: 0.14em;
   color: var(--muted-foreground);
 }
@@ -1937,7 +1937,7 @@ td {
 }
 .path-list small {
   text-align: right;
-  font-size: 13px;
+  font-size: 14px;
 }
 .path-list small span {
   display: block;
@@ -1952,7 +1952,7 @@ td {
   min-height: 44px;
   margin-top: 16px;
   padding: 0 14px;
-  font-size: 13px;
+  font-size: 14px;
   border-radius: 12px;
 }
 .task-complete-button[aria-pressed="true"] {
@@ -2109,7 +2109,7 @@ td {
   border: 2.5px solid var(--ink);
   border-radius: 999px;
   box-shadow: 3px 3px 0 var(--ink);
-  font-size: 12px;
+  font-size: 14px;
   margin: 0;
 }
 .school-access .micro {
@@ -2237,7 +2237,7 @@ td {
   border-radius: 999px;
   background: var(--card);
   color: var(--foreground);
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.1em;
 }
 .cartoon-icon-tile {
@@ -2411,7 +2411,7 @@ td {
   border: 2.5px solid var(--ink);
   border-radius: 999px;
   margin: 0;
-  font-size: 12px;
+  font-size: 14px;
 }
 .person-register article:nth-child(2) p {
   background: var(--butter);
@@ -2596,7 +2596,7 @@ td {
   outline-offset: 3px;
 }
 .scale-label {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   text-align: center;
   line-height: 1.4;
@@ -2661,7 +2661,7 @@ td {
   color: var(--illustration-ink);
   border-bottom: 3px solid var(--ink);
   padding: 12px var(--gutter);
-  font: 800 12px/1.3 var(--font-sans);
+  font: 800 14px/1.3 var(--font-sans);
   letter-spacing: 0.08em;
   pointer-events: none;
 }
@@ -2714,7 +2714,7 @@ td {
     margin-bottom: 36px;
   }
   .hero-rail .micro:first-child {
-    font-size: 11px;
+    font-size: 14px;
     line-height: 1.4;
   }
   .studio-hero-grid {
@@ -2755,7 +2755,7 @@ td {
     padding: 10px 8px;
   }
   .brain-caption {
-    font-size: 10px;
+    font-size: 14px;
   }
   .founder-bridge {
     padding: 32px 22px;
@@ -2923,7 +2923,7 @@ td {
     top: 42px;
   }
   .scale-label {
-    font-size: 11px;
+    font-size: 14px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -3190,7 +3190,7 @@ input + button svg {
     gap: 6px;
   }
   .scale-label {
-    font-size: 11px;
+    font-size: 14px;
   }
 }
 
@@ -3482,7 +3482,7 @@ p[role="alert"] {
   padding: 7px 13px;
   border: 2.5px solid var(--ink);
   border-radius: 255px 22px 225px 22px / 22px 225px 22px 255px;
-  font: 800 12px/1 var(--font-sans);
+  font: 800 14px/1 var(--font-sans);
   letter-spacing: 0.05em;
   background: var(--card);
   color: var(--foreground);
@@ -3590,7 +3590,7 @@ p[role="alert"] {
   gap: 7px;
 }
 .journey-ticket-label {
-  font: 800 11px/1.3 var(--font-sans);
+  font: 800 14px/1.3 var(--font-sans);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -3691,7 +3691,7 @@ p[role="alert"] {
   letter-spacing: -0.01em;
 }
 .journey-island-tag > span {
-  font: 700 12px/1 var(--font-sans);
+  font: 700 14px/1 var(--font-sans);
   color: #4a463f;
 }
 .journey-island-done {
@@ -3746,7 +3746,7 @@ p[role="alert"] {
   display: flex;
   align-items: center;
   gap: 8px;
-  font: 800 12px/1.3 var(--font-sans);
+  font: 800 14px/1.3 var(--font-sans);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted-foreground);
@@ -4061,5 +4061,195 @@ p[role="alert"] {
   .field-header .theme-knob {
     width: 30px;
     height: 30px;
+  }
+}
+
+/* Audit: readable supporting text and visible, consistent input focus. */
+input,
+select,
+textarea {
+  font-size: max(16px, 1rem);
+}
+button,
+a.field-button,
+summary {
+  min-height: 44px;
+}
+button,
+.field-button {
+  min-width: 44px;
+}
+:focus-visible {
+  outline: 3px solid var(--pen-blue);
+  outline-offset: 3px;
+}
+.export-preview::backdrop {
+  background: var(--modal-backdrop);
+}
+.export-preview {
+  max-height: 90dvh;
+  overflow-y: auto;
+  color: var(--foreground);
+  background: var(--card);
+}
+.result-detail-card {
+  border-width: 1px;
+  box-shadow: none;
+}
+.assessment-result .career-reasons {
+  border-top: 1px solid var(--row-line);
+}
+.bench-index-toggle {
+  display: none;
+}
+@media (max-width: 600px) {
+  .studio-workshop {
+    scroll-margin-top: 80px;
+  }
+  .studio-workshop .section-heading {
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .studio-workshop .section-heading h2 {
+    font-size: 30px;
+  }
+  .studio-workshop .section-heading > p:last-child {
+    display: none;
+  }
+  .stage-picker {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .stage-choice {
+    padding: 10px 6px;
+    gap: 0;
+    border-width: 2px;
+    border-radius: 12px;
+    box-shadow: 2px 2px 0 var(--ink);
+    min-height: 64px;
+    align-items: center;
+    text-align: center;
+  }
+  .stage-choice .stage-badge,
+  .stage-choice .micro,
+  .stage-choice .stage-brand,
+  .stage-choice small,
+  .stage-choice > svg {
+    display: none;
+  }
+  .stage-choice strong {
+    font-size: 14px;
+    margin: 0;
+    overflow-wrap: anywhere;
+    line-height: 1.25;
+  }
+  .stage-context {
+    margin: 8px 0;
+    font-size: 14px;
+  }
+  .bench-body {
+    display: flex;
+    flex-direction: column;
+  }
+  .bench-index-toggle {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .bench-index {
+    display: none;
+  }
+  .bench-index.is-expanded {
+    display: block;
+  }
+  .bench-content {
+    order: -1;
+    padding: 14px 10px;
+  }
+  .bench-title {
+    margin-bottom: 12px;
+    gap: 8px;
+  }
+  .bench-title h3 {
+    font-size: 22px;
+  }
+  .bench-toolbar {
+    padding-bottom: 8px;
+  }
+  .workbench {
+    padding: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}
+/* Keep the workbench's intrinsic puzzle width inside narrow screens. */
+@media (max-width: 600px) {
+  .bench-content {
+    min-width: 0;
+    width: 100%;
+  }
+  .bench-title h3 {
+    min-width: 0;
+  }
+  .question-label {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .sequence-strip,
+  .sequence-tiles {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .sequence-tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .sequence-tile {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    font-size: 20px;
+  }
+}
+:root:not(.dark) .gradient-text {
+  color: #c53019;
+}
+.activity-guide summary {
+  color: var(--illustration-ink);
+}
+
+.journey-task .activity-guide summary {
+  color: var(--illustration-ink);
+}
+
+.stage-name-compact {
+  display: none;
+}
+@media (max-width: 600px) {
+  .stage-name-full {
+    display: none;
+  }
+  .stage-name-compact {
+    display: inline;
+  }
+  .studio-workshop .bench-toolbar {
+    display: none;
+  }
+}
+@media (max-width: 600px) {
+  /* The document already reserves 100px for sticky navigation. */
+  .studio-workshop {
+    scroll-margin-top: 36px;
+  }
+  .studio-workshop .section-heading > .micro {
+    display: none;
   }
 }

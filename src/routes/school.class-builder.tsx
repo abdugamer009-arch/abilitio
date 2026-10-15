@@ -73,7 +73,7 @@ function ClassBuilderPage() {
       <section className="px-6 pt-12 pb-24">
         <div className="mx-auto max-w-5xl">
           <header className="mb-8">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm text-primary">
               <Wand2 className="h-3.5 w-3.5" />
               {tr("AI Class Builder")}
             </div>
@@ -90,7 +90,7 @@ function ClassBuilderPage() {
           <div className="panel rounded-3xl p-6">
             <div className="grid gap-4 md:grid-cols-3">
               <div>
-                <label htmlFor="class-focus" className="text-xs text-muted-foreground">
+                <label htmlFor="class-focus" className="text-sm text-muted-foreground">
                   {tr("Focus area")}
                 </label>
                 <select
@@ -107,7 +107,7 @@ function ClassBuilderPage() {
                 </select>
               </div>
               <div>
-                <label htmlFor="class-size" className="text-xs text-muted-foreground">
+                <label htmlFor="class-size" className="text-sm text-muted-foreground">
                   {tr("Class size")}
                 </label>
                 <input
@@ -143,8 +143,8 @@ function ClassBuilderPage() {
                 </button>
               </div>
             </div>
-            {err && <p className="mt-3 text-xs text-destructive">{err}</p>}
-            {savedId && <p className="mt-3 text-xs text-primary">{tr("Class saved ✓")}</p>}
+            {err && <p className="mt-3 text-sm text-destructive">{err}</p>}
+            {savedId && <p className="mt-3 text-sm text-primary">{tr("Class saved ✓")}</p>}
           </div>
 
           {result && (
@@ -152,7 +152,7 @@ function ClassBuilderPage() {
               <h3 className="text-sm font-semibold">
                 {tr("Recommended students —")} {result.focus} {tr("Class")}
               </h3>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {tr("Ranked by composite Personality + Cognitive + Interest fit.")}
               </p>
               <div className="mt-4 grid gap-2">
@@ -163,7 +163,7 @@ function ClassBuilderPage() {
                       className="flex items-center justify-between rounded-2xl border border-border bg-secondary/30 px-4 py-3"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-xs text-muted-foreground w-6 text-right">
+                        <span className="text-sm text-muted-foreground w-6 text-right">
                           {i + 1}.
                         </span>
                         <span className="text-sm font-medium">{s.name}</span>
@@ -174,7 +174,7 @@ function ClassBuilderPage() {
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-2xl border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
+                  <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
                     {tr(
                       "No students with matching profiles yet. Ask students to complete the Career Intelligence assessment.",
                     )}
@@ -185,7 +185,7 @@ function ClassBuilderPage() {
           )}
 
           <div className="mt-6 text-center">
-            <Link to="/school/analytics" className="text-xs text-muted-foreground underline">
+            <Link to="/school/analytics" className="text-sm text-muted-foreground underline">
               {tr("← Back to analytics")}
             </Link>
           </div>

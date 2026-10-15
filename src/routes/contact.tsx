@@ -205,7 +205,7 @@ function Contact() {
                     <input name="website" tabIndex={-1} autoComplete="off" />
                   </label>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {w(
                     "Avoid including student names or assessment answers.",
                     "O‘quvchi ismlari yoki baholash javoblarini yubormang.",

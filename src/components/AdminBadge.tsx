@@ -6,7 +6,7 @@ export function AdminBadge({ className = "" }: { className?: string }) {
   return (
     <span
       className={
-        "inline-flex items-center gap-1 rounded-full border border-primary/40 bg-card px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-primary " +
+        "inline-flex items-center gap-1 rounded-full border border-primary/40 bg-card px-1.5 py-0.5 text-sm font-semibold uppercase tracking-[0.18em] text-primary " +
         className
       }
     >

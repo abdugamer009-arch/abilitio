@@ -84,13 +84,13 @@ export function WeeklyReportSection(_props: { mbti?: string | null }) {
             ],
           ].map(([label, value]) => (
             <div key={label}>
-              <dt className="text-xs text-muted-foreground">{label}</dt>
+              <dt className="text-sm text-muted-foreground">{label}</dt>
               <dd className="text-4xl mt-4">{value}</dd>
             </div>
           ))}
         </dl>
       )}
-      <p className="text-xs text-muted-foreground mt-8">
+      <p className="text-sm text-muted-foreground mt-8">
         {w(
           "Completion is self-reported. These counts do not claim improvement in intelligence, communication or leadership.",
           "Bajarilganlikni o‘zingiz belgilaysiz. Sonlar aql, muloqot yoki yetakchilik o‘sishini da’vo qilmaydi.",

@@ -154,7 +154,7 @@ function AdminDashboardPage() {
                 : tr("Access check or data loading failed on the server.")}
             </p>
             {forbidden && (
-              <p className="mt-2 text-xs text-muted-foreground">
+              <p className="mt-2 text-sm text-muted-foreground">
                 {tr("Signed in as")}{" "}
                 <span className="font-medium text-foreground">
                   {serverEmail ?? user?.email ?? "unknown"}
@@ -162,7 +162,7 @@ function AdminDashboardPage() {
               </p>
             )}
             {loadError && (
-              <p className="mt-3 break-words rounded-xl bg-destructive/10 px-3 py-2 text-left text-xs text-destructive">
+              <p className="mt-3 break-words rounded-xl bg-destructive/10 px-3 py-2 text-left text-sm text-destructive">
                 {loadError}
               </p>
             )}
@@ -204,7 +204,7 @@ function AdminDashboardPage() {
               <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
                 {tr("Admin Dashboard")}
               </h1>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {tr("Founder-level analytics & user management")}
               </p>
             </div>
@@ -266,10 +266,10 @@ function AdminDashboardPage() {
                       <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" opacity={0.3} />
                       <XAxis
                         dataKey="day"
-                        tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+                        tick={{ fill: "var(--muted-foreground)", fontSize: 14 }}
                       />
                       <YAxis
-                        tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+                        tick={{ fill: "var(--muted-foreground)", fontSize: 14 }}
                         allowDecimals={false}
                       />
                       <Tooltip
@@ -300,13 +300,13 @@ function AdminDashboardPage() {
                       <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" opacity={0.3} />
                       <XAxis
                         type="number"
-                        tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+                        tick={{ fill: "var(--muted-foreground)", fontSize: 14 }}
                         allowDecimals={false}
                       />
                       <YAxis
                         type="category"
                         dataKey="name"
-                        tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+                        tick={{ fill: "var(--muted-foreground)", fontSize: 14 }}
                         width={120}
                       />
                       <Tooltip
@@ -343,7 +343,7 @@ function AdminDashboardPage() {
                           borderRadius: 12,
                         }}
                       />
-                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                      <Legend wrapperStyle={{ fontSize: 14 }} />
                     </PieChart>
                   </ResponsiveContainer>
                 </GlassChart>
@@ -361,7 +361,7 @@ function AdminDashboardPage() {
                 </div>
                 <div className="mt-4 overflow-x-auto rounded-3xl border border-border/60 bg-secondary/20 ">
                   <table className="w-full min-w-[800px] text-sm">
-                    <thead className="border-b border-border/40 text-xs uppercase tracking-wider text-muted-foreground">
+                    <thead className="border-b border-border/40 text-sm uppercase tracking-wider text-muted-foreground">
                       <tr>
                         <th className="px-4 py-3 text-left">{tr("User")}</th>
                         <th className="px-4 py-3 text-left">{tr("Email")}</th>
@@ -380,7 +380,7 @@ function AdminDashboardPage() {
                           <td className="px-4 py-3 font-medium">
                             {u.name || u.surname ? `${u.name} ${u.surname}`.trim() : "—"}
                             {u.is_banned && (
-                              <span className="ml-2 rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] text-destructive">
+                              <span className="ml-2 rounded-full bg-destructive/15 px-2 py-0.5 text-sm text-destructive">
                                 {tr("banned")}
                               </span>
                             )}
@@ -460,16 +460,14 @@ function StatCard({
       />
       <div className="relative">
         <Icon className="h-4 w-4 text-primary" />
-        <div className="mt-3 text-[10px] uppercase tracking-wider text-muted-foreground">
-          {label}
-        </div>
+        <div className="mt-3 text-sm uppercase tracking-wider text-muted-foreground">{label}</div>
         <div
           className="mt-1 truncate text-2xl font-bold tabular-nums gradient-text"
           title={display}
         >
           {display}
         </div>
-        {hint && <div className="mt-1 text-[11px] text-muted-foreground">{hint}</div>}
+        {hint && <div className="mt-1 text-sm text-muted-foreground">{hint}</div>}
       </div>
     </div>
   );

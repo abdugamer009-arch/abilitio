@@ -91,7 +91,7 @@ export function BrainScene({ signal = 0 }: { signal?: number }) {
       </div>
       {failed && enabled && (
         <button
-          className="text-link mt-4 text-xs"
+          className="text-link mt-4 text-sm"
           onClick={() => {
             setFailed(false);
             setReady(false);

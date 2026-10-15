@@ -165,7 +165,7 @@ function PrincipalDashboard() {
         <div className="mx-auto max-w-6xl">
           <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm text-primary">
                 <GraduationCap className="h-3.5 w-3.5" /> {t.school.principalDashboard}
               </div>
               <h1 className="mt-3 text-3xl font-bold gradient-text">{data.school.name}</h1>
@@ -236,13 +236,13 @@ function PrincipalDashboard() {
           <div className="mt-6 grid gap-6 lg:grid-cols-2">
             <div className="panel rounded-3xl p-6">
               <h3 className="text-sm font-semibold">{t.school.talentDistribution}</h3>
-              <p className="text-xs text-muted-foreground">{t.school.talentDistributionSub}</p>
+              <p className="text-sm text-muted-foreground">{t.school.talentDistributionSub}</p>
               <div className="mt-4 h-72">
                 <ResponsiveContainer>
                   <BarChart data={data.bucketDistribution}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                    <XAxis dataKey="label" stroke="var(--muted-foreground)" fontSize={11} />
-                    <YAxis stroke="var(--muted-foreground)" fontSize={11} allowDecimals={false} />
+                    <XAxis dataKey="label" stroke="var(--muted-foreground)" fontSize={14} />
+                    <YAxis stroke="var(--muted-foreground)" fontSize={14} allowDecimals={false} />
                     <Tooltip
                       contentStyle={{
                         background: "var(--card)",
@@ -258,7 +258,7 @@ function PrincipalDashboard() {
 
             <div className="panel rounded-3xl p-6">
               <h3 className="text-sm font-semibold">{t.school.topCareerMatches}</h3>
-              <p className="text-xs text-muted-foreground">{t.school.topCareerMatchesSub}</p>
+              <p className="text-sm text-muted-foreground">{t.school.topCareerMatchesSub}</p>
               <div className="mt-4 h-72">
                 <ResponsiveContainer>
                   <PieChart>
@@ -280,7 +280,7 @@ function PrincipalDashboard() {
                         borderRadius: 12,
                       }}
                     />
-                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                    <Legend wrapperStyle={{ fontSize: 14 }} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -292,7 +292,7 @@ function PrincipalDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-semibold">{t.school.classAnalytics}</h3>
-                <p className="text-xs text-muted-foreground">{t.school.classAnalyticsSub}</p>
+                <p className="text-sm text-muted-foreground">{t.school.classAnalyticsSub}</p>
               </div>
             </div>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -305,7 +305,7 @@ function PrincipalDashboard() {
                     <div className="font-semibold">
                       {t.school.classLabel} {c.className}
                     </div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-sm text-muted-foreground">
                       {c.total} {t.school.students}
                     </div>
                   </div>
@@ -314,7 +314,7 @@ function PrincipalDashboard() {
                       .filter((b) => b.count > 0)
                       .slice(0, 5)
                       .map((b) => (
-                        <div key={b.bucket} className="flex items-center justify-between text-xs">
+                        <div key={b.bucket} className="flex items-center justify-between text-sm">
                           <span className="text-muted-foreground">{tr(b.label)}</span>
                           <span className="font-medium">{b.count}</span>
                         </div>
@@ -336,13 +336,13 @@ function PrincipalDashboard() {
               .filter((talent) => talent.students.length)
               .map((talent) => (
                 <div key={tr(talent.dimension)} className="panel rounded-2xl p-5">
-                  <h4 className="text-xs font-semibold text-primary">{tr(talent.dimension)}</h4>
+                  <h4 className="text-sm font-semibold text-primary">{tr(talent.dimension)}</h4>
                   <ul className="mt-3 space-y-1.5 text-sm">
                     {talent.students.map((s) => (
                       <li key={s.user_id} className="flex items-center justify-between">
                         <span>{s.name}</span>
                         {talent.dimension.includes("Analytical") && (
-                          <span className="text-xs text-muted-foreground">{s.score}/9</span>
+                          <span className="text-sm text-muted-foreground">{s.score}/9</span>
                         )}
                       </li>
                     ))}
@@ -374,7 +374,7 @@ function PrincipalDashboard() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h3 className="text-sm font-semibold">{t.school.classCreator}</h3>
-                <p className="text-xs text-muted-foreground">{t.school.classCreatorSub}</p>
+                <p className="text-sm text-muted-foreground">{t.school.classCreatorSub}</p>
               </div>
               <button
                 onClick={onGenerate}
@@ -396,8 +396,8 @@ function PrincipalDashboard() {
                   className="rounded-2xl border border-primary/20 bg-secondary/20 p-5"
                 >
                   <div className="text-sm font-semibold">{s.title}</div>
-                  <p className="mt-1 text-xs text-muted-foreground">{s.reason}</p>
-                  <div className="mt-3 text-xs font-medium text-primary">
+                  <p className="mt-1 text-sm text-muted-foreground">{s.reason}</p>
+                  <div className="mt-3 text-sm font-medium text-primary">
                     {t.school.recommendedStudents}
                   </div>
                   <ul className="mt-2 space-y-1 text-sm">
@@ -405,7 +405,7 @@ function PrincipalDashboard() {
                       <li key={st.user_id}>· {st.name}</li>
                     ))}
                     {s.students.length > 8 && (
-                      <li className="text-xs text-muted-foreground">
+                      <li className="text-sm text-muted-foreground">
                         + {s.students.length - 8} {t.school.moreSuffix}
                       </li>
                     )}
@@ -437,7 +437,7 @@ function StatCard({
   return (
     <div className="panel rounded-2xl p-5">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">{label}</span>
+        <span className="text-sm text-muted-foreground">{label}</span>
         <Icon className="h-4 w-4 text-primary" />
       </div>
       <div className="mt-2 text-2xl font-bold gradient-text">{value}</div>

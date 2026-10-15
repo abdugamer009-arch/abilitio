@@ -193,7 +193,7 @@ export function ProfilePhotoCard({
               {tr("Drag & drop or")}
               <span className="text-primary">{tr("browse")}</span>
             </p>
-            <p className="mt-1 text-[11px] text-muted-foreground">
+            <p className="mt-1 text-sm text-muted-foreground">
               {tr("JPG, PNG or WEBP · up to 5 MB")}
             </p>
             <input
@@ -223,7 +223,7 @@ export function ProfilePhotoCard({
               type="button"
               disabled={busy}
               onClick={() => inputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary/20 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary transition-all hover:bg-primary/20 disabled:opacity-50"
             >
               <Camera className="h-3.5 w-3.5" /> {tr(displayed ? "Change photo" : "Upload photo")}
             </button>
@@ -232,21 +232,21 @@ export function ProfilePhotoCard({
                 type="button"
                 disabled={busy}
                 onClick={remove}
-                className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 bg-destructive/10 px-4 py-1.5 text-xs font-medium text-destructive transition-all hover:bg-destructive/20 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 bg-destructive/10 px-4 py-1.5 text-sm font-medium text-destructive transition-all hover:bg-destructive/20 disabled:opacity-50"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 {tr("Remove")}
               </button>
             )}
             {!displayed && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary/60 px-3 py-1.5 text-[11px] text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary/60 px-3 py-1.5 text-sm text-muted-foreground">
                 <UserIcon className="h-3 w-3" />
                 {tr("Using default avatar")}
               </span>
             )}
           </div>
 
-          {error && <p className="mt-3 text-xs font-medium text-destructive">{error}</p>}
+          {error && <p className="mt-3 text-sm font-medium text-destructive">{error}</p>}
         </div>
       </div>
     </div>

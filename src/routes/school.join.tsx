@@ -75,7 +75,7 @@ function SchoolJoinPage() {
           </p>
           <form onSubmit={submit} className="panel mt-8 space-y-3 rounded-3xl p-7">
             <label className="block">
-              <span className="mb-1 block text-xs text-muted-foreground">
+              <span className="mb-1 block text-sm text-muted-foreground">
                 {t.schoolJoin.codeLabel}
               </span>
               <input
@@ -87,7 +87,7 @@ function SchoolJoinPage() {
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-xs text-muted-foreground">
+              <span className="mb-1 block text-sm text-muted-foreground">
                 {t.schoolJoin.classLabel}
               </span>
               <input
@@ -100,7 +100,7 @@ function SchoolJoinPage() {
               />
             </label>
             {err && (
-              <div className="rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+              <div className="rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
                 {err}
               </div>
             )}
