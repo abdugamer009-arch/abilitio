@@ -65,8 +65,18 @@ describe("owner release migration", () => {
         (await db.query("SELECT * FROM public.community_members WHERE consented_at IS NOT NULL"))
           .rows,
       ).toHaveLength(1);
+      const messageId = "99999999-9999-4999-8999-999999999999";
+      await db.query(
+        "INSERT INTO public.community_messages(id,community_id,user_id,content) VALUES($1,$2,$3,'local QA fixture')",
+        [messageId, c, student],
+      );
       await db.query("SELECT public.leave_community($1)", [c]);
       expect((await db.query("SELECT * FROM public.community_members")).rows).toHaveLength(0);
+      await db.exec("RESET ROLE");
+      expect(
+        (await db.query("SELECT id FROM public.community_messages WHERE id=$1", [messageId])).rows,
+      ).toHaveLength(1);
+      await db.query("DELETE FROM public.community_messages WHERE id=$1", [messageId]);
     } finally {
       await db.exec("RESET ROLE");
     }

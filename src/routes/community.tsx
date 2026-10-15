@@ -116,7 +116,11 @@ function CommunityPage() {
         <section className="px-4 pt-16 pb-24 sm:px-6">
           <div className="mx-auto max-w-xl rounded-3xl border border-border/60 bg-secondary/30 p-10 text-center ">
             <Lock className="mx-auto h-10 w-10 text-primary" />
-            <CommunityChoice key={user!.id} ownerId={user!.id} />
+            <CommunityChoice
+              key={user!.id}
+              ownerId={user!.id}
+              onMembershipChange={() => setReload((n) => n + 1)}
+            />
             <h1 className="mt-4 text-2xl font-semibold">{t.community.unlockTitle}</h1>
             <p className="mt-2 text-sm text-muted-foreground">{t.community.unlockBody}</p>
             <button
@@ -141,6 +145,13 @@ function CommunityPage() {
           style={{
             background: "var(--yellow)",
           }}
+        />
+      </div>
+      <div className="field-wrap">
+        <CommunityChoice
+          key={user!.id}
+          ownerId={user!.id}
+          onMembershipChange={() => setReload((n) => n + 1)}
         />
       </div>
       <section className="px-4 pt-10 pb-24 sm:px-6">
@@ -178,7 +189,7 @@ function Sidebar({
   return (
     <aside className="rounded-3xl border border-border/60 bg-secondary/30 p-3  lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)] lg:overflow-y-auto">
       <div className="px-3 pt-2 pb-3">
-        <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           {isAdmin ? t.community.allCommunities : t.community.yourCommunity}
         </h2>
       </div>
@@ -189,14 +200,14 @@ function Sidebar({
             <li key={c.id}>
               <button
                 onClick={() => setActive(c.id)}
-                className={`group flex w-full items-center justify-between gap-2 rounded-2xl px-3 py-2.5 text-left text-[13px] transition-all ${
+                className={`group flex w-full items-center justify-between gap-2 rounded-2xl px-3 py-2.5 text-left text-sm transition-all ${
                   active
                     ? "bg-primary text-foreground"
                     : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
                 }`}
               >
                 <span className="truncate font-medium">{c.name}</span>
-                <span className="shrink-0 rounded-full bg-secondary/70 px-1.5 py-0.5 text-[10px] tabular-nums text-muted-foreground">
+                <span className="shrink-0 rounded-full bg-secondary/70 px-1.5 py-0.5 text-sm tabular-nums text-muted-foreground">
                   {c.member_count}
                 </span>
               </button>
@@ -416,7 +427,7 @@ function CommunityChat({
               {community.welcome_message}
             </p>
           </div>
-          <div className="flex shrink-0 items-center gap-3 text-xs text-muted-foreground">
+          <div className="flex shrink-0 items-center gap-3 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary/60 px-3 py-1.5">
               <Users className="h-3.5 w-3.5" /> {community.member_count} {t.community.membersSuffix}
             </span>
@@ -441,7 +452,7 @@ function CommunityChat({
             <Sparkles className="h-5 w-5" />
           </div>
           <div className="flex-1">
-            <div className="text-[10px] uppercase tracking-[0.2em] text-primary/80">
+            <div className="text-sm uppercase tracking-[0.2em] text-primary/80">
               {t.community.dailyQuestion}
             </div>
             {editingDaily ? (
@@ -457,13 +468,13 @@ function CommunityChat({
                     setDaily({ question: dailyDraft });
                     setEditingDaily(false);
                   }}
-                  className="rounded-xl bg-primary px-3 py-2 text-xs font-medium text-primary-foreground"
+                  className="rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
                 >
                   {t.common.save}
                 </button>
                 <button
                   onClick={() => setEditingDaily(false)}
-                  className="rounded-xl border border-border px-3 py-2 text-xs"
+                  className="rounded-xl border border-border px-3 py-2 text-sm"
                 >
                   {t.common.cancel}
                 </button>
@@ -490,12 +501,12 @@ function CommunityChat({
       {/* Pinned strip */}
       {pinned.length > 0 && (
         <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-3">
-          <div className="mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-amber-400/90">
+          <div className="mb-2 flex items-center gap-2 text-sm uppercase tracking-[0.2em] text-amber-400/90">
             <Pin className="h-3 w-3" /> {t.community.pinned}
           </div>
           <div className="space-y-1.5">
             {pinned.map((m) => (
-              <div key={m.id} className="text-xs text-foreground/90">
+              <div key={m.id} className="text-sm text-foreground/90">
                 <span className="font-medium">{authors[m.user_id]?.name ?? "—"}: </span>
                 {m.content}
               </div>
@@ -666,7 +677,7 @@ function MessageRow({
     <div
       className={`group flex gap-3 transition-opacity duration-200 ${pending ? "opacity-60" : ""}`}
     >
-      <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+      <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-primary text-sm font-semibold text-primary-foreground">
         {avatarUrl ? (
           <img
             src={avatarUrl}
@@ -683,7 +694,7 @@ function MessageRow({
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold">{author?.name ?? "Explorer"}</span>
           {author?.is_admin && <AdminBadge />}
-          <span className="text-[10px] text-muted-foreground">{time}</span>
+          <span className="text-sm text-muted-foreground">{time}</span>
           {message.is_pinned && <Pin className="h-3 w-3 text-amber-400" />}
           {(isAdmin || isOwn) && !pending && (
             <div
@@ -711,7 +722,7 @@ function MessageRow({
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 {armed && (
-                  <span className="pr-0.5 text-[10px] font-medium">{t.common.deleteConfirm}</span>
+                  <span className="pr-0.5 text-sm font-medium">{t.common.deleteConfirm}</span>
                 )}
               </button>
             </div>

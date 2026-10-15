@@ -7,7 +7,13 @@ import {
 } from "@/lib/community/community.functions";
 import { useWords } from "@/lib/editorial";
 import { Link } from "@tanstack/react-router";
-export function CommunityChoice({ ownerId }: { ownerId: string }) {
+export function CommunityChoice({
+  ownerId,
+  onMembershipChange,
+}: {
+  ownerId: string;
+  onMembershipChange?: () => void;
+}) {
   const w = useWords();
   const load = useServerFn(getCommunityChoice);
   const join = useServerFn(joinCommunity);
@@ -44,6 +50,7 @@ export function CommunityChoice({ ownerId }: { ownerId: string }) {
       if (joining) await join({ data: { communityId: id, consent: true } });
       else await leave({ data: { communityId: id } });
       setData(await load());
+      onMembershipChange?.();
     } catch {
       setError(true);
     } finally {
