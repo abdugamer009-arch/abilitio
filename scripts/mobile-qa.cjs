@@ -297,6 +297,17 @@ async function audit(page, active) {
               await route.fulfill({ response: res, body });
             }),
           );
+          await page.route(
+            "**/src/lib/community/community.functions.ts*",
+            intercept(async (route) => {
+              const res = await route.fetch();
+              const body = (await res.text()).replace(
+                /export const getCommunityChoice = [\s\S]*?;(?=\n)/g,
+                "export const getCommunityChoice = async()=>({suggested:null,memberships:[]});",
+              );
+              await route.fulfill({ response: res, body });
+            }),
+          );
           const capture = async (screen, active = false) => {
             await page.evaluate(
               () =>

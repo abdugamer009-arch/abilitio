@@ -21,6 +21,15 @@ const assert = require("node:assert/strict");
       await details.getByRole("heading", { name: "Try this week" }).waitFor();
       assert.equal((await details.locator("li").count()) >= 3, true);
     }
+    if (id === "H02") {
+      assert.equal(await p.evaluate(() => window.__qa.members.length), 0);
+      await p.getByRole("button", { name: "Join the Technology community?" }).click();
+      await p.getByRole("button", { name: "Leave community" }).waitFor();
+      assert.equal(await p.evaluate(() => window.__qa.members.length), 1);
+      await p.getByRole("button", { name: "Leave community" }).click();
+      await p.getByRole("button", { name: "Join the Technology community?" }).waitFor();
+      assert.equal(await p.evaluate(() => window.__qa.members.length), 0);
+    }
     await fs.mkdir("artifacts/qa/" + id, { recursive: true });
     await p.screenshot({ path: "artifacts/qa/" + id + "/390.png", fullPage: true });
     assert.deepEqual(faults, []);

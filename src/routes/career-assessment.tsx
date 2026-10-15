@@ -45,7 +45,6 @@ import {
 } from "lucide-react";
 import { useT, useI18n } from "@/lib/i18n";
 import { track, AnalyticsEvent } from "@/lib/analytics";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/career-assessment")({
   head: () =>
@@ -483,9 +482,7 @@ function CareerAssessmentPage() {
       track(AnalyticsEvent.ResultSaved);
       // The system placed them in a community during submit — say so, so
       // nobody thinks another test is needed to join one.
-      if (result.joined_community) {
-        toast.success(t.community.joined.replace("{name}", result.joined_community));
-      }
+
       navigate({ to: "/career-results" });
     } catch (e: unknown) {
       setSubmitError(e instanceof Error ? e.message : t.careerAssessment.submissionFailed);

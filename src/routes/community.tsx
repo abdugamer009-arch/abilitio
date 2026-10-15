@@ -1,3 +1,4 @@
+import { CommunityChoice } from "@/components/CommunityChoice";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -115,6 +116,7 @@ function CommunityPage() {
         <section className="px-4 pt-16 pb-24 sm:px-6">
           <div className="mx-auto max-w-xl rounded-3xl border border-border/60 bg-secondary/30 p-10 text-center ">
             <Lock className="mx-auto h-10 w-10 text-primary" />
+            <CommunityChoice key={user!.id} ownerId={user!.id} />
             <h1 className="mt-4 text-2xl font-semibold">{t.community.unlockTitle}</h1>
             <p className="mt-2 text-sm text-muted-foreground">{t.community.unlockBody}</p>
             <button

@@ -1,9 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import type { Database } from "@/integrations/supabase/types";
 import { communitySlugForCareer } from "../assessment/career-engine";
 import { resolveAdminStatus, ensureNotBanned, type AuthContext } from "../admin/admin.functions";
 import { readAll, requireData } from "../db-read";
@@ -58,46 +56,8 @@ export const getMyCommunities = createServerFn({ method: "GET" })
       const data = requireData(await supabase.from("communities").select("*").in("id", ids));
       return { communities: (data ?? []) as CommunityDTO[], isAdmin: false };
     }
-    // No membership yet — self-heal for users who assessed before auto-join
-    // was wired: assign from their latest result's top career match.
-    const healed = await ensureCommunityFromLatestResult(supabase, userId);
-    return { communities: healed ? [healed] : [], isAdmin: false };
+    return { communities: [], isAdmin: false };
   });
-
-/** Assign a member row from the user's most recent career result, if any, and
- *  return the resulting community. No-op (returns null) when they have no result. */
-async function ensureCommunityFromLatestResult(
-  supabase: SupabaseClient<Database>,
-  userId: string,
-): Promise<CommunityDTO | null> {
-  const latest = requireData(
-    await supabase
-      .from("career_assessment_results")
-      .select("career_matches")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-  );
-  const top = (
-    latest?.career_matches as { key?: string; category?: string; name?: string }[] | null
-  )?.[0];
-  if (!top) return null;
-  const cid = requireData(
-    await supabase.rpc("assign_user_to_community_by_slug", {
-      _slug: communitySlugForCareer(top),
-    }),
-  );
-  if (!cid) return null;
-  const data = requireData(
-    await supabase
-      .from("communities")
-      .select("*")
-      .eq("id", cid as string)
-      .maybeSingle(),
-  );
-  return (data as CommunityDTO) ?? null;
-}
 
 export const getCommunityMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -304,4 +264,74 @@ export const setCommunityDailyQuestion = createServerFn({ method: "POST" })
       .insert({ community_id: data.communityId, question: data.question });
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+// Reads never create membership. The result suggestion is just an invitation.
+export const getCommunityChoice = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const latest = requireData(
+      await supabase
+        .from("career_assessment_results")
+        .select("career_matches")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    );
+    const top = (
+      latest?.career_matches as { key?: string; category?: string; name?: string }[] | null
+    )?.[0];
+    const slug = top ? communitySlugForCareer(top) : "general";
+    const suggested = requireData(
+      await supabase.from("communities").select("id,name,slug").eq("slug", slug).maybeSingle(),
+    );
+    const rows =
+      requireData(
+        await supabase
+          .from("community_members")
+          .select("community_id,consented_at")
+          .eq("user_id", userId),
+      ) ?? [];
+    const communities = rows.length
+      ? (requireData(
+          await supabase
+            .from("communities")
+            .select("id,name,slug")
+            .in(
+              "id",
+              rows.map((m) => m.community_id),
+            ),
+        ) ?? [])
+      : [];
+    return {
+      suggested,
+      memberships: communities.map((c) => ({
+        ...c,
+        consented_at: rows.find((m) => m.community_id === c.id)?.consented_at ?? null,
+      })),
+    };
+  });
+export const joinCommunity = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({ communityId: z.string().uuid(), consent: z.literal(true) }).parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    await ensureNotBanned(context.userId);
+    const { error } = await context.supabase.rpc("join_community_with_consent", {
+      _community_id: data.communityId,
+      _consent: data.consent,
+    });
+    if (error) throw new Error(error.message);
+  });
+export const leaveCommunity = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ communityId: z.string().uuid() }).parse(d))
+  .handler(async ({ context, data }) => {
+    const { error } = await context.supabase.rpc("leave_community", {
+      _community_id: data.communityId,
+    });
+    if (error) throw new Error(error.message);
   });

@@ -46,6 +46,32 @@ describe("owner release migration", () => {
     await db.close();
   });
 
+  it("H02 keeps reads and results membership-free, requires consent, and leaves only the caller", async () => {
+    await asUser(student);
+    try {
+      const before = await db.query("SELECT * FROM public.community_members");
+      expect(before.rows).toHaveLength(0);
+      const c = (
+        await db.query<{ id: string }>("SELECT id FROM public.communities ORDER BY slug LIMIT 1")
+      ).rows[0].id;
+      await expect(
+        db.query("SELECT public.assign_user_to_community_by_slug('general')"),
+      ).rejects.toThrow(/permission denied/);
+      await expect(
+        db.query("SELECT public.join_community_with_consent($1,false)", [c]),
+      ).rejects.toThrow(/consent/);
+      await db.query("SELECT public.join_community_with_consent($1,true)", [c]);
+      expect(
+        (await db.query("SELECT * FROM public.community_members WHERE consented_at IS NOT NULL"))
+          .rows,
+      ).toHaveLength(1);
+      await db.query("SELECT public.leave_community($1)", [c]);
+      expect((await db.query("SELECT * FROM public.community_members")).rows).toHaveLength(0);
+    } finally {
+      await db.exec("RESET ROLE");
+    }
+  });
+
   it("caches auth identity in the plan while preserving student profile isolation", async () => {
     const policyQuery =
       "SELECT schemaname,tablename,policyname,roles,cmd,permissive,qual,with_check FROM pg_policies WHERE schemaname IN ('public','storage') ORDER BY schemaname,tablename,policyname";

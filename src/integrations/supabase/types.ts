@@ -466,16 +466,19 @@ export type Database = {
       community_members: {
         Row: {
           community_id: string;
+          consented_at: string | null;
           joined_at: string;
           user_id: string;
         };
         Insert: {
           community_id: string;
+          consented_at?: string | null;
           joined_at?: string;
           user_id: string;
         };
         Update: {
           community_id?: string;
+          consented_at?: string | null;
           joined_at?: string;
           user_id?: string;
         };
@@ -1062,6 +1065,11 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      join_community_with_consent: {
+        Args: { _community_id: string; _consent: boolean };
+        Returns: undefined;
+      };
+      leave_community: { Args: { _community_id: string }; Returns: undefined };
       renew_school_invitation: {
         Args: { _school_id: string };
         Returns: string;

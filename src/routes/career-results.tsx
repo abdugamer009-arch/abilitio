@@ -1,4 +1,5 @@
 import "@/styles/assessment.css";
+import { CommunityChoice } from "@/components/CommunityChoice";
 import { CareerReasons } from "@/components/CareerReasons";
 import { readResultProfile, resetAttempt } from "@/lib/assessment/attempt-profile";
 import { applyResultRules } from "@/lib/assessment/result-rules";
@@ -797,6 +798,7 @@ function CareerResultsPage() {
                 {t.nav.universities}
               </Link>
             </Reveal>
+            <CommunityChoice key={user.id} ownerId={user.id} />
           </div>
         </section>
       </PageShell>

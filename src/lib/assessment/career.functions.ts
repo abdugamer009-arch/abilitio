@@ -9,7 +9,6 @@ import {
   matchCareers,
   matchMajors,
   attachMajorsToCareers,
-  communitySlugForCareer,
   deriveStrengths,
   deriveImprovements,
   RECOMMENDED_SKILLS_BY_PROFILE,
@@ -163,9 +162,6 @@ export type CareerResultDTO = {
   evidence_coverage: "direct" | "limited" | "historical";
   recommended_skills: string[];
   created_at: string;
-  /** Name of the community the submit auto-joined, so the UI can say so.
-   *  Only set on fresh submissions; null when the join was skipped/failed. */
-  joined_community?: string | null;
 };
 
 const submitSchema = z.object({
@@ -343,27 +339,6 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       improvements,
     });
 
-    // Auto-join the community matching the #1 career. Best-effort: a failure
-    // here must never fail the assessment itself. The joined community's name
-    // is returned so the client can tell the user it happened.
-    let joinedCommunity: string | null = null;
-    try {
-      const slug = communitySlugForCareer(careerMatches[0]);
-      const { data: cid } = await supabase.rpc("assign_user_to_community_by_slug", {
-        _slug: slug,
-      });
-      if (cid) {
-        const { data: c } = await supabase
-          .from("communities")
-          .select("name")
-          .eq("id", cid as string)
-          .maybeSingle();
-        joinedCommunity = (c as { name?: string } | null)?.name ?? null;
-      }
-    } catch (e) {
-      console.warn("[career] community auto-join failed", e);
-    }
-
     return {
       id: row.id,
       personality_type: row.personality_type,
@@ -382,7 +357,6 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       // A retry can recover a historical row: keep its saved profile authoritative.
       recommended_skills: RECOMMENDED_SKILLS_BY_PROFILE[row.cognitive_profile ?? ""] ?? [],
       created_at: row.created_at,
-      joined_community: joinedCommunity,
     };
   });
 
