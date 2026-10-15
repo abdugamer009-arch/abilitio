@@ -41,8 +41,8 @@ export const legalTranslations = {
         ],
         after: [
           [
-            "{site} bepul, shuning uchun to‘lov kartalari raqamlari yoki hisob-kitob ma’lumotlarini yig‘maymiz.",
-            "{site} бесплатен, поэтому мы не собираем номера платёжных карт или платёжные сведения.",
+            "O‘quvchi vositalari bepul, maktab dasturlari alohida kelishiladi. Sayt orqali to‘lov kartasi ma’lumotlarini yig‘maymiz.",
+            "Инструменты для учеников бесплатны, школьные программы согласуются отдельно. Сайт не собирает данные платёжных карт.",
           ],
         ],
       },
@@ -51,7 +51,7 @@ export const legalTranslations = {
         paragraphs: [
           [
             "{site} o‘quvchilar, jumladan voyaga yetmaganlar uchun yaratilgan. O‘quvchi o‘z mamlakatidagi raqamli rozilik yoshiga yetmagan bo‘lsa, ota-ona, qonuniy vasiy yoki oila nomidan ish yurituvchi ishtirokchi maktab roziligiga tayanamiz. O‘quvchilarni taklif qiladigan maktablar buning uchun vakolat va rozilikka ega ekanini tasdiqlaydi.",
-            "{site} предназначен для учеников, включая несовершеннолетних. Если ученик не достиг возраста цифрового согласия в своей стране, мы полагаемся на согласие родителя, законного опекуна или участвующей школы, действующей от имени семьи. Школы, приглашающие учеников, подтверждают наличие полномочий и согласия.",
+            "{site} предназначен для учеников, включая несовершеннолетних. Требования к разрешениям зависят от юрисдикции ученика. Политика минимального возраста и родительского согласия ожидает решения владельца и юридической проверки. До участия ребёнка уточните разрешения у команды; приглашение школы само по себе не подтверждает согласие семьи.",
           ],
           [
             "Faqat baholash va izohlar uchun kerakli ma’lumotlarni yig‘amiz. O‘quvchilar shaxsiy ma’lumotlarini hech qachon sotmaymiz va uchinchi tomon reklamasi uchun ishlatmaymiz.",
@@ -229,8 +229,8 @@ export const legalTranslations = {
         heading: ["5. Bepul xizmat", "5. Бесплатный сервис"],
         paragraphs: [
           [
-            "Abilitio bepul taqdim etiladi. Pulli tariflar, obunalar yoki ilova ichidagi xaridlar yo‘q va to‘lov ma’lumotlarini yig‘maymiz. Kelajakda ixtiyoriy pulli funksiyalar qo‘shishimiz mumkin; shunday bo‘lsa, ushbu shartlarni yangilaymiz va to‘lov so‘rashdan oldin narxlarni aniq ko‘rsatamiz.",
-            "Abilitio предоставляется бесплатно. Платных тарифов, подписок и покупок внутри приложения нет; платёжные данные не собираются. В будущем мы можем ввести необязательные платные функции; тогда обновим условия и ясно сообщим цены до запроса оплаты.",
+            "O‘quvchi vositalari bepul. Maktab dasturlari ishtirokdan oldin ko‘lam, to‘lovchi va mas’uliyatlar belgilangan tasdiqlangan kelishuv bilan alohida kelishiladi. Sayt orqali to‘lov kartasi ma’lumotlari yig‘ilmaydi.",
+            "Инструменты для учеников бесплатны. Школьные программы согласуются отдельно до участия: объём, плательщик и обязанности указываются в утверждённом соглашении. Сайт не собирает данные платёжных карт.",
           ],
         ],
       },

@@ -38,7 +38,7 @@ describe("age and gender assessment", () => {
       expect(q.ageGroups).toEqual(["teen_adult"]);
     for (const q of [...CHILD_PERSONALITY, ...CHILD_INTEREST]) {
       expect(q.ageGroups).toEqual(["child"]);
-      expect(q.addedBy).toBe("feature-age");
+      expect(q.addedBy).toBe("age-feature");
       for (const lang of ["ru", "uz"] as const) {
         const tr = QUESTION_TRANSLATIONS[q.id][lang];
         expect(tr.prompt).toBeTruthy();
@@ -57,7 +57,7 @@ describe("age and gender assessment", () => {
         expect(new Set(items.map((q) => q.id)).size).toBe(30);
         expect(items.every((q) => q.ageGroups?.includes(age))).toBe(true);
         if (age === "child")
-          expect(items.every((q) => q.addedBy === "feature-age" && q.section !== "cognitive")).toBe(
+          expect(items.every((q) => q.addedBy === "age-feature" && q.section !== "cognitive")).toBe(
             true,
           );
         for (const axis of ["EI", "SN", "TF", "JP"])

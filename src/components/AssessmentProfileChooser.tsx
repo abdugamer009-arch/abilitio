@@ -38,6 +38,13 @@ export function AssessmentProfileChooser({
   ];
   return (
     <div className="mt-6 space-y-5 text-left">
+      <p className="text-sm">
+        {w(
+          "For students: a simple activity flow for ages 14 and under; a work-preference and reasoning flow for ages 15 and older. These are exploration tools, not validated developmental assessments.",
+          "O‘quvchilar uchun: 14 yosh va undan kichiklarga oddiy mashg‘ulotlar; 15 yosh va undan kattalarga ish afzalliklari va mantiqiy savollar. Bu izlanish vositasi, rivojlanishning tasdiqlangan bahosi emas.",
+          "Для учеников: простые занятия до 14 лет включительно; рабочие предпочтения и задания на мышление с 15 лет. Это инструменты знакомства, а не проверенная оценка развития.",
+        )}
+      </p>
       {groups.map((group) => (
         <fieldset key={group.key} disabled={disabled}>
           <legend className="mb-2 text-sm font-semibold">{group.label}</legend>
@@ -63,11 +70,11 @@ export function AssessmentProfileChooser({
           </div>
         </fieldset>
       ))}
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         {w(
-          "These choices stay in this browser tab for this session. We do not send or save your gender or age group to your account.",
-          "Tanlovlar ushbu brauzer oynasida sessiya davomida qoladi. Jins yoki yosh guruhi hisobingizga yuborilmaydi va saqlanmaydi.",
-          "Выбор остаётся в этой вкладке на время сеанса. Мы не отправляем и не сохраняем пол или возрастную группу в аккаунте.",
+          "These choices stay in this tab. On submission, answers and results are saved to your account; the question set can reveal the age group. Gender is not sent.",
+          "Tanlovlar shu oynada qoladi. Yuborilganda javoblar va natijalar hisobingizga saqlanadi; savollar yosh guruhini anglatishi mumkin. Jins yuborilmaydi.",
+          "Выбор остаётся в этой вкладке. При отправке ответы и результаты сохраняются в аккаунте; набор вопросов может раскрывать возрастную группу. Пол не отправляется.",
         )}
       </p>
     </div>

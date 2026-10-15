@@ -364,7 +364,7 @@ export const CHILD_PERSONALITY: PersonalityQ[] = statements.map(([axis, directio
     axis,
     direction,
     ageGroups: ["child"],
-    addedBy: "feature-age",
+    addedBy: "age-feature",
   }),
 );
 export const CHILD_INTEREST: InterestQ[] = prompts.map(([theme, prompt], i) =>
@@ -376,7 +376,7 @@ export const CHILD_INTEREST: InterestQ[] = prompts.map(([theme, prompt], i) =>
     select: "one",
     evidenceKind: "activity",
     ageGroups: ["child"],
-    addedBy: "feature-age",
+    addedBy: "age-feature",
     options: activitiesFor(i).map(([label, , , icon, dim], j) => ({
       id: `ci${i + 1}_${j}`,
       label,

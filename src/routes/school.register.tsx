@@ -1,3 +1,5 @@
+import { SCHOOL_AGREEMENT, schoolAgreementReady } from "@/lib/schools/school-agreement";
+import { useWords } from "@/lib/editorial";
 import { useUiText } from "@/lib/ui-text";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
@@ -20,6 +22,7 @@ export const Route = createFileRoute("/school/register")({
 
 function SchoolRegisterPage() {
   const tr = useUiText();
+  const w = useWords();
 
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -122,6 +125,64 @@ function SchoolRegisterPage() {
               {tr("Create your school's principal account on Abilitio.")}
             </p>
           </div>
+          <section
+            className="panel mt-6 p-5 text-base"
+            aria-label={w(
+              "School program agreement",
+              "Maktab dasturi kelishuvi",
+              "Условия школьной программы",
+            )}
+          >
+            <h2>
+              {w(
+                "School program agreement — pending review",
+                "Maktab dasturi kelishuvi — ko‘rib chiqilmoqda",
+                "Условия школьной программы — на проверке",
+              )}
+            </h2>
+            <dl className="space-y-3 mt-3">
+              <div>
+                <dt>{w("Trial scope", "Sinov ko‘lami", "Объём пилота")}</dt>
+                <dd>
+                  {SCHOOL_AGREEMENT.scope ??
+                    w(
+                      "[Owner to provide: students, dates, languages and reports]",
+                      "[Egasi kiritadi: o‘quvchilar, muddat, tillar va hisobotlar]",
+                      "[Владелец укажет: ученики, сроки, языки и отчёты]",
+                    )}
+                </dd>
+              </div>
+              <div>
+                <dt>{w("Who pays what", "Kim nima uchun to‘laydi", "Кто и за что платит")}</dt>
+                <dd>
+                  {SCHOOL_AGREEMENT.payer ??
+                    w(
+                      "[Owner to provide: payer and any agreed charges]",
+                      "[Egasi kiritadi: to‘lovchi va kelishilgan to‘lovlar]",
+                      "[Владелец укажет: плательщик и согласованные платежи]",
+                    )}
+                </dd>
+              </div>
+              <div>
+                <dt>{w("Student permissions", "O‘quvchi ruxsatlari", "Разрешения учеников")}</dt>
+                <dd>
+                  {SCHOOL_AGREEMENT.studentPermissions ??
+                    w(
+                      "[Owner to provide: permission, family notices, access and retention responsibilities]",
+                      "[Egasi kiritadi: ruxsat, oilani xabardor qilish, kirish va saqlash mas’uliyati]",
+                      "[Владелец укажет: согласие, уведомления семье, доступ и хранение]",
+                    )}
+                </dd>
+              </div>
+            </dl>
+            <p className="mt-4">
+              {w(
+                "Student tools are free. School programs are arranged separately. Registration remains unavailable until this agreement is approved.",
+                "O‘quvchi vositalari bepul. Maktab dasturlari alohida kelishiladi. Kelishuv tasdiqlanmaguncha ro‘yxatdan o‘tish mavjud emas.",
+                "Инструменты для учеников бесплатны. Школьные программы согласуются отдельно. Регистрация недоступна до утверждения условий.",
+              )}
+            </p>
+          </section>
           <form onSubmit={submit} className="panel mt-8 space-y-3 rounded-3xl p-7">
             <Field
               label={tr("School Name")}
@@ -168,13 +229,13 @@ function SchoolRegisterPage() {
               onChange={(v) => setForm({ ...form, students: v })}
             />
             {err && (
-              <div className="rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+              <div className="rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
                 {err}
               </div>
             )}
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || !schoolAgreementReady()}
               className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground hover:glow-purple disabled:opacity-60"
             >
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -202,7 +263,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs text-muted-foreground">{label}</span>
+      <span className="mb-1 block text-sm text-muted-foreground">{label}</span>
       <input
         type={type}
         required={required}

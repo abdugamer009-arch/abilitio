@@ -63,17 +63,17 @@ function PrivacyPage() {
           ]}
         />
         <p>
-          {SITE_NAME} is free to use, so we do <strong className="text-foreground">not</strong>{" "}
-          collect payment card numbers or any billing information.
+          Student tools are free; school programs are arranged separately. We do not collect payment
+          card numbers through this site.
         </p>
       </LegalSection>
 
       <LegalSection heading="3. Children and students">
         <p>
-          {SITE_NAME} is designed for students, including minors. Where a student is below the age
-          of digital consent in their country, we rely on consent from a parent, legal guardian, or
-          the participating school acting on the family's behalf. Schools that invite students
-          confirm they have the authority and consent to do so.
+          {SITE_NAME} is designed for students, including minors. Permission requirements depend on
+          the student's jurisdiction. The minimum-age and parental-consent policy is awaiting owner
+          and legal review. Before a child participates, contact the team to confirm the applicable
+          permissions; a school invitation alone does not establish family consent.
         </p>
         <p>
           We collect only what is needed to deliver assessments and insights, and we never sell

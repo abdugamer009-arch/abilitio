@@ -134,9 +134,9 @@ export function EditorialPage({ kind }: { kind: Kind }) {
       [
         w("Set up your school", "Maktabni sozlang", "Подключите школу"),
         w(
-          "First contact us to agree the trial size, language, reports and price. Then register your school and give students a join code to connect their accounts.",
-          "Avval o‘quvchilar soni, til, hisobotlar va narxni biz bilan kelishing. Keyin maktabni ro‘yxatdan o‘tkazing va hisoblarni ulash uchun kod bering.",
-          "Сначала согласуйте число учеников, язык, отчёты и цену. Затем зарегистрируйте школу и дайте ученикам код для подключения аккаунтов.",
+          "Student tools are free. School programs are arranged separately. Contact us to agree scope, payer and student-permission responsibilities before registration.",
+          "O‘quvchi vositalari bepul. Maktab dasturlari alohida kelishiladi. Ro‘yxatdan oldin ko‘lam, to‘lovchi va o‘quvchi ruxsatlari mas’uliyatini biz bilan kelishing.",
+          "Инструменты для учеников бесплатны. Школьные программы согласуются отдельно. До регистрации согласуйте объём, плательщика и ответственность за разрешения учеников.",
         ),
       ],
       [
@@ -385,6 +385,18 @@ export function EditorialPage({ kind }: { kind: Kind }) {
           </section>
         )}
         {kind === "for-schools" && <SchoolReportPreview />}
+        {kind === "methodology" && (
+          <section className="field-section field-rule">
+            <h2>{w("Who this is for", "Kimlar uchun", "Для кого")}</h2>
+            <p>
+              {w(
+                "Students aged 14 and under use 12 simple preference statements and 18 concrete activity choices, with no reasoning or ability score. Students aged 15 and older use 12 preference statements, 9 reasoning questions and 9 activity choices. A minimum age and parental-consent policy require owner and legal review; no legal conclusion is implied.",
+                "14 yosh va undan kichik o‘quvchilar 12 oddiy afzallik bayoni va 18 aniq mashg‘ulot tanloviga javob beradi; mantiqiy yoki qobiliyat bali yo‘q. 15 yosh va kattalar uchun 12 afzallik, 9 mantiqiy savol va 9 mashg‘ulot tanlovi bor. Eng kichik yosh va ota-ona roziligi siyosati egasi va huquqiy ko‘rikni talab qiladi; huquqiy xulosa berilmaydi.",
+                "До 14 лет включительно: 12 простых утверждений о предпочтениях и 18 выборов занятий, без оценки мышления или способностей. С 15 лет: 12 утверждений, 9 заданий на мышление и 9 выборов занятий. Минимальный возраст и родительское согласие требуют решения владельца и юридической проверки.",
+              )}
+            </p>
+          </section>
+        )}
         {kind === "about" && (
           <section className="field-section">
             <p className="micro mb-8">{w("THE FOUNDERS", "ASOSCHILAR", "ОСНОВАТЕЛИ")}</p>
@@ -395,6 +407,13 @@ export function EditorialPage({ kind }: { kind: Kind }) {
                 "Будущее должно быть немного светлее.",
               )}
             </blockquote>
+            <p className="my-5">
+              {w(
+                "Question and scoring quality review: [Owner to provide reviewer names, qualifications and review responsibilities].",
+                "Savollar va baholash sifati ko‘rigi: [Egasi tekshiruvchilar ismi, malakasi va mas’uliyatini kiritadi].",
+                "Проверка вопросов и оценивания: [Владелец укажет рецензентов, квалификацию и обязанности].",
+              )}
+            </p>
             <div className="person-register">
               {FOUNDERS.map((founder) => (
                 <article key={founder.id}>
@@ -404,6 +423,36 @@ export function EditorialPage({ kind }: { kind: Kind }) {
                     <p className="micro text-muted-foreground">
                       {w("Co-founder", "Hamasoschi", "Сооснователь")}
                     </p>
+                    <dl className="mt-3 text-sm space-y-2">
+                      <div>
+                        <dt>
+                          {w(
+                            "Role and responsibilities",
+                            "Rol va mas’uliyat",
+                            "Роль и обязанности",
+                          )}
+                        </dt>
+                        <dd>
+                          {w(
+                            "[Owner to provide verified details]",
+                            "[Egasi tasdiqlangan ma’lumot kiritadi]",
+                            "[Владелец укажет проверенные сведения]",
+                          )}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>
+                          {w("Relevant experience", "Tegishli tajriba", "Соответствующий опыт")}
+                        </dt>
+                        <dd>
+                          {w(
+                            "[Owner to provide verified experience]",
+                            "[Egasi tasdiqlangan tajribani kiritadi]",
+                            "[Владелец укажет подтверждённый опыт]",
+                          )}
+                        </dd>
+                      </div>
+                    </dl>
                   </div>
                 </article>
               ))}

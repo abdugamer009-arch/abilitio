@@ -6,7 +6,7 @@
 export type AgeGroup = "child" | "teen_adult";
 export type AgeMetadata = {
   ageGroups?: AgeGroup[];
-  addedBy?: "feature-age";
+  addedBy?: "age-feature";
   trait?: string;
   similarityGroup?: string;
 };

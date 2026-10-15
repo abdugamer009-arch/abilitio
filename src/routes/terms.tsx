@@ -62,10 +62,9 @@ function TermsPage() {
 
       <LegalSection heading="5. A free service">
         <p>
-          Abilitio is provided free of charge. There are no paid plans, subscriptions, or in-app
-          purchases, and we do not collect payment information. We may introduce optional paid
-          features in the future; if we ever do, we will update these terms and clearly disclose any
-          pricing before you are asked to pay.
+          Student tools are free. School programs are arranged separately under an approved
+          agreement that states scope, payer and responsibilities before participation. We do not
+          collect payment card details through this site.
         </p>
       </LegalSection>
 

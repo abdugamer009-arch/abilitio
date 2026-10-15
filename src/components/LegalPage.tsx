@@ -33,14 +33,14 @@ export function LegalPage({
 
         <div className="relative mx-auto max-w-3xl">
           <header className="text-left">
-            <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
+            <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm text-primary">
               <Icon className="h-3.5 w-3.5" />{" "}
               {eyebrow === "Legal" ? w("Legal", "Huquqiy", "Правовая информация") : eyebrow}
             </div>
             <h1 className="mt-5 text-5xl tracking-tight sm:text-6xl">{title}</h1>
             <p className="mt-6 max-w-xl text-base text-muted-foreground">{intro}</p>
             {showUpdated && (
-              <p className="mt-3 text-xs text-muted-foreground">
+              <p className="mt-3 text-sm text-muted-foreground">
                 {w("Last updated", "Oxirgi yangilanish", "Последнее обновление")}:{" "}
                 {new Date(LEGAL_LAST_UPDATED).toLocaleDateString(
                   lang === "uz" ? "uz-UZ" : lang === "ru" ? "ru-RU" : "en-US",
@@ -50,7 +50,7 @@ export function LegalPage({
             )}
           </header>
 
-          <p className="mt-8 text-xs text-muted-foreground">
+          <p className="mt-8 text-sm text-muted-foreground">
             {w(
               "Contact the team with questions about this document.",
               "Ushbu hujjat bo‘yicha savollar bilan jamoaga yozing.",

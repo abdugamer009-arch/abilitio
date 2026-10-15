@@ -1,3 +1,4 @@
+import { schoolAgreementReady } from "./school-agreement";
 import { loadOwnedSchool } from "./owned-school";
 import { readAllResult, requireData } from "../db-read";
 import { schoolBucket, SCHOOL_STRENGTHS } from "./school-model";
@@ -82,6 +83,7 @@ export const registerSchool = createServerFn({ method: "POST" })
         .parse(input),
   )
   .handler(async ({ data, context }) => {
+    if (!schoolAgreementReady()) throw new Error("school_agreement_pending");
     const { supabase } = context;
     const { data: school, error } = await supabase.rpc("register_school", {
       _name: data.name,
