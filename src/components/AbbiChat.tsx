@@ -215,13 +215,13 @@ function AbbiSession() {
                   {lang === "uz" ? "Yo‘lko‘rsatkich" : lang === "ru" ? "Справочник" : "Guide"}
                 </span>
               </h2>
-              <p className="text-xs text-muted-foreground">{t.abbiChat.tagline}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">{t.abbiChat.tagline}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
                 {lang === "uz"
-                  ? "Tayyorlangan kasb va o‘qish qo‘llanmasi."
+                  ? "Qoidalar va tayyor materiallarga asoslangan qo‘llanma. Kasb, o‘qish va xavfsiz mashqlarni tushuntiradi. Jonli qidiruv, qabul prognozi, tibbiy yoki huquqiy maslahat bermaydi."
                   : lang === "ru"
-                    ? "Подготовленный справочник по профессиям и учёбе."
-                    : "Curated guide with English responses."}
+                    ? "Справочник по правилам и подготовленным материалам: профессии, учёба и безопасная практика. Без поиска в реальном времени, прогноза поступления, медицинских или юридических советов."
+                    : "Curated, rule-based guide to careers, study and safe practice. No live search, admissions predictions, medical or legal advice."}
               </p>
             </div>
           </div>
@@ -246,7 +246,7 @@ function AbbiSession() {
         {/* Suggestions */}
         {messages.length <= 2 && (
           <div className="border-t border-border/60 bg-secondary/20 px-4 py-3 sm:px-6">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+            <div className="text-sm uppercase tracking-wider text-muted-foreground">
               {t.abbiChat.suggested}
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
@@ -257,7 +257,7 @@ function AbbiSession() {
                     key={s}
                     onClick={() => handleSend(s)}
                     disabled={typing}
-                    className="rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-[11px] text-muted-foreground transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/10 hover:text-primary disabled:opacity-50"
+                    className="rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-sm text-muted-foreground transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/10 hover:text-primary disabled:opacity-50"
                   >
                     {s}
                   </button>
@@ -309,7 +309,7 @@ function AbbiSession() {
           <div className="mt-2 flex justify-end">
             <button
               onClick={clearHistory}
-              className="text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+              className="text-sm text-muted-foreground/60 hover:text-muted-foreground transition-colors"
             >
               {t.abbiChat.clear}
             </button>
@@ -365,7 +365,7 @@ function TypingBubble() {
         />
       </div>
       <div className="flex items-center gap-2 rounded-2xl rounded-tl-md border border-border/40 bg-secondary/30 px-4 py-3 -md">
-        <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
+        <span className="text-sm uppercase tracking-wider text-muted-foreground">
           {t.abbiChat.thinking}
         </span>
         <span className="flex items-center gap-1">

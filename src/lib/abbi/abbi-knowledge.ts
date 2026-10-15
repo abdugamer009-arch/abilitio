@@ -9,8 +9,6 @@ export type CareerInfo = {
   skills: string[];
   majors: string[];
   educationPath: string;
-  salaryRange: string;
-  outlook: string;
   advantages: string[];
   challenges: string[];
   fitsMbti?: string[]; // personality types it suits
@@ -37,13 +35,11 @@ export const CAREERS: CareerInfo[] = [
     majors: ["Computer Science", "Software Engineering", "Computer Engineering"],
     educationPath:
       "Bachelor's in CS or related → internships → junior engineer → mid/senior. Many succeed via self-taught + portfolio.",
-    salaryRange: "$70k – $250k+ (US); $25k – $90k+ in emerging markets",
-    outlook: "Very strong — 22% growth projected through 2030 (BLS).",
     advantages: [
       "Remote-friendly",
-      "High demand globally",
+      "Review code with other people",
       "Creative + analytical work",
-      "Strong compensation",
+      "Build and test working tools",
     ],
     challenges: ["Continuous learning required", "Long debugging sessions", "Can be sedentary"],
     fitsMbti: ["INTJ", "INTP", "ISTP", "ENTP"],
@@ -68,8 +64,6 @@ export const CAREERS: CareerInfo[] = [
     majors: ["Statistics", "Mathematics", "Economics", "Business Analytics", "Computer Science"],
     educationPath:
       "Bachelor's in a quantitative field → entry analyst role → senior analyst → analytics lead / data scientist.",
-    salaryRange: "$55k – $120k (US); $15k – $45k entry in emerging markets",
-    outlook: "Strong — analytics is core to nearly every industry.",
     advantages: [
       "Versatile across industries",
       "Clear career ladder",
@@ -91,8 +85,6 @@ export const CAREERS: CareerInfo[] = [
     skills: ["Python", "Machine learning", "Statistics", "SQL", "Experimentation"],
     majors: ["Computer Science", "Statistics", "Applied Mathematics", "Physics"],
     educationPath: "Bachelor's → optional Master's/PhD → analyst or ML engineer → data scientist.",
-    salaryRange: "$95k – $200k+ (US)",
-    outlook: "High demand, especially in AI-driven companies.",
     advantages: [
       "Research and experimentation",
       "Work with data and models",
@@ -125,8 +117,6 @@ export const CAREERS: CareerInfo[] = [
     majors: ["Cybersecurity", "Computer Science", "Information Systems"],
     educationPath:
       "Bachelor's + certifications → SOC analyst → security engineer → specialist or architect.",
-    salaryRange: "$80k – $180k (US)",
-    outlook: "Critical and growing — every company needs security.",
     advantages: ["Mission-driven", "Work with data and models", "Always evolving"],
     challenges: ["High-pressure incidents", "On-call rotations", "Constant learning"],
     fitsMbti: ["ISTJ", "INTJ", "ISTP"],
@@ -151,9 +141,7 @@ export const CAREERS: CareerInfo[] = [
     ],
     majors: ["Business", "Computer Science", "Engineering", "Design", "Economics"],
     educationPath: "Any bachelor's → APM/associate PM → PM → senior PM → director of product.",
-    salaryRange: "$100k – $250k+ (US)",
-    outlook: "Strong demand in tech; very competitive at top companies.",
-    advantages: ["High impact", "Cross-functional work", "Great compensation"],
+    advantages: ["High impact", "Cross-functional work", "Plan work across a team"],
     challenges: [
       "Accountability without authority",
       "Constant context switching",
@@ -174,8 +162,6 @@ export const CAREERS: CareerInfo[] = [
     skills: ["Figma", "Design systems", "User research", "Typography", "Interaction design"],
     majors: ["Design", "HCI", "Psychology", "Computer Science"],
     educationPath: "Degree or bootcamp + portfolio → junior designer → senior → lead/principal.",
-    salaryRange: "$70k – $180k (US)",
-    outlook: "Healthy demand, especially in product-led companies.",
     advantages: ["Creative + analytical", "Visual results", "Strong remote potential"],
     challenges: ["Heavy iteration / critique", "Subjective feedback", "Saturated junior market"],
     fitsMbti: ["INFP", "ENFP", "ISFP", "INFJ"],
@@ -193,8 +179,6 @@ export const CAREERS: CareerInfo[] = [
     skills: ["Adobe Suite / Figma", "Typography", "Color theory", "Composition", "Brand thinking"],
     majors: ["Graphic Design", "Visual Communication", "Fine Arts"],
     educationPath: "Degree or self-taught + strong portfolio → junior → senior → art director.",
-    salaryRange: "$45k – $110k (US)",
-    outlook: "Stable, but AI tools are reshaping junior roles.",
     advantages: ["Highly creative", "Freelance-friendly", "Visible impact"],
     challenges: ["Crowded market", "Tight deadlines", "Client revisions"],
     fitsMbti: ["ISFP", "INFP", "ENFP"],
@@ -213,8 +197,6 @@ export const CAREERS: CareerInfo[] = [
     skills: ["Empathy", "Active listening", "Research methods", "Ethical reasoning"],
     majors: ["Psychology", "Cognitive Science", "Neuroscience"],
     educationPath: "Bachelor's → Master's or PhD/PsyD → licensure → practice.",
-    salaryRange: "$60k – $140k (US)",
-    outlook: "Growing — mental health awareness is rising.",
     advantages: [
       "Deeply meaningful",
       "Diverse settings (clinical, research, org)",
@@ -231,8 +213,6 @@ export const CAREERS: CareerInfo[] = [
     skills: ["Writing", "Interviewing", "Research", "Curiosity", "News judgment"],
     majors: ["Journalism", "Communications", "Political Science", "English"],
     educationPath: "Degree + internships/clips → staff reporter → editor or freelance.",
-    salaryRange: "$40k – $90k (US); higher at major outlets",
-    outlook: "Disrupted industry; freelance & niche newsletters growing.",
     advantages: ["Meet fascinating people", "Public impact", "Travel & variety"],
     challenges: ["Modest pay early on", "Tight deadlines", "Industry instability"],
     fitsMbti: ["ENFP", "ENTP", "ENFJ"],
@@ -245,8 +225,6 @@ export const CAREERS: CareerInfo[] = [
     skills: ["Copywriting", "Analytics", "SEO", "Social media", "Brand strategy"],
     majors: ["Marketing", "Business", "Communications", "Psychology"],
     educationPath: "Bachelor's → coordinator → specialist → manager → director.",
-    salaryRange: "$50k – $130k (US)",
-    outlook: "Strong, especially for performance & content marketers.",
     advantages: ["Creative + analytical", "Many industries", "Measurable impact"],
     challenges: ["Channel changes fast", "Always-on culture", "Attribution is messy"],
     fitsMbti: ["ENFP", "ENTP", "ENFJ", "ESFP"],
@@ -264,8 +242,6 @@ export const CAREERS: CareerInfo[] = [
     skills: ["Writing", "Networking", "Strategic communication", "Composure under pressure"],
     majors: ["PR", "Communications", "Journalism", "Marketing"],
     educationPath: "Bachelor's + internships → coordinator → specialist → manager → director.",
-    salaryRange: "$60k – $150k (US)",
-    outlook: "Steady — every brand needs reputation management.",
     advantages: ["Dynamic & people-driven", "High visibility", "Crisis adrenaline"],
     challenges: ["High stress events", "Always 'on'", "Hard-to-measure outcomes"],
     fitsMbti: ["ENFJ", "ENTJ", "ENFP"],
@@ -279,9 +255,7 @@ export const CAREERS: CareerInfo[] = [
     majors: ["Education", "Subject-specific (Math, History, etc.)"],
     educationPath:
       "Bachelor's + teaching credential → classroom teacher → department lead → principal.",
-    salaryRange: "$45k – $90k (US, varies wildly by region)",
-    outlook: "Stable demand; shortages in STEM and special ed.",
-    advantages: ["Meaningful impact", "Summers / breaks", "Job security"],
+    advantages: ["Meaningful impact", "Summers / breaks", "Plan learning activities"],
     challenges: ["Modest pay", "Heavy admin load", "Emotional energy"],
     fitsMbti: ["ENFJ", "ESFJ", "INFJ", "ISFJ"],
     interestKeys: ["communication", "eq"],
@@ -294,9 +268,7 @@ export const CAREERS: CareerInfo[] = [
     majors: ["Pre-med (Biology, Chemistry)", "Biomedical Sciences"],
     educationPath:
       "Bachelor's → MCAT → 4-year medical school → 3–7 year residency → optional fellowship.",
-    salaryRange: "$200k – $500k+ (US)",
-    outlook: "Always in demand; long & expensive path.",
-    advantages: ["Save lives", "High prestige & pay", "Many specialties"],
+    advantages: ["Save lives", "Work with a supervised clinical team", "Many specialties"],
     challenges: ["Long, costly training", "High stress", "Long hours early in career"],
     fitsMbti: ["ISTJ", "ESTJ", "INFJ", "INTJ"],
     interestKeys: ["analytical", "eq"],
@@ -313,8 +285,6 @@ export const CAREERS: CareerInfo[] = [
     skills: ["Communication", "SQL", "Process design", "Documentation", "Critical thinking"],
     majors: ["Business", "Information Systems", "Economics", "Computer Science"],
     educationPath: "Bachelor's → junior BA → senior BA → product owner or consultant.",
-    salaryRange: "$65k – $130k (US)",
-    outlook: "Strong — every enterprise transformation needs BAs.",
     advantages: ["Cross-industry", "Mix of business + tech", "Clear ladder"],
     challenges: ["Stakeholder politics", "Lots of meetings", "Ambiguous scope"],
     fitsMbti: ["ENTJ", "INTJ", "ISTJ"],
@@ -328,9 +298,7 @@ export const CAREERS: CareerInfo[] = [
     majors: ["Any — execution matters more than degree"],
     educationPath:
       "Optional degree → side projects → first venture → iterate. Many top founders are self-taught.",
-    salaryRange: "$0 – $∞ (long tail; most ventures fail; the winners go very far)",
-    outlook: "Always relevant; tooling now lowers the barrier dramatically.",
-    advantages: ["Total ownership", "Unlimited upside", "Build what you believe in"],
+    advantages: ["Total ownership", "Test a business idea", "Build what you believe in"],
     challenges: ["High failure rate", "Income volatility", "Mental load 24/7"],
     fitsMbti: ["ENTJ", "ENTP", "INTJ", "ESTP"],
     interestKeys: ["leadership", "creativity", "curiosity"],
@@ -342,9 +310,7 @@ export const CAREERS: CareerInfo[] = [
     skills: ["Attention to detail", "Math literacy", "Accounting software", "Ethics"],
     majors: ["Accounting", "Finance", "Business"],
     educationPath: "Bachelor's → CPA exam → staff accountant → senior → manager → partner.",
-    salaryRange: "$55k – $130k (US); higher with CPA & specialization",
-    outlook: "Stable; automation reshaping entry-level.",
-    advantages: ["Reliable demand", "Clear path to CPA", "Many industries"],
+    advantages: ["Check financial records", "Clear path to CPA", "Many industries"],
     challenges: ["Seasonal crunch (tax season)", "Detail fatigue", "Compliance pressure"],
     fitsMbti: ["ISTJ", "ESTJ", "ISFJ"],
     interestKeys: ["analytical", "organization"],
@@ -356,8 +322,6 @@ export const CAREERS: CareerInfo[] = [
     skills: ["Argumentation", "Writing", "Research", "Ethical reasoning"],
     majors: ["Pre-law (Political Science, History, English)", "Any rigorous discipline"],
     educationPath: "Bachelor's → LSAT → 3-year JD → bar exam → associate → partner.",
-    salaryRange: "$70k – $300k+ (US, depends on firm/specialty)",
-    outlook: "Competitive at top end; strong in corporate, tech, IP law.",
     advantages: ["Prestige", "Intellectual challenge", "Work with data and models in BigLaw"],
     challenges: ["Long hours", "High debt", "Stress + ethical weight"],
     fitsMbti: ["ENTJ", "INTJ", "ESTJ", "ENTP"],
@@ -525,9 +489,9 @@ function satGuide(): string {
     "3. **Weeks 5–8**: timed sectional drills; review every wrong answer.",
     "4. **Weeks 9–12**: full-length practice tests every weekend; refine pacing.",
     "",
-    "**Resources**: Khan Academy (free, official partner), College Board Bluebook app, *The Official SAT Study Guide*.",
+    "**Resources**: Khan Academy practice, College Board Bluebook app, *The Official SAT Study Guide*.",
     "",
-    "**Target scores**: 1200+ solid; 1400+ competitive; 1500+ Ivy-tier.",
+    "Use each institution’s current official admission and scholarship requirements; this guide cannot predict admission from a score.",
   ].join("\n");
 }
 
@@ -545,7 +509,7 @@ function ieltsGuide(): string {
     "**Speaking**: practice aloud daily for 10 minutes — record yourself.",
     "**Writing**: study Band 8/9 sample answers; learn linking phrases.",
     "",
-    "**Targets**: 6.5+ for most universities; 7.0+ for top-tier programs.",
+    "Check the current English-language requirements on each institution’s official program page.",
   ].join("\n");
 }
 
@@ -782,7 +746,7 @@ export function generateAbbiReply(message: string, ctx: AbbiContext): string {
     return [
       `### ${greet}Career growth & transitions`,
       top
-        ? `Your strongest match is **${top.name} (${top.match}/100)**. For a working adult, transitioning to a role like this typically takes **6–18 months** with focused upskilling.`
+        ? `Your strongest match is **${top.name} (${top.match}/100)**. The preparation needed depends on your background, location and the role; this guide cannot predict a timeline.`
         : "I'd love to give you a personalized roadmap — complete the assessment first.",
       "",
       "**Plan**",
@@ -822,7 +786,7 @@ export function generateAbbiReply(message: string, ctx: AbbiContext): string {
 
   // Salary fallback
   if (q.includes("salary") || q.includes("earn")) {
-    return "I can share salary ranges for any specific career — try asking me *How much does a Software Engineer earn?* or another role from the list below.";
+    return "Pay depends on location, role and date. Check current official local labor statistics and dated job postings; this curated guide has no verified salary dataset.";
   }
 
   // Child-friendly default
@@ -842,7 +806,7 @@ export function generateAbbiReply(message: string, ctx: AbbiContext): string {
 
   return [
     `${greet}Here's how I can help:`,
-    "- Ask about a **specific career** (Software Engineer, Designer, Doctor, Lawyer, etc.) — I'll explain skills, education, salary and outlook.",
+    "- Ask about a **specific career** (Software Engineer, Designer, Doctor, Lawyer, etc.) — I'll explain examples of work, skills and study paths.",
     "- Ask about **SAT** or **IELTS** prep plans.",
     "- Ask **what career fits me best** to get a personalized match based on your assessment.",
     "- Ask **what should I improve** to get growth tips tied to your weakest dimensions.",
