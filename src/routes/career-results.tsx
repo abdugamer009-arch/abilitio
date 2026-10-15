@@ -1,3 +1,6 @@
+import { ResultExports } from "@/components/ResultExports";
+import { z } from "zod";
+import { filterCareers } from "@/lib/assessment/report-tools";
 import "@/styles/assessment.css";
 import { CommunityChoice } from "@/components/CommunityChoice";
 import { CareerReasons } from "@/components/CareerReasons";
@@ -24,18 +27,15 @@ import {
   Sparkles,
   Trophy,
   GraduationCap,
-  Printer,
-  Share2,
   RefreshCw,
   TrendingUp,
   Lightbulb,
-  ImageIcon,
-  Check,
 } from "lucide-react";
 import { useT, useI18n } from "@/lib/i18n";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from "recharts";
 
 export const Route = createFileRoute("/career-results")({
+  validateSearch: z.object({ resultId: z.string().uuid().optional().catch(undefined) }),
   head: () => ({
     meta: [
       { title: "Your Career Profile — Abilitio" },
@@ -46,6 +46,7 @@ export const Route = createFileRoute("/career-results")({
 });
 
 function CareerResultsPage() {
+  const { resultId } = Route.useSearch();
   const translate = useUiText();
   const tr = (value: string | null) => (value == null ? "—" : translate(value));
   const t = useT();
@@ -60,7 +61,6 @@ function CareerResultsPage() {
     error: null,
     loaded: false,
   });
-  const [copied, setCopied] = useState(false);
   const [showAllCareers, setShowAllCareers] = useState(false);
   const [careerSearch, setCareerSearch] = useState("");
 
@@ -70,8 +70,8 @@ function CareerResultsPage() {
       navigate({ to: "/auth", search: { mode: "login", next: "/career-results" } });
       return;
     }
-    return loadForAccount(user.id, fetchResult, setResultState);
-  }, [user, loading, navigate, fetchResult]);
+    return loadForAccount(user.id, () => fetchResult({ data: { resultId } }), setResultState);
+  }, [user, loading, navigate, fetchResult, resultId]);
 
   const ownsResult = !loading && resultState.ownerId === user?.id;
   const rawResult = ownsResult ? resultState.data : null;
@@ -136,6 +136,7 @@ function CareerResultsPage() {
     );
   }
 
+  const filteredCareers = filterCareers(r.career_matches, careerSearch, (v) => tr(v));
   const fieldLabel = (k: string) => (t.fields as Record<string, string>)[k] ?? k;
   const archetype = r.holland_code?.[0]
     ? (t.riasec.archetypes as Record<string, string>)[r.holland_code[0]]
@@ -148,120 +149,6 @@ function CareerResultsPage() {
     value: Math.round((riasec[k] ?? 0) * 100),
   }));
   const hasRiasec = RIASEC_ORDER.some((k) => (riasec[k] ?? 0) > 0);
-
-  async function share() {
-    try {
-      await shareCard();
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-    }
-  }
-
-  async function shareCard() {
-    if (!r) return;
-    const canvas = document.createElement("canvas");
-    canvas.width = 1200;
-    canvas.height = 630;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const palette = getComputedStyle(document.documentElement);
-    const color = (name: string) => palette.getPropertyValue(name).trim();
-    const displayFont = palette.getPropertyValue("--font-display");
-    const bodyFont = palette.getPropertyValue("--font-sans");
-    await document.fonts.ready;
-    // Background
-    ctx.fillStyle = color("--background");
-    ctx.fillRect(0, 0, 1200, 630);
-
-    // Cartoon red stripe
-    ctx.fillStyle = color("--red");
-    ctx.fillRect(0, 0, 1200, 6);
-
-    // "My Career Profile" label
-    ctx.fillStyle = color("--muted-foreground");
-    ctx.font = `500 24px ${bodyFont}`;
-    ctx.fillText(`${t.careerResults.title.toLocaleUpperCase()} · ABILITIO`, 80, 80);
-
-    // MBTI type
-    ctx.font = `800 100px ${displayFont}`;
-    ctx.fillStyle = color("--red");
-    ctx.fillText(
-      tr(r.personality_type?.includes("X") ? "Mixed preferences" : r.personality_type),
-      80,
-      200,
-    );
-
-    // Reasoning is an attempt count, never an ability classification.
-    ctx.font = `500 28px ${bodyFont}`;
-    ctx.fillStyle = color("--body-text");
-    ctx.fillText(
-      childResult
-        ? w("Explore what you enjoy", "Qiziqishlaringni kashf qil", "Узнай, что тебе нравится")
-        : formatReasoningScore(r.cognitive_score, lang),
-      80,
-      250,
-    );
-
-    // Divider
-    ctx.fillStyle = color("--ink");
-    ctx.fillRect(80, 278, 1040, 3);
-
-    // Top career matches
-    ctx.font = `800 20px ${displayFont}`;
-    ctx.fillStyle = color("--muted-foreground");
-    ctx.fillText("EXPLORATION FIT / 100", 80, 320);
-
-    r.career_matches.slice(0, 3).forEach((m, i) => {
-      const y = 360 + i * 56;
-      // score pill background
-      ctx.fillStyle = color("--mint");
-      roundRect(ctx, 80, y - 22, 900, 44, 22);
-      ctx.fill();
-      ctx.strokeStyle = color("--illustration-ink");
-      ctx.lineWidth = 3;
-      ctx.stroke();
-
-      ctx.font = `800 22px ${displayFont}`;
-      ctx.fillStyle = color("--illustration-ink");
-      ctx.fillText(`${i + 1}.  ${tr(m.name)}`, 110, y + 6);
-
-      ctx.font = `800 22px ${displayFont}`;
-      ctx.fillStyle = color("--red");
-      ctx.fillText(`${m.score}/100`, 920, y + 6);
-    });
-
-    // Branding
-    ctx.font = `800 26px ${displayFont}`;
-    ctx.fillStyle = color("--red");
-    ctx.fillText("abilitio-xt4n.vercel.app", 80, 600);
-
-    // Border
-    ctx.strokeStyle = color("--ink");
-    ctx.lineWidth = 3;
-    ctx.strokeRect(1, 1, 1198, 628);
-
-    canvas.toBlob(async (blob) => {
-      if (!blob) return;
-      const file = new File([blob], "abilitio-career-profile.png", { type: "image/png" });
-      if (navigator.canShare?.({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file], title: "My Abilitio Career Profile" });
-          return;
-        } catch {
-          /* cancelled */
-        }
-      }
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "abilitio-career-profile.png";
-      a.click();
-      URL.revokeObjectURL(url);
-    }, "image/png");
-  }
 
   return (
     <div className="assessment-flow assessment-result">
@@ -279,7 +166,7 @@ function CareerResultsPage() {
           <div className="relative mx-auto max-w-5xl">
             <header className="mb-8 flex flex-wrap items-end justify-between gap-4 print:hidden">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
+                <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm text-primary">
                   <Sparkles className="h-3.5 w-3.5" /> {t.careerResults.eyebrow}
                 </div>
                 <h1 className="mt-3 text-4xl font-bold gradient-text">
@@ -291,37 +178,13 @@ function CareerResultsPage() {
                       )
                     : t.careerResults.title}
                 </h1>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {w("Generated", "Yaratilgan", "Создано")}{" "}
                   {new Date(r.created_at).toLocaleDateString()}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={share}
-                  className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15"
-                >
-                  {copied ? (
-                    <Check className="h-4 w-4 text-emerald-400" />
-                  ) : (
-                    <Share2 className="h-4 w-4" />
-                  )}
-                  {copied ? t.careerResults.copied : t.careerResults.share}
-                </button>
-                <button
-                  onClick={shareCard}
-                  className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15"
-                >
-                  <ImageIcon className="h-4 w-4" />
-                  {t.careerResults.shareCard}
-                </button>
-                <button
-                  onClick={() => window.print()}
-                  className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/15"
-                >
-                  <Printer className="h-4 w-4" />
-                  {t.careerResults.downloadPdf}
-                </button>
+                <ResultExports result={r} />
                 <button
                   onClick={() => {
                     resetAttempt();
@@ -376,7 +239,7 @@ function CareerResultsPage() {
                       )}
                     </div>
                     {r.personality_type?.includes("X") && (
-                      <p className="mt-2 text-xs text-muted-foreground">
+                      <p className="mt-2 text-sm text-muted-foreground">
                         {w(
                           "Some answers balance both preferences. We leave those axes open rather than assign a personality type.",
                           "Ba’zi javoblarda ikki afzallik muvozanatli. Bu yo‘nalishlarni ochiq qoldiramiz va shaxsiyat turini belgilamaymiz.",
@@ -384,7 +247,7 @@ function CareerResultsPage() {
                         )}
                       </p>
                     )}
-                    <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
+                    <ul className="mt-3 space-y-1 text-sm text-muted-foreground">
                       <li>
                         <span className="text-foreground/80">{t.careerResults.work}:</span>{" "}
                         {tr(r.work_style)}
@@ -460,7 +323,7 @@ function CareerResultsPage() {
                       {r.holland_code.map((d) => (
                         <span
                           key={d}
-                          className="rounded-full border border-primary/25 bg-primary/8 px-2 py-0.5 text-[10px] font-medium text-primary"
+                          className="rounded-full border border-primary/25 bg-primary/8 px-2 py-0.5 text-sm font-medium text-primary"
                         >
                           {(t.riasec.dims as Record<string, string>)[d] ?? d}
                         </span>
@@ -606,7 +469,7 @@ function CareerResultsPage() {
                       {r.holland_code.map((d) => (
                         <span
                           key={d}
-                          className="rounded-full border border-primary/25 bg-primary/8 px-2 py-0.5 text-[11px] font-medium text-primary"
+                          className="rounded-full border border-primary/25 bg-primary/8 px-2 py-0.5 text-sm font-medium text-primary"
                         >
                           {(t.riasec.dims as Record<string, string>)[d] ?? d}
                         </span>
@@ -623,7 +486,7 @@ function CareerResultsPage() {
                                 style={{ width: `${d.value}%` }}
                               />
                             </div>
-                            <span className="w-8 shrink-0 text-right text-xs tabular-nums text-foreground/70">
+                            <span className="w-8 shrink-0 text-right text-sm tabular-nums text-foreground/70">
                               {d.value}
                             </span>
                           </div>
@@ -706,16 +569,25 @@ function CareerResultsPage() {
                 />
               </label>
               <p role="status" className="mt-2 text-sm text-muted-foreground">
-                {r.career_matches.length}{" "}
+                {filteredCareers.length}{" "}
                 {w("careers compared", "kasb solishtirildi", "профессий сравнено")}
               </p>
+              {filteredCareers.length === 0 && (
+                <div role="status" className="my-4">
+                  <p>
+                    {w(
+                      `No careers match '${careerSearch}'`,
+                      `'${careerSearch}' bo‘yicha kasb topilmadi`,
+                      `По запросу '${careerSearch}' профессий не найдено`,
+                    )}
+                  </p>
+                  <button className="field-button mt-3" onClick={() => setCareerSearch("")}>
+                    {w("Clear search", "Qidiruvni tozalash", "Сбросить поиск")}
+                  </button>
+                </div>
+              )}
               <div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                {r.career_matches
-                  .filter((m) =>
-                    `${m.name} ${m.category} ${tr(m.name)} ${tr(m.category)}`
-                      .toLowerCase()
-                      .includes(careerSearch.toLowerCase()),
-                  )
+                {filteredCareers
                   .slice(0, showAllCareers || careerSearch ? undefined : 15)
                   .map((m) => (
                     <div
@@ -724,20 +596,20 @@ function CareerResultsPage() {
                     >
                       <div className="flex items-center justify-between">
                         <div className="text-sm font-semibold">{tr(m.name)}</div>
-                        <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                        <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-sm font-medium text-primary">
                           <CountUp value={m.score} suffix="/100" />
                         </span>
                       </div>
-                      <p className="mt-1 text-xs text-muted-foreground">{tr(m.category)}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{tr(m.category)}</p>
                       {m.matchFields && m.matchFields.length > 0 && (
                         <div className="mt-2 flex flex-wrap items-center gap-1">
-                          <span className="text-[10px] text-muted-foreground">
+                          <span className="text-sm text-muted-foreground">
                             {t.careerResults.alignedWith}:
                           </span>
                           {m.matchFields.map((f) => (
                             <span
                               key={f}
-                              className="rounded-full border border-accent/25 bg-accent/8 px-1.5 py-0.5 text-[10px] font-medium text-accent"
+                              className="rounded-full border border-accent/25 bg-accent/8 px-1.5 py-0.5 text-sm font-medium text-accent"
                             >
                               {fieldLabel(f)}
                             </span>
@@ -745,7 +617,7 @@ function CareerResultsPage() {
                         </div>
                       )}
                       {m.major && (
-                        <p className="mt-2 flex items-center gap-1.5 text-xs">
+                        <p className="mt-2 flex items-center gap-1.5 text-sm">
                           <GraduationCap className="h-3.5 w-3.5 shrink-0 text-accent" />
                           <span className="text-muted-foreground">
                             {t.careerResults.studyMajor}:
@@ -806,27 +678,6 @@ function CareerResultsPage() {
   );
 }
 
-function roundRect(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  r: number,
-) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
-}
-
 function Card({
   icon,
   title,
@@ -837,13 +688,13 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <div className="group relative panel rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30">
+    <div className="result-detail-card group relative panel rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30">
       <GlowBlob className="-right-8 -top-8 h-24 w-24 opacity-0 blur-3xl transition-opacity duration-300 group-hover:opacity-40" />
       <div className="relative flex items-center gap-2.5">
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           {icon}
         </span>
-        <h3 className="text-xs font-semibold uppercase tracking-wide">{title}</h3>
+        <h3 className="text-sm font-semibold uppercase tracking-wide">{title}</h3>
       </div>
       <div className="relative mt-3">{children}</div>
     </div>
