@@ -4902,6 +4902,23 @@ function pickUniqueGroups<T extends { similarityGroup?: string }>(pool: T[], cou
   return picked;
 }
 
+// Reserve one slot per reasoning trait, then fill without repeated groups.
+function balancedReasoning(pool: CognitiveQ[], count: number): CognitiveQ[] {
+  const first: CognitiveQ[] = [];
+  const groups = new Set<string>();
+  for (const trait of shuffle([...new Set(pool.map((q) => q.trait))])) {
+    const q = shuffle(pool).find((q) => q.trait === trait && !groups.has(q.similarityGroup!));
+    if (!q) throw new Error("assessment_content_incomplete: reasoning trait coverage");
+    first.push(q);
+    groups.add(q.similarityGroup!);
+  }
+  const rest = pickUniqueGroups(
+    pool.filter((q) => !groups.has(q.similarityGroup!)),
+    count - first.length,
+  );
+  return shuffle([...first, ...rest]);
+}
+
 // One session serves every language. All 260 cognitive items have localized
 // instructions and options; English wordplay explicitly retains its stimuli.
 // Fail closed if future content lacks translations rather than silently shrinking the pool.
@@ -4977,7 +4994,7 @@ export function pickSessionQuestions(age: AgeGroup = "teen_adult"): SessionQuest
     personality: shuffle(personality),
     iq: (age === "child"
       ? []
-      : pickUniqueGroups(
+      : balancedReasoning(
           TRANSLATED_IQ_POOL.filter((q) => q.ageGroups?.includes(age)),
           9,
         )

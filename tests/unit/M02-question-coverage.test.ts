@@ -39,4 +39,9 @@ describe("M02 question coverage and similarity", () => {
       );
     }
   });
+  it("balances every available reasoning trait in 500 older attempts", () => {
+    const traits = new Set(IQ_BANK.map((q) => q.trait));
+    for (let n = 0; n < 500; n++)
+      expect(new Set(pickSessionQuestions("teen_adult").iq.map((q) => q.trait))).toEqual(traits);
+  });
 });
