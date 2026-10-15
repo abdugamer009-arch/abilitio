@@ -1,3 +1,5 @@
+import { careerRoadmap } from "@/lib/roadmap/career-roadmap";
+import { useI18n } from "@/lib/i18n";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { JourneySea } from "@/components/illustrations/JourneySea";
@@ -20,7 +22,6 @@ import {
 import {
   buildRoadmap,
   pickTrack,
-  TRACK_LABEL,
   type RoadmapPhase,
   type RoadmapTrack,
 } from "@/lib/roadmap/roadmap-world";
@@ -40,7 +41,7 @@ export const Route = createFileRoute("/roadmap")({
           "Travel through 5 islands of personalized growth. Complete tasks, earn XP, and follow ABBI from Foundations to Mastery.",
       },
       { property: "og:title", content: "Roadmap World — Abilitio" },
-      { property: "og:description", content: "AI-personalized career journey across 5 islands." },
+      { property: "og:description", content: "Career exploration activities across five phases." },
     ],
   }),
   component: RoadmapPage,
@@ -48,13 +49,18 @@ export const Route = createFileRoute("/roadmap")({
 
 function RoadmapPage() {
   const t = useT();
+  const { lang } = useI18n();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
   const [careerError, setCareerError] = useState(false);
   const [careerBusy, setCareerBusy] = useState(true);
   const [retryCareer, setRetryCareer] = useState(0);
-  const [topCareer, setTopCareer] = useState<string | null>(null);
+  const [topCareer, setTopCareer] = useState<{
+    key: string;
+    name: string;
+    category: string;
+  } | null>(null);
   const [activePhase, setActivePhase] = useState<RoadmapPhase["index"]>(1);
   const {
     tasks: tasksDone,
@@ -86,8 +92,12 @@ function RoadmapPage() {
         .maybeSingle();
       if (cancelled) return;
       if (error) throw new Error("Career profile unavailable");
-      const careers = (data?.career_matches ?? []) as { name: string }[];
-      setTopCareer(careers[0]?.name ?? null);
+      const careers = (data?.career_matches ?? []) as {
+        key: string;
+        name: string;
+        category: string;
+      }[];
+      setTopCareer(careers[0] ?? null);
       setCareerBusy(false);
     })().catch(() => {
       if (!cancelled) {
@@ -100,8 +110,11 @@ function RoadmapPage() {
     };
   }, [user, retryCareer]);
 
-  const track: RoadmapTrack = useMemo(() => pickTrack(topCareer ?? undefined), [topCareer]);
-  const phases = useMemo(() => buildRoadmap(track), [track]);
+  const track: RoadmapTrack = useMemo(() => pickTrack(topCareer?.name), [topCareer]);
+  const phases = useMemo(
+    () => (topCareer?.key ? careerRoadmap(topCareer, lang) : buildRoadmap(track)),
+    [track, topCareer, lang],
+  );
 
   function handleComplete(p: RoadmapPhase, taskId: string) {
     if (tasksDone[taskId]) return;
@@ -117,12 +130,18 @@ function RoadmapPage() {
     return (
       <PageShell>
         <div className="mx-auto max-w-xl p-10" role="alert">
-          <p>Could not load your career profile.</p>
+          <p>
+            {w(
+              "Could not load your career profile.",
+              "Kasb profilingiz yuklanmadi.",
+              "Не удалось загрузить профиль.",
+            )}
+          </p>
           <button
             className="mt-4 rounded-xl bg-primary px-4 py-2 text-primary-foreground"
             onClick={() => setRetryCareer((n) => n + 1)}
           >
-            Retry
+            {w("Retry", "Qayta urinish", "Повторить")}
           </button>
         </div>
       </PageShell>
@@ -131,7 +150,7 @@ function RoadmapPage() {
   if (loading || !user || careerBusy) {
     return (
       <PageShell>
-        <p role="status" className="field-wrap pt-4 text-xs text-muted-foreground">
+        <p role="status" className="field-wrap pt-4 text-sm text-muted-foreground">
           {syncState === "saved"
             ? w(
                 "Journal saved to your account",
@@ -161,6 +180,38 @@ function RoadmapPage() {
     );
   }
 
+  if (!topCareer)
+    return (
+      <PageShell>
+        <section className="field-wrap py-12">
+          <h1>
+            {w(
+              "Choose a direction first",
+              "Avval yo‘nalish tanlang",
+              "Сначала выберите направление",
+            )}
+          </h1>
+          <p className="my-5">
+            {w(
+              "Complete an assessment to build activities around your top career. Earlier journal marks remain saved.",
+              "Birinchi kasbingizga mos mashg‘ulotlar uchun testdan o‘ting. Oldingi daftar belgilari saqlanadi.",
+              "Пройдите тест, чтобы подобрать занятия к первому направлению. Прежние отметки дневника сохранены.",
+            )}
+          </p>
+          <Link to="/career-assessment" className="field-button">
+            {w("Explore your direction", "Yo‘nalishni o‘rganish", "Изучить направление")}
+          </Link>
+        </section>
+      </PageShell>
+    );
+  const trackLabel = {
+    tech: w("Technology Path", "Texnologiya yo‘li", "Путь технологий"),
+    creative: w("Creative Path", "Ijod yo‘li", "Творческий путь"),
+    business: w("Business Path", "Biznes yo‘li", "Путь бизнеса"),
+    science: w("Science Path", "Ilm yo‘li", "Научный путь"),
+    social: w("People & Media Path", "Insonlar va media yo‘li", "Люди и медиа"),
+    default: w("Career Exploration Path", "Kasb izlanish yo‘li", "Путь знакомства с профессиями"),
+  }[track];
   const active = phases.find((p) => p.index === activePhase)!;
 
   return (
@@ -179,7 +230,7 @@ function RoadmapPage() {
           <header className="journey-hero">
             <div className="journey-heading">
               <span className="journey-chip journey-badge">
-                <MapIcon size={16} /> {t.roadmapUi.badge} · {TRACK_LABEL[track]}
+                <MapIcon size={16} /> {t.roadmapUi.badge} · {trackLabel}
               </span>
               <h1>
                 {t.roadmapUi.titleA}{" "}
@@ -436,17 +487,19 @@ function TaskNode({
                 )}
               </h3>
               {isCurrent && (
-                <span className="rounded-full border border-primary/30 bg-yellow text-ink px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-primary">
+                <span className="rounded-full border border-primary/30 bg-yellow text-ink px-2 py-0.5 text-sm font-medium uppercase tracking-wider text-primary">
                   {t.roadmapUi.upNext}
                 </span>
               )}
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">{task.description}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{task.description}</p>
             <ActivityGuide task={task} />
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
-              <span className="inline-flex items-center gap-1">
-                <Zap className="h-3 w-3 text-primary" /> {task.xp} XP
-              </span>
+            <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+              {task.xp > 0 && (
+                <span className="inline-flex items-center gap-1">
+                  <Zap className="h-3 w-3 text-primary" /> {task.xp} XP
+                </span>
+              )}
               <span className="inline-flex items-center gap-1">
                 <Clock className="h-3 w-3" /> {task.estimate}
               </span>
@@ -496,7 +549,7 @@ function PhaseProgress({
   const pct = (done / phase.tasks.length) * 100;
   return (
     <div className="mt-3">
-      <div className="mb-1.5 flex items-center justify-between text-[11px] text-muted-foreground">
+      <div className="mb-1.5 flex items-center justify-between text-sm text-muted-foreground">
         <span>{t.roadmapUi.progress}</span>
         <span className="tabular-nums">
           {done}/{phase.tasks.length} {t.roadmapUi.tasks}

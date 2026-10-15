@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { loadTaskJournal, saveTaskJournal } from "./tasks.functions";
-import { scopedTaskState, ROADMAP_TASK_IDS } from "./roadmap-world";
+import { scopedTaskState, isScopedTaskId } from "./roadmap-world";
 const valid = (v: unknown): v is Record<string, boolean> =>
   Boolean(
     v &&
@@ -47,7 +47,7 @@ export function useTaskJournal(userId?: string) {
     let legacy: Record<string, boolean> = {};
     const preserveUnscoped = (state: Record<string, boolean>) => {
       const unscoped = Object.fromEntries(
-        Object.entries(state).filter(([id]) => !ROADMAP_TASK_IDS.has(id)),
+        Object.entries(state).filter(([id]) => !isScopedTaskId(id)),
       );
       if (!Object.keys(unscoped).length) return;
       setLegacyFound(true);

@@ -1,3 +1,4 @@
+import { resultRules } from "../assessment/result-rules";
 /** Roadmap World — gamified career journey. */
 
 export type RoadmapTrack = "tech" | "creative" | "business" | "science" | "social" | "default";
@@ -705,6 +706,11 @@ export const ROADMAP_TASK_IDS = new Set(
     (track) => buildRoadmap(track).flatMap((phase) => phase.tasks.map((task) => task.id)),
   ),
 );
+for (const key of Object.keys(resultRules))
+  for (const phase of [1, 2, 3, 4, 5]) ROADMAP_TASK_IDS.add(`career:${key}:p${phase}_t1`);
+export function isScopedTaskId(id: string) {
+  return ROADMAP_TASK_IDS.has(id) || /^career:[a-z0-9_]+:p[1-5]_t1$/.test(id);
+}
 export function scopedTaskState(state: Record<string, boolean>) {
-  return Object.fromEntries(Object.entries(state).filter(([id]) => ROADMAP_TASK_IDS.has(id)));
+  return Object.fromEntries(Object.entries(state).filter(([id]) => isScopedTaskId(id)));
 }
