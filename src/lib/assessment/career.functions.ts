@@ -362,12 +362,14 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
 
 export const getMyCareerResult = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<CareerResultDTO | null> => {
+  .inputValidator((d: { resultId?: string } | undefined) =>
+    z.object({ resultId: z.string().uuid().optional() }).parse(d ?? {}),
+  )
+  .handler(async ({ context, data: input }): Promise<CareerResultDTO | null> => {
     const { supabase, userId } = context;
-    const { data, error } = await supabase
-      .from("career_assessment_results")
-      .select("*")
-      .eq("user_id", userId)
+    let query = supabase.from("career_assessment_results").select("*").eq("user_id", userId);
+    if (input.resultId) query = query.eq("id", input.resultId);
+    const { data, error } = await query
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -663,3 +665,8 @@ export const buildSpecializedClass = createServerFn({ method: "POST" })
       savedId,
     };
   });
+
+export const getCareerDirectory = createServerFn({ method: "GET" }).handler(async () => {
+  const { CAREER_CATALOG } = await import("./catalog.server");
+  return CAREER_CATALOG.map(({ key, name, category }) => ({ key, name, category }));
+});

@@ -1,76 +1,62 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { ArrowUpRight } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { PageShell } from "@/components/PageShell";
 import { useWords } from "@/lib/editorial";
 import { pageMeta } from "@/lib/seo";
+import { useAuth } from "@/lib/auth-context";
+import { getCareerDirectory, getMyCareerResult } from "@/lib/assessment/career.functions";
+import { initialComparison, chooseDistinct } from "@/lib/assessment/report-tools";
+import { workExperiment } from "@/lib/assessment/work-experiments";
+import { useUiText } from "@/lib/ui-text";
+import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/career-battles")({
   head: () =>
     pageMeta(
       "/career-battles",
       "Compare the work",
-      "Compare career activities and small experiments without unsourced salary or demand rankings.",
+      "Compare saved career recommendations and practical experiments.",
     ),
   component: Compare,
 });
 function Compare() {
   const w = useWords();
-  const choices = [
-    {
-      name: w("Software engineering", "Dasturiy injiniring", "Разработка ПО"),
-      work: w(
-        "Build and maintain software; debug, review and test changes.",
-        "Dastur yaratish va yuritish; xatolarni topish, tekshirish va sinash.",
-        "Создание и поддержка ПО; отладка, ревью и тесты.",
-      ),
-      experiment: w(
-        "Make a small tool for a real problem and ask one person to use it.",
-        "Haqiqiy muammo uchun kichik vosita yarating va bir kishiga sinating.",
-        "Создайте инструмент для реальной задачи и дайте одному человеку попробовать.",
-      ),
-    },
-    {
-      name: w("Research", "Tadqiqot", "Исследование"),
-      work: w(
-        "Form a question, gather evidence, examine uncertainty and explain a finding.",
-        "Savol tuzish, dalil yig‘ish, noaniqlikni tekshirish va xulosani tushuntirish.",
-        "Вопрос, сбор доказательств, проверка неопределённости и объяснение вывода.",
-      ),
-      experiment: w(
-        "Investigate a public dataset and write one page about what it does not establish.",
-        "Ochiq ma’lumotni tahlil qiling va u nimani isbotlamasligi haqida bir sahifa yozing.",
-        "Исследуйте открытые данные и напишите страницу об их ограничениях.",
-      ),
-    },
-    {
-      name: w("Design", "Dizayn", "Дизайн"),
-      work: w(
-        "Understand a user's problem, explore alternatives and test a proposed solution.",
-        "Foydalanuvchi muammosini tushunish, variantlar yaratish va yechim sinash.",
-        "Понять задачу пользователя, исследовать варианты и проверить решение.",
-      ),
-      experiment: w(
-        "Observe someone using an everyday object, redesign one detail and test it.",
-        "Kundalik buyumdan foydalanishni kuzating, bir detalni o‘zgartiring va sinang.",
-        "Наблюдайте за использованием предмета, измените деталь и проверьте.",
-      ),
-    },
-    {
-      name: w("Education", "Ta’lim", "Образование"),
-      work: w(
-        "Explain difficult ideas, plan practice and respond to learners' needs.",
-        "Murakkab g‘oyalarni tushuntirish, mashq rejalash va o‘quvchi ehtiyojiga javob berish.",
-        "Объяснять сложные идеи, планировать практику и учитывать потребности учеников.",
-      ),
-      experiment: w(
-        "Teach a ten-minute lesson, ask for feedback and revise the explanation.",
-        "O‘n daqiqalik dars o‘ting, fikr so‘rang va tushuntirishni yangilang.",
-        "Проведите десятиминутный урок, соберите отзывы и улучшите объяснение.",
-      ),
-    },
-  ];
-  const [a, setA] = useState(0);
-  const [b, setB] = useState(1);
+  const tr = useUiText();
+  const { lang } = useI18n();
+  const { user, loading } = useAuth();
+  const directory = useServerFn(getCareerDirectory);
+  const result = useServerFn(getMyCareerResult);
+  const [choices, setChoices] = useState<{ key: string; name: string; category: string }[]>([]);
+  const [selected, setSelected] = useState<string[]>(["", "", ""]);
+  const [error, setError] = useState(false);
+  const [busy, setBusy] = useState(true);
+  useEffect(() => {
+    if (loading) return;
+    let live = true;
+    setBusy(true);
+    setChoices([]);
+    setSelected(["", "", ""]);
+    setError(false);
+    Promise.all([directory(), user ? result({ data: {} }) : Promise.resolve(null)])
+      .then(([all, saved]) => {
+        if (!live) return;
+        const merged = [...(saved?.career_matches ?? []), ...all].filter(
+          (c, i, a) => a.findIndex((d) => d.key === c.key) === i,
+        );
+        setChoices(merged);
+        setSelected(initialComparison(saved?.career_matches.map((c) => c.key) ?? []));
+        setBusy(false);
+      })
+      .catch(() => {
+        if (live) {
+          setError(true);
+          setBusy(false);
+        }
+      });
+    return () => {
+      live = false;
+    };
+  }, [directory, result, user, loading]);
   return (
     <PageShell>
       <div className="field-wrap">
@@ -82,59 +68,99 @@ function Compare() {
             <h1>{w("Compare the work.", "Ishni solishtiring.", "Сравните работу.")}</h1>
             <p>
               {w(
-                "Titles hide the daily activities. Choose two directions and a small experiment in each. These summaries are illustrative, not labor-market forecasts.",
-                "Lavozim nomi kundalik ishni yashiradi. Ikki yo‘nalish va har birida kichik tajriba tanlang. Bu izohlar namuna, bozor bashorati emas.",
-                "Названия скрывают ежедневные занятия. Выберите два направления и опыт для каждого. Это примеры, не прогноз рынка.",
+                "Start with your three saved recommendations, or choose from the career catalogue. Examples describe fields of work; check the actual role locally.",
+                "Uchta saqlangan tavsiyangizdan boshlang yoki kasblar katalogidan tanlang. Misollar ish sohalarini tavsiflaydi; haqiqiy rolni mahalliy tekshiring.",
+                "Начните с трёх сохранённых рекомендаций или выберите из каталога. Примеры описывают области работы; уточняйте реальную роль на месте.",
               )}
             </p>
           </div>
         </header>
-        <div className="form-row mb-8">
-          {[
-            [a, setA, w("First direction", "Birinchi yo‘nalish", "Первое направление")],
-            [b, setB, w("Compare with", "Solishtirish", "Сравнить с")],
-          ].map(([value, set, label], i) => (
-            <label className="text-sm" key={i} htmlFor={`career-${i}`}>
-              {label as string}
-              <select
-                id={`career-${i}`}
-                className="mt-2 w-full p-3"
-                value={value as number}
-                onChange={(e) => (set as (n: number) => void)(Number(e.target.value))}
-              >
-                {choices.map((c, j) => (
-                  <option key={j} value={j}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ))}
-        </div>
-        <section className="form-row field-section field-rule">
-          {[a, b].map((index, i) => (
-            <article key={i} className="sample-question">
-              <p className="micro section-number">
-                0{i + 1} / {w("DIRECTION", "YO‘NALISH", "НАПРАВЛЕНИЕ")}
+        {busy && (
+          <p role="status">
+            {w("Loading careers…", "Kasblar yuklanmoqda…", "Загрузка профессий…")}
+          </p>
+        )}
+        {error && (
+          <p role="alert">
+            {w(
+              "Could not load careers. Reload to retry.",
+              "Kasblar yuklanmadi. Qayta yuklang.",
+              "Не удалось загрузить профессии. Обновите страницу.",
+            )}
+          </p>
+        )}
+        {!busy && !error && (
+          <>
+            <div className="grid gap-4 md:grid-cols-3">
+              {selected.map((key, i) => (
+                <label key={i} className="text-base">
+                  {w("Direction", "Yo‘nalish", "Направление")} {i + 1}
+                  <select
+                    className="mt-2 w-full p-3"
+                    value={key}
+                    onChange={(e) => setSelected((s) => chooseDistinct(s, i, e.target.value))}
+                  >
+                    <option value="">
+                      {w("Choose a career", "Kasb tanlang", "Выберите профессию")}
+                    </option>
+                    {choices
+                      .filter((c) => c.key === key || !selected.includes(c.key))
+                      .map((c) => (
+                        <option key={c.key} value={c.key}>
+                          {tr(c.name)}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+              ))}
+            </div>
+            {!selected.some(Boolean) && (
+              <p className="my-6" role="status">
+                {w(
+                  "Choose two or three careers above to compare their work and try a small experiment.",
+                  "Ishni solishtirish va kichik tajriba uchun yuqoridan ikki yoki uch kasb tanlang.",
+                  "Выберите выше две или три профессии, чтобы сравнить работу и попробовать небольшой опыт.",
+                )}
               </p>
-              <h2 className="text-4xl mt-6">{choices[index].name}</h2>
-              <p className="text-muted-foreground mt-6">{choices[index].work}</p>
-              <p className="micro text-accent mt-8">{w("TRY THIS", "BUNI SINANG", "ПОПРОБУЙТЕ")}</p>
-              <p className="mt-4">{choices[index].experiment}</p>
-            </article>
-          ))}
-        </section>
-        <p className="text-muted-foreground text-sm">
-          {w(
-            "Pay, qualifications and demand depend on the country, role and year. Research those with a local professional and official labor sources before deciding.",
-            "Daromad, malaka va talab davlat, rol va yilga bog‘liq. Qarordan oldin mahalliy mutaxassis va rasmiy manbalarda tekshiring.",
-            "Оплата, квалификация и спрос зависят от страны, роли и года. Уточните их у местного специалиста и официальных источников.",
-          )}
-        </p>
-        <Link className="field-button my-12" to="/career-assessment">
-          {w("Explore your profile", "Profilingizni o‘rganing", "Исследуйте свой профиль")}
-          <ArrowUpRight size={16} />
-        </Link>
+            )}
+            <section className="grid gap-4 md:grid-cols-3 my-8">
+              {selected.filter(Boolean).map((key) => {
+                const c = choices.find((c) => c.key === key)!;
+                const guide = workExperiment(c.category, lang);
+                return (
+                  <article key={key} className="sample-question min-w-0">
+                    <h2 className="text-2xl break-words">{tr(c.name)}</h2>
+                    <p>{tr(c.category)}</p>
+                    <h3 className="mt-4 text-lg">
+                      {w(
+                        "Work examples (illustrative)",
+                        "Ish namunalari (misollar)",
+                        "Примеры работы (иллюстрации)",
+                      )}
+                    </h3>
+                    <ul className="list-disc pl-5">
+                      {guide.examples.map((e) => (
+                        <li key={e}>{e}</li>
+                      ))}
+                    </ul>
+                    <h3 className="mt-4 text-lg">
+                      {w("Try this week", "Bu hafta sinang", "Попробуйте на этой неделе")}
+                    </h3>
+                    <p>{guide.experiment}</p>
+                    <h3 className="mt-4 text-lg">
+                      {w(
+                        "Prerequisites to explore",
+                        "O‘rganiladigan asoslar",
+                        "Подготовка для изучения",
+                      )}
+                    </h3>
+                    <p>{guide.prerequisite}</p>
+                  </article>
+                );
+              })}
+            </section>
+          </>
+        )}
       </div>
     </PageShell>
   );
