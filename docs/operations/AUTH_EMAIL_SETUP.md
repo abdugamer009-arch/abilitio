@@ -31,3 +31,11 @@ Weekly digest is a separate feature with no sending implementation. Configuring 
 - [Supabase custom SMTP](https://supabase.com/docs/guides/auth/auth-smtp)
 - [Resend SMTP settings](https://resend.com/docs/send-with-smtp)
 - [Resend verified domains](https://resend.com/docs/dashboard/domains/introduction)
+
+## October 15 recovery gate
+
+Keep `PASSWORD_RECOVERY_ENABLED=false` (server) and `VITE_PASSWORD_RECOVERY_ENABLED=false` (browser) until delivery is proven. The server request path uses `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`; no service-role key is needed for email requests. Configure the existing Supabase project's **Auth > SMTP** with the real SMTP host, port, username, password, sender address and verified sender domain. These are Supabase dashboard settings, not new app secrets. Keep recovery redirect `https://abilitio-xt4n.vercel.app/auth?mode=recovery` allowlisted.
+
+Supabase owns the single-use token, expiry and provider-wide rate limits. Set a recovery OTP expiry and email rate limits in Supabase Auth before enabling. The application also applies a bounded, per-instance 60-second hashed-address throttle; it is not a distributed rate limiter. Existing, unknown, provider-rejected and throttled addresses receive the same accepted response, without disclosing provider errors. Invalid email syntax is rejected before requests.
+
+Required owner input: verified SMTP/sender domain, approved recovery redirect, and a disposable external mailbox for delivery, link reuse/expiry and password-update verification. A mock-mailer test cannot prove public email delivery. Weekly digest settings are hidden until a delivery implementation exists.

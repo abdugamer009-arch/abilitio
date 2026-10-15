@@ -1,3 +1,5 @@
+import { requestPasswordRecovery } from "@/lib/auth/recovery.functions";
+import { useServerFn } from "@tanstack/react-start";
 import { PASSWORD_RECOVERY_ENABLED, CONTACT_EMAIL } from "@/lib/constants";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
@@ -57,12 +59,16 @@ function localizeAuthError(message: string, a: AuthStrings): string {
 }
 
 function AuthPage() {
+  const requestRecovery = useServerFn(requestPasswordRecovery);
+  const [recoveryEnabled, setRecoveryEnabled] = useState(false);
+  useEffect(() => setRecoveryEnabled(PASSWORD_RECOVERY_ENABLED), []);
   const t = useT();
   const w = useWords();
   const { mode, next } = Route.useSearch();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [tab, setTab] = useState<"login" | "signup">(mode === "signup" ? "signup" : "login");
+  const [recoveryComplete, setRecoveryComplete] = useState(false);
   const [recovering, setRecovering] = useState(mode === "recovery");
   const [confirmation, setConfirmation] = useState("");
   const [name, setName] = useState("");
@@ -77,8 +83,8 @@ function AuthPage() {
   const [confirmEmailSent, setConfirmEmailSent] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user && !recovering) navigate({ to: next ?? "/dashboard" });
-  }, [user, next, navigate, recovering]);
+    if (user && !recovering && !recoveryComplete) navigate({ to: next ?? "/dashboard" });
+  }, [user, next, navigate, recovering, recoveryComplete]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -155,7 +161,7 @@ function AuthPage() {
   }, []);
   async function forgot() {
     if (pending.current) return;
-    if (!PASSWORD_RECOVERY_ENABLED) {
+    if (!recoveryEnabled) {
       setErr(
         w(
           `Password recovery email is not connected yet. Contact ${CONTACT_EMAIL} for help.`,
@@ -180,10 +186,7 @@ function AuthPage() {
             "Сервис аккаунтов не настроен. Напишите команде.",
           ),
         );
-      const { error } = await supabase.auth.resetPasswordForEmail(ep.data, {
-        redirectTo: window.location.origin + "/auth?mode=recovery",
-      });
-      if (error) throw error;
+      await requestRecovery({ data: { email: ep.data } });
       setInfo(t.auth.checkEmail);
     } catch (e) {
       setErr(e instanceof Error ? e.message : t.auth.errGeneric);
@@ -213,11 +216,11 @@ function AuthPage() {
         );
       const { error } = await supabase.auth.updateUser({ password: p.data });
       if (error) throw error;
+      setRecoveryComplete(true);
       setRecovering(false);
       setPassword("");
       setConfirmation("");
       setInfo(w("Password updated.", "Parol yangilandi.", "Пароль обновлён."));
-      navigate({ to: "/dashboard" });
     } catch (e) {
       setErr(e instanceof Error ? e.message : t.auth.errGeneric);
     } finally {
@@ -230,7 +233,23 @@ function AuthPage() {
     <PageShell>
       <section className="px-6 pt-16 pb-24">
         <div className="mx-auto max-w-md">
-          {recovering ? (
+          {recoveryComplete ? (
+            <section className="panel p-8" role="status">
+              <h1 className="text-3xl">
+                {w("Password updated.", "Parol yangilandi.", "Пароль обновлён.")}
+              </h1>
+              <p className="my-4">
+                {w(
+                  "Use your new password the next time you sign in.",
+                  "Keyingi kirishda yangi paroldan foydalaning.",
+                  "При следующем входе используйте новый пароль.",
+                )}
+              </p>
+              <Link to="/dashboard" className="field-button">
+                {w("Continue to dashboard", "Panelga davom etish", "Перейти в кабинет")}
+              </Link>
+            </section>
+          ) : recovering ? (
             <form onSubmit={updatePassword} className="panel p-8 space-y-6">
               <h1 className="text-3xl">
                 {w("Choose a new password", "Yangi parol tanlang", "Новый пароль")}
@@ -277,7 +296,7 @@ function AuthPage() {
                 {t.auth.checkInboxBody}{" "}
                 <span className="font-medium text-foreground">{confirmEmailSent}</span>
               </p>
-              <p className="mt-2 text-xs text-muted-foreground">{t.auth.checkInboxHint}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{t.auth.checkInboxHint}</p>
               <button
                 type="button"
                 onClick={() => {
@@ -373,7 +392,7 @@ function AuthPage() {
                   {err && (
                     <div
                       role="alert"
-                      className="rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+                      className="rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
                     >
                       {err}
                     </div>
@@ -381,7 +400,7 @@ function AuthPage() {
                   {info && (
                     <div
                       role="status"
-                      className="rounded-xl border border-primary/40 bg-primary/10 px-3 py-2 text-xs text-primary"
+                      className="rounded-xl border border-primary/40 bg-primary/10 px-3 py-2 text-sm text-primary"
                     >
                       {info}
                     </div>
@@ -400,7 +419,8 @@ function AuthPage() {
                     <button
                       type="button"
                       onClick={forgot}
-                      className="block w-full text-center text-xs text-muted-foreground hover:text-foreground"
+                      disabled={!recoveryEnabled || loading}
+                      className="block w-full text-center text-sm text-muted-foreground hover:text-foreground"
                     >
                       {t.auth.forgot}
                     </button>
@@ -408,14 +428,14 @@ function AuthPage() {
                 </form>
               </div>
 
-              <p className="mt-6 text-center text-xs text-muted-foreground">
+              <p className="mt-6 text-center text-sm text-muted-foreground">
                 {t.auth.terms}{" "}
                 <Link to="/terms" className="underline hover:text-foreground">
                   {t.auth.termsLink}
                 </Link>
                 .
               </p>
-              <p className="mt-2 text-center text-xs text-muted-foreground">
+              <p className="mt-2 text-center text-sm text-muted-foreground">
                 <Link to="/privacy" className="underline hover:text-foreground">
                   {t.auth.privacyLink}
                 </Link>
