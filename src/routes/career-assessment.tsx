@@ -407,7 +407,7 @@ function CareerAssessmentPage() {
   }
   const setValue = useCallback(
     (v: number | string[]) => {
-      if (!current || transitionBusy.current) return;
+      if (!current || transitionBusy.current || submissionPending.current) return;
       setAnswers((a) => {
         const next = { ...a };
         if (current.kind === "p") {
@@ -438,7 +438,7 @@ function CareerAssessmentPage() {
     setStep((s) => (s === step ? Math.min(TOTAL - 1, s + 1) : s));
   }
   function goBack() {
-    if (transitionBusy.current) return;
+    if (submitting || transitionBusy.current) return;
     beginTransition();
     if (step === 0) {
       setChoosing(true);
@@ -449,7 +449,7 @@ function CareerAssessmentPage() {
   const selectInterest = useCallback((optId: string) => setValue([optId]), [setValue]);
 
   const finish = useCallback(async () => {
-    if (submissionPending.current) return;
+    if (transitionBusy.current || submissionPending.current) return;
     if (!user) {
       navigate({ to: "/auth", search: { mode: "signup", next: "/career-assessment" } });
       return;

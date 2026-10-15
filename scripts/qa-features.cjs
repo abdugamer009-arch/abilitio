@@ -31,7 +31,8 @@ async function runFeatureChecks(origin = "http://127.0.0.1:8080") {
       await p.getByRole("button", { name: "Clear search", exact: true }).click();
       await p.getByText("166 careers compared", { exact: true }).waitFor();
       await p.locator(".career-reasons").first().locator("summary").click();
-      await shot("M04", p.locator(".career-reasons").first());
+      // Full page retains long expanded explanations below the phone viewport.
+      await shot("M04");
       const downloadEvent = p.waitForEvent("download", { timeout: 10000 });
       await p.getByRole("button", { name: "Download PDF", exact: true }).click();
       const pdf = await downloadEvent;

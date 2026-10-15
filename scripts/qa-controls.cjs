@@ -59,6 +59,24 @@ async function runControlChecks(origin = "http://127.0.0.1:8080") {
         )
         .waitFor();
       await p.screenshot({ path: `artifacts/qa/controls/V03-${width}.png`, fullPage: true });
+      // A previously answered final question must not submit on a rapid
+      // keyboard Enter while navigation is still transitioning.
+      await p.evaluate(() => {
+        const key = "abilitio.career_assessment.progress.v4";
+        const draft = JSON.parse(sessionStorage.getItem(key));
+        draft.step = 28;
+        draft.answers.interest = draft.session.interest.map((q) => [q.options[0].id]);
+        sessionStorage.setItem(key, JSON.stringify(draft));
+      });
+      await p.reload();
+      await p.getByRole("button", { name: "Continue where you left off", exact: true }).click();
+      await p.locator('[data-question-index="28"]').waitFor();
+      await p.getByRole("button", { name: "Next", exact: true }).click();
+      await p.locator('[data-question-index="29"][data-transitioning="true"]').waitFor();
+      await p.locator("#assessment-question").focus();
+      await p.keyboard.press("Enter");
+      await p.waitForTimeout(300);
+      assert.ok(p.url().endsWith("/career-assessment"), "transition Enter submitted final answer");
       assert.deepEqual(faults, []);
       await c.close();
     }
