@@ -1,3 +1,4 @@
+import { CAREER_CATALOG } from "@/lib/assessment/catalog.server";
 import { describe, expect, it } from "vitest";
 import {
   matchCareers,
@@ -104,5 +105,12 @@ describe("H06 career ranking evidence", () => {
     expect(evidenceCoverage("v6-direct-interests")).toBe("direct");
     expect(evidenceCoverage("v6-legacy-visual-only")).toBe("limited");
     expect(evidenceCoverage("v5-evidence")).toBe("historical");
+  });
+  it("keeps investigative/tech and artistic fixtures on top of the real 166-career catalogue", () => {
+    const tech = matchCareers(CAREER_CATALOG, personality, reasoning, investigative);
+    const art = matchCareers(CAREER_CATALOG, personality, reasoning, artistic);
+    expect(tech).toHaveLength(166);
+    expect(tech[0].category).toMatch(/Technology|Science/);
+    expect(art[0].category).toMatch(/Arts|Design/);
   });
 });
