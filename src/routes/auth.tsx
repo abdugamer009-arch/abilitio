@@ -399,14 +399,29 @@ function AuthPage() {
                   </button>
 
                   {tab === "login" && (
-                    <button
-                      type="button"
-                      onClick={forgot}
-                      disabled={!recoveryEnabled || loading}
-                      className="block w-full text-center text-sm text-muted-foreground hover:text-foreground"
-                    >
-                      {t.auth.forgot}
-                    </button>
+                    <>
+                      <button
+                        type="button"
+                        onClick={forgot}
+                        disabled={!recoveryEnabled || loading}
+                        aria-describedby={!recoveryEnabled ? "recovery-unavailable" : undefined}
+                        className="block w-full text-center text-sm text-muted-foreground hover:text-foreground"
+                      >
+                        {t.auth.forgot}
+                      </button>
+                      {!recoveryEnabled && (
+                        <p id="recovery-unavailable" className="text-sm text-muted-foreground">
+                          {w(
+                            "Email password recovery is currently unavailable. For account help, contact the team:",
+                            "Email orqali parolni tiklash hozircha ishlamaydi. Hisob bo‘yicha yordam uchun jamoaga yozing:",
+                            "Восстановление пароля по почте пока недоступно. За помощью с аккаунтом обратитесь к команде:",
+                          )}{" "}
+                          <a className="underline break-all" href={`mailto:${CONTACT_EMAIL}`}>
+                            {CONTACT_EMAIL}
+                          </a>
+                        </p>
+                      )}
+                    </>
                   )}
                 </form>
               </div>
