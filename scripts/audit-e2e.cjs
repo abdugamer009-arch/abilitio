@@ -4,7 +4,15 @@ const { chromium, devices } = require("playwright");
 const { spawn } = require("node:child_process");
 const origin = process.env.QA_ORIGIN || "http://127.0.0.1:8080";
 const chrome = process.env.BROWSER_EXE;
-const routes = ["/", "/career-assessment", "/career-battles", "/universities", "/methodology"];
+const routes = [
+  "/",
+  "/career-assessment",
+  "/career-battles",
+  "/universities",
+  "/methodology",
+  "/terms",
+  "/privacy",
+];
 
 (async () => {
   let server;
@@ -52,6 +60,7 @@ const routes = ["/", "/career-assessment", "/career-battles", "/universities", "
         ...(profile ? devices[profile] : {}),
         viewport,
         reducedMotion: "reduce",
+        timezoneId: "Asia/Tashkent",
       });
       const page = await context.newPage();
       const errors = [];

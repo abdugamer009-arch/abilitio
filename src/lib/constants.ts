@@ -9,6 +9,7 @@ export const CONTACT_EMAIL = "ibodullayevabdurahmon95@gmail.com";
 export const CONTACT_PHONE = "+998 88 048 18 81";
 export const COMPANY_LOCATION = "Uzbekistan";
 // Last review date for the legal documents. Update when policies change.
-export const LEGAL_LAST_UPDATED = "October 12, 2026";
+// ISO date-only input parses at UTC midnight on both server and browser.
+export const LEGAL_LAST_UPDATED = "2026-10-12";
 // Enable only after SMTP and public recovery delivery are verified.
 export const PASSWORD_RECOVERY_ENABLED = import.meta.env.VITE_PASSWORD_RECOVERY_ENABLED === "true";
