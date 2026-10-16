@@ -135,6 +135,7 @@ async function runReauditChecks(origin = "http://127.0.0.1:8080", options = {}) 
       await b.close();
     }
   }
+  if (!only) await require("./qa-anonymous-flow.cjs").runAnonymousChecks(origin);
   await fs.writeFile(
     `${out}/receipt${only ? "-" + only : ""}.json`,
     JSON.stringify(reports, null, 2),
