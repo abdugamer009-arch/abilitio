@@ -412,12 +412,16 @@ function AuthPage() {
                       {!recoveryEnabled && (
                         <p id="recovery-unavailable" className="text-sm text-muted-foreground">
                           {w(
-                            "Email password recovery is currently unavailable. For account help, contact the team:",
-                            "Email orqali parolni tiklash hozircha ishlamaydi. Hisob bo‘yicha yordam uchun jamoaga yozing:",
-                            "Восстановление пароля по почте пока недоступно. За помощью с аккаунтом обратитесь к команде:",
+                            "Email password recovery is currently unavailable.",
+                            "Email orqali parolni tiklash hozircha ishlamaydi.",
+                            "Восстановление пароля по почте пока недоступно.",
                           )}{" "}
-                          <a className="underline break-all" href={`mailto:${CONTACT_EMAIL}`}>
-                            {CONTACT_EMAIL}
+                          <a className="underline" href={`mailto:${CONTACT_EMAIL}`}>
+                            {w(
+                              "Contact the team for account help.",
+                              "Hisob bo‘yicha yordam uchun jamoaga yozing.",
+                              "Обратитесь к команде за помощью с аккаунтом.",
+                            )}
                           </a>
                         </p>
                       )}
