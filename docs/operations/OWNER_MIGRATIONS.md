@@ -46,7 +46,7 @@ Production signup no longer verifies email ownership. Apply `20261011180000_expl
 
 ## October 15 consent release
 
-Before releasing the audit continuation, apply `20261015120000_community_consent.sql` to the intended Supabase project. It preserves existing memberships/messages, adds nullable `consented_at`, revokes both legacy assignment entry points from public/anonymous/authenticated callers, and grants explicit consent/leave operations. This repository change has **not** applied production SQL. PGlite is a simulated migration check only.
+Before releasing the audit continuation, apply `20261015120000_community_consent.sql` to the intended Supabase project. It preserves existing memberships/messages, adds nullable `consented_at`, revokes both legacy assignment entry points from public/anonymous/authenticated callers, and grants explicit consent/leave operations. Applied and recorded on the verified production project `cadbpdgljzxnbeamitnq` on October 16, with existing rows preserved. See [release evidence](RELEASE_2026_10_16.md). PGlite rehearsal remains simulated; live authenticated lifecycle checks still need an authorized disposable account.
 
 In an authorized disposable account verify: assessment save creates zero memberships; opening communities creates zero memberships; the invitation describes name/avatar/message visibility; Join alone creates consented membership; Leave removes only the caller's selected membership. Confirm an old member gets a review notice, and a second account cannot leave that membership. Keep the existing assessment nonce and ownership checks.
 
