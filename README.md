@@ -59,6 +59,8 @@ NITRO_PRESET=node-server npm run build # standalone Node deployment
 PORT=8090 node .output/server/index.mjs
 ```
 
+Browser regression setup: `npx playwright install chromium firefox`. `npm run test:all` runs the unit/database/export checks, Chromium public and account-fixture flows, and the mobile matrix. `QA_BROWSERS=firefox node scripts/qa-reaudit.cjs` additionally checks public pages, age-path copy, recovery availability and intercepted contact forms in Firefox. Browser captures and private release evidence stay in ignored artifact directories; these tests do not prove live email delivery or authenticated production saving.
+
 Vercel uses `vercel.json`; `VERCEL=1 npm run build` selects the Vercel output. See [contributing](CONTRIBUTING.md) for the change and verification workflow.
 
 ## A map of the code

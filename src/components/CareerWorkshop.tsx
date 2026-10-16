@@ -1,3 +1,4 @@
+import { AssessmentAgeNote } from "./AssessmentAgeNote";
 import { WORKSHOP_TASK_TEXT, taskEstimate } from "@/lib/roadmap/workshop-translations";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -796,7 +797,13 @@ export function CareerWorkshop({
           "Состав полной оценки",
         )}
       >
-        <p>{w("THE FULL PROFILE", "TO‘LIQ PROFIL", "ПОЛНЫЙ ПРОФИЛЬ")}</p>
+        <p>
+          {w(
+            "FULL PROFILE · AGES 15 AND OLDER",
+            "TO‘LIQ PROFIL · 15 YOSH VA KATTALAR",
+            "ПОЛНЫЙ ПРОФИЛЬ · С 15 ЛЕТ",
+          )}
+        </p>
         {[
           [12, w("work-preference questions", "ish uslubi savoli", "вопросов о стиле работы")],
           [9, w("reasoning questions", "mantiq savoli", "вопросов на рассуждение")],
@@ -808,6 +815,7 @@ export function CareerWorkshop({
           = {12 + 9 + 9}
         </b>
       </div>
+      <AssessmentAgeNote />
     </section>
   );
 }

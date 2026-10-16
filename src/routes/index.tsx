@@ -65,9 +65,9 @@ function LandingPage() {
               </h1>
               <p className="hero-explanation" data-hero-detail>
                 {w(
-                  "Answer questions about your interests, work preferences and reasoning. Get career suggestions, reasons behind them and activities to try.",
-                  "Qiziqish, ish uslubi va mantiq haqidagi savollarga javob bering. Kasb tavsiyalari, ularning sabablari va sinash uchun faoliyatlar oling.",
-                  "Ответьте на вопросы об интересах, стиле работы и мышлении. Получите идеи профессий, объяснения и занятия для пробы.",
+                  "Answer questions about your interests and preferences. Get career suggestions, reasons behind them and activities to try.",
+                  "Qiziqish va afzalliklaringiz haqidagi savollarga javob bering. Kasb tavsiyalari, ularning sabablari va sinash uchun faoliyatlar oling.",
+                  "Ответьте на вопросы об интересах и предпочтениях. Получите идеи профессий, объяснения и занятия для пробы.",
                 )}
               </p>
               <div className="hero-proof">
@@ -84,9 +84,9 @@ function LandingPage() {
                   </span>
                   <small>
                     {w(
-                      "Reasoning, work preferences and interests.",
-                      "Mantiq, ish uslubi va qiziqishlar.",
-                      "Рассуждение, стиль работы и интересы.",
+                      "Reasoning questions are included for ages 15 and older.",
+                      "15 yosh va kattalar uchun mantiqiy savollar ham bor.",
+                      "Задания на мышление включены с 15 лет.",
                     )}
                   </small>
                 </div>

@@ -93,6 +93,7 @@ const routes = [
     await require("./qa-matrix.cjs").runMatrix(origin);
     await require("./qa-keyboard.cjs").runKeyboardChecks(origin);
     await require("./qa-copy.cjs").runCopyChecks(origin);
+    await require("./qa-reaudit.cjs").runReauditChecks(origin);
     await new Promise((resolve, reject) => {
       const child = spawn(process.execPath, ["scripts/verify-profile-flow.cjs"], {
         stdio: "inherit",

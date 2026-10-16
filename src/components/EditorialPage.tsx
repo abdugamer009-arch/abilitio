@@ -1,3 +1,4 @@
+import { AssessmentAgeNote } from "./AssessmentAgeNote";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, Sparkles } from "lucide-react";
 import { useWords } from "@/lib/editorial";
@@ -27,17 +28,17 @@ export function EditorialPage({ kind }: { kind: Kind }) {
       "От вопросов к следующему шагу.",
     );
     intro = w(
-      "One assessment. Three signals. A profile you can question, compare and put to work.",
-      "Bitta baholash. Uch belgi. O‘rganish, solishtirish va amalda sinash mumkin bo‘lgan profil.",
-      "Одна оценка. Три сигнала. Профиль для обсуждения, сравнения и практики.",
+      "One assessment, with questions for your age group. A profile you can question, compare and put to work.",
+      "Bitta baholash, yosh guruhingizga mos savollar. O‘rganish, solishtirish va amalda sinash mumkin bo‘lgan profil.",
+      "Одна оценка с вопросами для вашей возрастной группы. Профиль для обсуждения, сравнения и практики.",
     );
     rows = [
       [
         w("Understand the signals", "Belgilarni tushuning", "Поймите сигналы"),
         w(
-          "Thirty questions cover reasoning, work preferences and interests. Your result explains the dimensions instead of turning them into a single verdict.",
-          "O‘ttiz savol mantiq, ish uslubi va qiziqishlarni qamrab oladi. Natija bitta hukm o‘rniga o‘lchovlarni tushuntiradi.",
-          "Тридцать вопросов о мышлении, рабочих предпочтениях и интересах. Результат объясняет измерения вместо единого вердикта.",
+          "For ages 15 and older, thirty questions cover reasoning, work preferences and interests. Your result explains the dimensions instead of turning them into a single verdict.",
+          "15 yosh va kattalar uchun o‘ttiz savol mantiq, ish uslubi va qiziqishlarni qamrab oladi. Natija bitta hukm o‘rniga o‘lchovlarni tushuntiradi.",
+          "С 15 лет: тридцать вопросов о мышлении, рабочих предпочтениях и интересах. Результат объясняет измерения вместо единого вердикта.",
         ),
       ],
       [
@@ -111,7 +112,7 @@ export function EditorialPage({ kind }: { kind: Kind }) {
       [
         w("For a school", "Maktab uchun", "Для школы"),
         w(
-          "Talk to us about your student count, language and workflow. We agree the scope and any costs before onboarding; no unsupported popularity badges or fixed promises.",
+          "Talk to us about your student count, language and workflow. We agree the scope and any costs before onboarding.",
           "O‘quvchilar soni, til va jarayonni muhokama qiling. Ulashdan oldin hajm va xarajatlar kelishiladi.",
           "Обсудим количество учеников, язык и процесс. Объём и стоимость согласовываются до подключения.",
         ),
@@ -287,6 +288,7 @@ export function EditorialPage({ kind }: { kind: Kind }) {
               )}
             </h1>
             <p>{intro}</p>
+            {kind === "features" && <AssessmentAgeNote />}
           </div>
           {(kind === "methodology" || kind === "about" || kind === "for-schools") && (
             <div className="editorial-illustration" aria-hidden="true">
