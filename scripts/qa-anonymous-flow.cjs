@@ -5,7 +5,9 @@ const fs = require("node:fs/promises");
 const { errors } = require("./qa-support.cjs");
 async function runAnonymousChecks(origin = "http://127.0.0.1:8080") {
   const reports = [];
-  const out = "artifacts/qa/reaudit/anonymous";
+  const out = process.env.QA_EVIDENCE_DIR
+    ? `${process.env.QA_EVIDENCE_DIR}/anonymous`
+    : "artifacts/qa/reaudit/anonymous";
   await fs.mkdir(out, { recursive: true });
   for (const name of (process.env.QA_BROWSERS || "chromium").split(",")) {
     assert.ok(["chromium", "firefox"].includes(name));
@@ -68,6 +70,7 @@ async function runAnonymousChecks(origin = "http://127.0.0.1:8080") {
           assert.deepEqual(faults, []);
           assert.equal(serverWrites, 0, "Anonymous answers must not be submitted to a server");
           reports.push({
+            origin,
             browser: name,
             age,
             gender,

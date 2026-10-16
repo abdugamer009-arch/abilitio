@@ -8,7 +8,7 @@ const forgot = { en: "Forgot password?", uz: "Parolni unutdingizmi?", ru: "За�
 async function runReauditChecks(origin = "http://127.0.0.1:8080", options = {}) {
   const only = options.issue;
   const reports = [];
-  const out = "artifacts/qa/reaudit/regressions";
+  const out = process.env.QA_EVIDENCE_DIR || "artifacts/qa/reaudit/regressions";
   await fs.mkdir(out, { recursive: true });
   for (const name of (process.env.QA_BROWSERS || "chromium").split(",")) {
     assert.ok(["chromium", "firefox"].includes(name));
@@ -99,7 +99,7 @@ async function runReauditChecks(origin = "http://127.0.0.1:8080", options = {}) 
                   route,
                 );
               }
-              reports.push({ id, route, screenshot, mockedAccount: false });
+              reports.push({ id, origin, route, screenshot, mockedAccount: false });
             }
             if (!only) {
               let sent = 0;
