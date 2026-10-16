@@ -1,3 +1,4 @@
+import { authSearchSchema } from "@/lib/auth/search";
 import { requestPasswordRecovery } from "@/lib/auth/recovery.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { PASSWORD_RECOVERY_ENABLED, CONTACT_EMAIL } from "@/lib/constants";
@@ -12,26 +13,8 @@ import { useT } from "@/lib/i18n";
 import { useWords } from "@/lib/editorial";
 import { track, AnalyticsEvent } from "@/lib/analytics";
 
-const searchSchema = z.object({
-  mode: z.enum(["login", "signup", "recovery"]).optional().default("login"),
-  // Post-login destination. Restricted to same-site paths: "/x" but not "//x"
-  // (protocol-relative) — anything else could bounce a fresh login to an
-  // attacker-chosen site via a crafted link.
-  next: z
-    .string()
-    .refine(
-      (value) =>
-        value.startsWith("/") &&
-        !value.startsWith("//") &&
-        !value.includes("\\") &&
-        [...value].every((char) => char.charCodeAt(0) >= 32 && char.charCodeAt(0) !== 127),
-    )
-    .optional()
-    .catch(undefined),
-});
-
 export const Route = createFileRoute("/auth")({
-  validateSearch: searchSchema,
+  validateSearch: authSearchSchema,
   head: () => ({
     meta: [{ title: "Sign in — Abilitio" }, { name: "robots", content: "noindex, follow" }],
   }),
