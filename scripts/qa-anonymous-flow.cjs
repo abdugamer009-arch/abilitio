@@ -39,6 +39,10 @@ async function runAnonymousChecks(origin = "http://127.0.0.1:8080") {
           const url = new URL(p.url());
           assert.equal(url.searchParams.get("mode"), "signup");
           assert.equal(url.searchParams.get("next"), "/career-assessment");
+          // SPA URL changes can precede the sign-up route settling in Firefox.
+          // Model reload after the form is ready; never swallow navigation errors.
+          await p.locator('input[autocomplete="given-name"]').waitFor();
+          await p.waitForLoadState("networkidle");
           const stats = () =>
             p.evaluate(() => {
               const d = JSON.parse(
