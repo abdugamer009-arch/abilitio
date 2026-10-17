@@ -1,5 +1,7 @@
 # Abilitio external QA repair report — 15 October 2026
 
+Second audit (16 October): three additional findings R01–R03 are repaired with targeted failing/passing tests and screenshots. The final integrated gate passed 186 unit/database tests and all 180 mobile cases; the frozen-source checks and Vercel build also passed. See [re-audit evidence](docs/operations/REAUDIT_2026_10_16.md). The current ledger contains 35 rows: 30 locally verified fixes and five owner-blocked items.
+
 Release update (16 October): QA changes through `9db51d1` are deployed to production, and the consent SQL migration was applied with existing data preserved. See [release evidence and remaining blockers](docs/operations/RELEASE_2026_10_16.md). Earlier local-only statements below describe the October 15 audit snapshot.
 
 Release rerun: `npm run test:all` passed with 170 unit/database tests, five export checks, 360 captures, 14 accessibility cases, eight profile flows, six dark-mode attempts and all 180 mobile cases. V05 follow-up `c6f94cc` fixes the production legal-date hydration mismatch with a failing-then-passing timezone test; see [release log](artifacts/qa/test-logs/release-all.log), [before screenshot](artifacts/qa/release/V05-before-terms.png) and [fixed built screenshot](artifacts/qa/release/fixed-built-terms.png).
@@ -9,7 +11,7 @@ Work is on `codex/qa-completion`, based on remote `main` at `fc16fe5` (14 Octobe
 
 Final local verification passed: `npm run test:all` (169 unit/database tests, five export checks, 360 language/theme/width captures, 14 accessibility cases, eight age/gender desktop/phone flows and 180 longest/random/stress mobile cases), the six supplemental complete dark-mode attempts, and `NITRO_PRESET=node-server npm run build`. See [full log](artifacts/qa/test-logs/final-all.log), [dark flows](artifacts/qa/test-logs/dark-flows.log), [build log](artifacts/qa/test-logs/final-build.log), [verification receipt](artifacts/qa/final-receipt.json) and [36 before/after pairs](artifacts/qa/comparison/index.html). These are local tests with simulated accounts, not live Supabase/SMTP proof.
 
-The ledger has 27 FIXED entries (including six verification gaps) and five BLOCKED entries. No OPEN or PARTIAL entries remain.
+The October 15 audit closed 27 FIXED entries (including six verification gaps) and five BLOCKED entries. The later R01–R03 findings are recorded below.
 
 Evidence is local and intentionally ignored by Git. Authenticated browser flows use labelled account/result/membership fixtures. Signed question delivery and selection use real code; PGlite proves local SQL behavior, not the live Supabase database. No production registrations, memberships, results, emails or cleanup were created by this work.
 
@@ -47,6 +49,9 @@ Evidence is local and intentionally ignored by Git. Authenticated browser flows 
 | V04 | FIXED   | Keyboard-only full assessment, focus, dialog Escape, live updates, WCAG A/AA axe and emulated 200% desktop reflow.                                                                                   | qa-accessibility.cjs: 14 page/theme cases; qa-keyboard.cjs; stress matrix                                         | [Evidence](artifacts/qa/keyboard/results-keyboard.png)                         |
 | V05 | FIXED   | Strict browser error gate, bounded concurrency and UTC legal-date hydration fix. Final integrated gate passed. | npm run test:all: 170 tests, five export checks, 180 mobile cases; V05-legal-date.test.ts | [Release log](artifacts/qa/test-logs/release-all.log); [Date screenshot](artifacts/qa/release/fixed-built-terms.png) |
 | V06 | FIXED   | Exact owner/record IDs, ownership preflight and dry run; apply requires explicit owner confirmation. No cleanup executed.                                                                            | V06-cleanup.test.ts: dry-run no delete, reject unconfirmed/nonowned IDs                                           | [Evidence](tests/unit/V06-cleanup.test.ts)                                     |
+| R01 | FIXED | Unsupported auth query modes fall back to login, retaining safe redirect checks. | R01-auth-search.test.ts (16 cases); qa-reaudit.cjs | [After](artifacts/qa/reaudit/regressions/chromium-390-en-light-auth-mode-register.png) |
+| R02 | FIXED | Unavailable email recovery now explains its state and links to team support. Provider setup remains blocked. | qa-reaudit.cjs --issue=R02; public browser matrix | [After](artifacts/qa/reaudit/regressions/chromium-390-en-light-auth.png) |
+| R03 | FIXED | Public copy explains both age-specific question compositions without changing scoring or design. | qa-reaudit.cjs --issue=R03; public browser matrix | [After](artifacts/qa/reaudit/regressions/chromium-390-en-light-landing.png) |
 
 ## Owner inputs and release requirements
 
