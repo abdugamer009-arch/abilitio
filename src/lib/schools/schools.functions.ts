@@ -1,4 +1,5 @@
 import { schoolAgreementReady } from "./school-agreement";
+import { presentationSummary } from "../assessment/summary-integrity";
 import { loadOwnedSchool } from "./owned-school";
 import { readAllResult, requireData } from "../db-read";
 import { schoolBucket, SCHOOL_STRENGTHS } from "./school-model";
@@ -225,7 +226,9 @@ async function loadStudentsForSchool(school: SchoolDTO): Promise<{
     readAllResult((from, to) =>
       supabaseAdmin
         .from("career_assessment_results")
-        .select("user_id, career_matches, personality_type, cognitive_score, strengths, created_at")
+        .select(
+          "user_id, career_matches, personality_type, cognitive_score, strengths, scoring_version, created_at",
+        )
         .in("user_id", studentIds)
         .order("id")
         .range(from, to),
@@ -238,6 +241,7 @@ async function loadStudentsForSchool(school: SchoolDTO): Promise<{
     personality_type: string | null;
     cognitive_score: number | null;
     strengths: string[] | null;
+    scoring_version: string | null;
     created_at: string;
   };
   const profMap = new Map<string, ProfileRow>(
@@ -266,7 +270,7 @@ async function loadStudentsForSchool(school: SchoolDTO): Promise<{
       // number: this is a 9-question screener, not a clinical IQ test, and the
       // student-facing copy says so too.
       cognitive: r?.cognitive_score ?? null,
-      strengths: Array.isArray(r?.strengths) ? r.strengths : [],
+      strengths: r ? presentationSummary(r).strengths : [],
     };
   });
   return { classes: (classes ?? []) as ClassDTO[], students };
