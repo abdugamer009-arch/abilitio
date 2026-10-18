@@ -1533,3 +1533,11 @@ body:has(.student-dashboard) .nav-login {
 .student-card-face {
   height: 100%;
 }
+/* The existing global textarea skin must not create a second frame inside the composer. */
+.student-abbi .student-compose-field textarea {
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0;
+  box-shadow: none !important;
+  background: transparent !important;
+}
