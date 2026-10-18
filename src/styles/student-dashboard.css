@@ -1541,3 +1541,7 @@ body:has(.student-dashboard) .nav-login {
   box-shadow: none !important;
   background: transparent !important;
 }
+/* Pastel upload paper keeps dark ink in both themes. */
+.student-dashboard .student-drop > p {
+  color: #1d1b16;
+}
