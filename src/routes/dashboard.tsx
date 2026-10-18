@@ -10,7 +10,6 @@ import { PageShell } from "@/components/PageShell";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   Brain,
-  Camera,
   Mail,
   Calendar,
   LogOut,
@@ -56,6 +55,16 @@ import {
 import { CountUp } from "@/components/CountUp";
 import { GlowBlob } from "@/components/GlowBlob";
 import {
+  CameraDrawing,
+  ReasoningInfoDrawing,
+  StrengthsHeartDrawing,
+  CareersCompassDrawing,
+  HistoryChartDrawing,
+  ProfileDrawing,
+  PreferencesDrawing,
+  LanguageDrawing,
+  MoonDrawing,
+  MailDrawing,
   ResultsTabDrawing,
   ScoresTabDrawing,
   ActivitiesTabDrawing,
@@ -401,7 +410,7 @@ function ProfileHeader({
             onClick={onPhoto}
             aria-label={w("Change photo", "Rasmni o‘zgartirish", "Изменить фото")}
           >
-            <Camera size={20} />
+            <CameraDrawing />
           </button>
         </div>
         <div className="student-identity">
@@ -1695,11 +1704,12 @@ function PrefRow({
   hint: string;
   children: React.ReactNode;
 }) {
+  const Drawing = Icon === Languages ? LanguageDrawing : Icon === Moon ? MoonDrawing : MailDrawing;
   return (
     <div className="student-pref-row">
       <div className="flex items-center gap-3 min-w-0">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-          <Icon className="h-4 w-4" />
+          <Drawing />
         </div>
         <div className="min-w-0">
           <div className="student-pref-label">{label}</div>
@@ -1725,10 +1735,26 @@ function GlassCard({
 }
 
 function SectionTitle({ icon: Icon, children }: { icon: LucideIcon; children: React.ReactNode }) {
+  const Drawing =
+    Icon === BarChart3
+      ? ScoresTabDrawing
+      : Icon === Brain
+        ? ReasoningInfoDrawing
+        : Icon === Heart
+          ? StrengthsHeartDrawing
+          : Icon === Trophy
+            ? CareersCompassDrawing
+            : Icon === TrendingUp
+              ? HistoryChartDrawing
+              : Icon === UserIcon
+                ? ProfileDrawing
+                : Icon === SettingsIcon
+                  ? PreferencesDrawing
+                  : null;
   return (
     <h2 className="student-section-title">
       <span className="student-icon-tile">
-        <Icon className="h-3.5 w-3.5" />
+        {Drawing ? <Drawing /> : <Icon className="h-3.5 w-3.5" />}
       </span>
       {children}
     </h2>

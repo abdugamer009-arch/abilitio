@@ -3,8 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import ReactMarkdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
-import { Send, User as UserIcon } from "lucide-react";
+import { User as UserIcon } from "lucide-react";
 import {
+  SendDrawing,
   StripedCard,
   Sparkle,
   AbbiMascot,
@@ -296,7 +297,7 @@ function AbbiSession() {
               style={{ boxShadow: "4px 4px 0 var(--ink)" }}
               aria-label={t.community.send}
             >
-              <Send className="h-4 w-4" />
+              <SendDrawing />
             </button>
           </form>
           <div className="mt-2 flex justify-end">

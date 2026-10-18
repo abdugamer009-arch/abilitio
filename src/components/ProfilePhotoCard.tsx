@@ -1,9 +1,15 @@
 import { useUiText } from "@/lib/ui-text";
 import { useCallback, useEffect, useRef, useState, type DragEvent } from "react";
-import { Camera, Loader2, Trash2, User as UserIcon } from "lucide-react";
+import { Loader2, Trash2, User as UserIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { StripedCard, Tape, Sparkle, UploadDrawing } from "@/components/dashboard/StudentPieces";
+import {
+  StripedCard,
+  Tape,
+  Sparkle,
+  UploadDrawing,
+  CameraDrawing,
+} from "@/components/dashboard/StudentPieces";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
@@ -136,7 +142,7 @@ export function ProfilePhotoCard({
     <StripedCard className="student-photo">
       <h2 className="flex items-center gap-2 text-base font-semibold">
         <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-          <Camera className="h-3.5 w-3.5" />
+          <CameraDrawing />
         </span>
         {tr("Profile Photo")}
       </h2>
@@ -221,7 +227,7 @@ export function ProfilePhotoCard({
               onClick={() => inputRef.current?.click()}
               className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary transition-all hover:bg-primary/20 disabled:opacity-50"
             >
-              <Camera className="h-3.5 w-3.5" /> {tr(displayed ? "Change photo" : "Upload photo")}
+              <CameraDrawing /> {tr(displayed ? "Change photo" : "Upload photo")}
             </button>
             {displayed && (
               <button
