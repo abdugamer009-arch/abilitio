@@ -1529,3 +1529,7 @@ body:has(.student-dashboard) .nav-login {
     min-height: 44px;
   }
 }
+/* Grid cells stretch with their striped backing, so the backing never becomes exposed paper. */
+.student-card-face {
+  height: 100%;
+}
