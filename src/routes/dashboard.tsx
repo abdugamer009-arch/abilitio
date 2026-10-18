@@ -10,6 +10,8 @@ import { PageShell } from "@/components/PageShell";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   Brain,
+  Camera,
+  Mail,
   Calendar,
   LogOut,
   User as UserIcon,
@@ -29,13 +31,11 @@ import {
   Activity,
   BarChart3,
   Settings as SettingsIcon,
-  Star,
   Languages,
   Moon,
   KeyRound,
   ChevronRight,
   Crown,
-  Swords,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
@@ -55,6 +55,34 @@ import {
 } from "@/components/dashboard/ExtraSections";
 import { CountUp } from "@/components/CountUp";
 import { GlowBlob } from "@/components/GlowBlob";
+import {
+  ResultsTabDrawing,
+  ScoresTabDrawing,
+  ActivitiesTabDrawing,
+  RecordedTabDrawing,
+  UniversitiesTabDrawing,
+  AbbiTabDrawing,
+  SettingsTabDrawing,
+  ReasoningDrawing,
+  PersonalityDrawing,
+  AssessmentsDrawing,
+  FitDrawing,
+  StripedCard,
+  Tape,
+  Sparkle,
+  StampStar,
+  FinishFlag,
+  Pushpin,
+  WavyLine,
+  MedalDrawing,
+  LaptopDrawing,
+  LightningDrawing,
+  SwordsDrawing,
+  ArrowDrawing,
+  SatDrawing,
+  IeltsDrawing,
+} from "@/components/dashboard/StudentPieces";
+import "@/styles/student-dashboard.css";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -256,19 +284,8 @@ function DashboardPage() {
 
   return (
     <PageShell>
-      {/* Ambient violet glow */}
-      <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-[600px] overflow-hidden">
-        <div
-          className="absolute left-1/2 top-[-200px] h-[700px] w-[1100px] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
-          style={{
-            background: "var(--yellow)",
-          }}
-        />
-      </div>
-
-      <section className="relative px-4 pt-10 pb-24 sm:px-6">
-        <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
-        <div className="relative mx-auto max-w-6xl">
+      <section className="student-dashboard">
+        <div className="student-wrap">
           {/* PROFILE HEADER */}
           <ProfileHeader
             fullName={fullName}
@@ -278,6 +295,7 @@ function DashboardPage() {
             level={level}
             levelProgress={levelProgress}
             tagline={stats?.tagline ? tagline : catalogLabel(tagline, lang)}
+            onPhoto={() => setTab("settings")}
           />
 
           {/* HORIZONTAL TABS */}
@@ -341,6 +359,7 @@ function ProfileHeader({
   level,
   levelProgress,
   tagline,
+  onPhoto,
 }: {
   fullName: string;
   email: string;
@@ -349,6 +368,7 @@ function ProfileHeader({
   level: number;
   levelProgress: number;
   tagline: string;
+  onPhoto: () => void;
 }) {
   const w = useWords();
   const [resolvedAvatar, setResolvedAvatar] = useState<string | null>(null);
@@ -363,55 +383,40 @@ function ProfileHeader({
   }, [avatarUrl]);
 
   return (
-    <div
-      className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-card p-6  sm:p-8"
-      style={{ boxShadow: "4px 4px 0 var(--ink)" }}
-    >
-      {/* gradient orbs */}
-      <GlowBlob className="-right-20 -top-20 h-80 w-80 opacity-50 blur-3xl" alpha={0.5} />
-      <div
-        className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
-        style={{
-          background: "var(--yellow)",
-        }}
-      />
-
-      <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
-        {/* Avatar */}
-        <div className="relative shrink-0">
-          <div className="absolute -inset-1 rounded-3xl bg-card opacity-70 blur-md transition-opacity group-hover:opacity-100" />
-          <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden cartoon-avatar rounded-3xl bg-primary text-3xl font-bold text-primary-foreground shadow-2xl sm:h-28 sm:w-28">
+    <StripedCard className="student-profile">
+      <Sparkle className="student-profile-sparkle" />
+      <div className="student-profile-layout">
+        <div className="student-polaroid">
+          <Tape />
+          <div className="student-avatar">
             {resolvedAvatar ? (
-              <img
-                src={resolvedAvatar}
-                alt={fullName}
-                decoding="async"
-                className="h-full w-full object-cover"
-              />
+              <img src={resolvedAvatar} alt={fullName} decoding="async" />
             ) : (
               <span>{initials}</span>
             )}
           </div>
-          <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-card shadow-lg">
-            <Crown className="h-3.5 w-3.5 text-primary-foreground" />
-          </div>
+          <button
+            type="button"
+            className="student-camera"
+            onClick={onPhoto}
+            aria-label={w("Change photo", "Rasmni o‘zgartirish", "Изменить фото")}
+          >
+            <Camera size={20} />
+          </button>
         </div>
-
-        {/* Identity */}
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="truncate text-2xl font-bold tracking-tight sm:text-3xl">{fullName}</h1>
-            <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-sm font-medium text-primary">
-              <Sparkles className="h-3 w-3" />{" "}
+        <div className="student-identity">
+          <div className="student-name-row">
+            <h1>{fullName}</h1>
+            <span className="student-chip student-level">
+              <Sparkles size={15} />
               {w("Activity level", "Faollik darajasi", "Уровень активности")} {level}
             </span>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">{email}</p>
-          <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-1 text-sm font-medium">
-            <Star className="h-3.5 w-3.5 text-accent" />
-            <span className="gradient-text">{tagline}</span>
+          <p className="student-email">{email}</p>
+          <p className="student-stamp">
+            <StampStar />
+            {tagline}
           </p>
-
           <p className="mt-3 text-sm text-muted-foreground">
             {w(
               "Activity points come from saved assessments (50 each) and recorded achievements (25 each). A level is not a measure of skill or career readiness.",
@@ -419,28 +424,25 @@ function ProfileHeader({
               "Баллы начисляются за сохранённые оценки (50) и записанные достижения (25). Уровень не измеряет навыки или готовность к профессии.",
             )}
           </p>
-          {/* Level progress */}
-          <div className="mt-5 max-w-md">
-            <div className="mb-1.5 flex items-center justify-between text-sm text-muted-foreground">
+
+          <div className="student-level-progress">
+            <div className="student-progress-label">
               <span>
                 {w("Activity toward level", "Keyingi faollik darajasi", "До уровня активности")}{" "}
                 {level + 1}
               </span>
-              <span className="font-medium tabular-nums">{Math.round(levelProgress)}%</span>
+              <span>{Math.round(levelProgress)}%</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-secondary/60">
-              <div
-                className="h-full rounded-full bg-card transition-all duration-700"
-                style={{
-                  width: `${levelProgress}%`,
-                  boxShadow: "4px 4px 0 var(--ink)",
-                }}
-              />
+            <div className="student-progress-row">
+              <div className="student-striped-bar">
+                <div style={{ width: `${levelProgress}%` }} />
+              </div>
+              <FinishFlag />
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </StripedCard>
   );
 }
 
@@ -449,52 +451,52 @@ function ProfileHeader({
 /* ============================================================ */
 function TabBar({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
   const w = useWords();
-  const tabs: { key: TabKey; label: string; icon: LucideIcon }[] = [
-    { key: "results", label: w("Results", "Natijalar", "Результаты"), icon: Brain },
-    { key: "stats", label: w("Test scores", "Test ballari", "Баллы тестов"), icon: BarChart3 },
-    { key: "skills", label: w("Activities", "Faoliyatlar", "Занятия"), icon: Trophy },
-    { key: "weekly", label: w("Recorded activity", "Qaydlar", "Активность"), icon: TrendingUp },
-    {
-      key: "universities",
-      label: w("Universities", "Universitetlar", "Университеты"),
-      icon: GraduationCap,
-    },
-    { key: "abbi", label: "ABBI Guide", icon: Sparkles },
-    { key: "settings", label: w("Settings", "Sozlamalar", "Настройки"), icon: SettingsIcon },
-  ];
+  const tabs: { key: TabKey; label: string; icon: React.ComponentType<{ className?: string }> }[] =
+    [
+      { key: "results", label: w("Results", "Natijalar", "Результаты"), icon: ResultsTabDrawing },
+      {
+        key: "stats",
+        label: w("Test scores", "Test ballari", "Баллы тестов"),
+        icon: ScoresTabDrawing,
+      },
+      {
+        key: "skills",
+        label: w("Activities", "Faoliyatlar", "Занятия"),
+        icon: ActivitiesTabDrawing,
+      },
+      {
+        key: "weekly",
+        label: w("Recorded activity", "Qaydlar", "Активность"),
+        icon: RecordedTabDrawing,
+      },
+      {
+        key: "universities",
+        label: w("Universities", "Universitetlar", "Университеты"),
+        icon: UniversitiesTabDrawing,
+      },
+      { key: "abbi", label: "ABBI Guide", icon: AbbiTabDrawing },
+      {
+        key: "settings",
+        label: w("Settings", "Sozlamalar", "Настройки"),
+        icon: SettingsTabDrawing,
+      },
+    ];
   return (
-    <div className="mt-8 overflow-x-auto">
-      <div className="inline-flex min-w-full gap-1 rounded-2xl border border-border/60 bg-secondary/30 p-1.5  sm:gap-2">
-        {tabs.map((tt) => {
-          const active = tab === tt.key;
-          const Icon = tt.icon;
-          return (
-            <button
-              key={tt.key}
-              onClick={() => setTab(tt.key)}
-              aria-pressed={active}
-              className={`dashboard-tab group relative flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm font-medium transition-all sm:flex-1 sm:text-sm ${
-                active ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {active && (
-                <span
-                  className="absolute inset-0 rounded-xl bg-primary transition-all"
-                  style={{
-                    boxShadow: "4px 4px 0 var(--ink)",
-                  }}
-                />
-              )}
-              <Icon
-                className={`relative h-4 w-4 transition-colors ${active ? "text-primary-foreground" : ""}`}
-              />
-              <span className="relative hidden sm:inline">{tt.label}</span>
-              <span className="relative sm:hidden">{tt.label}</span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <nav className="student-tabs" aria-label={w("Dashboard", "Boshqaruv paneli", "Личный кабинет")}>
+      {tabs.map(({ key, label, icon: Icon }) => (
+        <button
+          type="button"
+          key={key}
+          onClick={() => setTab(key)}
+          aria-pressed={tab === key}
+          className="student-tab"
+        >
+          <Icon />
+          <span>{label}</span>
+        </button>
+      ))}
+      <WavyLine dashed />
+    </nav>
   );
 }
 
@@ -540,9 +542,9 @@ function ResultsSection({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="student-results">
       {/* Top metrics row */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="student-metrics">
         <MetricRing
           label={tr("Reasoning / 9")}
           value={latest.iq_score}
@@ -575,8 +577,8 @@ function ResultsSection({
       </div>
 
       {/* Cognitive bars + Strengths/Weaknesses */}
-      <div className="settings-grid grid gap-6 lg:grid-cols-2">
-        <GlassCard className="p-7">
+      <div className="student-details">
+        <GlassCard className="student-ruled">
           <SectionTitle icon={Brain}>
             {w("About your reasoning score", "Mantiq ballingiz haqida", "О вашем балле мышления")}
           </SectionTitle>
@@ -597,15 +599,13 @@ function ResultsSection({
         </GlassCard>
 
         <div className="grid gap-6">
-          <GlassCard className="p-7">
+          <GlassCard className="student-strengths">
+            <MedalDrawing className="student-medal" />
             <SectionTitle icon={Heart}>{tr("Top Strengths")}</SectionTitle>
             {latest.top_strengths?.length ? (
               <div className="mt-4 flex flex-wrap gap-2">
                 {latest.top_strengths.map((s) => (
-                  <span
-                    key={s}
-                    className="rounded-full border border-primary/20 bg-mint text-ink px-3 py-1.5 text-sm font-medium"
-                  >
+                  <span key={s} className="student-chip student-strength-chip">
                     {tTrait(s)}
                   </span>
                 ))}
@@ -637,7 +637,7 @@ function ResultsSection({
       </div>
 
       {/* Career matches */}
-      <GlassCard className="p-7">
+      <GlassCard className="student-careers">
         <SectionTitle icon={Trophy}>
           {w("Careers to explore", "O‘rganish uchun kasblar", "Профессии для исследования")}
         </SectionTitle>
@@ -649,7 +649,7 @@ function ResultsSection({
           )}
         </p>
         {latest.careers?.length ? (
-          <div className="mt-6 grid gap-4 lg:grid-cols-3">
+          <div className="student-career-grid">
             {latest.careers.slice(0, 3).map((c, i) => (
               <CareerCard
                 key={c.name}
@@ -666,34 +666,28 @@ function ResultsSection({
       </GlassCard>
 
       {/* Career Battles CTA */}
-      <Link to="/career-battles" className="group block">
-        <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50">
-          <GlowBlob className="-right-8 -top-8 h-32 w-32 opacity-30 blur-3xl" />
-          <div className="relative flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                <Swords className="h-5 w-5" />
-              </div>
-              <div>
-                <div className="text-sm font-semibold">{tr("Try Career Battles")}</div>
-                <div className="text-sm text-muted-foreground">
-                  {tr("Compare saved careers and practical experiments")}
-                </div>
-              </div>
-            </div>
-            <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1" />
-          </div>
-        </div>
+      <Link to="/career-battles" className="student-battles">
+        <span className="student-icon-tile">
+          <SwordsDrawing />
+        </span>
+        <span className="student-battles-copy">
+          <strong>{tr("Try Career Battles")}</strong>
+          <span>{tr("Compare saved careers and practical experiments")}</span>
+        </span>
+        <LightningDrawing className="student-lightning" />
+        <span className="student-round-arrow">
+          <ArrowDrawing />
+        </span>
       </Link>
 
       {/* History */}
       <GlassCard className="p-7">
         <SectionTitle icon={TrendingUp}>{tr("Assessment History")}</SectionTitle>
-        <ul className="mt-5 space-y-2">
+        <ul className="student-history">
           {results.map((r, i) => (
             <li
               key={r.id}
-              className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3 text-sm transition-all hover:border-primary/30 hover:bg-secondary/50 ${i === 0 ? "border-primary/30 bg-mint text-ink" : "border-border/60 bg-secondary/30"}`}
+              className={`student-history-entry ${i === 0 ? "student-history-latest" : ""}`}
             >
               <span className="inline-flex items-center gap-2 text-muted-foreground">
                 {i === 0 ? (
@@ -818,39 +812,21 @@ function CareerCard({
   const { lang } = useI18n();
   const tc = tCareer(career.name);
   return (
-    <div
-      className={`group relative overflow-hidden rounded-2xl border p-5 transition-all hover:-translate-y-1 ${
-        featured
-          ? "border-primary/40 bg-card lg:col-span-1 lg:row-span-1"
-          : "border-border/60 bg-secondary/30"
-      }`}
-      style={featured ? { boxShadow: "4px 4px 0 var(--ink)" } : undefined}
-    >
-      {featured && (
-        <GlowBlob className="-right-10 -top-10 h-32 w-32 opacity-60 blur-2xl" alpha={0.5} />
-      )}
-      <div className="relative flex items-center justify-between">
-        <span
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-sm font-bold uppercase tracking-wider ${
-            featured ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
-          }`}
-        >
-          {featured && <Crown className="h-3 w-3" />} #{rank}{" "}
-          {featured ? w("First suggestion", "Birinchi tavsiya", "Первое предложение") : ""}
-        </span>
-        <span className="text-2xl font-bold gradient-text tabular-nums">{career.match}/100</span>
+    <article className={`student-career ${featured ? "student-career-featured" : ""}`}>
+      <span className="student-career-ribbon">
+        {featured && <Crown size={16} />} #{rank}{" "}
+        {featured ? w("First suggestion", "Birinchi tavsiya", "Первое предложение") : ""}
+      </span>
+      <div className="student-career-heading">
+        <LaptopDrawing />
+        <h4>{tc.name}</h4>
+        <span>{career.match}/100</span>
       </div>
-      <h4 className="relative mt-3 text-lg font-semibold">{tc.name}</h4>
-      <p className="relative mt-2 line-clamp-3 text-sm text-muted-foreground">
-        {tc.reason || catalogLabel(career.reason, lang)}
-      </p>
-      <div className="relative mt-4 h-1.5 overflow-hidden rounded-full bg-secondary/60">
-        <div
-          className="h-full rounded-full bg-primary transition-all duration-1000"
-          style={{ width: `${Math.max(0, Math.min(100, career.match))}%` }}
-        />
+      <p>{tc.reason || catalogLabel(career.reason, lang)}</p>
+      <div className="student-striped-bar">
+        <div style={{ width: `${Math.max(0, Math.min(100, career.match))}%` }} />
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -859,7 +835,6 @@ function MetricRing({
   value,
   max,
   hint,
-  icon: Icon,
 }: {
   label: string;
   value: number | null;
@@ -868,45 +843,53 @@ function MetricRing({
   icon: LucideIcon;
 }) {
   const pct = Math.min(100, ((value ?? 0) / max) * 100);
-  const circumference = 2 * Math.PI * 30;
-  const offset = circumference - (pct / 100) * circumference;
+  const circumference = 2 * Math.PI * 42;
   return (
-    <GlassCard className="p-5 transition-all hover:-translate-y-0.5">
-      <div className="flex items-center justify-between">
-        <div className="text-sm uppercase tracking-wider text-muted-foreground">{label}</div>
-        <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-          <Icon className="h-3 w-3" />
+    <GlassCard className="student-metric student-reasoning">
+      <Pushpin />
+      <div className="student-metric-label">
+        <span>{label}</span>
+        <span className="student-icon-tile">
+          <ReasoningDrawing />
         </span>
       </div>
-      <div className="mt-3 flex items-center gap-4">
-        <div className="relative h-20 w-20">
-          <svg className="h-full w-full -rotate-90" viewBox="0 0 70 70">
-            <circle cx="35" cy="35" r="30" fill="none" stroke="var(--mint-solid)" strokeWidth="5" />
+      <div className="student-ring-row">
+        <div className="student-ring">
+          <svg width="112" height="112" viewBox="0 0 112 112" aria-hidden="true">
             <circle
-              cx="35"
-              cy="35"
-              r="30"
-              fill="none"
-              stroke="var(--mint-solid)"
-              strokeWidth="5"
-              strokeLinecap="round"
-              strokeDasharray={circumference}
-              strokeDashoffset={offset}
-              style={{
-                transition: "stroke-dashoffset 1.2s ease-out",
-                filter: "none",
-              }}
+              cx="56"
+              cy="56"
+              r="42"
+              fill="var(--card)"
+              stroke="var(--card)"
+              strokeWidth="12"
             />
-            <defs></defs>
+            <circle
+              cx="56"
+              cy="56"
+              r="42"
+              fill="none"
+              stroke="#45c97a"
+              strokeWidth="12"
+              strokeDasharray={`${(pct / 100) * circumference} ${circumference}`}
+              transform="rotate(-90 56 56)"
+            />
+            <circle cx="56" cy="56" r="49" fill="none" stroke="var(--ink)" strokeWidth="3" />
+            <circle cx="56" cy="56" r="35" fill="none" stroke="var(--ink)" strokeWidth="3" />
+            <circle
+              cx="57.5"
+              cy="54.5"
+              r="50.5"
+              fill="none"
+              stroke="var(--ink)"
+              strokeWidth="1.5"
+              opacity="0.45"
+            />
           </svg>
-          <div className="absolute inset-0 flex items-center justify-center text-xl font-bold tabular-nums">
-            {value ?? "—"}
-          </div>
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="text-sm font-medium text-muted-foreground line-clamp-2">{hint}</div>
+          <span>{value ?? "—"}</span>
         </div>
       </div>
+      <p className="student-reasoning-hint">{hint}</p>
     </GlassCard>
   );
 }
@@ -923,15 +906,22 @@ function MetricCard({
   icon: LucideIcon;
 }) {
   return (
-    <GlassCard className="p-5 transition-all hover:-translate-y-0.5">
-      <div className="flex items-center justify-between">
-        <div className="text-sm uppercase tracking-wider text-muted-foreground">{label}</div>
-        <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-          <Icon className="h-3 w-3" />
+    <GlassCard className="student-metric">
+      <Pushpin color="#8fb0ff" />
+      <div className="student-metric-label">
+        <span>{label}</span>
+        <span className="student-icon-tile">
+          {Icon === Sparkles ? (
+            <PersonalityDrawing />
+          ) : Icon === Activity ? (
+            <AssessmentsDrawing />
+          ) : (
+            <FitDrawing />
+          )}
         </span>
       </div>
-      <div className="mt-3 text-3xl font-bold gradient-text">{value}</div>
-      <div className="mt-1 line-clamp-2 text-sm text-muted-foreground">{hint}</div>
+      <div className="student-metric-value">{value}</div>
+      <p>{hint}</p>
     </GlassCard>
   );
 }
@@ -1017,7 +1007,7 @@ function StatsSection({
   }
 
   return (
-    <div ref={scoreFields} className="space-y-6">
+    <div ref={scoreFields} className="student-scores space-y-6">
       {/* Stats grid */}
       <GlassCard className="p-7">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1057,59 +1047,87 @@ function StatsSection({
             )}
           </p>
         )}
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <div className="student-tickets">
           {STAT_FIELDS.map((f) => {
-            const Icon = f.icon;
             const raw = draft[f.key] as number | null;
             return (
               <div
                 key={String(f.key)}
-                className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 transition-all hover:border-primary/30 hover:-translate-y-0.5"
+                className={`student-ticket ${f.key === "sat_score" ? "student-sat" : "student-ielts"}`}
               >
-                <div className="flex items-center justify-between">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                    <Icon className="h-3 w-3" />
-                  </span>
-                  <span className="text-sm uppercase tracking-wider text-muted-foreground">
-                    {tr(f.label)}
-                  </span>
+                <div className="student-ticket-stub">
+                  {f.key === "sat_score" ? <SatDrawing /> : <IeltsDrawing />}
                 </div>
-                {editing ? (
-                  <input
-                    type="number"
-                    aria-label={tr(f.label)}
-                    min={f.key === "sat_score" ? 400 : 0}
-                    max={f.max}
-                    step={f.key === "ielts_band" ? 0.5 : 1}
-                    value={raw ?? ""}
-                    onChange={(e) =>
-                      setDraft({
-                        ...draft,
-                        [f.key]: e.target.value === "" ? null : Number(e.target.value),
-                      } as Stats)
-                    }
-                    className="mt-3 w-full bg-transparent text-2xl font-bold outline-none ring-1 ring-border/60 rounded-lg px-2 py-1 focus:ring-primary/50"
-                  />
-                ) : (
-                  <div className="mt-3 text-2xl font-bold gradient-text tabular-nums">
-                    {raw !== null ? (
-                      <CountUp
-                        value={raw}
-                        decimals={f.key === "ielts_band" ? 1 : 0}
-                        suffix={f.unit ?? ""}
-                        duration={1000}
-                      />
-                    ) : (
-                      <span className="text-sm">
-                        {w("Not recorded", "Qayd etilmagan", "Не записано")}
-                      </span>
-                    )}
+                <span className="student-notch student-notch-top" aria-hidden="true" />
+                <span className="student-notch student-notch-bottom" aria-hidden="true" />
+                <div className="student-ticket-body">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm uppercase tracking-wider text-muted-foreground">
+                      {tr(f.label)}
+                    </span>
                   </div>
-                )}
-                <p className="mt-3 text-sm text-muted-foreground">
-                  {w("Scale", "Shkala", "Шкала")}: {f.max} ·{" "}
-                  {w("Entered by you", "O‘zingiz kiritgan", "Введено вами")}
-                </p>
+                  {editing ? (
+                    <input
+                      type="number"
+                      aria-label={tr(f.label)}
+                      min={f.key === "sat_score" ? 400 : 0}
+                      max={f.max}
+                      step={f.key === "ielts_band" ? 0.5 : 1}
+                      value={raw ?? ""}
+                      onChange={(e) =>
+                        setDraft({
+                          ...draft,
+                          [f.key]: e.target.value === "" ? null : Number(e.target.value),
+                        } as Stats)
+                      }
+                      className="mt-3 w-full bg-transparent text-2xl font-bold outline-none ring-1 ring-border/60 rounded-lg px-2 py-1 focus:ring-primary/50"
+                    />
+                  ) : (
+                    <div className="student-ticket-value">
+                      {raw !== null ? (
+                        <CountUp
+                          value={raw}
+                          decimals={f.key === "ielts_band" ? 1 : 0}
+                          suffix={f.unit ?? ""}
+                          duration={1000}
+                        />
+                      ) : (
+                        <span className="text-sm">
+                          {w("Not recorded", "Qayd etilmagan", "Не записано")}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {f.key === "sat_score" ? (
+                    <div className="student-ruler" aria-hidden="true">
+                      <div
+                        style={{
+                          width: `${Math.max(0, Math.min(100, ((raw ?? 0) / 1600) * 100))}%`,
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="student-ielts-dots" aria-hidden="true">
+                      {Array.from({ length: 9 }, (_, i) => (
+                        <span
+                          key={i}
+                          style={{
+                            background:
+                              raw != null && raw >= i + 1
+                                ? "#45c97a"
+                                : raw != null && raw > i
+                                  ? "linear-gradient(90deg,#45c97a 50%,var(--card) 50%)"
+                                  : "var(--card)",
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    {w("Scale", "Shkala", "Шкала")}: {f.max} ·{" "}
+                    {w("Entered by you", "O‘zingiz kiritgan", "Введено вами")}
+                  </p>
+                </div>
               </div>
             );
           })}
@@ -1517,7 +1535,7 @@ function SettingsSection({
           setStats({ ...base, avatar_url: newPath });
         }}
       />
-      <div className="settings-grid grid gap-6 lg:grid-cols-2">
+      <div className="student-settings-grid">
         <GlassCard className="p-7">
           <SectionTitle icon={UserIcon}>{tr("Profile")}</SectionTitle>
           <div className="mt-5 space-y-3">
@@ -1576,6 +1594,22 @@ function SettingsSection({
             </PrefRow>
             <PrefRow icon={Moon} label={tr("Appearance")} hint={tr("Light or dark theme")}>
               <ThemeToggle />
+            </PrefRow>
+            <PrefRow
+              icon={Mail}
+              label={tr("Weekly digest email")}
+              hint={tr("Activate in Lovable integrations to enable sending")}
+            >
+              <button
+                type="button"
+                className="student-digest"
+                role="switch"
+                aria-label={tr("Weekly digest email")}
+                aria-checked={false}
+                disabled
+              >
+                <span />
+              </button>
             </PrefRow>
           </div>
         </GlassCard>
@@ -1662,14 +1696,14 @@ function PrefRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="pref-row flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3">
+    <div className="student-pref-row">
       <div className="flex items-center gap-3 min-w-0">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Icon className="h-4 w-4" />
         </div>
         <div className="min-w-0">
-          <div className="truncate text-sm font-medium">{label}</div>
-          <div className="truncate text-sm text-muted-foreground">{hint}</div>
+          <div className="student-pref-label">{label}</div>
+          <div className="student-pref-hint">{hint}</div>
         </div>
       </div>
       <div className="pref-control shrink-0">{children}</div>
@@ -1687,20 +1721,13 @@ function GlassCard({
   className?: string;
   children: React.ReactNode;
 }) {
-  return (
-    <div
-      className={`rounded-3xl border border-border/60 bg-card  ${className}`}
-      style={{ boxShadow: "4px 4px 0 var(--ink)" }}
-    >
-      {children}
-    </div>
-  );
+  return <StripedCard className={className}>{children}</StripedCard>;
 }
 
 function SectionTitle({ icon: Icon, children }: { icon: LucideIcon; children: React.ReactNode }) {
   return (
-    <h2 className="flex items-center gap-2 text-base font-semibold">
-      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+    <h2 className="student-section-title">
+      <span className="student-icon-tile">
         <Icon className="h-3.5 w-3.5" />
       </span>
       {children}

@@ -1,9 +1,9 @@
 import { useUiText } from "@/lib/ui-text";
 import { useCallback, useEffect, useRef, useState, type DragEvent } from "react";
-import { Camera, Loader2, Trash2, UploadCloud, User as UserIcon } from "lucide-react";
+import { Camera, Loader2, Trash2, User as UserIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { GlowBlob } from "@/components/GlowBlob";
+import { StripedCard, Tape, Sparkle, UploadDrawing } from "@/components/dashboard/StudentPieces";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
@@ -133,12 +133,7 @@ export function ProfilePhotoCard({
   }
 
   return (
-    <div
-      className="relative overflow-hidden rounded-3xl border border-border/60 bg-card p-7 "
-      style={{ boxShadow: "4px 4px 0 var(--ink)" }}
-    >
-      <GlowBlob className="-right-16 -top-16 h-48 w-48 opacity-50 blur-3xl" alpha={0.4} />
-
+    <StripedCard className="student-photo">
       <h2 className="flex items-center gap-2 text-base font-semibold">
         <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Camera className="h-3.5 w-3.5" />
@@ -146,11 +141,11 @@ export function ProfilePhotoCard({
         {tr("Profile Photo")}
       </h2>
 
-      <div className="mt-6 flex flex-col items-center gap-6 sm:flex-row sm:items-start">
+      <div className="student-photo-layout">
         {/* Avatar preview */}
-        <div className="relative shrink-0">
-          <div className="absolute -inset-1 rounded-full bg-card opacity-70 blur-md" />
-          <div className="relative flex h-28 w-28 items-center justify-center overflow-hidden cartoon-avatar rounded-full bg-primary text-2xl font-bold text-primary-foreground shadow-2xl">
+        <div className="student-polaroid">
+          <Tape />
+          <div className="student-avatar">
             {displayed ? (
               <img
                 src={displayed}
@@ -170,7 +165,7 @@ export function ProfilePhotoCard({
         </div>
 
         {/* Drop zone */}
-        <div className="flex-1 w-full">
+        <div className="student-photo-controls">
           <div
             onDragOver={(e) => {
               e.preventDefault();
@@ -180,15 +175,16 @@ export function ProfilePhotoCard({
             onDrop={onDrop}
             onClick={() => inputRef.current?.click()}
             className={cn(
-              "group relative flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-5 py-7 text-center transition-all",
+              "student-drop",
               dragOver
                 ? "border-primary/70 bg-primary/10"
                 : "border-primary/30 bg-secondary/20 hover:border-primary/60 hover:bg-primary/5",
             )}
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary ring-1 ring-primary/30 transition-transform duration-300 group-hover:scale-105">
-              <UploadCloud className="h-5 w-5 text-primary transition-transform duration-300 group-hover:scale-110" />
-            </div>
+            <span className="student-upload-icon">
+              <UploadDrawing />
+            </span>
+            <Sparkle className="student-profile-sparkle" />
             <p className="mt-3 text-sm font-medium">
               {tr("Drag & drop or")}
               <span className="text-primary">{tr("browse")}</span>
@@ -239,7 +235,7 @@ export function ProfilePhotoCard({
               </button>
             )}
             {!displayed && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary/60 px-3 py-1.5 text-sm text-muted-foreground">
+              <span className="student-chip student-default-avatar">
                 <UserIcon className="h-3 w-3" />
                 {tr("Using default avatar")}
               </span>
@@ -249,6 +245,6 @@ export function ProfilePhotoCard({
           {error && <p className="mt-3 text-sm font-medium text-destructive">{error}</p>}
         </div>
       </div>
-    </div>
+    </StripedCard>
   );
 }

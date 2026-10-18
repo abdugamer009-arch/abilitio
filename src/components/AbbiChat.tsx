@@ -3,8 +3,15 @@ import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import ReactMarkdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
-import { Sparkles, Send, Bot, User as UserIcon } from "lucide-react";
-import { GlowBlob } from "@/components/GlowBlob";
+import { Send, User as UserIcon } from "lucide-react";
+import {
+  StripedCard,
+  Sparkle,
+  AbbiMascot,
+  AbbiFace,
+  WavyLine,
+} from "@/components/dashboard/StudentPieces";
+import "@/styles/student-dashboard.css";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { guidePrompts, guideGreeting } from "@/lib/abbi/localized-guide";
@@ -193,49 +200,34 @@ function AbbiSession() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="student-abbi">
       {/* Hero */}
-      <div
-        className="relative overflow-hidden rounded-3xl border border-border/60 bg-card p-6 "
-        style={{ boxShadow: "4px 4px 0 var(--ink)" }}
-      >
-        <GlowBlob className="-right-16 -top-16 h-64 w-64 opacity-60 blur-3xl" alpha={0.5} />
-        <div className="relative flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div
-              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg"
-              style={{ boxShadow: "4px 4px 0 var(--ink)" }}
-            >
-              <Sparkles className="h-6 w-6" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
-                ABBI{" "}
-                <span className="gradient-text">
-                  {lang === "uz" ? "Yo‘lko‘rsatkich" : lang === "ru" ? "Справочник" : "Guide"}
-                </span>
-              </h2>
-              <p className="text-sm text-muted-foreground">{t.abbiChat.tagline}</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {lang === "uz"
-                  ? "Qoidalar va tayyor materiallarga asoslangan qo‘llanma. Kasb, o‘qish va xavfsiz mashqlarni tushuntiradi. Jonli qidiruv, qabul prognozi, tibbiy yoki huquqiy maslahat bermaydi."
-                  : lang === "ru"
-                    ? "Справочник по правилам и подготовленным материалам: профессии, учёба и безопасная практика. Без поиска в реальном времени, прогноза поступления, медицинских или юридических советов."
-                    : "Curated, rule-based guide to careers, study and safe practice. No live search, admissions predictions, medical or legal advice."}
-              </p>
-            </div>
-          </div>
+      <StripedCard className="student-abbi-hero">
+        <AbbiMascot />
+        <div className="student-abbi-title">
+          <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
+            ABBI{" "}
+            <span className="gradient-text">
+              {lang === "uz" ? "Yo‘lko‘rsatkich" : lang === "ru" ? "Справочник" : "Guide"}
+            </span>
+          </h2>
+          <p className="text-sm text-muted-foreground">{t.abbiChat.tagline}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {lang === "uz"
+              ? "Qoidalar va tayyor materiallarga asoslangan qo‘llanma. Kasb, o‘qish va xavfsiz mashqlarni tushuntiradi. Jonli qidiruv, qabul prognozi, tibbiy yoki huquqiy maslahat bermaydi."
+              : lang === "ru"
+                ? "Справочник по правилам и подготовленным материалам: профессии, учёба и безопасная практика. Без поиска в реальном времени, прогноза поступления, медицинских или юридических советов."
+                : "Curated, rule-based guide to careers, study and safe practice. No live search, admissions predictions, medical or legal advice."}
+          </p>
         </div>
-      </div>
+        <Sparkle className="student-abbi-sparkle" />
+      </StripedCard>
 
       {/* Chat window */}
-      <div
-        className="relative overflow-hidden rounded-3xl border border-border/60 bg-card "
-        style={{ boxShadow: "4px 4px 0 var(--ink)" }}
-      >
+      <StripedCard className="student-chat-window">
         {/* Transcript */}
-        <div ref={scrollRef} className="h-[480px] overflow-y-auto px-4 py-6 sm:px-6">
-          <div className="mx-auto flex max-w-3xl flex-col gap-5">
+        <div ref={scrollRef} className="student-transcript" role="log" aria-live="polite">
+          <div className="student-messages">
             {messages.map((m) => (
               <MessageBubble key={m.id} role={m.role} content={m.content} />
             ))}
@@ -243,9 +235,10 @@ function AbbiSession() {
           </div>
         </div>
 
+        <WavyLine />
         {/* Suggestions */}
         {messages.length <= 2 && (
-          <div className="border-t border-border/60 bg-secondary/20 px-4 py-3 sm:px-6">
+          <div className="student-suggestions">
             <div className="text-sm uppercase tracking-wider text-muted-foreground">
               {t.abbiChat.suggested}
             </div>
@@ -257,7 +250,7 @@ function AbbiSession() {
                     key={s}
                     onClick={() => handleSend(s)}
                     disabled={typing}
-                    className="rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-sm text-muted-foreground transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/10 hover:text-primary disabled:opacity-50"
+                    className="student-prompt"
                   >
                     {s}
                   </button>
@@ -267,7 +260,7 @@ function AbbiSession() {
         )}
 
         {/* Composer */}
-        <div className="border-t border-border/60 bg-background/30 p-3 sm:p-4">
+        <div className="student-composer">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -275,7 +268,7 @@ function AbbiSession() {
             }}
             className="flex items-end gap-2"
           >
-            <div className="flex flex-1 items-end gap-2 rounded-2xl border border-border/60 bg-secondary/30 px-3 py-2 transition-all focus-within:border-primary/40">
+            <div className="student-compose-field">
               <textarea
                 ref={inputRef}
                 value={input}
@@ -299,7 +292,7 @@ function AbbiSession() {
             <button
               type="submit"
               disabled={!canSend}
-              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+              className="student-send"
               style={{ boxShadow: "4px 4px 0 var(--ink)" }}
               aria-label={t.community.send}
             >
@@ -315,7 +308,7 @@ function AbbiSession() {
             </button>
           </div>
         </div>
-      </div>
+      </StripedCard>
     </div>
   );
 }
@@ -323,11 +316,8 @@ function AbbiSession() {
 function MessageBubble({ role, content }: { role: "user" | "abbi"; content: string }) {
   if (role === "user") {
     return (
-      <div className="flex items-start justify-end gap-3 animate-fade-in">
-        <div
-          className="max-w-[80%] rounded-2xl rounded-tr-md bg-primary px-4 py-2.5 text-sm text-primary-foreground shadow-md"
-          style={{ boxShadow: "4px 4px 0 var(--ink)" }}
-        >
+      <div className="student-message student-message-user animate-fade-in">
+        <div className="student-bubble" style={{ boxShadow: "4px 4px 0 var(--ink)" }}>
           {content}
         </div>
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-card border border-border/60 text-muted-foreground">
@@ -337,14 +327,14 @@ function MessageBubble({ role, content }: { role: "user" | "abbi"; content: stri
     );
   }
   return (
-    <div className="flex items-start gap-3 animate-fade-in">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow">
-        <Bot className="h-4 w-4" />
-      </div>
+    <div className="student-message animate-fade-in">
+      <span className="student-chat-avatar">
+        <AbbiFace />
+      </span>
       {/* chat-md (styles.css) styles the rendered markdown — headings, lists,
           code. The former `prose-*` classes were inert: @tailwindcss/typography
           was never installed, so ABBI's replies rendered as flat unstyled text. */}
-      <div className="chat-md max-w-[85%] rounded-2xl rounded-tl-md border border-border/40 bg-secondary/30 px-4 py-3 text-sm leading-relaxed text-foreground -md">
+      <div className="chat-md student-bubble">
         <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{content}</ReactMarkdown>
       </div>
     </div>
@@ -354,33 +344,18 @@ function MessageBubble({ role, content }: { role: "user" | "abbi"; content: stri
 function TypingBubble() {
   const t = useT();
   return (
-    <div className="flex items-start gap-3 animate-fade-in">
-      <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow">
-        <Bot className="h-4 w-4" />
-        <span
-          className="absolute -inset-1 -z-10 rounded-full opacity-60 blur-md"
-          style={{
-            background: "var(--yellow)",
-          }}
-        />
-      </div>
-      <div className="flex items-center gap-2 rounded-2xl rounded-tl-md border border-border/40 bg-secondary/30 px-4 py-3 -md">
+    <div className="student-message animate-fade-in">
+      <span className="student-chat-avatar">
+        <AbbiFace />
+      </span>
+      <div className="student-bubble student-typing">
         <span className="text-sm uppercase tracking-wider text-muted-foreground">
           {t.abbiChat.thinking}
         </span>
         <span className="flex items-center gap-1">
-          <span
-            className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary"
-            style={{ animationDelay: "0ms" }}
-          />
-          <span
-            className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary"
-            style={{ animationDelay: "150ms" }}
-          />
-          <span
-            className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary"
-            style={{ animationDelay: "300ms" }}
-          />
+          <span className="student-typing-dot" style={{ animationDelay: "0ms" }} />
+          <span className="student-typing-dot" style={{ animationDelay: "150ms" }} />
+          <span className="student-typing-dot" style={{ animationDelay: "300ms" }} />
         </span>
       </div>
     </div>

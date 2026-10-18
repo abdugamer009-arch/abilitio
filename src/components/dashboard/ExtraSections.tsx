@@ -3,11 +3,19 @@ import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowUpRight } from "lucide-react";
 import { getMyGrowthState, type GrowthState } from "@/lib/assessment/growth.functions";
+import {
+  StripedCard,
+  Tape,
+  TallyMarks,
+  SpiralBinding,
+  UniversityDrawing,
+  ArrowDrawing,
+} from "./StudentPieces";
 import { useWords } from "@/lib/editorial";
 export function SkillsSection(_props: { stats: unknown; mbti?: string | null }) {
   const w = useWords();
   return (
-    <section className="panel p-8">
+    <StripedCard className="student-activities">
       <h2 className="text-3xl">
         {w("Skills need evidence", "Ko‘nikma dalil talab qiladi", "Навыкам нужны доказательства")}
       </h2>
@@ -22,7 +30,7 @@ export function SkillsSection(_props: { stats: unknown; mbti?: string | null }) 
         {w("Open your roadmap", "Yo‘l xaritasini ochish", "Открыть маршрут")}
         <ArrowUpRight size={16} />
       </Link>
-    </section>
+    </StripedCard>
   );
 }
 export function WeeklyReportSection(_props: { mbti?: string | null }) {
@@ -46,7 +54,7 @@ export function WeeklyReportSection(_props: { mbti?: string | null }) {
     };
   }, [fn, retry]);
   return (
-    <section className="panel p-8">
+    <StripedCard className="student-recorded">
       <h2 className="text-3xl">
         {w("Your recorded activity", "Qayd etilgan faoliyatingiz", "Записанная активность")}
       </h2>
@@ -68,7 +76,7 @@ export function WeeklyReportSection(_props: { mbti?: string | null }) {
           {w("Loading…", "Yuklanmoqda…", "Загрузка…")}
         </p>
       ) : (
-        <dl className="grid sm:grid-cols-3 gap-8 mt-8">
+        <dl className="student-activity-grid">
           {[
             [
               w("Assessments saved", "Saqlangan baholashlar", "Сохранённые оценки"),
@@ -83,9 +91,13 @@ export function WeeklyReportSection(_props: { mbti?: string | null }) {
               data.tasksThisWeek,
             ],
           ].map(([label, value]) => (
-            <div key={label}>
+            <div key={label} className="student-sticky">
+              <Tape />
               <dt className="text-sm text-muted-foreground">{label}</dt>
-              <dd className="text-4xl mt-4">{value}</dd>
+              <dd>
+                <span>{value}</span>
+                <TallyMarks count={Number(value)} />
+              </dd>
             </div>
           ))}
         </dl>
@@ -97,7 +109,7 @@ export function WeeklyReportSection(_props: { mbti?: string | null }) {
           "Выполнение отмечает сам пользователь. Числа не означают рост интеллекта, общения или лидерства.",
         )}
       </p>
-    </section>
+    </StripedCard>
   );
 }
 export function QuickLinks() {
@@ -123,24 +135,31 @@ export function QuickLinks() {
 export function UniversitiesTabSection() {
   const w = useWords();
   return (
-    <section className="panel p-8">
-      <h2 className="text-3xl">
-        {w(
-          "University research notebook",
-          "Universitet izlanish daftari",
-          "Исследование университетов",
-        )}
-      </h2>
-      <p className="text-muted-foreground mt-4">
-        {w(
-          "Use official undergraduate admissions and funding sources. A score is not an admission forecast.",
-          "Rasmiy bakalavr qabul va yordam manbalaridan foydalaning. Ball qabul bashorati emas.",
-          "Используйте официальные источники. Балл — не прогноз поступления.",
-        )}
-      </p>
-      <Link className="field-button mt-6" to="/universities">
-        {w("Open notebook", "Daftarni ochish", "Открыть записи")}
-      </Link>
-    </section>
+    <StripedCard className="student-notebook">
+      <SpiralBinding />
+      <div className="student-notebook-body">
+        <div className="student-notebook-copy">
+          <h2 className="text-3xl">
+            {w(
+              "University research notebook",
+              "Universitet izlanish daftari",
+              "Исследование университетов",
+            )}
+          </h2>
+          <p className="text-muted-foreground mt-4">
+            {w(
+              "Use official undergraduate admissions and funding sources. A score is not an admission forecast.",
+              "Rasmiy bakalavr qabul va yordam manbalaridan foydalaning. Ball qabul bashorati emas.",
+              "Используйте официальные источники. Балл — не прогноз поступления.",
+            )}
+          </p>
+          <Link className="field-button mt-6" to="/universities">
+            {w("Open notebook", "Daftarni ochish", "Открыть записи")}
+            <ArrowDrawing />
+          </Link>
+        </div>
+        <UniversityDrawing />
+      </div>
+    </StripedCard>
   );
 }
