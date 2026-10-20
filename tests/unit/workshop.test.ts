@@ -3,22 +3,21 @@ import { describe, it, expect } from "vitest";
 import { IQ_BANK } from "@/lib/assessment/question-bank";
 import { SAMPLE_QUESTIONS, sampleRecord } from "@/lib/assessment/sample-questions";
 describe("public workshop and authoritative question bank", () => {
-  it("uses the same four questions without duplicate IDs", () => {
-    for (const q of SAMPLE_QUESTIONS)
-      expect(IQ_BANK.filter((item) => item.id === q.id)).toEqual([q]);
+  it("uses four independent practice questions, separate from every scored bank", () => {
+    expect(SAMPLE_QUESTIONS).toHaveLength(4);
+    for (const q of SAMPLE_QUESTIONS) expect(IQ_BANK.some((item) => item.id === q.id)).toBe(false);
   });
-  it("records only valid attempted answers and computes real correctness", () => {
-    expect(sampleRecord({ c1: 2, c8: 0, c5: 99, c4: -1, unrelated: 0 })).toEqual({
-      attempted: 2,
-      correct: 1,
-      total: 4,
-    });
-  });
-  it("square and difference samples have mathematically correct keys", () => {
-    const c1 = SAMPLE_QUESTIONS.find((q) => q.id === "c1")!;
-    expect(Number(c1.options[c1.correct])).toBe(6 * 7);
-    const c8 = SAMPLE_QUESTIONS.find((q) => q.id === "c8")!;
-    expect(Number(c8.options[c8.correct])).toBe(6 * 6);
+  it("records only valid attempted practice answers and computes real correctness", () => {
+    const [a, b, c, d] = SAMPLE_QUESTIONS;
+    expect(
+      sampleRecord({
+        [a.id]: a.correct,
+        [b.id]: (b.correct + 1) % 4,
+        [c.id]: 99,
+        [d.id]: -1,
+        unrelated: 0,
+      }),
+    ).toEqual({ attempted: 2, correct: 1, total: 4 });
   });
   it("letter encoding uses alphabet positions including final D=4", () => {
     const q = IQ_BANK.find((q) => q.id === "c3")!;

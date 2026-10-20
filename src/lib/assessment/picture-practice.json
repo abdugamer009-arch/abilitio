@@ -1,0 +1,349 @@
+[
+  {
+    "id": "practice-1-v1",
+    "slot": 1,
+    "version": "practice1",
+    "type": "odd",
+    "difficulty": "easy",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-practice-v1",
+    "scored": false,
+    "questionLine": {
+      "en": "Which picture does not follow the same rule?",
+      "ru": "Какая картинка не подчиняется общему правилу?",
+      "uz": "Qaysi rasm umumiy qoidaga mos emas?"
+    },
+    "figureData": {
+      "kind": "odd"
+    },
+    "options": [
+      {
+        "id": "practice-1-v1-choice-0",
+        "value": {
+          "kind": "triangle",
+          "dotOutside": false,
+          "dotSide": "bottom"
+        }
+      },
+      {
+        "id": "practice-1-v1-choice-1",
+        "value": {
+          "kind": "diamond",
+          "dotOutside": true,
+          "dotSide": "bottom"
+        }
+      },
+      {
+        "id": "practice-1-v1-choice-2",
+        "value": {
+          "kind": "circle",
+          "dotOutside": false,
+          "dotSide": "bottom"
+        }
+      },
+      {
+        "id": "practice-1-v1-choice-3",
+        "value": {
+          "kind": "square",
+          "dotOutside": false,
+          "dotSide": "bottom"
+        }
+      }
+    ],
+    "correctAnswerId": "practice-1-v1-choice-1",
+    "ruleExplanation": "The small black dot is inside the outline in every picture except the answer. The outside dot is separated from the outline by a visible gap.",
+    "wrongAnswerExplanations": {
+      "practice-1-v1-choice-0": "Its black dot is inside the outline, so it follows the shared rule.",
+      "practice-1-v1-choice-2": "Its black dot is inside the outline, so it follows the shared rule.",
+      "practice-1-v1-choice-3": "Its black dot is inside the outline, so it follows the shared rule."
+    }
+  },
+  {
+    "id": "practice-2-v1",
+    "slot": 2,
+    "version": "practice2",
+    "type": "series",
+    "difficulty": "easy",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-practice-v1",
+    "scored": false,
+    "questionLine": {
+      "en": "What comes next?",
+      "ru": "Что будет дальше?",
+      "uz": "Keyin qaysi rasm keladi?"
+    },
+    "figureData": {
+      "kind": "series",
+      "items": [
+        {
+          "kind": "dial",
+          "rotation": 2,
+          "fill": "black",
+          "marker": false
+        },
+        {
+          "kind": "dial",
+          "rotation": 1,
+          "fill": "black",
+          "marker": false
+        },
+        {
+          "kind": "dial",
+          "rotation": 0,
+          "fill": "black",
+          "marker": false
+        },
+        {
+          "kind": "dial",
+          "rotation": 3,
+          "fill": "black",
+          "marker": false
+        }
+      ],
+      "start": 2,
+      "step": -1,
+      "two": false
+    },
+    "options": [
+      {
+        "id": "practice-2-v1-choice-0",
+        "value": {
+          "kind": "dial",
+          "rotation": 0,
+          "fill": "black",
+          "marker": false
+        }
+      },
+      {
+        "id": "practice-2-v1-choice-1",
+        "value": {
+          "kind": "dial",
+          "rotation": 3,
+          "fill": "black",
+          "marker": false
+        }
+      },
+      {
+        "id": "practice-2-v1-choice-2",
+        "value": {
+          "kind": "dial",
+          "rotation": 1,
+          "fill": "black",
+          "marker": false
+        }
+      },
+      {
+        "id": "practice-2-v1-choice-3",
+        "value": {
+          "kind": "dial",
+          "rotation": 2,
+          "fill": "black",
+          "marker": false
+        }
+      }
+    ],
+    "correctAnswerId": "practice-2-v1-choice-3",
+    "ruleExplanation": "The pointer turns a quarter-turn anticlockwise each step. The frame and fill stay unchanged.",
+    "wrongAnswerExplanations": {
+      "practice-2-v1-choice-0": "The pointer jumps to the opposite direction.",
+      "practice-2-v1-choice-1": "The pointer turns in the wrong direction for the next step.",
+      "practice-2-v1-choice-2": "The pointer is a quarter-turn anticlockwise from the required direction."
+    }
+  },
+  {
+    "id": "practice-3-v1",
+    "slot": 3,
+    "version": "practice3",
+    "type": "grid",
+    "difficulty": "easy",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-practice-v1",
+    "scored": false,
+    "questionLine": {
+      "en": "Which piece completes the grid?",
+      "ru": "Какая фигура завершает сетку?",
+      "uz": "Katakni qaysi shakl to‘ldiradi?"
+    },
+    "figureData": {
+      "kind": "grid",
+      "cells": [
+        {
+          "kind": "square",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "square",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "square",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "circle",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "circle",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "circle",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "diamond",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "diamond",
+          "fill": "white",
+          "rotation": 0
+        },
+        null
+      ],
+      "kinds": ["square", "circle", "diamond"],
+      "fills": ["hatched", "white", "black"],
+      "two": false
+    },
+    "options": [
+      {
+        "id": "practice-3-v1-choice-0",
+        "value": {
+          "kind": "diamond",
+          "fill": "white",
+          "rotation": 0
+        }
+      },
+      {
+        "id": "practice-3-v1-choice-1",
+        "value": {
+          "kind": "square",
+          "fill": "white",
+          "rotation": 0
+        }
+      },
+      {
+        "id": "practice-3-v1-choice-2",
+        "value": {
+          "kind": "diamond",
+          "fill": "black",
+          "rotation": 0
+        }
+      },
+      {
+        "id": "practice-3-v1-choice-3",
+        "value": {
+          "kind": "circle",
+          "fill": "hatched",
+          "rotation": 0
+        }
+      }
+    ],
+    "correctAnswerId": "practice-3-v1-choice-0",
+    "ruleExplanation": "Every row repeats the same white shape. The last tile must match the other tiles in its row.",
+    "wrongAnswerExplanations": {
+      "practice-3-v1-choice-1": "The shape does not continue the row pattern.",
+      "practice-3-v1-choice-2": "The fill changes, while all given tiles are white.",
+      "practice-3-v1-choice-3": "Both its shape and fill differ from the repeated row."
+    }
+  },
+  {
+    "id": "practice-4-v1",
+    "slot": 5,
+    "version": "practice4",
+    "type": "turned",
+    "difficulty": "medium",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-practice-v1",
+    "scored": false,
+    "questionLine": {
+      "en": "Which shape is the same one, only turned? Not flipped.",
+      "ru": "Где та же фигура, только повёрнутая, без отражения?",
+      "uz": "Qaysi shakl faqat burilgan, aks ettirilmagan?"
+    },
+    "figureData": {
+      "kind": "cells",
+      "cells": [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+        [1, 2],
+        [2, 2],
+        [1, 0]
+      ]
+    },
+    "options": [
+      {
+        "id": "practice-4-v1-choice-0",
+        "value": {
+          "kind": "cells",
+          "cells": [
+            [1, 0],
+            [2, 0],
+            [2, 1],
+            [0, 2],
+            [1, 2],
+            [2, 2]
+          ]
+        }
+      },
+      {
+        "id": "practice-4-v1-choice-1",
+        "value": {
+          "kind": "cells",
+          "cells": [
+            [0, 0],
+            [0, 1],
+            [2, 1],
+            [0, 2],
+            [1, 2],
+            [2, 2]
+          ]
+        }
+      },
+      {
+        "id": "practice-4-v1-choice-2",
+        "value": {
+          "kind": "cells",
+          "cells": [
+            [0, 0],
+            [1, 0],
+            [2, 0],
+            [0, 1],
+            [0, 2],
+            [1, 2]
+          ]
+        }
+      },
+      {
+        "id": "practice-4-v1-choice-3",
+        "value": {
+          "kind": "cells",
+          "cells": [
+            [0, 0],
+            [1, 0],
+            [2, 0],
+            [0, 1],
+            [2, 1],
+            [0, 2]
+          ]
+        }
+      }
+    ],
+    "correctAnswerId": "practice-4-v1-choice-3",
+    "ruleExplanation": "A turn preserves which side the short arm occupies relative to the long arm. The matching option belongs to the original shape’s rotation orbit; all other options are reflected copies.",
+    "wrongAnswerExplanations": {
+      "practice-4-v1-choice-0": "This is the reflected shape, with no further turn.",
+      "practice-4-v1-choice-1": "This is the reflected shape turned a quarter-turn.",
+      "practice-4-v1-choice-2": "This is the reflected shape turned a half-turn."
+    }
+  }
+]

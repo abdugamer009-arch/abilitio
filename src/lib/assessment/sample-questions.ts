@@ -1,37 +1,44 @@
-import type { CognitiveQ } from "./career-assessment";
-/** Public samples also live in the authoritative assessment bank. */
-export const SAMPLE_QUESTIONS: CognitiveQ[] = [
+import data from "./picture-practice.json";
+import { publicPicture, type PictureProposal } from "./picture-rules";
+import type { PictureText } from "./picture-types";
+const proposals = data as unknown as PictureProposal[];
+const rules: PictureText[] = [
   {
-    id: "c8",
-    section: "cognitive",
-    prompt: "Which number completes the series: 1, 4, 9, 16, 25, ?",
-    options: ["30", "32", "36", "49"],
-    correct: 2,
+    en: "The small dot is inside the outline in every picture except the answer.",
+    ru: "Во всех картинках, кроме ответа, маленькая точка находится внутри контура.",
+    uz: "Javobdan boshqa rasmlarda kichik nuqta shakl ichida joylashgan.",
   },
   {
-    id: "c1",
-    section: "cognitive",
-    prompt: "Find the next number: 2, 6, 12, 20, 30, ?",
-    options: ["36", "40", "42", "44"],
-    correct: 2,
+    en: "The pointer makes the same quarter-turn anticlockwise at every step.",
+    ru: "На каждом шаге указатель поворачивается против часовой стрелки на четверть оборота.",
+    uz: "Ko‘rsatkich har safar soat miliga qarshi chorak aylana buriladi.",
   },
   {
-    id: "c5",
-    section: "cognitive",
-    prompt:
-      "If 5 machines make 5 widgets in 5 minutes, how long do 100 machines need for 100 widgets?",
-    options: ["100 min", "20 min", "5 min", "1 min"],
-    correct: 2,
+    en: "Every row repeats the same white shape. Match the other shapes in the last row.",
+    ru: "В каждом ряду повторяется одна белая фигура. Найдите такую же фигуру для последнего ряда.",
+    uz: "Har qatorda bir xil oq shakl takrorlanadi. Oxirgi qatordagi shaklni tanlang.",
   },
   {
-    id: "c4",
-    section: "cognitive",
-    prompt: "Which one doesn't belong: Square, Circle, Triangle, Cube?",
-    options: ["Square", "Circle", "Triangle", "Cube"],
-    correct: 3,
+    en: "Turn the shape without flipping it. Only the answer preserves how the arms join; the others are reflected.",
+    ru: "Поверните фигуру без отражения. Только в ответе сохраняется соединение выступов; остальные варианты отражены.",
+    uz: "Shaklni aks ettirmasdan buring. Faqat javobda qismlar birikishi saqlanadi; boshqalari aks ettirilgan.",
   },
 ];
-export const SAMPLE_DIFFICULTY = ["introductory", "focused", "extended", "introductory"] as const;
+/** Separate, never-scored practice. These IDs are absent from the assessment bank. */
+export const SAMPLE_QUESTIONS = proposals.map((q, i) => ({
+  id: q.id,
+  prompt: q.questionLine.en,
+  picture: publicPicture(q),
+  options: q.options.map((_, i) => "ABCD"[i]),
+  correct: q.options.findIndex((o) => o.id === q.correctAnswerId),
+  rule: rules[i],
+}));
+export const SAMPLE_DIFFICULTY = [
+  "introductory",
+  "introductory",
+  "introductory",
+  "focused",
+] as const;
 export function sampleRecord(answers: Record<string, number>) {
   const attempted = SAMPLE_QUESTIONS.filter(
     (q) =>

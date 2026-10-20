@@ -12,7 +12,8 @@ import {
 } from "@/lib/assessment/sample-questions";
 import { buildRoadmap, type RoadmapTrack } from "@/lib/roadmap/roadmap-world";
 import { ActivityGuide } from "./ActivityGuide";
-import { ChoiceOptions } from "./ChoiceOptions";
+import { PictureFigure } from "./assessment/PictureFigure";
+import "@/styles/picture-assessment.css";
 import { StageBadge } from "./StageBadge";
 import { CartoonLoop, MarkedText } from "./CartoonArtwork";
 import { useMotion } from "./MotionProvider";
@@ -192,39 +193,7 @@ export function CareerWorkshop({
       "Я готов проверить направление.",
     ),
   ];
-  const prompt =
-    lang === "en"
-      ? q.prompt
-      : question === 0
-        ? w("", "Qatorni davom ettiring: 1, 4, 9, 16, 25, ?", "Продолжите ряд: 1, 4, 9, 16, 25, ?")
-        : question === 1
-          ? w(
-              "",
-              "Keyingi sonni toping: 2, 6, 12, 20, 30, ?",
-              "Найдите следующее число: 2, 6, 12, 20, 30, ?",
-            )
-          : question === 2
-            ? w(
-                "",
-                "5 mashina 5 daqiqada 5 buyum yasaydi. 100 mashina 100 buyumni qancha vaqtda yasaydi?",
-                "5 машин делают 5 изделий за 5 минут. За сколько минут 100 машин сделают 100 изделий?",
-              )
-            : w(
-                "",
-                "Qaysi biri farq qiladi: kvadrat, doira, uchburchak, kub?",
-                "Что отличается: квадрат, круг, треугольник, куб?",
-              );
-  const options =
-    question === 3
-      ? [
-          w("Square", "Kvadrat", "Квадрат"),
-          w("Circle", "Doira", "Круг"),
-          w("Triangle", "Uchburchak", "Треугольник"),
-          w("Cube", "Kub", "Куб"),
-        ]
-      : question === 2
-        ? q.options.map((option) => option.replace("min", w("min", "daq", "мин")))
-        : q.options;
+  const prompt = q.picture.prompt[lang];
   return (
     <section id="workshop" className="studio-workshop field-wrap" data-story>
       <div className="section-heading">
@@ -328,9 +297,9 @@ export function CareerWorkshop({
             <h3>{w("Practice questions", "Mashq savollari", "Вопросы для практики")}</h3>
             <p>
               {w(
-                "Four free practice questions. These answers do not count toward the full 30-question assessment.",
-                "To‘rtta bepul mashq savoli. Javoblar 30 savollik to‘liq baholashga qo‘shilmaydi.",
-                "Четыре бесплатных вопроса. Ответы не входят в полную оценку из 30 вопросов.",
+                "Four separate practice puzzles. These do not affect your assessment result.",
+                "To‘rtta alohida mashq. Ular baholash natijangizga ta’sir qilmaydi.",
+                "Четыре отдельных тренировочных задания. Они не влияют на результат тестирования.",
               )}
             </p>
             <div className="item-grid">
@@ -365,10 +334,10 @@ export function CareerWorkshop({
                   <small>
                     {
                       [
-                        w("Square numbers", "Kvadrat sonlar", "Квадраты чисел"),
-                        w("Number pattern", "Sonlar qatori", "Числовой ряд"),
-                        w("Parallel work", "Parallel ish", "Параллельная работа"),
-                        w("Dimensions", "O‘lchamlar", "Измерения"),
+                        w("Odd one out", "Farqlisini topish", "Найдите лишнее"),
+                        w("Picture series", "Rasmlar qatori", "Ряд картинок"),
+                        w("Shape grid", "Shakllar katagi", "Сетка фигур"),
+                        w("Turned shape", "Burilgan shakl", "Поворот фигуры"),
                       ][i]
                     }
                   </small>
@@ -377,10 +346,10 @@ export function CareerWorkshop({
                     — {w("Sample", "Namuna", "Пример")} {i + 1}:{" "}
                     {
                       [
-                        w("Square numbers", "Kvadrat sonlar", "Квадраты чисел"),
-                        w("Number pattern", "Sonlar qonuniyati", "Закономерность"),
-                        w("Parallel work", "Parallel ish", "Параллельная работа"),
-                        w("Dimensions", "O‘lchamlar", "Измерения"),
+                        w("Odd one out", "Farqlisini topish", "Найдите лишнее"),
+                        w("Picture series", "Rasmlar qatori", "Ряд картинок"),
+                        w("Shape grid", "Shakllar katagi", "Сетка фигур"),
+                        w("Turned shape", "Burilgan shakl", "Поворот фигуры"),
                       ][i]
                     }
                   </span>
@@ -435,34 +404,34 @@ export function CareerWorkshop({
                     {w("Free sample", "Bepul namuna", "Бесплатный пример")}
                   </span>
                 </div>
-                <p className="question-prompt">
-                  {question < 2 ? (
-                    <>
-                      {prompt.split(":")[0]}:
-                      <span className="sr-only">{prompt.slice(prompt.indexOf(":") + 1)}</span>
-                    </>
-                  ) : (
-                    prompt
-                  )}
-                </p>
-                {question < 2 && (
-                  <SequenceTiles
-                    values={q.prompt
-                      .slice(q.prompt.indexOf(":") + 1)
-                      .split(",")
-                      .map((value) => value.trim())}
-                    answer={q.options[q.correct]}
-                    explained={solution}
-                  />
-                )}
-                <ChoiceOptions
-                  options={options}
-                  value={selected}
-                  feedback={answers[q.id]}
-                  correct={q.correct}
-                  onChange={setSelected}
-                  name={w("Sample answer", "Namuna javobi", "Ответ на пример")}
-                />
+                <div className="picture-practice">
+                  <p className="question-prompt" id="practice-question">
+                    {prompt}
+                  </p>
+                  <div className="picture-figure">
+                    <PictureFigure figure={q.picture.figure} lang={lang} />
+                  </div>
+                  <fieldset className="picture-answers" aria-labelledby="practice-question">
+                    <legend className="sr-only">
+                      {w("Choose one answer", "Bitta javob tanlang", "Выберите один ответ")}
+                    </legend>
+                    {q.picture.options.map((o, i) => (
+                      <label key={o.id}>
+                        <input
+                          className="sr-only"
+                          type="radio"
+                          name={q.id}
+                          checked={selected === i}
+                          onChange={() => setSelected(i)}
+                        />
+                        <span className="picture-answer">
+                          <span className="picture-answer-letter">{"ABCD"[i]}</span>
+                          <PictureFigure figure={o.figure} lang={lang} />
+                        </span>
+                      </label>
+                    ))}
+                  </fieldset>
+                </div>
                 <div className="question-actions">
                   <button
                     className="field-button"
@@ -500,9 +469,9 @@ export function CareerWorkshop({
                           "Верно. Вот почему.",
                         )
                       : w(
-                          "Try a different approach. The explanation shows every step.",
-                          "Boshqa yondashuvni sinang. Izohda barcha qadamlar bor.",
-                          "Попробуйте другой подход. Решение показывает все шаги.",
+                          "Try again. The explanation shows the rule.",
+                          "Qayta sinang. Izohda qoida ko‘rsatilgan.",
+                          "Попробуйте ещё раз. Объяснение показывает правило.",
                         )}
                   </p>
                 )}
@@ -821,247 +790,21 @@ export function CareerWorkshop({
 }
 function Explanation({
   question,
-  step,
-  onStep,
 }: {
   question: number;
   step: number;
   onStep: (step: number) => void;
 }) {
+  const { lang } = useI18n();
   const w = useWords();
-  const diagram = useRef<HTMLDivElement>(null);
-  const { enabled } = useMotion();
-  useEffect(() => {
-    if (!enabled || !diagram.current) return;
-    let cancelled = false;
-    let revert = () => {};
-    import("gsap").then(({ gsap }) => {
-      if (cancelled) return;
-      const ctx = gsap.context(() => {
-        gsap
-          .timeline()
-          .addLabel("diagram")
-          .fromTo(
-            diagram.current,
-            { clipPath: "inset(0 100% 0 0)" },
-            { clipPath: "inset(0 0% 0 0)", duration: MOTION.panel, ease: "studioExpo" },
-            "diagram",
-          )
-          .fromTo(
-            diagram.current?.querySelectorAll("[data-diagram-mark]") || [],
-            { scale: 0.9 },
-            {
-              scale: 1,
-              transformOrigin: "50% 50%",
-              duration: MOTION.control,
-              stagger: MOTION.stagger,
-              ease: "studioExpo",
-            },
-            "diagram+=0.16",
-          );
-      });
-      revert = () => ctx.revert();
-    });
-    return () => {
-      cancelled = true;
-      revert();
-    };
-  }, [step, question, enabled]);
-  const summaries = [
-    w(
-      "Treat each term as a square. Find the next base number.",
-      "Har bir sonni kvadrat deb oling. Keyingi asosni toping.",
-      "Представьте каждое число квадратом. Найдите следующее основание.",
-    ),
-    w(
-      "Compare neighboring terms. Extend the change, then the series.",
-      "Qo‘shni sonlarni solishtiring. Farqni, so‘ng qatorni davom ettiring.",
-      "Сравните соседние числа. Продолжите разности, затем ряд.",
-    ),
-    w(
-      "Separate production time from the number of machines.",
-      "Ishlab chiqarish vaqtini mashinalar sonidan ajrating.",
-      "Отделите время производства от числа машин.",
-    ),
-    w(
-      "Compare dimensions, rather than outline or size.",
-      "O‘lcham yoki tashqi chiziqdan ko‘ra fazoviy o‘lchovni solishtiring.",
-      "Сравните размерность, а не контур или размер.",
-    ),
-  ];
-  const steps =
-    question === 1
-      ? [
-          w(
-            "The differences are +4, +6, +8 and +10.",
-            "Farqlar: +4, +6, +8 va +10.",
-            "Разности: +4, +6, +8 и +10.",
-          ),
-          w(
-            "Each difference grows by 2. The next is +12.",
-            "Har bir farq 2 ga oshadi. Keyingisi +12.",
-            "Каждая разность растёт на 2. Следующая: +12.",
-          ),
-          w(
-            "Add 12 to 30. The missing term is 42.",
-            "30 ga 12 qo‘shing. Yetishmagan son 42.",
-            "Прибавьте 12 к 30. Пропущенное число: 42.",
-          ),
-        ]
-      : question === 0
-        ? [
-            w(
-              "The terms are 1², 2², 3², 4² and 5².",
-              "Sonlar: 1², 2², 3², 4² va 5².",
-              "Числа: 1², 2², 3², 4² и 5².",
-            ),
-            w(
-              "The base increases by one. Use 6 next.",
-              "Asos bittadan oshadi. Keyingisi 6.",
-              "Основание растёт на 1. Следующее: 6.",
-            ),
-            w("6 × 6 = 36. The answer is 36.", "6 × 6 = 36. Javob 36.", "6 × 6 = 36. Ответ: 36."),
-          ]
-        : question === 2
-          ? [
-              w(
-                "Each machine makes one widget in five minutes.",
-                "Har bir mashina 5 daqiqada bitta buyum yasaydi.",
-                "Каждая машина делает одно изделие за 5 минут.",
-              ),
-              w(
-                "All 100 machines can work at the same time.",
-                "100 mashina bir vaqtda ishlaydi.",
-                "Все 100 машин работают одновременно.",
-              ),
-              w(
-                "100 widgets are ready after the same five minutes.",
-                "O‘sha 5 daqiqada 100 buyum tayyor bo‘ladi.",
-                "Через те же 5 минут готовы 100 изделий.",
-              ),
-            ]
-          : [
-              w(
-                "Square, circle and triangle are flat figures.",
-                "Kvadrat, doira va uchburchak tekis shakllar.",
-                "Квадрат, круг и треугольник плоские.",
-              ),
-              w(
-                "A cube has depth as well as width and height.",
-                "Kub eni va bo‘yidan tashqari chuqurlikka ega.",
-                "У куба есть глубина, ширина и высота.",
-              ),
-              w(
-                "The cube is the only three-dimensional object.",
-                "Kub yagona uch o‘lchamli jism.",
-                "Куб — единственный трёхмерный объект.",
-              ),
-            ];
-  const colors = ["var(--level-vector)", "var(--level-signal)", "var(--level-trajectory)"];
-  const display =
-    question === 1
-      ? step === 0
-        ? ["2", "6", "12", "20", "30"]
-        : step === 1
-          ? ["+4", "+6", "+8", "+10", "+12"]
-          : ["30", "+", "12", "=", "42"]
-      : question === 0
-        ? step === 0
-          ? ["1²", "2²", "3²", "4²", "5²"]
-          : step === 1
-            ? ["1", "2", "3", "4", "5", "6"]
-            : ["6", "×", "6", "=", "36"]
-        : question === 2
-          ? step === 0
-            ? [
-                w("1 machine", "1 mashina", "1 машина"),
-                "→",
-                w("1 widget", "1 buyum", "1 изделие"),
-                "/",
-                w("5 min", "5 daq", "5 мин"),
-              ]
-            : step === 1
-              ? ["100", w("parallel", "parallel", "параллельно"), w("machines", "mashina", "машин")]
-              : [
-                  w("100 widgets", "100 buyum", "100 изделий"),
-                  w("in", "vaqt:", "за"),
-                  w("5 minutes", "5 daqiqa", "5 минут"),
-                ]
-          : [];
+  const q = SAMPLE_QUESTIONS[question];
   return (
-    <div className="explanation">
-      <div className="approach">
-        <span className="micro">{w("THE APPROACH", "YONDASHUV", "ПОДХОД")}</span>
-        <p>{summaries[question]}</p>
-      </div>
-      <div
-        className="explanation-steps"
-        role="group"
-        aria-label={w("Solution steps", "Yechim qadamlari", "Шаги решения")}
-      >
-        {steps.map((_s, i) => (
-          <button key={i} aria-pressed={step === i} onClick={() => onStep(i)}>
-            <span style={{ borderColor: colors[i] }}>{i + 1}</span>
-            <strong>
-              {w("Step", "Qadam", "Шаг")} {i + 1}
-            </strong>
-          </button>
-        ))}
-      </div>
-      <p className="step-copy">
-        <span style={{ background: colors[step] }}>{step + 1}</span>
-        {steps[step]}
-      </p>
-      <div ref={diagram} className="solution-diagram">
-        <svg
-          viewBox="0 0 540 150"
-          role="img"
-          aria-label={steps[step]}
-          style={{ color: "var(--pen-blue)" }}
-        >
-          <path d="M24 112H516" stroke="currentColor" opacity=".4" />
-          {question !== 3 ? (
-            display.map((text, i) => (
-              <g key={i} data-diagram-mark>
-                <text
-                  x={(540 * (i + 0.5)) / display.length}
-                  y="78"
-                  textAnchor="middle"
-                  fill="currentColor"
-                  fontSize={display.length < 4 ? 24 : question === 2 ? 15 : 30}
-                  fontFamily="inherit"
-                >
-                  {text}
-                </text>
-                <circle
-                  cx={(540 * (i + 0.5)) / display.length}
-                  cy="112"
-                  r="3"
-                  fill="currentColor"
-                />
-              </g>
-            ))
-          ) : (
-            <g stroke="currentColor" strokeWidth="2" data-diagram-mark>
-              <rect x="40" y="45" width="50" height="50" />
-              <circle cx="180" cy="70" r="25" />
-              <path d="m270 95 25-50 25 50Z" />
-              <path d="m402 54 25-14 40 21v39l-25 14-40-21Zm0 0 40 21 25-14m-25 14v39" />
-              {step > 0 && (
-                <text x="430" y="140" fill="currentColor" stroke="none" textAnchor="middle">
-                  3D
-                </text>
-              )}
-            </g>
-          )}
-        </svg>
-      </div>
-      <div className="explanation-next">
-        <span>{step + 1} / 3</span>
-        <button className="text-link" disabled={step === 2} onClick={() => onStep(step + 1)}>
-          {w("Next step", "Keyingi qadam", "Следующий шаг")}
-          <ArrowRight size={14} />
-        </button>
+    <div className="picture-practice">
+      <div className="picture-rule">
+        <p>
+          {w("Answer", "Javob", "Ответ")}: {"ABCD"[q.correct]}
+        </p>
+        <p>{q.rule[lang]}</p>
       </div>
     </div>
   );
@@ -1080,49 +823,5 @@ function CompositionStat({ n, label, plus }: { n: number; label: string; plus: b
         {label}
       </span>
     </>
-  );
-}
-function SequenceTiles({
-  values,
-  answer,
-  explained,
-}: {
-  values: string[];
-  answer: string;
-  explained: boolean;
-}) {
-  return (
-    <div className="sequence-strip" aria-hidden="true">
-      <div className="sequence-tiles">
-        {values.map((value, i) => {
-          const previous = Number(values[i - 1]);
-          const current = value === "?" ? Number(answer) : Number(value);
-          const difference = current - previous;
-          return (
-            <span className="sequence-tile" key={i}>
-              {value}
-              {explained && i > 0 && (
-                <span className="sequence-difference">
-                  {difference >= 0 ? "+" : ""}
-                  {difference}
-                  <svg
-                    viewBox="0 0 78 18"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M8 16C22 2 56 2 70 16" vectorEffect="non-scaling-stroke" />
-                    <path d="M68.2 9.2L70 16L63.2 14.2" vectorEffect="non-scaling-stroke" />
-                  </svg>
-                </span>
-              )}
-              {explained && value === "?" && <span className="sequence-answer">{answer}</span>}
-            </span>
-          );
-        })}
-      </div>
-    </div>
   );
 }

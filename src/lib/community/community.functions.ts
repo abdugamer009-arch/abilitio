@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { communitySlugForCareer } from "../assessment/career-engine";
-import { resolveAdminStatus, ensureNotBanned, type AuthContext } from "../admin/admin.functions";
+import { resolveAdminStatus, ensureNotBanned, type AuthContext } from "../admin/access.server";
 import { readAll, requireData } from "../db-read";
 
 export type CommunityDTO = {

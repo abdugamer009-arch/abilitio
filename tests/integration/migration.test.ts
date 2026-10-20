@@ -46,6 +46,114 @@ describe("owner release migration", () => {
     await db.close();
   });
 
+  it("isolates picture drafts, hides timing from students, and rejects stale or unauthorized writes", async () => {
+    await db.exec("RESET ROLE; BEGIN");
+    const nonce = "a".repeat(32);
+    const expires = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    const item = {
+      question_id: "picture-s1-a-v1",
+      section: "cognitive",
+      age_group: "teen_adult",
+      slot: 1,
+      item_version: "a",
+      shown: true,
+      answered: true,
+      chosen_answer: "choice",
+      time_ms: 2000,
+      is_correct: true,
+    };
+    const save =
+      "SELECT public.save_picture_progress($1,$2,'picture-reasoning-v1',$3,$4,$5::jsonb,$6::jsonb) AS saved";
+    try {
+      await db.query(save, [
+        student,
+        nonce,
+        expires,
+        2,
+        JSON.stringify({ revision: 2 }),
+        JSON.stringify([item]),
+      ]);
+      expect(
+        (
+          await db.query<{ saved: boolean }>(save, [
+            student,
+            nonce,
+            expires,
+            1,
+            JSON.stringify({ revision: 1 }),
+            JSON.stringify([{ ...item, time_ms: 10 }]),
+          ])
+        ).rows[0].saved,
+      ).toBe(false);
+      expect(
+        (
+          await db.query<{ time_ms: number }>(
+            "SELECT time_ms FROM public.picture_assessment_items WHERE user_id=$1",
+            [student],
+          )
+        ).rows[0].time_ms,
+      ).toBe(2000);
+      // A failed item constraint must roll its draft revision back atomically.
+      await db.exec("SAVEPOINT invalid_picture_item");
+      await expect(
+        db.query(save, [
+          student,
+          nonce,
+          expires,
+          3,
+          JSON.stringify({ revision: 3 }),
+          JSON.stringify([{ ...item, time_ms: -1 }]),
+        ]),
+      ).rejects.toThrow();
+      await db.exec("ROLLBACK TO SAVEPOINT invalid_picture_item");
+      expect(
+        (
+          await db.query<{ revision: number }>(
+            "SELECT revision FROM public.picture_assessment_drafts WHERE user_id=$1",
+            [student],
+          )
+        ).rows[0].revision,
+      ).toBe(2);
+      await asUser(student);
+      expect((await db.query("SELECT * FROM public.picture_assessment_drafts")).rows).toHaveLength(
+        1,
+      );
+      expect((await db.query("SELECT * FROM public.picture_assessment_items")).rows).toHaveLength(
+        0,
+      );
+      // No direct browser writes or browser access to the service-only RPC.
+      expect(
+        (
+          await db.query<{ allowed: boolean }>(
+            "SELECT has_function_privilege('authenticated','public.save_picture_progress(uuid,text,text,timestamptz,integer,jsonb,jsonb)','EXECUTE') AS allowed",
+          )
+        ).rows[0].allowed,
+      ).toBe(false);
+      expect(
+        (
+          await db.query<{ allowed: boolean }>(
+            "SELECT has_table_privilege('authenticated','public.picture_assessment_drafts','INSERT') AS allowed",
+          )
+        ).rows[0].allowed,
+      ).toBe(false);
+      await asUser(outsider);
+      expect((await db.query("SELECT * FROM public.picture_assessment_drafts")).rows).toHaveLength(
+        0,
+      );
+      await db.exec("RESET ROLE");
+      await db.query(
+        "INSERT INTO public.user_roles(user_id,role) VALUES($1,'admin') ON CONFLICT DO NOTHING",
+        [owner],
+      );
+      await asUser(owner);
+      expect((await db.query("SELECT * FROM public.picture_assessment_items")).rows).toHaveLength(
+        1,
+      );
+    } finally {
+      await db.exec("RESET ROLE; ROLLBACK");
+    }
+  });
+
   it("H02 keeps reads and results membership-free, requires consent, and leaves only the caller", async () => {
     await asUser(student);
     try {

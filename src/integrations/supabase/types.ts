@@ -8,6 +8,72 @@ export type Database = {
   };
   public: {
     Tables: {
+      picture_assessment_drafts: {
+        Row: {
+          user_id: string;
+          session_nonce: string;
+          question_set_version: string;
+          expires_at: string;
+          revision: number;
+          payload: Json;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          session_nonce: string;
+          question_set_version: string;
+          expires_at: string;
+          revision: number;
+          payload: Json;
+          updated_at?: string;
+        };
+        Update: { revision?: number; payload?: Json; updated_at?: string };
+        Relationships: [];
+      };
+      picture_assessment_items: {
+        Row: {
+          user_id: string;
+          session_nonce: string;
+          question_id: string;
+          question_set_version: string;
+          section: string;
+          age_group: string;
+          slot: number | null;
+          item_version: string | null;
+          shown: boolean;
+          answered: boolean;
+          chosen_answer: string | null;
+          time_ms: number;
+          is_correct: boolean | null;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          session_nonce: string;
+          question_id: string;
+          question_set_version: string;
+          section: string;
+          age_group: string;
+          slot?: number | null;
+          item_version?: string | null;
+          shown: boolean;
+          answered: boolean;
+          chosen_answer?: string | null;
+          time_ms: number;
+          is_correct?: boolean | null;
+          updated_at?: string;
+        };
+        Update: {
+          shown?: boolean;
+          answered?: boolean;
+          chosen_answer?: string | null;
+          time_ms?: number;
+          is_correct?: boolean | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+
       assessment_results: {
         Row: {
           analytical_score: number;
@@ -285,6 +351,7 @@ export type Database = {
         Row: {
           career_matches: Json | null;
           cognitive_profile: string | null;
+          question_set_version?: string;
           cognitive_score: number | null;
           cognitive_tier: string | null;
           created_at: string;
@@ -306,6 +373,7 @@ export type Database = {
         Insert: {
           career_matches?: Json | null;
           cognitive_profile?: string | null;
+          question_set_version?: string;
           cognitive_score?: number | null;
           cognitive_tier?: string | null;
           created_at?: string;
@@ -327,6 +395,7 @@ export type Database = {
         Update: {
           career_matches?: Json | null;
           cognitive_profile?: string | null;
+          question_set_version?: string;
           cognitive_score?: number | null;
           cognitive_tier?: string | null;
           created_at?: string;
@@ -1065,6 +1134,19 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      save_picture_progress: {
+        Args: {
+          _user_id: string;
+          _nonce: string;
+          _set_version: string;
+          _expires_at: string;
+          _revision: number;
+          _payload: Json;
+          _items: Json;
+        };
+        Returns: boolean;
+      };
+
       join_community_with_consent: {
         Args: { _community_id: string; _consent: boolean };
         Returns: undefined;

@@ -112,3 +112,7 @@ See [local setup](LOCAL_SETUP.md) for commands and [owner migrations](../operati
 - School registration is gated by the owner-reviewed `SCHOOL_AGREEMENT`. Null fields are visible draft placeholders; existing school accounts remain available. Do not enable registration until scope, payer and student-permission responsibilities are approved.
 
 The browser gate in `npm run test:all` exercises simulated accounts and network fixtures, alongside actual signed-question delivery in the profile runner and separate server/domain/database contract tests. It is not live Supabase, SMTP, native Safari or physical-device validation. Screenshots, baseline copies, local exports and test logs remain ignored by Git.
+
+## Gated picture assessment
+
+The approved picture flow is implemented behind server-only switches, off by default in production. It preserves the older 12/9/9 path, child 12/0/18 path, preference and interest scoring, canonical recommendations and historical results. Versioned server-only question data, safe geometry DTOs, durable owner-bound drafts and admin-only item telemetry live under `src/lib/assessment/picture-*`; illustrated UI lives under `src/components/assessment/`. Apply `20261017120000_picture_assessment.sql` before signed-in pilot use. See [the implementation and pilot protocol](PICTURE_ASSESSMENT.md) for compatibility, exact rollout gates, verification commands and live-evidence boundaries.

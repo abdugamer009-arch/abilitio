@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { abbiMessageSchema } from "./message-schema";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { generateAbbiReply, type AbbiContext } from "./abbi-knowledge";
-import { ensureNotBanned } from "../admin/admin.functions";
+import { ensureNotBanned } from "../admin/access.server";
 import { localizedGuideReply } from "./localized-guide";
 
 /**

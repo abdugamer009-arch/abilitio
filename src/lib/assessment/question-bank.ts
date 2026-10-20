@@ -1,4 +1,5 @@
-import { SAMPLE_QUESTIONS } from "./sample-questions";
+import { PICTURE_BANK, pickPictureQuestions } from "./picture-bank.server";
+import { LEGACY_SAMPLE_QUESTIONS as SAMPLE_QUESTIONS } from "./legacy-samples.server";
 import { COGNITIVE_REPAIRS } from "./cognitive-repairs";
 import { CHILD_PERSONALITY, CHILD_INTEREST } from "./child-questions";
 import { ADULT_ACTIVITY_BANK } from "./activity-questions";
@@ -4960,7 +4961,10 @@ export function validateAgePools(warn: (message: string) => void = console.warn)
 }
 validateAgePools();
 
-export function pickSessionQuestions(age: AgeGroup = "teen_adult"): SessionQuestions {
+export function pickSessionQuestions(
+  age: AgeGroup = "teen_adult",
+  picture = false,
+): SessionQuestions {
   if (TRANSLATED_IQ_POOL.length !== IQ_BANK.length)
     throw new Error("assessment_content_incomplete: missing cognitive translations");
   // Personality: 12 questions with guaranteed 3 per axis (EI, SN, TF, JP)
@@ -4994,14 +4998,19 @@ export function pickSessionQuestions(age: AgeGroup = "teen_adult"): SessionQuest
     personality: shuffle(personality),
     iq: (age === "child"
       ? []
-      : balancedReasoning(
-          TRANSLATED_IQ_POOL.filter((q) => q.ageGroups?.includes(age)),
-          9,
-        )
+      : picture
+        ? pickPictureQuestions()
+        : balancedReasoning(
+            TRANSLATED_IQ_POOL.filter((q) => q.ageGroups?.includes(age)),
+            9,
+          )
     ).map((q) => {
       const optionOrder = shuffle(q.options.map((_, i) => i));
       return {
         ...q,
+        ...(q.picture
+          ? { picture: { ...q.picture, options: optionOrder.map((i) => q.picture!.options[i]) } }
+          : {}),
         options: optionOrder.map((i) => q.options[i]),
         correct: optionOrder.indexOf(q.correct),
         optionOrder,
@@ -5042,6 +5051,7 @@ function pickInterestQuestions(n: number, pool = INTEREST_BANK): InterestQ[] {
 // Server-side helper: look up correct answer index for an IQ question by id
 export function getIQCorrect(id: string): number | null {
   return (
+    PICTURE_BANK.find((q) => q.id === id)?.correct ??
     IQ_BANK.find((q) => q.id === id)?.correct ??
     ORIGINAL_IQ_BANK.find((q) => q.id === id)?.correct ??
     null

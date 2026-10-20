@@ -1,3 +1,4 @@
+import type { PictureItem } from "./picture-types";
 import { buildCareerEvidence, type DirectAnswer, type CareerEvidence } from "./career-evidence";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -37,7 +38,7 @@ import { CHILD_PERSONALITY, CHILD_INTEREST } from "./child-questions";
 import { ADULT_ACTIVITY_BANK } from "./activity-questions";
 import type { AgeGroup } from "./career-assessment";
 import type { RiasecDim, InterestVisual } from "./career-assessment";
-import { ensureNotBanned } from "../admin/admin.functions";
+import { ensureNotBanned } from "../admin/access.server";
 import { readAll, readAllResult } from "../db-read";
 import { validateCatalog } from "./catalog";
 import { resultInterestProfile } from "./result-interest-profile";
@@ -52,8 +53,9 @@ export type LangText = { en: string; ru: string; uz: string };
 export type LangOpts = { en: string[]; ru: string[]; uz: string[] };
 export type ClientSession = {
   sessionToken: string;
+  questionSetVersion?: string;
   personality: { id: string; prompt: LangText }[];
-  iq: { id: string; prompt: LangText; options: LangOpts }[];
+  iq: { id: string; prompt: LangText; options: LangOpts; picture?: PictureItem }[];
   interest: {
     id: string;
     theme: string;
@@ -75,9 +77,23 @@ function lo(id: string, en: string[]): LangOpts {
 // Public (no auth): anonymous users can take the assessment, then sign in to
 // submit. Correct answers and RIASEC weights are never included.
 async function deliverSession(age: AgeGroup): Promise<ClientSession> {
-  const s = pickSessionQuestions(age);
+  const { pictureAssessmentEnabled } = await import("./picture-config.server");
+  const { PICTURE_SET_VERSION, LEGACY_SET_VERSION } = await import("./picture-types");
+  const pictureEnabled = pictureAssessmentEnabled();
+  const s = pickSessionQuestions(age, pictureEnabled);
+  const questionSetVersion =
+    s.iq[0]?.questionSetVersion ??
+    (age === "child"
+      ? pictureEnabled
+        ? "child-preferences-v1"
+        : "legacy-child-preferences-v1"
+      : LEGACY_SET_VERSION);
   const { signSession } = await import("./session.server");
   const sessionToken = signSession({
+    questionSetVersion,
+    ...(questionSetVersion === PICTURE_SET_VERSION
+      ? { iqOptionIds: s.iq.map((q) => q.picture!.options.map((o) => o.id)) }
+      : {}),
     personality: s.personality.map((q) => q.id),
     iq: s.iq.map((q) => q.id),
     iqOptionOrders: s.iq.map((q) => q.optionOrder!),
@@ -85,8 +101,21 @@ async function deliverSession(age: AgeGroup): Promise<ClientSession> {
   });
   return {
     sessionToken,
+    questionSetVersion,
     personality: s.personality.map((q) => ({ id: q.id, prompt: lp(q.id, q.prompt) })),
     iq: s.iq.map((q) => {
+      if (q.picture)
+        return {
+          id: q.id,
+          prompt: q.picture.prompt,
+          options: Object.fromEntries(
+            (["en", "ru", "uz"] as const).map((l) => [
+              l,
+              q.picture!.options.map((o) => o.figure.text?.[l] ?? o.label[l]),
+            ]),
+          ) as LangOpts,
+          picture: q.picture,
+        };
       const canonical = IQ_BANK.find((item) => item.id === q.id)!;
       const labels = lo(q.id, canonical.options);
       const order = q.optionOrder!;
@@ -140,6 +169,7 @@ export type CareerResultDTO = {
   learning_style: string | null;
   team_style: string | null;
   cognitive_score: number | null;
+  question_set_version?: string;
   cognitive_tier: string | null;
   cognitive_profile: string | null;
   interests: { key: string; weight: number }[];
@@ -185,6 +215,11 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
       await import("./session.server");
     const claim = verifySession(data.sessionToken);
     validateSessionSubmission(claim, data);
+    if (
+      ["picture-reasoning-v1", "child-preferences-v1"].includes(claim.questionSetVersion ?? "") &&
+      (data.iqAnswers.some((v) => v < 0) || data.interestAnswers.some((v) => v.length !== 1))
+    )
+      throw new Error("invalid_session: please answer every question");
 
     // Resolve personality questions from bank (server authoritative). Every id
     // must exist and be distinct — silently filtering unknown ids would shift
@@ -317,6 +352,10 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
     const { persistAssessmentResult } = await import("./result-storage.server");
     const row = await persistAssessmentResult(supabaseAdmin, {
       user_id: userId,
+      ...(claim.questionSetVersion === "picture-reasoning-v1" ||
+      claim.questionSetVersion === "child-preferences-v1"
+        ? { question_set_version: claim.questionSetVersion }
+        : {}),
       session_nonce: claim.nonce,
       scoring_version: hasDirectEvidence
         ? preferencesOnly
@@ -341,6 +380,7 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
 
     return {
       id: row.id,
+      question_set_version: row.question_set_version,
       personality_type: row.personality_type,
       ...presentationSummary(row),
       evidence_coverage: evidenceCoverage(row.scoring_version),
@@ -377,6 +417,7 @@ export const getMyCareerResult = createServerFn({ method: "GET" })
     if (!data) return null;
     return {
       id: data.id,
+      question_set_version: data.question_set_version,
       personality_type: data.personality_type,
       ...presentationSummary(data),
       evidence_coverage: evidenceCoverage(data.scoring_version),

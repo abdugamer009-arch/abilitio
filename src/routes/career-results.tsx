@@ -307,7 +307,7 @@ function CareerResultsPage() {
                       /9
                     </div>
                     <div className="mt-2 text-sm font-medium">
-                      {formatReasoningScore(r.cognitive_score, lang)}
+                      {formatReasoningScore(r.cognitive_score, lang, r.question_set_version)}
                     </div>
                     <p className="mt-2 text-sm text-muted-foreground">{reasoningCaveat(lang)}</p>
                   </>
