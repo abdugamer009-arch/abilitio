@@ -2678,7 +2678,7 @@ td {
   inset: 0;
   z-index: 70;
   background: var(--yellow);
-  clip-path: inset(100% 0 0 0);
+  transform: translateY(100%);
   pointer-events: none;
 }
 @media (max-width: 1100px) {
@@ -2934,8 +2934,7 @@ td {
     transition: none !important;
     scroll-behavior: auto !important;
   }
-  .intro-loader,
-  .route-curtain {
+  .intro-loader {
     display: none !important;
   }
 }
@@ -4252,4 +4251,41 @@ button,
   .studio-workshop .section-heading > .micro {
     display: none;
   }
+}
+
+/* The navigation curtain is the only moving route layer. */
+html[data-route-transition] {
+  scroll-behavior: auto !important;
+}
+[data-route-paused],
+[data-route-paused]::before,
+[data-route-paused]::after,
+[data-motion-offscreen],
+[data-motion-offscreen]::before,
+[data-motion-offscreen]::after {
+  animation-play-state: paused !important;
+}
+html[data-route-transition] .page-plane {
+  clip-path: none !important;
+}
+html[data-route-transition] .field-header {
+  transition: none !important;
+}
+
+/* Mount and restore layout while the fully opaque curtain covers the screen. */
+html[data-route-transition="covered"] .field-header,
+html[data-route-transition="covered"] .page-plane,
+html[data-route-transition="covered"] .field-footer {
+  visibility: hidden;
+}
+
+/* Persistent navigation changes its active state only while covered. Its
+   background/border hover transitions must not compete with the curtain. */
+html[data-route-transition] .field-header *,
+html[data-route-transition] .field-header *::before,
+html[data-route-transition] .field-header *::after,
+html[data-route-transition] .field-footer *,
+html[data-route-transition] .field-footer *::before,
+html[data-route-transition] .field-footer *::after {
+  transition: none !important;
 }

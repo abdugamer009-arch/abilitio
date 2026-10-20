@@ -12,6 +12,7 @@ export function ScrollProgress() {
   useEffect(() => {
     function update() {
       frame.current = 0;
+      if (document.documentElement.dataset.routeTransition) return;
       const el = ref.current;
       if (!el) return;
       const doc = document.documentElement;
@@ -23,10 +24,13 @@ export function ScrollProgress() {
       if (frame.current) return;
       frame.current = requestAnimationFrame(update);
     }
-    update();
+    const afterTransition = () => requestAnimationFrame(update);
+    window.addEventListener("abilitio:transition-end", afterTransition);
+    if (!document.documentElement.dataset.routeTransition) update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
     return () => {
+      window.removeEventListener("abilitio:transition-end", afterTransition);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
       if (frame.current) cancelAnimationFrame(frame.current);

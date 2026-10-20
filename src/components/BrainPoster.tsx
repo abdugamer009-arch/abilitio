@@ -1,5 +1,6 @@
+import { memo } from "react";
 /** Exact cartoon paths from Main.dc.html. The active pin follows the illustration clock. */
-export function BrainPoster({
+export const BrainPoster = memo(function BrainPoster({
   label = "Illustrative folded brain with two hemispheres",
   signal = 0,
 }: {
@@ -221,4 +222,4 @@ export function BrainPoster({
       </g>
     </svg>
   );
-}
+});

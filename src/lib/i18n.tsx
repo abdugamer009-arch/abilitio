@@ -1,4 +1,12 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  type ReactNode,
+} from "react";
 import { catalogLabel } from "./catalog-labels";
 
 export type Lang = "en" | "ru" | "uz";
@@ -3091,30 +3099,33 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = lang;
   }, [lang]);
 
-  const setLang = (l: Lang) => {
+  const setLang = useCallback((l: Lang) => {
     setLangState(l);
     try {
       localStorage.setItem(STORAGE_KEY, l);
     } catch {
       /* ignore */
     }
-  };
+  }, []);
 
-  const value: Ctx = {
-    lang,
-    setLang,
-    t: translations[lang] as Dict,
-    tQuestion: (id) => QUESTIONS[lang][id] ?? QUESTIONS.en[id],
-    tCareer: (name) =>
-      CAREERS_T[lang][name] ?? {
-        name: catalogLabel(name, lang),
-        reason: lang === "en" ? (CAREERS_T.en[name]?.reason ?? "") : "",
-      },
-    tTrait: (name) =>
-      (translations[lang].traits as Record<string, string>)[name] ?? catalogLabel(name, lang),
-    tIqLevel: (level) =>
-      (translations[lang].iqLevels as Record<string, string>)[level] ?? catalogLabel(level, lang),
-  };
+  const value = useMemo<Ctx>(
+    () => ({
+      lang,
+      setLang,
+      t: translations[lang] as Dict,
+      tQuestion: (id) => QUESTIONS[lang][id] ?? QUESTIONS.en[id],
+      tCareer: (name) =>
+        CAREERS_T[lang][name] ?? {
+          name: catalogLabel(name, lang),
+          reason: lang === "en" ? (CAREERS_T.en[name]?.reason ?? "") : "",
+        },
+      tTrait: (name) =>
+        (translations[lang].traits as Record<string, string>)[name] ?? catalogLabel(name, lang),
+      tIqLevel: (level) =>
+        (translations[lang].iqLevels as Record<string, string>)[level] ?? catalogLabel(level, lang),
+    }),
+    [lang, setLang],
+  );
 
   return <LangContext.Provider value={value}>{children}</LangContext.Provider>;
 }

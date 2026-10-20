@@ -1,10 +1,30 @@
+import { createContext, useContext, type ReactNode } from "react";
+import { useLocation } from "@tanstack/react-router";
 import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
 
 import { ScrollProgress } from "./ScrollProgress";
 import { useT } from "@/lib/i18n";
 
-export function PageShell({ children }: { children: React.ReactNode }) {
+const SharedShellContext = createContext(false);
+
+/** Retain the identical chrome DOM across the three main student destinations. */
+export function SharedPageShell({ children }: { children: ReactNode }) {
+  const pathname = useLocation({ select: (location) => location.pathname });
+  const shared = ["/", "/methodology", "/dashboard"].includes(pathname);
+  return (
+    <SharedShellContext.Provider value={shared}>
+      {shared ? <PageFrame>{children}</PageFrame> : children}
+    </SharedShellContext.Provider>
+  );
+}
+
+export function PageShell({ children }: { children: ReactNode }) {
+  const shared = useContext(SharedShellContext);
+  return shared ? children : <PageFrame>{children}</PageFrame>;
+}
+
+function PageFrame({ children }: { children: ReactNode }) {
   const t = useT();
   return (
     <div className="relative min-h-dvh">

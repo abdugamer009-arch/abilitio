@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { LogOut, Menu, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -7,13 +8,15 @@ import { BrandMark } from "./BrandMark";
 import { useAuth } from "@/lib/auth-context";
 import { useWords } from "@/lib/editorial";
 
-export function Navbar() {
+export const Navbar = memo(function Navbar() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const w = useWords();
   const [open, setOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
+  // The shared chrome now persists; retain the old route-unmount menu reset.
+  useEffect(() => setOpen(false), [location.pathname]);
   const links = [
     { to: "/", label: w("Practice tools", "Mashq vositalari", "Практика"), hash: "workshop" },
     { to: "/methodology", label: w("How it works", "Qanday ishlaydi", "Как это работает") },
@@ -124,4 +127,4 @@ export function Navbar() {
       )}
     </header>
   );
-}
+});

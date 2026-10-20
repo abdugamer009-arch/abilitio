@@ -1,8 +1,9 @@
+import { memo } from "react";
 import { Link } from "@tanstack/react-router";
 import { useWords } from "@/lib/editorial";
 import { useMotion } from "./MotionProvider";
 import { BrandMark } from "./BrandMark";
-export function Footer() {
+export const Footer = memo(function Footer() {
   const w = useWords();
   const { enabled, toggle } = useMotion();
   return (
@@ -32,4 +33,4 @@ export function Footer() {
       </div>
     </footer>
   );
-}
+});

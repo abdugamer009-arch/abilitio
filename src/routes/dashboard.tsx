@@ -1,13 +1,14 @@
+import { displayDate } from "@/lib/display-date";
 import { historyLabel } from "@/lib/assessment/report-tools";
 import { requestPasswordRecovery } from "@/lib/auth/recovery.functions";
 import { PASSWORD_RECOVERY_ENABLED, CONTACT_EMAIL } from "@/lib/constants";
 import { catalogLabel } from "@/lib/catalog-labels";
-import { readAllResult } from "@/lib/db-read";
+import { consumeDashboard } from "@/lib/dashboard/preload";
 import { useUiText } from "@/lib/ui-text";
 import { toast } from "sonner";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { startTransition, useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   Brain,
   Mail,
@@ -162,32 +163,10 @@ function DashboardPage() {
     setStats(null);
     setAchievements([]);
     (async () => {
-      const responses = await Promise.all([
-        supabase.from("profiles").select("name, surname").eq("id", user.id).maybeSingle(),
-        readAllResult((from, to) =>
-          supabase
-            .from("career_assessment_results")
-            .select("*")
-            .eq("user_id", user.id)
-            .order("created_at", { ascending: false })
-            .order("id")
-            .range(from, to),
-        ),
-        supabase.from("user_stats").select("*").eq("user_id", user.id).maybeSingle(),
-        readAllResult((from, to) =>
-          supabase
-            .from("user_achievements")
-            .select("*")
-            .eq("user_id", user.id)
-            .order("created_at", { ascending: false })
-            .order("id")
-            .range(from, to),
-        ),
-      ]);
+      const responses = await consumeDashboard(user.id);
       if (cancelled) return;
       if (responses.some((r) => r.error)) throw new Error("Dashboard unavailable");
       const [{ data: p }, { data: r }, { data: s }, { data: a }] = responses;
-      setProfile(p ?? null);
       const mapped: Result[] = ((r as unknown as Array<Record<string, unknown>>) ?? []).map(
         (row) => {
           const summary = presentationSummary({
@@ -217,10 +196,13 @@ function DashboardPage() {
           };
         },
       );
-      setResults(mapped);
-      setStats((s as unknown as Stats) ?? null);
-      setAchievements((a as unknown as Achievement[]) ?? []);
-      setBusy(false);
+      startTransition(() => {
+        setProfile(p ?? null);
+        setResults(mapped);
+        setStats((s as unknown as Stats) ?? null);
+        setAchievements((a as unknown as Achievement[]) ?? []);
+        setBusy(false);
+      });
     })().catch(() => {
       if (!cancelled) {
         setLoadError(true);
@@ -255,7 +237,7 @@ function DashboardPage() {
   if (loading || busy) {
     return (
       <PageShell>
-        <section className="relative px-4 pt-10 pb-24 sm:px-6">
+        <section data-route-pending className="relative px-4 pt-10 pb-24 sm:px-6">
           <div aria-hidden className="bg-grid pointer-events-none absolute inset-0" />
           <div className="relative mx-auto max-w-6xl">
             <div className="skeleton h-44 rounded-[2rem]" />
@@ -707,7 +689,7 @@ function ResultsSection({
                 ) : (
                   <Calendar className="h-3.5 w-3.5" />
                 )}
-                {new Date(r.created_at).toLocaleDateString()}
+                {displayDate(r.created_at)}
               </span>
               <span>{historyLabel(r.iq_score, r.mbti_type, lang)}</span>
               <Link className="field-button" to="/career-results" search={{ resultId: r.id }}>

@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { careerRoadmap } from "@/lib/roadmap/career-roadmap";
 import { useI18n } from "@/lib/i18n";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -356,7 +357,7 @@ function RoadmapPage() {
 }
 
 /* Artwork is copied from Journey.dc.html; phase data and completion stay authoritative. */
-function WorldMap({
+const WorldMap = memo(function WorldMap({
   phases,
   activePhase,
   setActivePhase,
@@ -437,7 +438,7 @@ function WorldMap({
       </div>
     </div>
   );
-}
+});
 
 /* =================== TASK NODE =================== */
 function TaskNode({

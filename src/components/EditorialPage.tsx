@@ -1,3 +1,4 @@
+import { DeferredBelowFold } from "./DeferredBelowFold";
 import { AssessmentAgeNote } from "./AssessmentAgeNote";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, Sparkles } from "lucide-react";
@@ -300,195 +301,205 @@ export function EditorialPage({ kind }: { kind: Kind }) {
           {rows.map(([name, body], i) => {
             const number = kind === "methodology" ? name.match(/^(\d+) /)?.[1] : null;
             return (
-              <article key={name}>
-                <div className="editorial-row-title">
-                  <span className="section-number">0{i + 1}</span>
-                  {kind !== "about" && (
-                    <span className="cartoon-icon-tile" aria-hidden="true">
-                      {(kind === "methodology" || kind === "for-schools") && i < 3 ? (
-                        <CartoonRowIcon kind={kind} index={i} />
-                      ) : (
-                        <Sparkles />
-                      )}
-                    </span>
-                  )}
-                  <h2>
-                    {number ? (
-                      <>
-                        <span className="editorial-title-number">{number}</span>
-                        {name.slice(number.length)}
-                      </>
-                    ) : (
-                      name
+              <DeferredBelowFold key={name}>
+                <article>
+                  <div className="editorial-row-title">
+                    <span className="section-number">0{i + 1}</span>
+                    {kind !== "about" && (
+                      <span className="cartoon-icon-tile" aria-hidden="true">
+                        {(kind === "methodology" || kind === "for-schools") && i < 3 ? (
+                          <CartoonRowIcon kind={kind} index={i} />
+                        ) : (
+                          <Sparkles />
+                        )}
+                      </span>
                     )}
-                  </h2>
-                </div>
-                <p>{body}</p>
-                {kind === "for-schools" && i < rows.length - 1 && <CartoonConnector />}
-              </article>
+                    <h2>
+                      {number ? (
+                        <>
+                          <span className="editorial-title-number">{number}</span>
+                          {name.slice(number.length)}
+                        </>
+                      ) : (
+                        name
+                      )}
+                    </h2>
+                  </div>
+                  <p>{body}</p>
+                  {kind === "for-schools" && i < rows.length - 1 && <CartoonConnector />}
+                </article>
+              </DeferredBelowFold>
             );
           })}
         </section>
-        {kind === "methodology" && (
-          <section className="method-walkthrough field-section">
+        <DeferredBelowFold>
+          {kind === "methodology" && (
+            <section className="method-walkthrough field-section">
+              <h2>
+                {w("Your journey, step by step", "Qadam-baqadam yo‘lingiz", "Ваш путь по шагам")}
+              </h2>
+              <ol>
+                <li>
+                  <strong>
+                    {w(
+                      "1. Answer 30 questions",
+                      "1. 30 savolga javob bering",
+                      "1. Ответьте на 30 вопросов",
+                    )}
+                  </strong>
+                  <p>
+                    {w(
+                      "Start as a guest. There is no timer; pause and resume in the same browser. Reasoning questions have correct answers; preference questions do not.",
+                      "Mehmon sifatida boshlang. Taymer yo‘q; shu brauzerda to‘xtab qayting. Mantiq savollarida to‘g‘ri javob bor, afzallik savollarida yo‘q.",
+                      "Начните без аккаунта. Таймера нет; можно вернуться в этом браузере. В задачах есть верные ответы, в предпочтениях — нет.",
+                    )}
+                  </p>
+                </li>
+                <li>
+                  <strong>
+                    {w(
+                      "2. Create a free account for your results",
+                      "2. Natija uchun bepul hisob yarating",
+                      "2. Создайте бесплатный аккаунт для результатов",
+                    )}
+                  </strong>
+                  <p>
+                    {w(
+                      "Your answers stay in this browser while you sign up or sign in. Submit the completed assessment to save results to your account. Career-fit scores compare answers, not chances of success.",
+                      "Kirish yoki ro‘yxatdan o‘tishda javoblar shu brauzerda qoladi. Yakunlangan baholashni yuborib natijani hisobga saqlang. Moslik ballari javoblarni solishtiradi, muvaffaqiyat ehtimolini emas.",
+                      "Ответы остаются в браузере при регистрации или входе. Отправьте оценку, чтобы сохранить результат. Баллы сравнивают ответы, а не шансы успеха.",
+                    )}
+                  </p>
+                </li>
+                <li>
+                  <strong>
+                    {w(
+                      "3. Explore, then try the work",
+                      "3. O‘rganing, so‘ng ishni sinang",
+                      "3. Исследуйте и попробуйте работу",
+                    )}
+                  </strong>
+                  <p>
+                    {w(
+                      "Read the reasons behind career suggestions, research study subjects and choose an activity. Mark completion yourself. Practice tools on the homepage are separate and do not transfer into the assessment.",
+                      "Kasb tavsiyasi sabablarini o‘qing, o‘qish yo‘nalishini o‘rganing va faoliyat tanlang. Bajarilishni o‘zingiz belgilang. Bosh sahifa mashqlari alohida, baholashga o‘tmaydi.",
+                      "Прочитайте причины рекомендаций, изучите направления обучения и выберите занятие. Выполнение отмечаете сами. Практика на главной странице не переносится в оценку.",
+                    )}
+                  </p>
+                </li>
+              </ol>
+            </section>
+          )}
+          {kind === "for-schools" && <SchoolReportPreview />}
+          {kind === "methodology" && (
+            <section className="field-section field-rule">
+              <h2>{w("Who this is for", "Kimlar uchun", "Для кого")}</h2>
+              <p>
+                {w(
+                  "Students aged 14 and under use 12 simple preference statements and 18 concrete activity choices, with no reasoning or ability score. Students aged 15 and older use 12 preference statements, 9 reasoning questions and 9 activity choices. A minimum age and parental-consent policy require owner and legal review; no legal conclusion is implied.",
+                  "14 yosh va undan kichik o‘quvchilar 12 oddiy afzallik bayoni va 18 aniq mashg‘ulot tanloviga javob beradi; mantiqiy yoki qobiliyat bali yo‘q. 15 yosh va kattalar uchun 12 afzallik, 9 mantiqiy savol va 9 mashg‘ulot tanlovi bor. Eng kichik yosh va ota-ona roziligi siyosati egasi va huquqiy ko‘rikni talab qiladi; huquqiy xulosa berilmaydi.",
+                  "До 14 лет включительно: 12 простых утверждений о предпочтениях и 18 выборов занятий, без оценки мышления или способностей. С 15 лет: 12 утверждений, 9 заданий на мышление и 9 выборов занятий. Минимальный возраст и родительское согласие требуют решения владельца и юридической проверки.",
+                )}
+              </p>
+            </section>
+          )}
+          {kind === "about" && (
+            <section className="field-section">
+              <p className="micro mb-8">{w("THE FOUNDERS", "ASOSCHILAR", "ОСНОВАТЕЛИ")}</p>
+              <blockquote className="founders-motto">
+                {w(
+                  "The future should be a little bit bright.",
+                  "Kelajak biroz yorqinroq bo‘lishi kerak.",
+                  "Будущее должно быть немного светлее.",
+                )}
+              </blockquote>
+              <p className="my-5">
+                {w(
+                  "Question and scoring quality review: [Owner to provide reviewer names, qualifications and review responsibilities].",
+                  "Savollar va baholash sifati ko‘rigi: [Egasi tekshiruvchilar ismi, malakasi va mas’uliyatini kiritadi].",
+                  "Проверка вопросов и оценивания: [Владелец укажет рецензентов, квалификацию и обязанности].",
+                )}
+              </p>
+              <div className="person-register">
+                {FOUNDERS.map((founder) => (
+                  <article key={founder.id}>
+                    <FounderPortrait founder={founder} />
+                    <div>
+                      <h2>{founder.name}</h2>
+                      <p className="micro text-muted-foreground">
+                        {w("Co-founder", "Hamasoschi", "Сооснователь")}
+                      </p>
+                      <dl className="mt-3 text-sm space-y-2">
+                        <div>
+                          <dt>
+                            {w(
+                              "Role and responsibilities",
+                              "Rol va mas’uliyat",
+                              "Роль и обязанности",
+                            )}
+                          </dt>
+                          <dd>
+                            {w(
+                              "[Owner to provide verified details]",
+                              "[Egasi tasdiqlangan ma’lumot kiritadi]",
+                              "[Владелец укажет проверенные сведения]",
+                            )}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>
+                            {w("Relevant experience", "Tegishli tajriba", "Соответствующий опыт")}
+                          </dt>
+                          <dd>
+                            {w(
+                              "[Owner to provide verified experience]",
+                              "[Egasi tasdiqlangan tajribani kiritadi]",
+                              "[Владелец укажет подтверждённый опыт]",
+                            )}
+                          </dd>
+                        </div>
+                      </dl>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
+          <section className="field-cta">
+            <CartoonSparkle />
             <h2>
-              {w("Your journey, step by step", "Qadam-baqadam yo‘lingiz", "Ваш путь по шагам")}
+              {kind === "for-schools"
+                ? w("Plan a school trial.", "Maktab sinovini rejalang.", "Запланируйте пилот.")
+                : w(
+                    "Put the questions to work.",
+                    "Savollarni amalda sinang.",
+                    "Попробуйте вопросы.",
+                  )}
             </h2>
-            <ol>
-              <li>
-                <strong>
+            <div>
+              <Link
+                to={
+                  kind === "for-schools" || kind === "pricing" ? "/contact" : "/career-assessment"
+                }
+                className="field-button"
+              >
+                {kind === "for-schools" || kind === "pricing"
+                  ? w("Talk to our team", "Jamoamizga yozing", "Написать команде")
+                  : w("Begin the assessment", "Baholashni boshlang", "Начать оценку")}
+                <ArrowUpRight size={18} />
+              </Link>
+              {kind === "for-schools" && (
+                <Link to="/school/register" className="text-link mt-6 text-sm">
                   {w(
-                    "1. Answer 30 questions",
-                    "1. 30 savolga javob bering",
-                    "1. Ответьте на 30 вопросов",
+                    "Trial already agreed? Register your school",
+                    "Sinov kelishildimi? Ro‘yxatdan o‘ting",
+                    "Пилот согласован? Регистрация",
                   )}
-                </strong>
-                <p>
-                  {w(
-                    "Start as a guest. There is no timer; pause and resume in the same browser. Reasoning questions have correct answers; preference questions do not.",
-                    "Mehmon sifatida boshlang. Taymer yo‘q; shu brauzerda to‘xtab qayting. Mantiq savollarida to‘g‘ri javob bor, afzallik savollarida yo‘q.",
-                    "Начните без аккаунта. Таймера нет; можно вернуться в этом браузере. В задачах есть верные ответы, в предпочтениях — нет.",
-                  )}
-                </p>
-              </li>
-              <li>
-                <strong>
-                  {w(
-                    "2. Create a free account for your results",
-                    "2. Natija uchun bepul hisob yarating",
-                    "2. Создайте бесплатный аккаунт для результатов",
-                  )}
-                </strong>
-                <p>
-                  {w(
-                    "Your answers stay in this browser while you sign up or sign in. Submit the completed assessment to save results to your account. Career-fit scores compare answers, not chances of success.",
-                    "Kirish yoki ro‘yxatdan o‘tishda javoblar shu brauzerda qoladi. Yakunlangan baholashni yuborib natijani hisobga saqlang. Moslik ballari javoblarni solishtiradi, muvaffaqiyat ehtimolini emas.",
-                    "Ответы остаются в браузере при регистрации или входе. Отправьте оценку, чтобы сохранить результат. Баллы сравнивают ответы, а не шансы успеха.",
-                  )}
-                </p>
-              </li>
-              <li>
-                <strong>
-                  {w(
-                    "3. Explore, then try the work",
-                    "3. O‘rganing, so‘ng ishni sinang",
-                    "3. Исследуйте и попробуйте работу",
-                  )}
-                </strong>
-                <p>
-                  {w(
-                    "Read the reasons behind career suggestions, research study subjects and choose an activity. Mark completion yourself. Practice tools on the homepage are separate and do not transfer into the assessment.",
-                    "Kasb tavsiyasi sabablarini o‘qing, o‘qish yo‘nalishini o‘rganing va faoliyat tanlang. Bajarilishni o‘zingiz belgilang. Bosh sahifa mashqlari alohida, baholashga o‘tmaydi.",
-                    "Прочитайте причины рекомендаций, изучите направления обучения и выберите занятие. Выполнение отмечаете сами. Практика на главной странице не переносится в оценку.",
-                  )}
-                </p>
-              </li>
-            </ol>
-          </section>
-        )}
-        {kind === "for-schools" && <SchoolReportPreview />}
-        {kind === "methodology" && (
-          <section className="field-section field-rule">
-            <h2>{w("Who this is for", "Kimlar uchun", "Для кого")}</h2>
-            <p>
-              {w(
-                "Students aged 14 and under use 12 simple preference statements and 18 concrete activity choices, with no reasoning or ability score. Students aged 15 and older use 12 preference statements, 9 reasoning questions and 9 activity choices. A minimum age and parental-consent policy require owner and legal review; no legal conclusion is implied.",
-                "14 yosh va undan kichik o‘quvchilar 12 oddiy afzallik bayoni va 18 aniq mashg‘ulot tanloviga javob beradi; mantiqiy yoki qobiliyat bali yo‘q. 15 yosh va kattalar uchun 12 afzallik, 9 mantiqiy savol va 9 mashg‘ulot tanlovi bor. Eng kichik yosh va ota-ona roziligi siyosati egasi va huquqiy ko‘rikni talab qiladi; huquqiy xulosa berilmaydi.",
-                "До 14 лет включительно: 12 простых утверждений о предпочтениях и 18 выборов занятий, без оценки мышления или способностей. С 15 лет: 12 утверждений, 9 заданий на мышление и 9 выборов занятий. Минимальный возраст и родительское согласие требуют решения владельца и юридической проверки.",
+                </Link>
               )}
-            </p>
-          </section>
-        )}
-        {kind === "about" && (
-          <section className="field-section">
-            <p className="micro mb-8">{w("THE FOUNDERS", "ASOSCHILAR", "ОСНОВАТЕЛИ")}</p>
-            <blockquote className="founders-motto">
-              {w(
-                "The future should be a little bit bright.",
-                "Kelajak biroz yorqinroq bo‘lishi kerak.",
-                "Будущее должно быть немного светлее.",
-              )}
-            </blockquote>
-            <p className="my-5">
-              {w(
-                "Question and scoring quality review: [Owner to provide reviewer names, qualifications and review responsibilities].",
-                "Savollar va baholash sifati ko‘rigi: [Egasi tekshiruvchilar ismi, malakasi va mas’uliyatini kiritadi].",
-                "Проверка вопросов и оценивания: [Владелец укажет рецензентов, квалификацию и обязанности].",
-              )}
-            </p>
-            <div className="person-register">
-              {FOUNDERS.map((founder) => (
-                <article key={founder.id}>
-                  <FounderPortrait founder={founder} />
-                  <div>
-                    <h2>{founder.name}</h2>
-                    <p className="micro text-muted-foreground">
-                      {w("Co-founder", "Hamasoschi", "Сооснователь")}
-                    </p>
-                    <dl className="mt-3 text-sm space-y-2">
-                      <div>
-                        <dt>
-                          {w(
-                            "Role and responsibilities",
-                            "Rol va mas’uliyat",
-                            "Роль и обязанности",
-                          )}
-                        </dt>
-                        <dd>
-                          {w(
-                            "[Owner to provide verified details]",
-                            "[Egasi tasdiqlangan ma’lumot kiritadi]",
-                            "[Владелец укажет проверенные сведения]",
-                          )}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt>
-                          {w("Relevant experience", "Tegishli tajriba", "Соответствующий опыт")}
-                        </dt>
-                        <dd>
-                          {w(
-                            "[Owner to provide verified experience]",
-                            "[Egasi tasdiqlangan tajribani kiritadi]",
-                            "[Владелец укажет подтверждённый опыт]",
-                          )}
-                        </dd>
-                      </div>
-                    </dl>
-                  </div>
-                </article>
-              ))}
             </div>
           </section>
-        )}
-        <section className="field-cta">
-          <CartoonSparkle />
-          <h2>
-            {kind === "for-schools"
-              ? w("Plan a school trial.", "Maktab sinovini rejalang.", "Запланируйте пилот.")
-              : w("Put the questions to work.", "Savollarni amalda sinang.", "Попробуйте вопросы.")}
-          </h2>
-          <div>
-            <Link
-              to={kind === "for-schools" || kind === "pricing" ? "/contact" : "/career-assessment"}
-              className="field-button"
-            >
-              {kind === "for-schools" || kind === "pricing"
-                ? w("Talk to our team", "Jamoamizga yozing", "Написать команде")
-                : w("Begin the assessment", "Baholashni boshlang", "Начать оценку")}
-              <ArrowUpRight size={18} />
-            </Link>
-            {kind === "for-schools" && (
-              <Link to="/school/register" className="text-link mt-6 text-sm">
-                {w(
-                  "Trial already agreed? Register your school",
-                  "Sinov kelishildimi? Ro‘yxatdan o‘ting",
-                  "Пилот согласован? Регистрация",
-                )}
-              </Link>
-            )}
-          </div>
-        </section>
+        </DeferredBelowFold>
       </div>
     </PageShell>
   );

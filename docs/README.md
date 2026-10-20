@@ -4,13 +4,14 @@ Start with the [project README](../README.md). This index separates current work
 
 ## Development
 
-| Guide                                       | Purpose                                                                |
-| ------------------------------------------- | ---------------------------------------------------------------------- |
-| [Architecture](development/ARCHITECTURE.md) | Feature map, entry points, assessment flow and data boundaries         |
-| [Local setup](development/LOCAL_SETUP.md)   | Public-only development, backend environment and verification commands |
-| [Routing](development/ROUTING.md)           | TanStack naming and generated-route conventions                        |
-| [Contributing](../CONTRIBUTING.md)          | Branches, file placement, checks and release workflow                  |
-| [Agent guidance](../AGENTS.md)              | Invariants for future coding sessions                                  |
+| Guide                                                 | Purpose                                                                |
+| ----------------------------------------------------- | ---------------------------------------------------------------------- |
+| [Architecture](development/ARCHITECTURE.md)           | Feature map, entry points, assessment flow and data boundaries         |
+| [Local setup](development/LOCAL_SETUP.md)             | Public-only development, backend environment and verification commands |
+| [Route transitions](development/ROUTE_TRANSITIONS.md) | Curtain ownership, preloading, scroll and performance checks           |
+| [Routing](development/ROUTING.md)                     | TanStack naming and generated-route conventions                        |
+| [Contributing](../CONTRIBUTING.md)                    | Branches, file placement, checks and release workflow                  |
+| [Agent guidance](../AGENTS.md)                        | Invariants for future coding sessions                                  |
 
 ## Operations
 

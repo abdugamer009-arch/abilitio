@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { DeferredBelowFold } from "@/components/DeferredBelowFold";
 import { PageShell } from "@/components/PageShell";
 import { BrainScene } from "@/components/BrainScene";
 import { FOUNDERS, FounderPortrait } from "@/components/FounderPortrait";
@@ -27,7 +28,16 @@ function LandingPage() {
   const [illustrationStep, setIllustrationStep] = useState(0);
   useEffect(() => {
     if (!enabled) return;
-    const timer = setInterval(() => setIllustrationStep((current) => (current + 1) % 3), 2600);
+    const timer = setInterval(() => {
+      const hero = document.getElementById("brain-hero");
+      if (
+        document.documentElement.dataset.routeTransition ||
+        !hero ||
+        hero.getBoundingClientRect().bottom < 0
+      )
+        return;
+      setIllustrationStep((current) => (current + 1) % 3);
+    }, 2600);
     return () => clearInterval(timer);
   }, [enabled]);
   return (
@@ -199,56 +209,63 @@ function LandingPage() {
           ))}
         </div>
       </section>
-      <CareerWorkshop stage={stage} onStage={setStage} />
-      <section className="studio-access field-wrap" data-story>
-        <div className="section-heading">
-          <p className="micro" data-rule>
-            {w("02 / ACCESS", "02 / FOYDALANISH", "02 / ДОСТУП")}
-          </p>
-          <h2>
-            <MarkedText
-              text={w("A clear way in.", "Boshlash yo‘li aniq.", "Понятный вход.")}
-              mark="highlight"
-              words={2}
-            />
-          </h2>
-        </div>
-        <div className="access-grid" data-panel>
-          <div className="student-access">
-            <CartoonSparkle />
-            <p className="micro">{w("FOR STUDENTS", "O‘QUVCHILAR UCHUN", "УЧЕНИКАМ")}</p>
-            <strong className="access-price">
-              $0<span>{w("student tools", "o‘quvchi vositalari", "инструменты ученика")}</span>
-            </strong>
-            <p>
-              {w(
-                "The assessment and career activities are free. Answer as a guest; create an account to view and save your results.",
-                "Baholash va kasbiy faoliyatlar bepul. Mehmon sifatida javob bering; natijani ko‘rish va saqlash uchun hisob yarating.",
-                "Оценка и занятия бесплатны. Отвечайте как гость; создайте аккаунт для просмотра и сохранения результатов.",
-              )}
+      <DeferredBelowFold>
+        <CareerWorkshop stage={stage} onStage={setStage} />
+        <section className="studio-access field-wrap" data-story>
+          <div className="section-heading">
+            <p className="micro" data-rule>
+              {w("02 / ACCESS", "02 / FOYDALANISH", "02 / ДОСТУП")}
             </p>
-            <Link to="/career-assessment" className="field-button secondary">
-              {w("Start your profile", "Profilni boshlang", "Начните профиль")}
-              <ArrowUpRight size={17} />
-            </Link>
+            <h2>
+              <MarkedText
+                text={w("A clear way in.", "Boshlash yo‘li aniq.", "Понятный вход.")}
+                mark="highlight"
+                words={2}
+              />
+            </h2>
           </div>
-          <div className="school-access">
-            <p className="micro">{w("FOR SCHOOLS", "MAKTABLAR UCHUN", "ШКОЛАМ")}</p>
-            <h3>{w("Bring a group.", "Guruh bilan boshlang.", "Начните с группой.")}</h3>
-            <p>
-              {w(
-                "Tell us the number of students, language and reports you need. Agree the trial size and price with us before registration.",
-                "Guruh, til va hisobot ehtiyojlarini muhokama qilamiz. Sinov hajmi va narxi kelishiladi.",
-                "Обсудим группу, язык и отчёты. Объём пилота и цена согласуются напрямую.",
-              )}
-            </p>
-            <Link to="/contact" search={{ topic: "school" }} className="field-button" data-magnetic>
-              {w("Discuss a school trial", "Maktab sinovini muhokama", "Обсудить школьный пилот")}
-              <ArrowRight size={16} />
-            </Link>
+          <div className="access-grid" data-panel>
+            <div className="student-access">
+              <CartoonSparkle />
+              <p className="micro">{w("FOR STUDENTS", "O‘QUVCHILAR UCHUN", "УЧЕНИКАМ")}</p>
+              <strong className="access-price">
+                $0<span>{w("student tools", "o‘quvchi vositalari", "инструменты ученика")}</span>
+              </strong>
+              <p>
+                {w(
+                  "The assessment and career activities are free. Answer as a guest; create an account to view and save your results.",
+                  "Baholash va kasbiy faoliyatlar bepul. Mehmon sifatida javob bering; natijani ko‘rish va saqlash uchun hisob yarating.",
+                  "Оценка и занятия бесплатны. Отвечайте как гость; создайте аккаунт для просмотра и сохранения результатов.",
+                )}
+              </p>
+              <Link to="/career-assessment" className="field-button secondary">
+                {w("Start your profile", "Profilni boshlang", "Начните профиль")}
+                <ArrowUpRight size={17} />
+              </Link>
+            </div>
+            <div className="school-access">
+              <p className="micro">{w("FOR SCHOOLS", "MAKTABLAR UCHUN", "ШКОЛАМ")}</p>
+              <h3>{w("Bring a group.", "Guruh bilan boshlang.", "Начните с группой.")}</h3>
+              <p>
+                {w(
+                  "Tell us the number of students, language and reports you need. Agree the trial size and price with us before registration.",
+                  "Guruh, til va hisobot ehtiyojlarini muhokama qilamiz. Sinov hajmi va narxi kelishiladi.",
+                  "Обсудим группу, язык и отчёты. Объём пилота и цена согласуются напрямую.",
+                )}
+              </p>
+              <Link
+                to="/contact"
+                search={{ topic: "school" }}
+                className="field-button"
+                data-magnetic
+              >
+                {w("Discuss a school trial", "Maktab sinovini muhokama", "Обсудить школьный пилот")}
+                <ArrowRight size={16} />
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </DeferredBelowFold>
     </PageShell>
   );
 }

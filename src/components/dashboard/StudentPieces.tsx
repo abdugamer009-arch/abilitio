@@ -1,6 +1,7 @@
+import { memo } from "react";
 import type { ReactNode } from "react";
 
-export function Sparkle({ className }: { className?: string }) {
+export const Sparkle = memo(function Sparkle({ className }: { className?: string }) {
   return (
     <svg className={className} width="44" height="44" viewBox="-16 -16 32 32" aria-hidden="true">
       <path
@@ -12,9 +13,9 @@ export function Sparkle({ className }: { className?: string }) {
       ></path>
     </svg>
   );
-}
+});
 
-export function CameraDrawing({ className }: { className?: string }) {
+export const CameraDrawing = memo(function CameraDrawing({ className }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -32,9 +33,9 @@ export function CameraDrawing({ className }: { className?: string }) {
       <circle cx="12" cy="13" r="3.5"></circle>
     </svg>
   );
-}
+});
 
-export function StampStar({ className }: { className?: string }) {
+export const StampStar = memo(function StampStar({ className }: { className?: string }) {
   return (
     <svg className={className} width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
       <path
@@ -46,9 +47,9 @@ export function StampStar({ className }: { className?: string }) {
       ></path>
     </svg>
   );
-}
+});
 
-export function FinishFlag({ className }: { className?: string }) {
+export const FinishFlag = memo(function FinishFlag({ className }: { className?: string }) {
   return (
     <svg className={className} width="30" height="36" viewBox="0 0 30 36" aria-hidden="true">
       <path d="M6 34V4" stroke="#1d1b16" strokeWidth="3" strokeLinecap="round"></path>
@@ -61,9 +62,9 @@ export function FinishFlag({ className }: { className?: string }) {
       ></path>
     </svg>
   );
-}
+});
 
-export function MedalDrawing({ className }: { className?: string }) {
+export const MedalDrawing = memo(function MedalDrawing({ className }: { className?: string }) {
   return (
     <svg className={className} width="96" height="110" viewBox="0 0 96 110" aria-hidden="true">
       <path
@@ -94,9 +95,9 @@ export function MedalDrawing({ className }: { className?: string }) {
       ></path>
     </svg>
   );
-}
+});
 
-export function LaptopDrawing({ className }: { className?: string }) {
+export const LaptopDrawing = memo(function LaptopDrawing({ className }: { className?: string }) {
   return (
     <svg className={className} width="62" height="48" viewBox="0 0 70 52" aria-hidden="true">
       <rect
@@ -126,9 +127,9 @@ export function LaptopDrawing({ className }: { className?: string }) {
       ></path>
     </svg>
   );
-}
+});
 
-export function SwordsDrawing({ className }: { className?: string }) {
+export const SwordsDrawing = memo(function SwordsDrawing({ className }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -145,9 +146,13 @@ export function SwordsDrawing({ className }: { className?: string }) {
       <path d="M4 4l11 11M13 17l4-4M16 16l3 3M20 4L9 15M11 17l-4-4M8 16l-3 3"></path>
     </svg>
   );
-}
+});
 
-export function LightningDrawing({ className }: { className?: string }) {
+export const LightningDrawing = memo(function LightningDrawing({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <svg className={className} width="44" height="52" viewBox="0 0 44 52" aria-hidden="true">
       <path
@@ -159,9 +164,9 @@ export function LightningDrawing({ className }: { className?: string }) {
       ></path>
     </svg>
   );
-}
+});
 
-export function ArrowDrawing({ className }: { className?: string }) {
+export const ArrowDrawing = memo(function ArrowDrawing({ className }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -179,9 +184,9 @@ export function ArrowDrawing({ className }: { className?: string }) {
       <path d="M13 6l6 6-6 6"></path>
     </svg>
   );
-}
+});
 
-export function SatDrawing({ className }: { className?: string }) {
+export const SatDrawing = memo(function SatDrawing({ className }: { className?: string }) {
   return (
     <svg className={className} aria-hidden="true" width="54" height="54" viewBox="0 0 48 48">
       <path
@@ -202,9 +207,9 @@ export function SatDrawing({ className }: { className?: string }) {
       <circle cx="40" cy="33.5" r="2.8" fill="#1d1b16"></circle>
     </svg>
   );
-}
+});
 
-export function IeltsDrawing({ className }: { className?: string }) {
+export const IeltsDrawing = memo(function IeltsDrawing({ className }: { className?: string }) {
   return (
     <svg className={className} aria-hidden="true" width="52" height="52" viewBox="0 0 48 48">
       <circle cx="24" cy="24" r="18" fill="#dbe9ff" stroke="#1d1b16" strokeWidth="3"></circle>
@@ -223,9 +228,13 @@ export function IeltsDrawing({ className }: { className?: string }) {
       ></path>
     </svg>
   );
-}
+});
 
-export function UniversityDrawing({ className }: { className?: string }) {
+export const UniversityDrawing = memo(function UniversityDrawing({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <svg className={className} width="200" height="170" viewBox="0 0 200 170" aria-hidden="true">
       <path
@@ -350,9 +359,9 @@ export function UniversityDrawing({ className }: { className?: string }) {
       </g>
     </svg>
   );
-}
+});
 
-export function AbbiHead({ className }: { className?: string }) {
+export const AbbiHead = memo(function AbbiHead({ className }: { className?: string }) {
   return (
     <svg className={className} aria-hidden="true" width="96" height="110" viewBox="0 0 80 92">
       <path d="M40 20V9" stroke="#1d1b16" strokeWidth="3" strokeLinecap="round"></path>
@@ -424,9 +433,9 @@ export function AbbiHead({ className }: { className?: string }) {
       <ellipse cx="55" cy="51" rx="3.2" ry="2" fill="#ff7a66"></ellipse>
     </svg>
   );
-}
+});
 
-export function AbbiHand({ className }: { className?: string }) {
+export const AbbiHand = memo(function AbbiHand({ className }: { className?: string }) {
   return (
     <svg className={className} aria-hidden="true" width="34" height="34" viewBox="0 0 34 34">
       <path d="M8 30L14 16" stroke="#1d1b16" strokeWidth="7" strokeLinecap="round"></path>
@@ -441,9 +450,9 @@ export function AbbiHand({ className }: { className?: string }) {
       ></path>
     </svg>
   );
-}
+});
 
-export function AbbiFace({ className }: { className?: string }) {
+export const AbbiFace = memo(function AbbiFace({ className }: { className?: string }) {
   return (
     <svg className={className} aria-hidden="true" width="40" height="40" viewBox="8 14 64 60">
       <rect
@@ -477,9 +486,9 @@ export function AbbiFace({ className }: { className?: string }) {
       ></path>
     </svg>
   );
-}
+});
 
-export function UploadDrawing({ className }: { className?: string }) {
+export const UploadDrawing = memo(function UploadDrawing({ className }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -497,9 +506,9 @@ export function UploadDrawing({ className }: { className?: string }) {
       <path d="M12 20v-8M8.5 15l3.5-3.5 3.5 3.5"></path>
     </svg>
   );
-}
+});
 
-export function MailDrawing({ className }: { className?: string }) {
+export const MailDrawing = memo(function MailDrawing({ className }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -517,9 +526,13 @@ export function MailDrawing({ className }: { className?: string }) {
       <path d="M3.5 6.5l8.5 7 8.5-7"></path>
     </svg>
   );
-}
+});
 
-export function ResultsTabDrawing({ className }: { className?: string }) {
+export const ResultsTabDrawing = memo(function ResultsTabDrawing({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <svg
       className={className}
@@ -538,9 +551,13 @@ export function ResultsTabDrawing({ className }: { className?: string }) {
       <circle cx="12" cy="12" r="1.5" fill="currentColor"></circle>
     </svg>
   );
-}
+});
 
-export function ScoresTabDrawing({ className }: { className?: string }) {
+export const ScoresTabDrawing = memo(function ScoresTabDrawing({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <svg
       className={className}
@@ -557,9 +574,13 @@ export function ScoresTabDrawing({ className }: { className?: string }) {
       <path d="M5 20V11M11 20V5M17 20v-7M3 20h18"></path>
     </svg>
   );
-}
+});
 
-export function ActivitiesTabDrawing({ className }: { className?: string }) {
+export const ActivitiesTabDrawing = memo(function ActivitiesTabDrawing({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <svg
       className={className}
@@ -577,9 +598,13 @@ export function ActivitiesTabDrawing({ className }: { className?: string }) {
       <path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8"></path>
     </svg>
   );
-}
+});
 
-export function RecordedTabDrawing({ className }: { className?: string }) {
+export const RecordedTabDrawing = memo(function RecordedTabDrawing({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <svg
       className={className}
@@ -597,9 +622,13 @@ export function RecordedTabDrawing({ className }: { className?: string }) {
       <path d="M15 7h6v6"></path>
     </svg>
   );
-}
+});
 
-export function UniversitiesTabDrawing({ className }: { className?: string }) {
+export const UniversitiesTabDrawing = memo(function UniversitiesTabDrawing({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <svg
       className={className}
@@ -617,9 +646,9 @@ export function UniversitiesTabDrawing({ className }: { className?: string }) {
       <path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"></path>
     </svg>
   );
-}
+});
 
-export function AbbiTabDrawing({ className }: { className?: string }) {
+export const AbbiTabDrawing = memo(function AbbiTabDrawing({ className }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -637,9 +666,13 @@ export function AbbiTabDrawing({ className }: { className?: string }) {
       <path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"></path>
     </svg>
   );
-}
+});
 
-export function SettingsTabDrawing({ className }: { className?: string }) {
+export const SettingsTabDrawing = memo(function SettingsTabDrawing({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <svg
       className={className}
@@ -657,9 +690,13 @@ export function SettingsTabDrawing({ className }: { className?: string }) {
       <path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"></path>
     </svg>
   );
-}
+});
 
-export function ReasoningDrawing({ className }: { className?: string }) {
+export const ReasoningDrawing = memo(function ReasoningDrawing({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <svg
       className={className}
@@ -678,9 +715,13 @@ export function ReasoningDrawing({ className }: { className?: string }) {
       <circle cx="12" cy="12" r="1.5" fill="#1d1b16"></circle>
     </svg>
   );
-}
+});
 
-export function PersonalityDrawing({ className }: { className?: string }) {
+export const PersonalityDrawing = memo(function PersonalityDrawing({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <svg
       className={className}
@@ -697,9 +738,13 @@ export function PersonalityDrawing({ className }: { className?: string }) {
       <path d="M10 3h4v3a2 2 0 1 0 4 0V3h3v7h-3a2 2 0 1 0 0 4h3v7h-7v-3a2 2 0 1 0-4 0v3H3v-7h3a2 2 0 1 0 0-4H3V3z"></path>
     </svg>
   );
-}
+});
 
-export function AssessmentsDrawing({ className }: { className?: string }) {
+export const AssessmentsDrawing = memo(function AssessmentsDrawing({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <svg
       className={className}
@@ -717,9 +762,9 @@ export function AssessmentsDrawing({ className }: { className?: string }) {
       <path d="M9 4V2.5h6V4M8.5 11l2 2 4-4M8.5 17h7"></path>
     </svg>
   );
-}
+});
 
-export function FitDrawing({ className }: { className?: string }) {
+export const FitDrawing = memo(function FitDrawing({ className }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -737,9 +782,9 @@ export function FitDrawing({ className }: { className?: string }) {
       <path d="M15.5 8.5l-2 5-5 2 2-5z" fill="#d9381e"></path>
     </svg>
   );
-}
+});
 
-export function SendDrawing({ className }: { className?: string }) {
+export const SendDrawing = memo(function SendDrawing({ className }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -757,9 +802,13 @@ export function SendDrawing({ className }: { className?: string }) {
       <path d="M21 3l-7 18-4-7-7-4z"></path>
     </svg>
   );
-}
+});
 
-export function ReasoningInfoDrawing({ className }: { className?: string }) {
+export const ReasoningInfoDrawing = memo(function ReasoningInfoDrawing({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <svg
       className={className}
@@ -777,9 +826,13 @@ export function ReasoningInfoDrawing({ className }: { className?: string }) {
       <path d="M12 11v6M12 7.5v.5"></path>
     </svg>
   );
-}
+});
 
-export function StrengthsHeartDrawing({ className }: { className?: string }) {
+export const StrengthsHeartDrawing = memo(function StrengthsHeartDrawing({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <svg
       className={className}
@@ -796,9 +849,13 @@ export function StrengthsHeartDrawing({ className }: { className?: string }) {
       <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"></path>
     </svg>
   );
-}
+});
 
-export function CareersCompassDrawing({ className }: { className?: string }) {
+export const CareersCompassDrawing = memo(function CareersCompassDrawing({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <svg
       className={className}
@@ -816,9 +873,13 @@ export function CareersCompassDrawing({ className }: { className?: string }) {
       <path d="M15.5 8.5l-2 5-5 2 2-5z" fill="#ffd93d"></path>
     </svg>
   );
-}
+});
 
-export function HistoryChartDrawing({ className }: { className?: string }) {
+export const HistoryChartDrawing = memo(function HistoryChartDrawing({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <svg
       className={className}
@@ -836,9 +897,9 @@ export function HistoryChartDrawing({ className }: { className?: string }) {
       <path d="M15 7h6v6"></path>
     </svg>
   );
-}
+});
 
-export function ProfileDrawing({ className }: { className?: string }) {
+export const ProfileDrawing = memo(function ProfileDrawing({ className }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -856,9 +917,13 @@ export function ProfileDrawing({ className }: { className?: string }) {
       <path d="M4 21c1-4 4-6 8-6s7 2 8 6"></path>
     </svg>
   );
-}
+});
 
-export function PreferencesDrawing({ className }: { className?: string }) {
+export const PreferencesDrawing = memo(function PreferencesDrawing({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <svg
       className={className}
@@ -876,9 +941,13 @@ export function PreferencesDrawing({ className }: { className?: string }) {
       <path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"></path>
     </svg>
   );
-}
+});
 
-export function LanguageDrawing({ className }: { className?: string }) {
+export const LanguageDrawing = memo(function LanguageDrawing({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <svg
       className={className}
@@ -896,9 +965,9 @@ export function LanguageDrawing({ className }: { className?: string }) {
       <path d="M13 21l4-9 4 9M14.5 18h5"></path>
     </svg>
   );
-}
+});
 
-export function MoonDrawing({ className }: { className?: string }) {
+export const MoonDrawing = memo(function MoonDrawing({ className }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -915,7 +984,7 @@ export function MoonDrawing({ className }: { className?: string }) {
       <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"></path>
     </svg>
   );
-}
+});
 
 export function StripedCard({
   children,
@@ -943,7 +1012,7 @@ export function Pushpin({ color = "#d9381e" }: { color?: string }) {
     </svg>
   );
 }
-export function WavyLine({ dashed = false }: { dashed?: boolean }) {
+export const WavyLine = memo(function WavyLine({ dashed = false }: { dashed?: boolean }) {
   return (
     <svg
       className="student-wave"
@@ -961,15 +1030,15 @@ export function WavyLine({ dashed = false }: { dashed?: boolean }) {
       />
     </svg>
   );
-}
-export function AbbiMascot() {
+});
+export const AbbiMascot = memo(function AbbiMascot() {
   return (
     <div className="student-mascot">
       <AbbiHead />
       <AbbiHand className="student-mascot-hand" />
     </div>
   );
-}
+});
 export function SpiralBinding() {
   return (
     <div className="student-binding" aria-hidden="true">

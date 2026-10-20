@@ -1,7 +1,16 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  type ReactNode,
+} from "react";
 import { useLocation, useRouter } from "@tanstack/react-router";
 import { useI18n } from "@/lib/i18n";
 import { MOTION } from "@/lib/motion";
+import { useRouteTransition } from "./useRouteTransition";
 const Context = createContext({ enabled: false, toggle: () => {} });
 export const useMotion = () => useContext(Context);
 /** All entrance/exit clocks, asset milestones and route listeners have one owner. */
@@ -17,6 +26,7 @@ export function MotionProvider({ children }: { children: ReactNode }) {
   const curtain = useRef<HTMLDivElement>(null);
   const introSeen = useRef(false);
   const active = allowed && choice !== false;
+  useRouteTransition(curtain, active);
   useEffect(() => {
     const media = matchMedia("(prefers-reduced-motion: reduce)");
     try {
@@ -42,6 +52,9 @@ export function MotionProvider({ children }: { children: ReactNode }) {
     if (!active) return;
     let cancelled = false;
     let dispose = () => {};
+    let resume = () => {};
+    const wake = () => window.setTimeout(resume, 50);
+    const transitioned = !!document.documentElement.dataset.routeTransition;
     // Assessment owns its reading scroll area. No Lenis, pinning, parallax or
     // route-wide masks may capture touch/focus inside that area.
     if (
@@ -56,7 +69,6 @@ export function MotionProvider({ children }: { children: ReactNode }) {
           CustomEase.create("studioExpo", MOTION.entrance);
           CustomEase.create("studioFlow", MOTION.transition);
           gsap.set(".page-plane", { clearProps: "clipPath,transform" });
-          gsap.set(curtain.current, { clipPath: "inset(100% 0 0 0)" });
           document.documentElement.dataset.intro = "done";
           setReady(true);
         })
@@ -88,7 +100,13 @@ export function MotionProvider({ children }: { children: ReactNode }) {
         }),
       ),
     )
-      .then((values) => {
+      .then(async (values) => {
+        if (transitioned && document.documentElement.dataset.routeTransition) {
+          await new Promise<void>((resolve) => {
+            resume = resolve;
+            window.addEventListener("abilitio:transition-end", wake, { once: true });
+          });
+        }
         if (cancelled) return;
         const { gsap } = values[0] as typeof import("gsap");
         const { ScrollTrigger } = values[1] as typeof import("gsap/ScrollTrigger");
@@ -132,7 +150,7 @@ export function MotionProvider({ children }: { children: ReactNode }) {
         window.addEventListener("scroll", velocity, { passive: true });
         const context = gsap.context(() => {
           const hero = document.querySelector(".studio-hero");
-          if (hero) {
+          if (hero && !transitioned) {
             const timeline = gsap.timeline({ defaults: { ease: "studioExpo" } });
             timeline
               .addLabel("unseal", 0)
@@ -184,7 +202,7 @@ export function MotionProvider({ children }: { children: ReactNode }) {
                 { clipPath: "inset(0 0% 0 0)", duration: MOTION.panel, stagger: MOTION.stagger },
                 "promise+=0.16",
               );
-          } else {
+          } else if (!transitioned) {
             setLoading(false);
             const page = document.querySelector(".page-plane");
             const heading = document.querySelector(".field-intro h1");
@@ -256,7 +274,6 @@ export function MotionProvider({ children }: { children: ReactNode }) {
               },
             });
           });
-          gsap.set(curtain.current, { clipPath: "inset(100% 0 0 0)" });
         });
         const pointer = (event: PointerEvent) => {
           if (!fine || event.pointerType === "touch") return;
@@ -287,63 +304,49 @@ export function MotionProvider({ children }: { children: ReactNode }) {
               overwrite: true,
             });
         };
-        let navigating = false;
-        const navigate = (event: MouseEvent) => {
-          if (
-            navigating ||
-            event.button !== 0 ||
-            event.metaKey ||
-            event.ctrlKey ||
-            event.shiftKey ||
-            event.altKey
-          )
-            return;
-          const anchor = (event.target as HTMLElement).closest<HTMLAnchorElement>("a[href]");
-          if (!anchor || anchor.target || anchor.download) return;
-          const url = new URL(anchor.href);
-          if (url.origin !== window.location.origin) return;
-          if (url.pathname === window.location.pathname) return;
-          event.preventDefault();
-          event.stopPropagation();
-          navigating = true;
-          gsap
-            .timeline()
-            .addLabel("exit")
-            .to(
-              curtain.current,
-              { clipPath: "inset(0% 0 0 0)", duration: MOTION.control, ease: "studioFlow" },
-              "exit",
-            )
-            .to(
-              ".page-plane",
-              { clipPath: "inset(0 0 18% 0)", duration: MOTION.control, ease: "studioFlow" },
-              "exit",
-            )
-            .call(
-              () => {
-                void router.navigate({ href: url.pathname + url.search + url.hash });
-              },
-              undefined,
-              "exit+=0.36",
-            );
+        const pausedForRoute: Array<{ pause(): unknown; resume(): unknown; isActive(): boolean }> =
+          [];
+        const pauseForRoute = (event: Event) => {
+          if ((event as CustomEvent).detail !== "covering") return;
+          context
+            .getTweens()
+            .forEach((tween: { pause(): unknown; resume(): unknown; isActive(): boolean }) => {
+              if (tween.isActive()) {
+                pausedForRoute.push(tween);
+                tween.pause();
+              }
+            });
         };
+        const resumeCancelledRoute = () => {
+          if (window.location.pathname !== location.pathname) return;
+          pausedForRoute.forEach((tween) => tween.resume());
+          pausedForRoute.length = 0;
+        };
+        window.addEventListener("abilitio:transition-phase", pauseForRoute);
+        window.addEventListener("abilitio:transition-end", resumeCancelledRoute);
         document.addEventListener("pointermove", pointer, { passive: true });
         document.addEventListener("pointerout", leave);
-        document.addEventListener("click", navigate, true);
         ScrollTrigger.refresh();
         dispose = () => {
-          context.revert();
+          // The old route DOM is already detached. Reverting every old tween
+          // forces style/layout reads for a page nobody can see.
+          if (document.documentElement.dataset.routeTransition) {
+            context.getTweens().forEach((tween: { pause: () => unknown }) => tween.pause());
+            const release = () => window.setTimeout(() => context.kill(), 0);
+            window.addEventListener("abilitio:transition-end", release, { once: true });
+          } else context.revert();
+          window.removeEventListener("abilitio:transition-phase", pauseForRoute);
+          window.removeEventListener("abilitio:transition-end", resumeCancelledRoute);
           gsap.ticker.remove(tick);
           lenis?.destroy();
           window.removeEventListener("scroll", velocity);
           clearTimeout(skewReset);
           document.removeEventListener("pointermove", pointer);
           document.removeEventListener("pointerout", leave);
-          document.removeEventListener("click", navigate, true);
-          gsap.killTweensOf(curtain.current);
-          document
-            .querySelectorAll<HTMLElement>("[data-magnetic]")
-            .forEach((el) => gsap.set(el, { clearProps: "transform" }));
+          if (!document.documentElement.dataset.routeTransition)
+            document
+              .querySelectorAll<HTMLElement>("[data-magnetic]")
+              .forEach((el) => el.style.removeProperty("transform"));
         };
       })
       .catch(() => {
@@ -355,24 +358,28 @@ export function MotionProvider({ children }: { children: ReactNode }) {
       });
     return () => {
       cancelled = true;
+      window.removeEventListener("abilitio:transition-end", wake);
+      resume();
       dispose();
     };
   }, [active, location.pathname, lang, router]);
+  const contextValue = useMemo(
+    () => ({
+      enabled: active && ready,
+      toggle: () => {
+        const next = !(active && ready);
+        setChoice(next);
+        try {
+          localStorage.setItem("abilitio-motion", next ? "on" : "off");
+        } catch {
+          /* optional preference */
+        }
+      },
+    }),
+    [active, ready],
+  );
   return (
-    <Context.Provider
-      value={{
-        enabled: active && ready,
-        toggle: () => {
-          const next = !(active && ready);
-          setChoice(next);
-          try {
-            localStorage.setItem("abilitio-motion", next ? "on" : "off");
-          } catch {
-            /* optional preference */
-          }
-        },
-      }}
-    >
+    <Context.Provider value={contextValue}>
       {children}
       {loading && active && (
         <div

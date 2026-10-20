@@ -11,9 +11,16 @@ import {
 import { useEffect } from "react";
 import { Sparkles, Home, RefreshCw } from "lucide-react";
 
+import displayFont from "@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2?url";
+import bodyFont from "@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2?url";
+import cyrillicDisplayFont from "@fontsource-variable/rubik/files/rubik-cyrillic-wght-normal.woff2?url";
+import cyrillicBodyFont from "@fontsource-variable/onest/files/onest-cyrillic-wght-normal.woff2?url";
+import handLatin from "@fontsource/caveat/files/caveat-latin-700-normal.woff2?url";
+import handCyrillic from "@fontsource/caveat/files/caveat-cyrillic-700-normal.woff2?url";
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth-context";
 import { LanguageProvider, useT } from "@/lib/i18n";
+import { SharedPageShell } from "@/components/PageShell";
 import { MotionProvider } from "@/components/MotionProvider";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { SITE_URL, OG_IMAGE_URL, SITE_NAME, CONTACT_EMAIL } from "@/lib/constants";
@@ -150,6 +157,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      ...[
+        displayFont,
+        bodyFont,
+        cyrillicDisplayFont,
+        cyrillicBodyFont,
+        handLatin,
+        handCyrillic,
+      ].map((href) => ({
+        rel: "preload",
+        as: "font",
+        type: "font/woff2",
+        href,
+        crossOrigin: "anonymous" as const,
+      })),
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
     ],
@@ -197,7 +218,9 @@ function RootComponent() {
         <AuthProvider>
           {/* Required: nested routes render here. */}
           <MotionProvider>
-            <Outlet />
+            <SharedPageShell>
+              <Outlet />
+            </SharedPageShell>
           </MotionProvider>
 
           <SonnerToaster />
