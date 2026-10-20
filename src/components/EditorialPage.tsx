@@ -415,9 +415,9 @@ export function EditorialPage({ kind }: { kind: Kind }) {
               </blockquote>
               <p className="my-5">
                 {w(
-                  "Question and scoring quality review: [Owner to provide reviewer names, qualifications and review responsibilities].",
-                  "Savollar va baholash sifati ko‘rigi: [Egasi tekshiruvchilar ismi, malakasi va mas’uliyatini kiritadi].",
-                  "Проверка вопросов и оценивания: [Владелец укажет рецензентов, квалификацию и обязанности].",
+                  "Meet the people building Abilitio.",
+                  "Abilitio loyihasini yaratayotgan insonlar bilan tanishing.",
+                  "Познакомьтесь с людьми, которые создают Abilitio.",
                 )}
               </p>
               <div className="person-register">
@@ -427,7 +427,7 @@ export function EditorialPage({ kind }: { kind: Kind }) {
                     <div>
                       <h2>{founder.name}</h2>
                       <p className="micro text-muted-foreground">
-                        {w("Co-founder", "Hamasoschi", "Сооснователь")}
+                        {w(founder.role.en, founder.role.uz, founder.role.ru)}
                       </p>
                       <dl className="mt-3 text-sm space-y-2">
                         <div>
@@ -438,25 +438,7 @@ export function EditorialPage({ kind }: { kind: Kind }) {
                               "Роль и обязанности",
                             )}
                           </dt>
-                          <dd>
-                            {w(
-                              "[Owner to provide verified details]",
-                              "[Egasi tasdiqlangan ma’lumot kiritadi]",
-                              "[Владелец укажет проверенные сведения]",
-                            )}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt>
-                            {w("Relevant experience", "Tegishli tajriba", "Соответствующий опыт")}
-                          </dt>
-                          <dd>
-                            {w(
-                              "[Owner to provide verified experience]",
-                              "[Egasi tasdiqlangan tajribani kiritadi]",
-                              "[Владелец укажет подтверждённый опыт]",
-                            )}
-                          </dd>
+                          <dd>{w(founder.bio.en, founder.bio.uz, founder.bio.ru)}</dd>
                         </div>
                       </dl>
                     </div>

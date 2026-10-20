@@ -203,7 +203,7 @@ function LandingPage() {
               <FounderPortrait founder={founder} />
               <figcaption>
                 <strong>{founder.name}</strong>
-                <span>{w("Co-founder", "Hamasoschi", "Сооснователь")}</span>
+                <span>{w(founder.role.en, founder.role.uz, founder.role.ru)}</span>
               </figcaption>
             </figure>
           ))}
