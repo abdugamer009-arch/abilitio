@@ -24,6 +24,8 @@ export type CognitiveQ = AgeMetadata & {
   section: "cognitive";
   prompt: string;
   options: string[];
+  picture?: import("./picture-types").PictureItem;
+  questionSetVersion?: string;
   correct: number; // index
   /** Server-only permutation: displayed position -> canonical option index. */
   optionOrder?: number[];

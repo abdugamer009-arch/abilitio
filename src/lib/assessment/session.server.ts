@@ -12,6 +12,8 @@ function key() {
   );
 }
 export type SessionClaims = {
+  questionSetVersion?: string;
+  iqOptionIds?: string[][];
   nonce: string;
   expires: number;
   personality: string[];
@@ -27,9 +29,9 @@ export function sessionIQAnswerKeys(claim: SessionClaims, canonicalKeys: number[
     throw new Error("invalid_session: option ordering");
   return claim.iqOptionOrders.map((order, i) => {
     if (
-      order.length !== 4 ||
-      new Set(order).size !== 4 ||
-      order.some((v) => !Number.isInteger(v) || v < 0 || v > 3)
+      ![3, 4].includes(order.length) ||
+      new Set(order).size !== order.length ||
+      order.some((v) => !Number.isInteger(v) || v < 0 || v >= order.length)
     )
       throw new Error("invalid_session: option ordering");
     const correct = order.indexOf(canonicalKeys[i]);
@@ -75,6 +77,25 @@ export function validateSessionSubmission(
     (data.iqAnswers && data.iqAnswers.length !== claim.iq.length)
   )
     throw new Error("invalid_session: section counts");
+  if (
+    data.iqAnswers &&
+    data.iqAnswers.some(
+      (answer, i) =>
+        !Number.isInteger(answer) ||
+        answer < -1 ||
+        answer >= (claim.iqOptionOrders?.[i]?.length ?? 4),
+    )
+  )
+    throw new Error("invalid_session: cognitive answer membership");
+  if (
+    claim.iqOptionIds &&
+    (claim.iqOptionIds.length !== claim.iq.length ||
+      claim.iqOptionIds.some(
+        (ids, i) =>
+          ids.length !== claim.iqOptionOrders?.[i]?.length || new Set(ids).size !== ids.length,
+      ))
+  )
+    throw new Error("invalid_session: cognitive option ids");
   const same = (actual: string[], expected: string[]) =>
     actual.length === expected.length &&
     new Set(actual).size === actual.length &&

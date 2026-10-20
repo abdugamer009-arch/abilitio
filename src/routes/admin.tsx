@@ -1,3 +1,4 @@
+import { PictureQuestionStats } from "@/components/assessment/PictureQuestionStats";
 import { useUiText } from "@/lib/ui-text";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -209,6 +210,8 @@ function AdminDashboardPage() {
               </p>
             </div>
           </div>
+
+          <PictureQuestionStats />
 
           {analytics && (
             <>

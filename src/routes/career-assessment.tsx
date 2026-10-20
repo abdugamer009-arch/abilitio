@@ -1,3 +1,5 @@
+import { PictureAssessment } from "@/components/assessment/PictureAssessment";
+import { getPictureAssessmentMode } from "@/lib/assessment/picture-config.functions";
 import { draftIsCurrent } from "@/lib/assessment/draft-expiry";
 import "@/styles/assessment.css";
 import { AssessmentProfileChooser } from "@/components/AssessmentProfileChooser";
@@ -54,8 +56,34 @@ export const Route = createFileRoute("/career-assessment")({
       "Explore your career profile",
       "Thirty questions about reasoning, work preferences and interests. An exploratory profile, not a diagnosis.",
     ),
-  component: CareerAssessmentPage,
+  loader: () => getPictureAssessmentMode(),
+  component: AssessmentEntry,
 });
+
+function AssessmentEntry() {
+  const mode = Route.useLoaderData();
+  const { user, loading } = useAuth();
+  const [legacy, setLegacy] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (loading) return;
+    try {
+      const old = JSON.parse(readAttemptDraft() ?? "null");
+      setLegacy(
+        !!old?.session &&
+          (!old.ownerId || old.ownerId === user?.id) &&
+          draftIsCurrent(old.session.sessionToken),
+      );
+    } catch {
+      setLegacy(false);
+    }
+  }, [loading, user?.id]);
+  if (mode.enabled && legacy === null) return null;
+  return mode.enabled && !legacy ? (
+    <PictureAssessment />
+  ) : (
+    <CareerAssessmentPage onRestart={mode.enabled ? () => setLegacy(false) : undefined} />
+  );
+}
 
 const P_COUNT = 12;
 
@@ -89,7 +117,7 @@ function makeAnswers(iqCount = 9, interestCount = 9): Answers {
 
 type Lang = "en" | "ru" | "uz";
 
-function CareerAssessmentPage() {
+function CareerAssessmentPage({ onRestart }: { onRestart?: () => void }) {
   const t = useT();
   const w = useWords();
   const { lang } = useI18n();
@@ -199,6 +227,19 @@ function CareerAssessmentPage() {
       setChoosing(false);
       return;
     }
+    if (onRestart) {
+      try {
+        sessionStorage.setItem(
+          `abilitio.picture-profile:${user?.id ?? "guest"}`,
+          JSON.stringify(profile),
+        );
+      } catch {
+        /* optional styling */
+      }
+      resetAttempt();
+      onRestart();
+      return;
+    }
     startPending.current = true;
     setStarting(true);
     setSubmitError(null);
@@ -219,7 +260,7 @@ function CareerAssessmentPage() {
       startPending.current = false;
       setStarting(false);
     }
-  }, [start, t, user?.id, profile, session]);
+  }, [start, t, user?.id, profile, session, onRestart]);
 
   // Restore an interrupted attempt on mount (client-only — localStorage is undefined during SSR).
   useEffect(() => {
@@ -560,6 +601,7 @@ function CareerAssessmentPage() {
     setChoosing(true);
   }
   function restartTest() {
+    onRestart?.();
     setSession(null);
     setAnswers(makeAnswers());
     setStep(0);

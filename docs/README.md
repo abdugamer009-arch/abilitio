@@ -40,3 +40,10 @@ These records explain earlier decisions and verification. Their historical count
 | [Critique](design/CRITIQUE.md)                 | Earlier interface audit                               |
 
 Keep new setup/architecture guidance in `development/`, operational evidence in `operations/`, and design retrospectives in `design/`. Link back here when adding a guide.
+
+## Picture assessment pilot
+
+- [Implementation, switches and pilot protocol](development/PICTURE_ASSESSMENT.md)
+- [Full reasoning retirement register](design/ASSESSMENT_REASONING_RETIREMENT.md)
+
+- [20 October picture assessment release and evidence boundaries](operations/PICTURE_ASSESSMENT_2026_10_20.md)

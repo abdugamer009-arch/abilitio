@@ -1,6 +1,10 @@
 export type ReasoningLanguage = "en" | "ru" | "uz";
 
-export function formatReasoningScore(score: number | null, lang: ReasoningLanguage): string {
+export function formatReasoningScore(
+  score: number | null,
+  lang: ReasoningLanguage,
+  questionSetVersion?: string,
+): string {
   if (score == null) {
     return {
       en: "Reasoning not assessed",
@@ -9,6 +13,14 @@ export function formatReasoningScore(score: number | null, lang: ReasoningLangua
     }[lang];
   }
   const correct = Math.max(0, Math.min(9, score));
+  if (questionSetVersion === "picture-reasoning-v1") {
+    const scaled = (Math.round((correct / 9) * 100) / 10).toFixed(1);
+    return {
+      en: `${scaled} / 10 · ${correct} of 9 correct`,
+      ru: `${scaled} / 10 · ${correct} из 9 верно`,
+      uz: `${scaled} / 10 · 9 tadan ${correct} ta to‘g‘ri`,
+    }[lang];
+  }
   return {
     en: `${correct} of 9 correct on this attempt`,
     ru: `${correct} из 9 верно в этой попытке`,

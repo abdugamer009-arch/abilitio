@@ -1,0 +1,1511 @@
+[
+  {
+    "id": "picture-s1-a-v1",
+    "slot": 1,
+    "version": "a",
+    "type": "odd",
+    "difficulty": "easy",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-reasoning-v1",
+    "scored": true,
+    "questionLine": {
+      "en": "Which picture does not follow the same rule?",
+      "ru": "Какая картинка не подчиняется общему правилу?",
+      "uz": "Qaysi rasm umumiy qoidaga mos emas?"
+    },
+    "figureData": {
+      "kind": "odd"
+    },
+    "options": [
+      {
+        "id": "picture-s1-a-v1-choice-0",
+        "value": {
+          "kind": "circle",
+          "dotOutside": false,
+          "dotSide": "right"
+        }
+      },
+      {
+        "id": "picture-s1-a-v1-choice-1",
+        "value": {
+          "kind": "square",
+          "dotOutside": false,
+          "dotSide": "right"
+        }
+      },
+      {
+        "id": "picture-s1-a-v1-choice-2",
+        "value": {
+          "kind": "diamond",
+          "dotOutside": true,
+          "dotSide": "right"
+        }
+      },
+      {
+        "id": "picture-s1-a-v1-choice-3",
+        "value": {
+          "kind": "triangle",
+          "dotOutside": false,
+          "dotSide": "right"
+        }
+      }
+    ],
+    "correctAnswerId": "picture-s1-a-v1-choice-2",
+    "ruleExplanation": "The small black dot is inside the outline in every picture except the answer. The outside dot is separated from the outline by a visible gap.",
+    "wrongAnswerExplanations": {
+      "picture-s1-a-v1-choice-0": "Its black dot is inside the outline, so it follows the shared rule.",
+      "picture-s1-a-v1-choice-1": "Its black dot is inside the outline, so it follows the shared rule.",
+      "picture-s1-a-v1-choice-3": "Its black dot is inside the outline, so it follows the shared rule."
+    }
+  },
+  {
+    "id": "picture-s1-b-v1",
+    "slot": 1,
+    "version": "b",
+    "type": "odd",
+    "difficulty": "easy",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-reasoning-v1",
+    "scored": true,
+    "questionLine": {
+      "en": "Which picture does not follow the same rule?",
+      "ru": "Какая картинка не подчиняется общему правилу?",
+      "uz": "Qaysi rasm umumiy qoidaga mos emas?"
+    },
+    "figureData": {
+      "kind": "odd"
+    },
+    "options": [
+      {
+        "id": "picture-s1-b-v1-choice-0",
+        "value": {
+          "kind": "circle",
+          "dotOutside": false,
+          "dotSide": "left"
+        }
+      },
+      {
+        "id": "picture-s1-b-v1-choice-1",
+        "value": {
+          "kind": "square",
+          "dotOutside": true,
+          "dotSide": "left"
+        }
+      },
+      {
+        "id": "picture-s1-b-v1-choice-2",
+        "value": {
+          "kind": "diamond",
+          "dotOutside": false,
+          "dotSide": "left"
+        }
+      },
+      {
+        "id": "picture-s1-b-v1-choice-3",
+        "value": {
+          "kind": "triangle",
+          "dotOutside": false,
+          "dotSide": "left"
+        }
+      }
+    ],
+    "correctAnswerId": "picture-s1-b-v1-choice-1",
+    "ruleExplanation": "The small black dot is inside the outline in every picture except the answer. The outside dot is separated from the outline by a visible gap.",
+    "wrongAnswerExplanations": {
+      "picture-s1-b-v1-choice-0": "Its black dot is inside the outline, so it follows the shared rule.",
+      "picture-s1-b-v1-choice-2": "Its black dot is inside the outline, so it follows the shared rule.",
+      "picture-s1-b-v1-choice-3": "Its black dot is inside the outline, so it follows the shared rule."
+    }
+  },
+  {
+    "id": "picture-s2-a-v1",
+    "slot": 2,
+    "version": "a",
+    "type": "series",
+    "difficulty": "easy",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-reasoning-v1",
+    "scored": true,
+    "questionLine": {
+      "en": "What comes next?",
+      "ru": "Что будет дальше?",
+      "uz": "Keyin qaysi rasm keladi?"
+    },
+    "figureData": {
+      "kind": "series",
+      "items": [
+        {
+          "kind": "dial",
+          "rotation": 0,
+          "fill": "black",
+          "marker": false
+        },
+        {
+          "kind": "dial",
+          "rotation": 1,
+          "fill": "black",
+          "marker": false
+        },
+        {
+          "kind": "dial",
+          "rotation": 2,
+          "fill": "black",
+          "marker": false
+        },
+        {
+          "kind": "dial",
+          "rotation": 3,
+          "fill": "black",
+          "marker": false
+        }
+      ],
+      "start": 0,
+      "step": 1,
+      "two": false
+    },
+    "options": [
+      {
+        "id": "picture-s2-a-v1-choice-0",
+        "value": {
+          "kind": "dial",
+          "rotation": 1,
+          "fill": "black",
+          "marker": false
+        }
+      },
+      {
+        "id": "picture-s2-a-v1-choice-1",
+        "value": {
+          "kind": "dial",
+          "rotation": 0,
+          "fill": "black",
+          "marker": false
+        }
+      },
+      {
+        "id": "picture-s2-a-v1-choice-2",
+        "value": {
+          "kind": "dial",
+          "rotation": 3,
+          "fill": "black",
+          "marker": false
+        }
+      },
+      {
+        "id": "picture-s2-a-v1-choice-3",
+        "value": {
+          "kind": "dial",
+          "rotation": 2,
+          "fill": "black",
+          "marker": false
+        }
+      }
+    ],
+    "correctAnswerId": "picture-s2-a-v1-choice-1",
+    "ruleExplanation": "The pointer turns a quarter-turn clockwise each step. The frame and fill stay unchanged.",
+    "wrongAnswerExplanations": {
+      "picture-s2-a-v1-choice-0": "The pointer turns in the wrong direction for the next step.",
+      "picture-s2-a-v1-choice-2": "The pointer is a quarter-turn anticlockwise from the required direction.",
+      "picture-s2-a-v1-choice-3": "The pointer jumps to the opposite direction."
+    }
+  },
+  {
+    "id": "picture-s2-b-v1",
+    "slot": 2,
+    "version": "b",
+    "type": "series",
+    "difficulty": "easy",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-reasoning-v1",
+    "scored": true,
+    "questionLine": {
+      "en": "What comes next?",
+      "ru": "Что будет дальше?",
+      "uz": "Keyin qaysi rasm keladi?"
+    },
+    "figureData": {
+      "kind": "series",
+      "items": [
+        {
+          "kind": "dial",
+          "rotation": 1,
+          "fill": "black",
+          "marker": false
+        },
+        {
+          "kind": "dial",
+          "rotation": 0,
+          "fill": "black",
+          "marker": false
+        },
+        {
+          "kind": "dial",
+          "rotation": 3,
+          "fill": "black",
+          "marker": false
+        },
+        {
+          "kind": "dial",
+          "rotation": 2,
+          "fill": "black",
+          "marker": false
+        }
+      ],
+      "start": 1,
+      "step": -1,
+      "two": false
+    },
+    "options": [
+      {
+        "id": "picture-s2-b-v1-choice-0",
+        "value": {
+          "kind": "dial",
+          "rotation": 3,
+          "fill": "black",
+          "marker": false
+        }
+      },
+      {
+        "id": "picture-s2-b-v1-choice-1",
+        "value": {
+          "kind": "dial",
+          "rotation": 2,
+          "fill": "black",
+          "marker": false
+        }
+      },
+      {
+        "id": "picture-s2-b-v1-choice-2",
+        "value": {
+          "kind": "dial",
+          "rotation": 0,
+          "fill": "black",
+          "marker": false
+        }
+      },
+      {
+        "id": "picture-s2-b-v1-choice-3",
+        "value": {
+          "kind": "dial",
+          "rotation": 1,
+          "fill": "black",
+          "marker": false
+        }
+      }
+    ],
+    "correctAnswerId": "picture-s2-b-v1-choice-3",
+    "ruleExplanation": "The pointer turns a quarter-turn anticlockwise each step. The frame and fill stay unchanged.",
+    "wrongAnswerExplanations": {
+      "picture-s2-b-v1-choice-0": "The pointer jumps to the opposite direction.",
+      "picture-s2-b-v1-choice-1": "The pointer turns in the wrong direction for the next step.",
+      "picture-s2-b-v1-choice-2": "The pointer is a quarter-turn anticlockwise from the required direction."
+    }
+  },
+  {
+    "id": "picture-s3-a-v1",
+    "slot": 3,
+    "version": "a",
+    "type": "grid",
+    "difficulty": "easy",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-reasoning-v1",
+    "scored": true,
+    "questionLine": {
+      "en": "Which piece completes the grid?",
+      "ru": "Какая фигура завершает сетку?",
+      "uz": "Katakni qaysi shakl to‘ldiradi?"
+    },
+    "figureData": {
+      "kind": "grid",
+      "cells": [
+        {
+          "kind": "circle",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "circle",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "circle",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "square",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "square",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "square",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "triangle",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "triangle",
+          "fill": "white",
+          "rotation": 0
+        },
+        null
+      ],
+      "kinds": ["circle", "square", "triangle"],
+      "fills": ["white", "black", "hatched"],
+      "two": false
+    },
+    "options": [
+      {
+        "id": "picture-s3-a-v1-choice-0",
+        "value": {
+          "kind": "triangle",
+          "fill": "black",
+          "rotation": 0
+        }
+      },
+      {
+        "id": "picture-s3-a-v1-choice-1",
+        "value": {
+          "kind": "circle",
+          "fill": "white",
+          "rotation": 0
+        }
+      },
+      {
+        "id": "picture-s3-a-v1-choice-2",
+        "value": {
+          "kind": "triangle",
+          "fill": "white",
+          "rotation": 0
+        }
+      },
+      {
+        "id": "picture-s3-a-v1-choice-3",
+        "value": {
+          "kind": "square",
+          "fill": "hatched",
+          "rotation": 0
+        }
+      }
+    ],
+    "correctAnswerId": "picture-s3-a-v1-choice-2",
+    "ruleExplanation": "Every row repeats the same white shape. The last tile must match the other tiles in its row.",
+    "wrongAnswerExplanations": {
+      "picture-s3-a-v1-choice-0": "The fill changes, while all given tiles are white.",
+      "picture-s3-a-v1-choice-1": "The shape does not continue the row pattern.",
+      "picture-s3-a-v1-choice-3": "Both its shape and fill differ from the repeated row."
+    }
+  },
+  {
+    "id": "picture-s3-b-v1",
+    "slot": 3,
+    "version": "b",
+    "type": "grid",
+    "difficulty": "easy",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-reasoning-v1",
+    "scored": true,
+    "questionLine": {
+      "en": "Which piece completes the grid?",
+      "ru": "Какая фигура завершает сетку?",
+      "uz": "Katakni qaysi shakl to‘ldiradi?"
+    },
+    "figureData": {
+      "kind": "grid",
+      "cells": [
+        {
+          "kind": "diamond",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "diamond",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "diamond",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "triangle",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "triangle",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "triangle",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "circle",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "circle",
+          "fill": "white",
+          "rotation": 0
+        },
+        null
+      ],
+      "kinds": ["diamond", "triangle", "circle"],
+      "fills": ["hatched", "white", "black"],
+      "two": false
+    },
+    "options": [
+      {
+        "id": "picture-s3-b-v1-choice-0",
+        "value": {
+          "kind": "circle",
+          "fill": "white",
+          "rotation": 0
+        }
+      },
+      {
+        "id": "picture-s3-b-v1-choice-1",
+        "value": {
+          "kind": "diamond",
+          "fill": "white",
+          "rotation": 0
+        }
+      },
+      {
+        "id": "picture-s3-b-v1-choice-2",
+        "value": {
+          "kind": "circle",
+          "fill": "black",
+          "rotation": 0
+        }
+      },
+      {
+        "id": "picture-s3-b-v1-choice-3",
+        "value": {
+          "kind": "triangle",
+          "fill": "hatched",
+          "rotation": 0
+        }
+      }
+    ],
+    "correctAnswerId": "picture-s3-b-v1-choice-0",
+    "ruleExplanation": "Every row repeats the same white shape. The last tile must match the other tiles in its row.",
+    "wrongAnswerExplanations": {
+      "picture-s3-b-v1-choice-1": "The shape does not continue the row pattern.",
+      "picture-s3-b-v1-choice-2": "The fill changes, while all given tiles are white.",
+      "picture-s3-b-v1-choice-3": "Both its shape and fill differ from the repeated row."
+    }
+  },
+  {
+    "id": "picture-s4-a-v1",
+    "slot": 4,
+    "version": "a",
+    "type": "series",
+    "difficulty": "medium",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-reasoning-v1",
+    "scored": true,
+    "questionLine": {
+      "en": "What comes next?",
+      "ru": "Что будет дальше?",
+      "uz": "Keyin qaysi rasm keladi?"
+    },
+    "figureData": {
+      "kind": "series",
+      "items": [
+        {
+          "kind": "dial",
+          "rotation": 0,
+          "fill": "black",
+          "marker": true
+        },
+        {
+          "kind": "dial",
+          "rotation": 1,
+          "fill": "white",
+          "marker": true
+        },
+        {
+          "kind": "dial",
+          "rotation": 2,
+          "fill": "black",
+          "marker": true
+        },
+        {
+          "kind": "dial",
+          "rotation": 3,
+          "fill": "white",
+          "marker": true
+        }
+      ],
+      "start": 0,
+      "step": 1,
+      "two": true
+    },
+    "options": [
+      {
+        "id": "picture-s4-a-v1-choice-0",
+        "value": {
+          "kind": "dial",
+          "rotation": 0,
+          "fill": "white",
+          "marker": true
+        }
+      },
+      {
+        "id": "picture-s4-a-v1-choice-1",
+        "value": {
+          "kind": "dial",
+          "rotation": 0,
+          "fill": "black",
+          "marker": true
+        }
+      },
+      {
+        "id": "picture-s4-a-v1-choice-2",
+        "value": {
+          "kind": "dial",
+          "rotation": 1,
+          "fill": "black",
+          "marker": true
+        }
+      },
+      {
+        "id": "picture-s4-a-v1-choice-3",
+        "value": {
+          "kind": "dial",
+          "rotation": 1,
+          "fill": "white",
+          "marker": true
+        }
+      }
+    ],
+    "correctAnswerId": "picture-s4-a-v1-choice-1",
+    "ruleExplanation": "The pointer turns a quarter-turn clockwise each step. The corner dot also alternates black and white.",
+    "wrongAnswerExplanations": {
+      "picture-s4-a-v1-choice-0": "The pointer is right, but the marker fails to alternate fill.",
+      "picture-s4-a-v1-choice-2": "The marker is right, but the pointer takes the wrong turn.",
+      "picture-s4-a-v1-choice-3": "Both the pointer direction and the marker fill break their rules."
+    }
+  },
+  {
+    "id": "picture-s4-b-v1",
+    "slot": 4,
+    "version": "b",
+    "type": "series",
+    "difficulty": "medium",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-reasoning-v1",
+    "scored": true,
+    "questionLine": {
+      "en": "What comes next?",
+      "ru": "Что будет дальше?",
+      "uz": "Keyin qaysi rasm keladi?"
+    },
+    "figureData": {
+      "kind": "series",
+      "items": [
+        {
+          "kind": "dial",
+          "rotation": 1,
+          "fill": "black",
+          "marker": true
+        },
+        {
+          "kind": "dial",
+          "rotation": 0,
+          "fill": "white",
+          "marker": true
+        },
+        {
+          "kind": "dial",
+          "rotation": 3,
+          "fill": "black",
+          "marker": true
+        },
+        {
+          "kind": "dial",
+          "rotation": 2,
+          "fill": "white",
+          "marker": true
+        }
+      ],
+      "start": 1,
+      "step": -1,
+      "two": true
+    },
+    "options": [
+      {
+        "id": "picture-s4-b-v1-choice-0",
+        "value": {
+          "kind": "dial",
+          "rotation": 2,
+          "fill": "white",
+          "marker": true
+        }
+      },
+      {
+        "id": "picture-s4-b-v1-choice-1",
+        "value": {
+          "kind": "dial",
+          "rotation": 1,
+          "fill": "white",
+          "marker": true
+        }
+      },
+      {
+        "id": "picture-s4-b-v1-choice-2",
+        "value": {
+          "kind": "dial",
+          "rotation": 2,
+          "fill": "black",
+          "marker": true
+        }
+      },
+      {
+        "id": "picture-s4-b-v1-choice-3",
+        "value": {
+          "kind": "dial",
+          "rotation": 1,
+          "fill": "black",
+          "marker": true
+        }
+      }
+    ],
+    "correctAnswerId": "picture-s4-b-v1-choice-3",
+    "ruleExplanation": "The pointer turns a quarter-turn anticlockwise each step. The corner dot also alternates black and white.",
+    "wrongAnswerExplanations": {
+      "picture-s4-b-v1-choice-0": "Both the pointer direction and the marker fill break their rules.",
+      "picture-s4-b-v1-choice-1": "The pointer is right, but the marker fails to alternate fill.",
+      "picture-s4-b-v1-choice-2": "The marker is right, but the pointer takes the wrong turn."
+    }
+  },
+  {
+    "id": "picture-s5-a-v1",
+    "slot": 5,
+    "version": "a",
+    "type": "turned",
+    "difficulty": "medium",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-reasoning-v1",
+    "scored": true,
+    "questionLine": {
+      "en": "Which shape is the same one, only turned? Not flipped.",
+      "ru": "Где та же фигура, только повёрнутая, без отражения?",
+      "uz": "Qaysi shakl faqat burilgan, aks ettirilmagan?"
+    },
+    "figureData": {
+      "kind": "cells",
+      "cells": [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+        [1, 2]
+      ]
+    },
+    "options": [
+      {
+        "id": "picture-s5-a-v1-choice-0",
+        "value": {
+          "kind": "cells",
+          "cells": [
+            [1, 0],
+            [1, 1],
+            [0, 2],
+            [1, 2]
+          ]
+        }
+      },
+      {
+        "id": "picture-s5-a-v1-choice-1",
+        "value": {
+          "kind": "cells",
+          "cells": [
+            [0, 0],
+            [0, 1],
+            [1, 1],
+            [2, 1]
+          ]
+        }
+      },
+      {
+        "id": "picture-s5-a-v1-choice-2",
+        "value": {
+          "kind": "cells",
+          "cells": [
+            [0, 0],
+            [1, 0],
+            [0, 1],
+            [0, 2]
+          ]
+        }
+      },
+      {
+        "id": "picture-s5-a-v1-choice-3",
+        "value": {
+          "kind": "cells",
+          "cells": [
+            [0, 0],
+            [1, 0],
+            [2, 0],
+            [0, 1]
+          ]
+        }
+      }
+    ],
+    "correctAnswerId": "picture-s5-a-v1-choice-3",
+    "ruleExplanation": "A turn preserves which side the short arm occupies relative to the long arm. The matching option belongs to the original shape’s rotation orbit; all other options are reflected copies.",
+    "wrongAnswerExplanations": {
+      "picture-s5-a-v1-choice-0": "This is the reflected shape, with no further turn.",
+      "picture-s5-a-v1-choice-1": "This is the reflected shape turned a quarter-turn.",
+      "picture-s5-a-v1-choice-2": "This is the reflected shape turned a half-turn."
+    }
+  },
+  {
+    "id": "picture-s5-b-v1",
+    "slot": 5,
+    "version": "b",
+    "type": "turned",
+    "difficulty": "medium",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-reasoning-v1",
+    "scored": true,
+    "questionLine": {
+      "en": "Which shape is the same one, only turned? Not flipped.",
+      "ru": "Где та же фигура, только повёрнутая, без отражения?",
+      "uz": "Qaysi shakl faqat burilgan, aks ettirilmagan?"
+    },
+    "figureData": {
+      "kind": "cells",
+      "cells": [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+        [0, 3],
+        [1, 3]
+      ]
+    },
+    "options": [
+      {
+        "id": "picture-s5-b-v1-choice-0",
+        "value": {
+          "kind": "cells",
+          "cells": [
+            [1, 0],
+            [1, 1],
+            [1, 2],
+            [0, 3],
+            [1, 3]
+          ]
+        }
+      },
+      {
+        "id": "picture-s5-b-v1-choice-1",
+        "value": {
+          "kind": "cells",
+          "cells": [
+            [0, 0],
+            [0, 1],
+            [1, 1],
+            [2, 1],
+            [3, 1]
+          ]
+        }
+      },
+      {
+        "id": "picture-s5-b-v1-choice-2",
+        "value": {
+          "kind": "cells",
+          "cells": [
+            [0, 0],
+            [1, 0],
+            [0, 1],
+            [0, 2],
+            [0, 3]
+          ]
+        }
+      },
+      {
+        "id": "picture-s5-b-v1-choice-3",
+        "value": {
+          "kind": "cells",
+          "cells": [
+            [0, 0],
+            [1, 0],
+            [1, 1],
+            [1, 2],
+            [1, 3]
+          ]
+        }
+      }
+    ],
+    "correctAnswerId": "picture-s5-b-v1-choice-3",
+    "ruleExplanation": "A turn preserves which side the short arm occupies relative to the long arm. The matching option belongs to the original shape’s rotation orbit; all other options are reflected copies.",
+    "wrongAnswerExplanations": {
+      "picture-s5-b-v1-choice-0": "This is the reflected shape, with no further turn.",
+      "picture-s5-b-v1-choice-1": "This is the reflected shape turned a quarter-turn.",
+      "picture-s5-b-v1-choice-2": "This is the reflected shape turned a half-turn."
+    }
+  },
+  {
+    "id": "picture-s6-a-v1",
+    "slot": 6,
+    "version": "a",
+    "type": "grid",
+    "difficulty": "medium",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-reasoning-v1",
+    "scored": true,
+    "questionLine": {
+      "en": "Which piece completes the grid?",
+      "ru": "Какая фигура завершает сетку?",
+      "uz": "Katakni qaysi shakl to‘ldiradi?"
+    },
+    "figureData": {
+      "kind": "grid",
+      "cells": [
+        {
+          "kind": "circle",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "square",
+          "fill": "black",
+          "rotation": 0
+        },
+        {
+          "kind": "triangle",
+          "fill": "hatched",
+          "rotation": 0
+        },
+        {
+          "kind": "square",
+          "fill": "hatched",
+          "rotation": 0
+        },
+        {
+          "kind": "triangle",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "circle",
+          "fill": "black",
+          "rotation": 0
+        },
+        {
+          "kind": "triangle",
+          "fill": "black",
+          "rotation": 0
+        },
+        {
+          "kind": "circle",
+          "fill": "hatched",
+          "rotation": 0
+        },
+        null
+      ],
+      "kinds": ["circle", "square", "triangle"],
+      "fills": ["white", "black", "hatched"],
+      "two": true
+    },
+    "options": [
+      {
+        "id": "picture-s6-a-v1-choice-0",
+        "value": {
+          "kind": "square",
+          "fill": "black",
+          "rotation": 0
+        }
+      },
+      {
+        "id": "picture-s6-a-v1-choice-1",
+        "value": {
+          "kind": "triangle",
+          "fill": "white",
+          "rotation": 0
+        }
+      },
+      {
+        "id": "picture-s6-a-v1-choice-2",
+        "value": {
+          "kind": "square",
+          "fill": "white",
+          "rotation": 0
+        }
+      },
+      {
+        "id": "picture-s6-a-v1-choice-3",
+        "value": {
+          "kind": "circle",
+          "fill": "black",
+          "rotation": 0
+        }
+      }
+    ],
+    "correctAnswerId": "picture-s6-a-v1-choice-2",
+    "ruleExplanation": "Shapes advance one place in the same cycle across each row and down each column. Fills advance one place across a row and two places down a column. The missing tile must satisfy both cycles.",
+    "wrongAnswerExplanations": {
+      "picture-s6-a-v1-choice-0": "The shape is right, but its fill breaks the fill cycle.",
+      "picture-s6-a-v1-choice-1": "The shape does not continue the row pattern.",
+      "picture-s6-a-v1-choice-3": "Both its shape and fill break their cycles."
+    }
+  },
+  {
+    "id": "picture-s6-b-v1",
+    "slot": 6,
+    "version": "b",
+    "type": "grid",
+    "difficulty": "medium",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-reasoning-v1",
+    "scored": true,
+    "questionLine": {
+      "en": "Which piece completes the grid?",
+      "ru": "Какая фигура завершает сетку?",
+      "uz": "Katakni qaysi shakl to‘ldiradi?"
+    },
+    "figureData": {
+      "kind": "grid",
+      "cells": [
+        {
+          "kind": "diamond",
+          "fill": "hatched",
+          "rotation": 0
+        },
+        {
+          "kind": "triangle",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "circle",
+          "fill": "black",
+          "rotation": 0
+        },
+        {
+          "kind": "triangle",
+          "fill": "black",
+          "rotation": 0
+        },
+        {
+          "kind": "circle",
+          "fill": "hatched",
+          "rotation": 0
+        },
+        {
+          "kind": "diamond",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "circle",
+          "fill": "white",
+          "rotation": 0
+        },
+        {
+          "kind": "diamond",
+          "fill": "black",
+          "rotation": 0
+        },
+        null
+      ],
+      "kinds": ["diamond", "triangle", "circle"],
+      "fills": ["hatched", "white", "black"],
+      "two": true
+    },
+    "options": [
+      {
+        "id": "picture-s6-b-v1-choice-0",
+        "value": {
+          "kind": "triangle",
+          "fill": "hatched",
+          "rotation": 0
+        }
+      },
+      {
+        "id": "picture-s6-b-v1-choice-1",
+        "value": {
+          "kind": "circle",
+          "fill": "hatched",
+          "rotation": 0
+        }
+      },
+      {
+        "id": "picture-s6-b-v1-choice-2",
+        "value": {
+          "kind": "triangle",
+          "fill": "white",
+          "rotation": 0
+        }
+      },
+      {
+        "id": "picture-s6-b-v1-choice-3",
+        "value": {
+          "kind": "diamond",
+          "fill": "white",
+          "rotation": 0
+        }
+      }
+    ],
+    "correctAnswerId": "picture-s6-b-v1-choice-0",
+    "ruleExplanation": "Shapes advance one place in the same cycle across each row and down each column. Fills advance one place across a row and two places down a column. The missing tile must satisfy both cycles.",
+    "wrongAnswerExplanations": {
+      "picture-s6-b-v1-choice-1": "The shape does not continue the row pattern.",
+      "picture-s6-b-v1-choice-2": "The shape is right, but its fill breaks the fill cycle.",
+      "picture-s6-b-v1-choice-3": "Both its shape and fill break their cycles."
+    }
+  },
+  {
+    "id": "picture-s7-a-v1",
+    "slot": 7,
+    "version": "a",
+    "type": "net",
+    "difficulty": "medium-hard",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-reasoning-v1",
+    "scored": true,
+    "questionLine": {
+      "en": "Which cube can you fold from this paper?",
+      "ru": "Какой куб можно сложить из этой развёртки?",
+      "uz": "Bu yoyilmadan qaysi kubni yasash mumkin?"
+    },
+    "figureData": {
+      "kind": "net",
+      "netCells": [
+        [1, 1],
+        [1, 0],
+        [0, 1],
+        [2, 1],
+        [3, 1],
+        [1, 2]
+      ],
+      "normals": [
+        [0, 0, 1],
+        [0, 1, 0],
+        [-1, 0, 0],
+        [1, 0, 0],
+        [0, 0, -1],
+        [0, -1, 0]
+      ],
+      "symbols": ["dot", "ring", "diamond", "square", "hatch", "ringdot"],
+      "faces": [1, 0, 3]
+    },
+    "options": [
+      {
+        "id": "picture-s7-a-v1-choice-0",
+        "value": {
+          "kind": "cube",
+          "faces": [1, 5, 3],
+          "symbols": ["dot", "ring", "diamond", "square", "hatch", "ringdot"]
+        }
+      },
+      {
+        "id": "picture-s7-a-v1-choice-1",
+        "value": {
+          "kind": "cube",
+          "faces": [1, 0, 3],
+          "symbols": ["dot", "ring", "diamond", "square", "hatch", "ringdot"]
+        }
+      },
+      {
+        "id": "picture-s7-a-v1-choice-2",
+        "value": {
+          "kind": "cube",
+          "faces": [1, 0, 4],
+          "symbols": ["dot", "ring", "diamond", "square", "hatch", "ringdot"]
+        }
+      },
+      {
+        "id": "picture-s7-a-v1-choice-3",
+        "value": {
+          "kind": "cube",
+          "faces": [2, 0, 3],
+          "symbols": ["dot", "ring", "diamond", "square", "hatch", "ringdot"]
+        }
+      }
+    ],
+    "correctAnswerId": "picture-s7-a-v1-choice-1",
+    "ruleExplanation": "Folding this net gives opposite pairs: dot / hatch, ring / ringdot, diamond / square. Only the answer has a geometrically valid top/front/right face order.",
+    "wrongAnswerExplanations": {
+      "picture-s7-a-v1-choice-0": "The ring and ringdot faces are opposite; this answer puts them together.",
+      "picture-s7-a-v1-choice-2": "The dot and hatch faces are opposite; this answer puts them together.",
+      "picture-s7-a-v1-choice-3": "The diamond and square faces are opposite; this answer puts them together."
+    }
+  },
+  {
+    "id": "picture-s7-b-v1",
+    "slot": 7,
+    "version": "b",
+    "type": "net",
+    "difficulty": "medium-hard",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-reasoning-v1",
+    "scored": true,
+    "questionLine": {
+      "en": "Which cube can you fold from this paper?",
+      "ru": "Какой куб можно сложить из этой развёртки?",
+      "uz": "Bu yoyilmadan qaysi kubni yasash mumkin?"
+    },
+    "figureData": {
+      "kind": "net",
+      "netCells": [
+        [1, 1],
+        [1, 0],
+        [0, 1],
+        [2, 1],
+        [3, 1],
+        [1, 2]
+      ],
+      "normals": [
+        [0, 0, 1],
+        [0, 1, 0],
+        [-1, 0, 0],
+        [1, 0, 0],
+        [0, 0, -1],
+        [0, -1, 0]
+      ],
+      "symbols": ["diamond", "ringdot", "square", "ring", "dot", "hatch"],
+      "faces": [1, 0, 3]
+    },
+    "options": [
+      {
+        "id": "picture-s7-b-v1-choice-0",
+        "value": {
+          "kind": "cube",
+          "faces": [2, 0, 3],
+          "symbols": ["diamond", "ringdot", "square", "ring", "dot", "hatch"]
+        }
+      },
+      {
+        "id": "picture-s7-b-v1-choice-1",
+        "value": {
+          "kind": "cube",
+          "faces": [1, 5, 3],
+          "symbols": ["diamond", "ringdot", "square", "ring", "dot", "hatch"]
+        }
+      },
+      {
+        "id": "picture-s7-b-v1-choice-2",
+        "value": {
+          "kind": "cube",
+          "faces": [1, 0, 4],
+          "symbols": ["diamond", "ringdot", "square", "ring", "dot", "hatch"]
+        }
+      },
+      {
+        "id": "picture-s7-b-v1-choice-3",
+        "value": {
+          "kind": "cube",
+          "faces": [1, 0, 3],
+          "symbols": ["diamond", "ringdot", "square", "ring", "dot", "hatch"]
+        }
+      }
+    ],
+    "correctAnswerId": "picture-s7-b-v1-choice-3",
+    "ruleExplanation": "Folding this net gives opposite pairs: diamond / dot, ringdot / hatch, square / ring. Only the answer has a geometrically valid top/front/right face order.",
+    "wrongAnswerExplanations": {
+      "picture-s7-b-v1-choice-0": "The square and ring faces are opposite; this answer puts them together.",
+      "picture-s7-b-v1-choice-1": "The ringdot and hatch faces are opposite; this answer puts them together.",
+      "picture-s7-b-v1-choice-2": "The diamond and dot faces are opposite; this answer puts them together."
+    }
+  },
+  {
+    "id": "picture-s8-a-v1",
+    "slot": 8,
+    "version": "a",
+    "type": "cube",
+    "difficulty": "hard",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-reasoning-v1",
+    "scored": true,
+    "questionLine": {
+      "en": "Which view shows the same cube, only turned?",
+      "ru": "Где тот же куб, только повёрнутый?",
+      "uz": "Qaysi rasmda shu kub faqat burilgan?"
+    },
+    "figureData": {
+      "kind": "cube",
+      "netCells": [
+        [1, 1],
+        [1, 0],
+        [0, 1],
+        [2, 1],
+        [3, 1],
+        [1, 2]
+      ],
+      "normals": [
+        [0, 0, 1],
+        [0, 1, 0],
+        [-1, 0, 0],
+        [1, 0, 0],
+        [0, 0, -1],
+        [0, -1, 0]
+      ],
+      "symbols": ["dot", "ring", "diamond", "square", "hatch", "ringdot"],
+      "faces": [1, 0, 3]
+    },
+    "options": [
+      {
+        "id": "picture-s8-a-v1-choice-0",
+        "value": {
+          "kind": "cube",
+          "faces": [1, 3, 0],
+          "symbols": ["dot", "ring", "diamond", "square", "hatch", "ringdot"]
+        }
+      },
+      {
+        "id": "picture-s8-a-v1-choice-1",
+        "value": {
+          "kind": "cube",
+          "faces": [0, 1, 3],
+          "symbols": ["dot", "ring", "diamond", "square", "hatch", "ringdot"]
+        }
+      },
+      {
+        "id": "picture-s8-a-v1-choice-2",
+        "value": {
+          "kind": "cube",
+          "faces": [0, 3, 1],
+          "symbols": ["dot", "ring", "diamond", "square", "hatch", "ringdot"]
+        }
+      },
+      {
+        "id": "picture-s8-a-v1-choice-3",
+        "value": {
+          "kind": "cube",
+          "faces": [3, 0, 1],
+          "symbols": ["dot", "ring", "diamond", "square", "hatch", "ringdot"]
+        }
+      }
+    ],
+    "correctAnswerId": "picture-s8-a-v1-choice-2",
+    "ruleExplanation": "Turning the cube preserves the cyclic order of the three visible faces around their common corner. The answer cycles those faces; the other views reverse that order and would require a mirror. No hidden face is assumed.",
+    "wrongAnswerExplanations": {
+      "picture-s8-a-v1-choice-0": "It swaps the top and side order: a mirror view.",
+      "picture-s8-a-v1-choice-1": "It swaps the two side faces while keeping the top: a mirror view.",
+      "picture-s8-a-v1-choice-3": "It reverses the face order around the shared corner: a mirror view."
+    }
+  },
+  {
+    "id": "picture-s8-b-v1",
+    "slot": 8,
+    "version": "b",
+    "type": "cube",
+    "difficulty": "hard",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-reasoning-v1",
+    "scored": true,
+    "questionLine": {
+      "en": "Which view shows the same cube, only turned?",
+      "ru": "Где тот же куб, только повёрнутый?",
+      "uz": "Qaysi rasmda shu kub faqat burilgan?"
+    },
+    "figureData": {
+      "kind": "cube",
+      "netCells": [
+        [1, 1],
+        [1, 0],
+        [0, 1],
+        [2, 1],
+        [3, 1],
+        [1, 2]
+      ],
+      "normals": [
+        [0, 0, 1],
+        [0, 1, 0],
+        [-1, 0, 0],
+        [1, 0, 0],
+        [0, 0, -1],
+        [0, -1, 0]
+      ],
+      "symbols": ["diamond", "ringdot", "square", "ring", "dot", "hatch"],
+      "faces": [1, 0, 3]
+    },
+    "options": [
+      {
+        "id": "picture-s8-b-v1-choice-0",
+        "value": {
+          "kind": "cube",
+          "faces": [0, 3, 1],
+          "symbols": ["diamond", "ringdot", "square", "ring", "dot", "hatch"]
+        }
+      },
+      {
+        "id": "picture-s8-b-v1-choice-1",
+        "value": {
+          "kind": "cube",
+          "faces": [0, 1, 3],
+          "symbols": ["diamond", "ringdot", "square", "ring", "dot", "hatch"]
+        }
+      },
+      {
+        "id": "picture-s8-b-v1-choice-2",
+        "value": {
+          "kind": "cube",
+          "faces": [1, 3, 0],
+          "symbols": ["diamond", "ringdot", "square", "ring", "dot", "hatch"]
+        }
+      },
+      {
+        "id": "picture-s8-b-v1-choice-3",
+        "value": {
+          "kind": "cube",
+          "faces": [3, 0, 1],
+          "symbols": ["diamond", "ringdot", "square", "ring", "dot", "hatch"]
+        }
+      }
+    ],
+    "correctAnswerId": "picture-s8-b-v1-choice-0",
+    "ruleExplanation": "Turning the cube preserves the cyclic order of the three visible faces around their common corner. The answer cycles those faces; the other views reverse that order and would require a mirror. No hidden face is assumed.",
+    "wrongAnswerExplanations": {
+      "picture-s8-b-v1-choice-1": "It swaps the two side faces while keeping the top: a mirror view.",
+      "picture-s8-b-v1-choice-2": "It swaps the top and side order: a mirror view.",
+      "picture-s8-b-v1-choice-3": "It reverses the face order around the shared corner: a mirror view."
+    }
+  },
+  {
+    "id": "picture-s9-a-v1",
+    "slot": 9,
+    "version": "a",
+    "type": "logic",
+    "difficulty": "hard",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-reasoning-v1",
+    "scored": true,
+    "questionLine": {
+      "en": "All blips are zorks. No zorks are striped. Can a blip be striped?",
+      "ru": "Все блипы — зорки. Ни один зорк не полосатый. Может ли блип быть полосатым?",
+      "uz": "Barcha bliplar zork. Hech bir zork yo‘l-yo‘l emas. Blip yo‘l-yo‘l bo‘lishi mumkinmi?"
+    },
+    "figureData": {
+      "kind": "logic",
+      "premises": "none-striped",
+      "terms": ["blip", "zork"]
+    },
+    "options": [
+      {
+        "id": "picture-s9-a-v1-choice-0",
+        "value": {
+          "kind": "text",
+          "text": {
+            "en": "Yes",
+            "ru": "Да",
+            "uz": "Ha"
+          },
+          "semantic": "yes"
+        }
+      },
+      {
+        "id": "picture-s9-a-v1-choice-1",
+        "value": {
+          "kind": "text",
+          "text": {
+            "en": "No",
+            "ru": "Нет",
+            "uz": "Yo‘q"
+          },
+          "semantic": "no"
+        }
+      },
+      {
+        "id": "picture-s9-a-v1-choice-2",
+        "value": {
+          "kind": "text",
+          "text": {
+            "en": "Can’t tell",
+            "ru": "Нельзя определить",
+            "uz": "Aniqlab bo‘lmaydi"
+          },
+          "semantic": "unknown"
+        }
+      }
+    ],
+    "correctAnswerId": "picture-s9-a-v1-choice-1",
+    "ruleExplanation": "Every blip belongs to the zork group, and that entire group excludes stripes. A striped blip would contradict those premises.",
+    "wrongAnswerExplanations": {
+      "picture-s9-a-v1-choice-0": "Yes contradicts the inherited restriction on the first group.",
+      "picture-s9-a-v1-choice-2": "The restriction is explicit, so lack of information is not the issue."
+    }
+  },
+  {
+    "id": "picture-s9-b-v1",
+    "slot": 9,
+    "version": "b",
+    "type": "logic",
+    "difficulty": "hard",
+    "ageGroup": "teen_adult",
+    "questionSetVersion": "picture-reasoning-v1",
+    "scored": true,
+    "questionLine": {
+      "en": "All nims are veks. All veks have dots. Can a nim have no dots?",
+      "ru": "Все нимы — веки. У всех веков есть точки. Может ли ним быть без точек?",
+      "uz": "Barcha nimlar vek. Barcha veklarda nuqta bor. Nim nuqtasiz bo‘lishi mumkinmi?"
+    },
+    "figureData": {
+      "kind": "logic",
+      "premises": "all-dotted",
+      "terms": ["nim", "vek"]
+    },
+    "options": [
+      {
+        "id": "picture-s9-b-v1-choice-0",
+        "value": {
+          "kind": "text",
+          "text": {
+            "en": "Can’t tell",
+            "ru": "Нельзя определить",
+            "uz": "Aniqlab bo‘lmaydi"
+          },
+          "semantic": "unknown"
+        }
+      },
+      {
+        "id": "picture-s9-b-v1-choice-1",
+        "value": {
+          "kind": "text",
+          "text": {
+            "en": "Yes",
+            "ru": "Да",
+            "uz": "Ha"
+          },
+          "semantic": "yes"
+        }
+      },
+      {
+        "id": "picture-s9-b-v1-choice-2",
+        "value": {
+          "kind": "text",
+          "text": {
+            "en": "No",
+            "ru": "Нет",
+            "uz": "Yo‘q"
+          },
+          "semantic": "no"
+        }
+      }
+    ],
+    "correctAnswerId": "picture-s9-b-v1-choice-2",
+    "ruleExplanation": "Every nim belongs to the vek group, and every member of that group has dots. A nim without dots contradicts those premises.",
+    "wrongAnswerExplanations": {
+      "picture-s9-b-v1-choice-0": "The restriction is explicit, so lack of information is not the issue.",
+      "picture-s9-b-v1-choice-1": "Yes contradicts the inherited restriction on the first group."
+    }
+  }
+]
