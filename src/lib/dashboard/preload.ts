@@ -1,18 +1,22 @@
 import { supabase } from "@/integrations/supabase/client";
 import { readAllResult } from "@/lib/db-read";
 
+import { HISTORY_COLUMNS, HISTORY_PAGE_SIZE } from "./history";
+
+export function requestDashboardHistory(userId: string, offset = 0) {
+  return supabase
+    .from("career_assessment_results")
+    .select(HISTORY_COLUMNS, { count: "exact" })
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .order("id")
+    .range(offset, offset + HISTORY_PAGE_SIZE - 1);
+}
+
 function requestDashboard(userId: string) {
   return Promise.all([
     supabase.from("profiles").select("name, surname").eq("id", userId).maybeSingle(),
-    readAllResult((from, to) =>
-      supabase
-        .from("career_assessment_results")
-        .select("*")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false })
-        .order("id")
-        .range(from, to),
-    ),
+    requestDashboardHistory(userId),
     supabase.from("user_stats").select("*").eq("user_id", userId).maybeSingle(),
     readAllResult((from, to) =>
       supabase

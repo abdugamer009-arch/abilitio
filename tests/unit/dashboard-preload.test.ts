@@ -5,17 +5,25 @@ vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     from(table: string) {
       let owner = "";
+      let columns = "";
+      let range: number[] = [];
       const query = {
-        select: () => query,
+        select: (value: string) => {
+          columns = value;
+          return query;
+        },
         eq: (_column: string, value: string) => {
           owner = value;
           return query;
         },
         order: () => query,
         maybeSingle: () => query,
-        range: () => query,
+        range: (from: number, to: number) => {
+          range = [from, to];
+          return query;
+        },
         then(resolve: (value: unknown) => unknown) {
-          reads(table, owner);
+          reads(table, owner, columns, range);
           return Promise.resolve({
             data: table === "profiles" ? { name: owner } : [],
             error: null,
@@ -26,7 +34,12 @@ vi.mock("@/integrations/supabase/client", () => ({
     },
   },
 }));
-import { clearDashboardPreload, consumeDashboard, preloadDashboard } from "@/lib/dashboard/preload";
+import {
+  clearDashboardPreload,
+  consumeDashboard,
+  preloadDashboard,
+  requestDashboardHistory,
+} from "@/lib/dashboard/preload";
 
 describe("dashboard navigation data handoff", () => {
   beforeEach(() => {
@@ -59,4 +72,14 @@ describe("dashboard navigation data handoff", () => {
     await consumeDashboard("owner-a");
     expect(reads).toHaveBeenCalledTimes(12);
   });
+});
+
+it("uses compact, ordered owner-scoped pages for later history", async () => {
+  await requestDashboardHistory("owner-next", 20);
+  const query = reads.mock.calls.at(-1)!;
+  expect(query[0]).toBe("career_assessment_results");
+  expect(query[1]).toBe("owner-next");
+  expect(query[2]).not.toContain("*");
+  expect(query[2]).toContain("career_0_name:career_matches->0->>name");
+  expect(query[3]).toEqual([20, 39]);
 });

@@ -4272,12 +4272,8 @@ html[data-route-transition] .field-header {
   transition: none !important;
 }
 
-/* Mount and restore layout while the fully opaque curtain covers the screen. */
-html[data-route-transition="covered"] .field-header,
-html[data-route-transition="covered"] .page-plane,
-html[data-route-transition="covered"] .field-footer {
-  visibility: hidden;
-}
+/* The opaque curtain already covers new DOM. Inherited visibility changes
+   here would recalculate styles on every descendant at each phase. */
 
 /* Persistent navigation changes its active state only while covered. Its
    background/border hover transitions must not compete with the curtain. */

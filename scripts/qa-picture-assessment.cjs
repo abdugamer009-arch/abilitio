@@ -65,7 +65,7 @@ async function main() {
           contentType: "text/javascript",
           body: `
     export const loadPictureDraft=async()=>JSON.parse(localStorage.getItem('qa.cloud-draft')||'null');
-    export const savePictureDraft=async({data})=>{localStorage.setItem('qa.cloud-draft',JSON.stringify(data.draft));localStorage.setItem('qa.save-calls',String(Number(localStorage.getItem('qa.save-calls')||0)+1));return {saved:true};};
+    export const savePictureDraft=async({data})=>{localStorage.setItem('qa.cloud-draft',JSON.stringify(data.draft));localStorage.setItem('qa.last-saved',JSON.stringify(data.draft));localStorage.setItem('qa.save-calls',String(Number(localStorage.getItem('qa.save-calls')||0)+1));return {saved:true};};
     export const deletePictureDraft=async()=>{localStorage.removeItem('qa.cloud-draft');return {deleted:true};};`,
         }),
       );
@@ -225,12 +225,15 @@ async function main() {
       );
       await p.screenshot({ path: `${output}/${name}-finish.png`, fullPage: true });
       if (!guest) {
-        assert.ok(
-          (await p.evaluate(() => Number(localStorage.getItem("qa.save-calls")))) >= 30,
-          name + " saves every answer",
-        );
         await p.locator(".picture-finish .picture-primary").click();
         await p.waitForURL("**/career-results");
+        const cloud = await p.evaluate(() => JSON.parse(localStorage.getItem("qa.last-saved")));
+        assert.deepEqual(
+          cloud.answers,
+          final.answers,
+          name + " flushes all answers before submission",
+        );
+        assert.ok(cloud.revision >= final.revision, name + " latest revision acknowledged");
         if (age === "teen_adult")
           await p
             .getByText("7.8 / 10 · 7 of 9 correct")

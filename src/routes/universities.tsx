@@ -6,6 +6,9 @@ import { useWords } from "@/lib/editorial";
 import { useAuth } from "@/lib/auth-context";
 import { pageMeta } from "@/lib/seo";
 export const Route = createFileRoute("/universities")({
+  headers: () => ({
+    "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=86400",
+  }),
   head: () =>
     pageMeta(
       "/universities",

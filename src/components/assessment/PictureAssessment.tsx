@@ -1,3 +1,5 @@
+import { requestWithDeadline } from "@/lib/assessment/request-deadline";
+import { LatestDraftWriter } from "@/lib/assessment/latest-draft-writer";
 import { ActivityPicture } from "./ActivityPicture";
 import "@/styles/picture-assessment.css";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
@@ -101,7 +103,7 @@ export function PictureAssessment() {
     owner = useRef<string | null>(null),
     hydrated = useRef(false),
     request = useRef(0),
-    queue = useRef<Promise<void>>(Promise.resolve());
+    writer = useRef<LatestDraftWriter<PictureDraft> | null>(null);
   const clock = useRef<{ id: string; since: number } | null>(null),
     heading = useRef<HTMLHeadingElement>(null),
     guard = useRef(false);
@@ -145,6 +147,16 @@ export function PictureAssessment() {
     const generation = ++request.current;
     let cancelled = false;
     hydrated.current = false;
+    writer.current?.dispose();
+    writer.current = user
+      ? new LatestDraftWriter(
+          (snapshot, signal) =>
+            saveCloud({ data: { expectedOwner: user.id, draft: snapshot }, signal }),
+          (status) => {
+            if (!cancelled && request.current === generation) setCloudStatus(status);
+          },
+        )
+      : null;
     owner.current = user?.id ?? null;
     clock.current = null;
     live.current = null;
@@ -187,7 +199,7 @@ export function PictureAssessment() {
     (async () => {
       try {
         if (user) {
-          const remote = await loadCloud();
+          const remote = await requestWithDeadline((signal) => loadCloud({ signal }));
           if (cancelled || request.current !== generation) return;
           // Never overwrite an answer made while the recovery request was in flight.
           if (
@@ -216,30 +228,16 @@ export function PictureAssessment() {
     })();
     return () => {
       cancelled = true;
+      writer.current?.dispose();
       hydrated.current = false;
     };
-  }, [loading, user, loadCloud, writeLocal]);
+  }, [loading, user, loadCloud, saveCloud, writeLocal]);
 
-  // Serialize account writes. The server also checks expectedOwner and revision.
+  // Superseded snapshots never queue network requests. The final save flushes
+  // the latest snapshot before grading, retaining server revision protection.
   useEffect(() => {
-    if (!draft || !user || !hydrated.current) return;
-    const id = user.id,
-      snapshot = draft,
-      generation = request.current;
-    setCloudStatus("saving");
-    queue.current = queue.current
-      .catch(() => {})
-      .then(async () => {
-        if (owner.current !== id || request.current !== generation) return;
-        try {
-          await saveCloud({ data: { expectedOwner: id, draft: snapshot } });
-          if (live.current?.revision === snapshot.revision && request.current === generation)
-            setCloudStatus("saved");
-        } catch {
-          if (request.current === generation) setCloudStatus("failed");
-        }
-      });
-  }, [draft, user, saveCloud]);
+    if (draft && user && hydrated.current) writer.current?.push(draft);
+  }, [draft, user]);
 
   useEffect(() => {
     if (!validProfile(profile)) return;
@@ -414,8 +412,7 @@ export function PictureAssessment() {
     commit((d) => d);
     setBusy(true);
     try {
-      if (user && live.current)
-        await saveCloud({ data: { expectedOwner: user.id, draft: live.current } });
+      if (user && live.current) await writer.current!.flush(live.current);
       if (!deviceSaved.current && !user) throw new Error("storage");
       await navigate({ to: "/" });
     } catch {
@@ -441,28 +438,28 @@ export function PictureAssessment() {
     setBusy(true);
     setError(null);
     try {
-      await queue.current;
       const d = live.current!;
-      await saveCloud({ data: { expectedOwner: user.id, draft: d } });
+      await writer.current!.flush(d);
       // Completing an attempt must not race an older queued draft write.
-      const result = await submit({
-        data: {
-          sessionToken: d.session.sessionToken,
-          personalityQIds: d.session.personality.map((q) => q.id),
-          personalityAnswers: d.answers.personality.map((v) => v ?? 3),
-          iqQIds: d.session.iq.map((q) => q.id),
-          iqAnswers: d.answers.iq.map((v) => v ?? -1),
-          interestQIds: d.session.interest.map((q) => q.id),
-          interestAnswers: d.answers.interest,
-        },
-      });
+      const result = await requestWithDeadline((signal) =>
+        submit({
+          signal,
+          data: {
+            sessionToken: d.session.sessionToken,
+            personalityQIds: d.session.personality.map((q) => q.id),
+            personalityAnswers: d.answers.personality.map((v) => v ?? 3),
+            iqQIds: d.session.iq.map((q) => q.id),
+            iqAnswers: d.answers.iq.map((v) => v ?? -1),
+            interestQIds: d.session.interest.map((q) => q.id),
+            interestAnswers: d.answers.interest,
+          },
+        }),
+      );
       rememberSavedAssessment(result.id, pictureDraftKey(user.id));
       rememberResultProfile(result.id, user.id, profile);
-      try {
-        await deleteCloud({ data: { sessionToken: d.session.sessionToken } });
-      } catch {
-        /* Saved result remains authoritative; loader excludes completed nonces. */
-      }
+      // The acknowledged result is authoritative. Optional draft cleanup must
+      // never delay showing it; recovery already excludes completed nonces.
+      void deleteCloud({ data: { sessionToken: d.session.sessionToken } }).catch(() => {});
       try {
         localStorage.removeItem(pictureDraftKey(user.id));
         localStorage.removeItem(pictureDraftKey(null));
@@ -774,7 +771,6 @@ export function PictureAssessment() {
                   onClick={async () => {
                     if (user) {
                       try {
-                        await queue.current;
                         await deleteCloud({ data: { sessionToken: draft.session.sessionToken } });
                       } catch {
                         setError(

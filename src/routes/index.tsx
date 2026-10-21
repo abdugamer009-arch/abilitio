@@ -13,6 +13,9 @@ import { useWords } from "@/lib/editorial";
 import { pageMeta } from "@/lib/seo";
 import { track, AnalyticsEvent } from "@/lib/analytics";
 export const Route = createFileRoute("/")({
+  headers: () => ({
+    "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=86400",
+  }),
   head: () =>
     pageMeta(
       "/",

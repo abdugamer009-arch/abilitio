@@ -116,3 +116,7 @@ The browser gate in `npm run test:all` exercises simulated accounts and network 
 ## Gated picture assessment
 
 The approved picture flow is implemented behind server-only switches, off by default in production. It preserves the older 12/9/9 path, child 12/0/18 path, preference and interest scoring, canonical recommendations and historical results. Versioned server-only question data, safe geometry DTOs, durable owner-bound drafts and admin-only item telemetry live under `src/lib/assessment/picture-*`; illustrated UI lives under `src/components/assessment/`. Apply `20261017120000_picture_assessment.sql` before signed-in pilot use. See [the implementation and pilot protocol](PICTURE_ASSESSMENT.md) for compatibility, exact rollout gates, verification commands and live-evidence boundaries.
+
+## October 21 performance follow-up
+
+Dashboard history uses bounded metadata/three-career projections and an exact owner-scoped count; full result evidence loads only in the full report. Draft writes coalesce pending snapshots while retaining immediate local recovery and server revision/nonce checks. Static public page HTML alone opts into CDN caching. See [the performance implementation record](../operations/SITE_PERFORMANCE_2026_10_21.md) for request deadlines, route rendering and evidence boundaries.
