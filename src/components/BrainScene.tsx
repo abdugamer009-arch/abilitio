@@ -46,14 +46,16 @@ export function BrainScene({ signal = 0 }: { signal?: number }) {
     <div ref={ref} data-static={staticMode ? "true" : undefined}>
       <div className="brain-frame">
         <div className="brain-poster" style={{ opacity: ready && animate ? 0 : 1 }}>
-          <BrainPoster
-            label={w(
-              "Illustrative brain: three assessment signals",
-              "Tasviriy miya: uchta baholash belgisi",
-              "Иллюстрация мозга: три сигнала оценки",
-            )}
-            signal={signal}
-          />
+          {(!ready || !animate) && (
+            <BrainPoster
+              label={w(
+                "Illustrative brain: three assessment signals",
+                "Tasviriy miya: uchta baholash belgisi",
+                "Иллюстрация мозга: три сигнала оценки",
+              )}
+              signal={signal}
+            />
+          )}
         </div>
         {animate && (
           <Suspense fallback={null}>

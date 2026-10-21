@@ -2,6 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { EditorialPage } from "@/components/EditorialPage";
 import { pageMeta } from "@/lib/seo";
 export const Route = createFileRoute("/for-schools")({
+  headers: () => ({
+    "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=86400",
+  }),
   head: () =>
     pageMeta(
       "/for-schools",

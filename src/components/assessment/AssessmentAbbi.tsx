@@ -1,5 +1,10 @@
+import { memo } from "react";
 /** The same ABBI drawing as the approved assessment reference, with a waving arm. */
-export function AssessmentAbbi({ celebrate = false }: { celebrate?: boolean }) {
+export const AssessmentAbbi = memo(function AssessmentAbbi({
+  celebrate = false,
+}: {
+  celebrate?: boolean;
+}) {
   return (
     <div className={`picture-abbi ${celebrate ? "picture-abbi-party" : ""}`} aria-hidden="true">
       <svg viewBox="0 0 110 110">
@@ -44,4 +49,4 @@ export function AssessmentAbbi({ celebrate = false }: { celebrate?: boolean }) {
       </svg>
     </div>
   );
-}
+});

@@ -32,16 +32,35 @@ export function useRouteTransition(curtain: RefObject<HTMLDivElement | null>, en
     };
     const root = document.documentElement;
     const pausedTargets = new Set<Element>();
+    const loopTargets = new Set<Element>();
+    const pageSizes = new WeakMap<Element, number>();
+    const sizes = new ResizeObserver((entries) => {
+      for (const entry of entries)
+        pageSizes.set(
+          entry.target,
+          entry.borderBoxSize?.[0]?.blockSize ?? entry.contentRect.height,
+        );
+    });
+    let observedPage: Element | null = null;
+    const observePage = () => {
+      const page = document.querySelector(".page-plane");
+      if (page === observedPage) return;
+      if (observedPage) sizes.unobserve(observedPage);
+      if (page) sizes.observe(page);
+      observedPage = page;
+    };
+    observePage();
+    const stopObservingRoutes = router.subscribe("onResolved", observePage);
     const pauseLoops = () => {
-      for (const item of document.getAnimations()) {
-        if (
-          item.effect instanceof KeyframeEffect &&
-          item.effect.getTiming().iterations === Infinity &&
-          item.effect.target instanceof Element
-        ) {
-          item.effect.target.setAttribute("data-route-paused", "");
-          pausedTargets.add(item.effect.target);
+      // document.getAnimations() forces a document-wide style update. Discover
+      // loops while idle/on animationstart, never in the navigation input task.
+      for (const target of loopTargets) {
+        if (!target.isConnected) {
+          loopTargets.delete(target);
+          continue;
         }
+        target.setAttribute("data-route-paused", "");
+        pausedTargets.add(target);
       }
     };
     const resumeLoops = () => {
@@ -84,7 +103,8 @@ export function useRouteTransition(curtain: RefObject<HTMLDivElement | null>, en
       if (url) void warm(url.href);
     };
     const signal = (phase: string) => {
-      root.dataset.routeTransition = phase;
+      if (!root.dataset.routeTransition) root.dataset.routeTransition = "active";
+      layer.dataset.transition = phase;
       window.dispatchEvent(new CustomEvent("abilitio:transition-phase", { detail: phase }));
     };
     const finish = (id: number) => {
@@ -96,6 +116,7 @@ export function useRouteTransition(curtain: RefObject<HTMLDivElement | null>, en
       layer.style.removeProperty("opacity");
       layer.style.removeProperty("transform");
       delete root.dataset.routeTransition;
+      delete layer.dataset.transition;
       delete root.dataset.routeHistory;
       window.dispatchEvent(new Event("abilitio:transition-end"));
     };
@@ -111,7 +132,9 @@ export function useRouteTransition(curtain: RefObject<HTMLDivElement | null>, en
     const cover = async () => {
       const id = ++serial;
       const previousPage = document.querySelector<HTMLElement>(".page-plane");
-      const previousHeight = previousPage?.getBoundingClientRect().height;
+      const previousHeight = previousPage
+        ? (pageSizes.get(previousPage) ?? previousPage.getBoundingClientRect().height)
+        : undefined;
       const fade = !preferences.current.enabled;
       // Read current compositor position once, only on interruption.
       const from = root.dataset.routeTransition
@@ -289,8 +312,10 @@ export function useRouteTransition(curtain: RefObject<HTMLDivElement | null>, en
           item.effect instanceof KeyframeEffect &&
           item.effect.getTiming().iterations === Infinity &&
           item.effect.target instanceof Element
-        )
+        ) {
+          loopTargets.add(item.effect.target);
           visibility.observe(item.effect.target);
+        }
       }
     };
     const observeTimer = window.setTimeout(observeLoops, 1600);
@@ -306,6 +331,7 @@ export function useRouteTransition(curtain: RefObject<HTMLDivElement | null>, en
           .getAnimations()
           .some((item) => item.effect?.getTiming().iterations === Infinity)
       ) {
+        loopTargets.add(event.target);
         visibility.observe(event.target);
       }
     };
@@ -317,7 +343,12 @@ export function useRouteTransition(curtain: RefObject<HTMLDivElement | null>, en
     const preloadMain = () => {
       if (disposed) return;
       void ["/methodology", "/dashboard", "/about", "/for-schools", "/universities"].reduce(
-        (job, href) => job.then(() => (disposed ? undefined : warm(href))).then(() => undefined),
+        (job, href) =>
+          job
+            .then(() =>
+              disposed || href === router.state.location.pathname ? undefined : warm(href),
+            )
+            .then(() => undefined),
         Promise.resolve(),
       );
     };
@@ -326,6 +357,8 @@ export function useRouteTransition(curtain: RefObject<HTMLDivElement | null>, en
       : window.setTimeout(preloadMain, 1500);
     return () => {
       visibility.disconnect();
+      sizes.disconnect();
+      stopObservingRoutes();
       window.clearTimeout(observeTimer);
       window.removeEventListener("abilitio:transition-end", observeAfterTransition);
       disposed = true;
@@ -335,6 +368,7 @@ export function useRouteTransition(curtain: RefObject<HTMLDivElement | null>, en
       restoreOutgoing();
       layer.style.removeProperty("will-change");
       delete root.dataset.routeTransition;
+      delete layer.dataset.transition;
       delete root.dataset.routeHistory;
       if (window.cancelIdleCallback) window.cancelIdleCallback(idle);
       else window.clearTimeout(idle);

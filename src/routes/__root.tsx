@@ -157,14 +157,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      ...[
-        displayFont,
-        bodyFont,
-        cyrillicDisplayFont,
-        cyrillicBodyFont,
-        handLatin,
-        handCyrillic,
-      ].map((href) => ({
+      ...[displayFont, bodyFont, handLatin].map((href) => ({
         rel: "preload",
         as: "font",
         type: "font/woff2",
@@ -183,7 +176,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 // Applied before first paint so a stored "light" preference doesn't flash the
 // Apply saved theme and the fail-open intro mask before the first paint.
-const THEME_INIT_SCRIPT = `try{if(localStorage.getItem("abilitio-theme")==="dark")document.documentElement.classList.add("dark");if(location.pathname==="/"&&!matchMedia("(prefers-reduced-motion: reduce)").matches&&localStorage.getItem("abilitio-motion")!=="off"){document.documentElement.dataset.intro="boot";setTimeout(()=>{if(document.documentElement.dataset.intro==="boot")document.documentElement.dataset.intro="done"},5000)}}catch(e){}`;
+const THEME_INIT_SCRIPT = `try{if(localStorage.getItem("abilitio_lang")==="ru"){for(const href of ${JSON.stringify([cyrillicDisplayFont, cyrillicBodyFont, handCyrillic])}){const link=document.createElement("link");link.rel="preload";link.as="font";link.type="font/woff2";link.crossOrigin="anonymous";link.href=href;document.head.appendChild(link)}}if(localStorage.getItem("abilitio-theme")==="dark")document.documentElement.classList.add("dark");if(location.pathname==="/"&&!matchMedia("(prefers-reduced-motion: reduce)").matches&&localStorage.getItem("abilitio-motion")!=="off"){document.documentElement.dataset.intro="boot";setTimeout(()=>{if(document.documentElement.dataset.intro==="boot")document.documentElement.dataset.intro="done"},5000)}}catch(e){}`;
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (

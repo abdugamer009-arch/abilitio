@@ -11,7 +11,14 @@ const SharedShellContext = createContext(false);
 /** Retain the identical chrome DOM across the three main student destinations. */
 export function SharedPageShell({ children }: { children: ReactNode }) {
   const pathname = useLocation({ select: (location) => location.pathname });
-  const shared = ["/", "/methodology", "/dashboard"].includes(pathname);
+  const shared = [
+    "/",
+    "/methodology",
+    "/dashboard",
+    "/universities",
+    "/about",
+    "/for-schools",
+  ].includes(pathname);
   return (
     <SharedShellContext.Provider value={shared}>
       {shared ? <PageFrame>{children}</PageFrame> : children}

@@ -1,14 +1,26 @@
+import { DeferredBelowFold } from "@/components/DeferredBelowFold";
+import { dashboardResult } from "@/lib/dashboard/history";
 import { displayDate } from "@/lib/display-date";
 import { historyLabel } from "@/lib/assessment/report-tools";
 import { requestPasswordRecovery } from "@/lib/auth/recovery.functions";
 import { PASSWORD_RECOVERY_ENABLED, CONTACT_EMAIL } from "@/lib/constants";
 import { catalogLabel } from "@/lib/catalog-labels";
-import { consumeDashboard } from "@/lib/dashboard/preload";
+import { consumeDashboard, requestDashboardHistory } from "@/lib/dashboard/preload";
 import { useUiText } from "@/lib/ui-text";
 import { toast } from "sonner";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
-import { startTransition, useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  startTransition,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Brain,
   Mail,
@@ -40,14 +52,14 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
-import { presentationSummary } from "@/lib/assessment/summary-integrity";
 import { reasoningCaveat } from "@/lib/assessment/reasoning-copy";
 import { useWords } from "@/lib/editorial";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfilePhotoCard, resolveAvatarUrl } from "@/components/ProfilePhotoCard";
-import { AbbiChat } from "@/components/AbbiChat";
+const loadAbbiChat = () => import("@/components/AbbiChat");
+const AbbiChat = lazy(() => loadAbbiChat().then((m) => ({ default: m.AbbiChat })));
 import {
   SkillsSection,
   WeeklyReportSection,
@@ -142,6 +154,11 @@ function DashboardPage() {
   const { lang, t, tCareer, tTrait } = useI18n();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [results, setResults] = useState<Result[]>([]);
+  const [resultTotal, setResultTotal] = useState(0);
+  const [historyError, setHistoryError] = useState(false);
+  const generation = useRef(0);
+  const historyBusy = useRef(false);
+  const historyOffset = useRef(-1);
   const [stats, setStats] = useState<Stats | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [busy, setBusy] = useState(true);
@@ -156,6 +173,11 @@ function DashboardPage() {
       return;
     }
     let cancelled = false;
+    const version = ++generation.current;
+    historyBusy.current = false;
+    historyOffset.current = -1;
+    setHistoryError(false);
+    setResultTotal(0);
     setBusy(true);
     setLoadError(false);
     setProfile(null);
@@ -167,38 +189,11 @@ function DashboardPage() {
       if (cancelled) return;
       if (responses.some((r) => r.error)) throw new Error("Dashboard unavailable");
       const [{ data: p }, { data: r }, { data: s }, { data: a }] = responses;
-      const mapped: Result[] = ((r as unknown as Array<Record<string, unknown>>) ?? []).map(
-        (row) => {
-          const summary = presentationSummary({
-            scoring_version: row.scoring_version as string | null,
-            strengths: row.strengths as string[] | null,
-            improvements: row.improvements as string[] | null,
-          });
-          const cog = row.cognitive_score as number | null;
-          const matches =
-            (row.career_matches as Array<{
-              name: string;
-              score: number;
-              category?: string;
-            }> | null) ?? [];
-          return {
-            id: row.id as string,
-            iq_score: cog,
-            mbti_type: (row.personality_type as string) ?? "—",
-            top_strengths: summary.strengths,
-            weaknesses: summary.improvements,
-            careers: matches.map((c) => ({
-              name: c.name,
-              match: Math.round(c.score),
-              reason: c.category ?? "",
-            })),
-            created_at: row.created_at as string,
-          };
-        },
-      );
+      const mapped = ((r as unknown as Array<Record<string, unknown>>) ?? []).map(dashboardResult);
       startTransition(() => {
         setProfile(p ?? null);
         setResults(mapped);
+        setResultTotal(responses[1].count ?? mapped.length);
         setStats((s as unknown as Stats) ?? null);
         setAchievements((a as unknown as Achievement[]) ?? []);
         setBusy(false);
@@ -211,8 +206,43 @@ function DashboardPage() {
     });
     return () => {
       cancelled = true;
+      generation.current = version + 1;
     };
   }, [user, loading, navigate, reload]);
+
+  const loadHistory = useCallback(async () => {
+    if (
+      !user ||
+      historyBusy.current ||
+      historyOffset.current === results.length ||
+      results.length >= resultTotal
+    )
+      return;
+    const version = generation.current;
+    historyBusy.current = true;
+    historyOffset.current = results.length;
+    setHistoryError(false);
+    try {
+      const response = await requestDashboardHistory(user.id, results.length);
+      if (response.error || !response.data) throw new Error("History unavailable");
+      if (version !== generation.current) return;
+      const rows = (response.data as unknown as Record<string, unknown>[]).map(dashboardResult);
+      startTransition(() => {
+        setResults((current) => [
+          ...current,
+          ...rows.filter((r) => !current.some((old) => old.id === r.id)),
+        ]);
+        setResultTotal(response.count ?? resultTotal);
+      });
+    } catch {
+      if (version === generation.current) {
+        historyOffset.current = -1;
+        setHistoryError(true);
+      }
+    } finally {
+      if (version === generation.current) historyBusy.current = false;
+    }
+  }, [user, results.length, resultTotal]);
 
   const latest = results[0];
   const fullName =
@@ -230,7 +260,7 @@ function DashboardPage() {
   }, [stats]);
 
   // level derives from activity: assessments + achievements
-  const activityXp = results.length * 50 + achievements.length * 25;
+  const activityXp = resultTotal * 50 + achievements.length * 25;
   const level = Math.max(1, Math.floor(activityXp / 100) + 1);
   const levelProgress = Math.min(100, ((activityXp % 100) / 100) * 100);
 
@@ -293,46 +323,51 @@ function DashboardPage() {
           <TabBar tab={tab} setTab={setTab} />
 
           {/* CONTENT */}
-          <div className="mt-8 animate-fade-in" key={tab}>
-            {tab === "results" && (
-              <ResultsSection
-                results={results}
-                latest={latest}
-                tCareer={tCareer}
-                tTrait={tTrait}
-                t={t}
-              />
-            )}
-            {tab === "stats" && user && (
-              <StatsSection
-                userId={user.id}
-                stats={stats}
-                setStats={setStats}
-                achievements={achievements}
-                setAchievements={setAchievements}
-              />
-            )}
-            {tab === "skills" && <SkillsSection stats={stats} mbti={latest?.mbti_type} />}
-            {tab === "weekly" && <WeeklyReportSection mbti={latest?.mbti_type} />}
-            {tab === "universities" && <UniversitiesTabSection />}
-            {tab === "abbi" && <AbbiChat />}
-            {tab === "settings" && (
-              <SettingsSection
-                onLogout={async () => {
-                  await signOut();
-                  navigate({ to: "/" });
-                }}
-                email={user?.email ?? ""}
-                profile={profile}
-                userId={user?.id ?? ""}
-                onProfileUpdate={setProfile}
-                stats={stats}
-                setStats={setStats}
-                initials={initials}
-                t={t}
-              />
-            )}
-          </div>
+          <Suspense fallback={null}>
+            <div className="mt-8 animate-fade-in" key={tab}>
+              {tab === "results" && (
+                <ResultsSection
+                  results={results}
+                  total={resultTotal}
+                  loadMore={loadHistory}
+                  historyError={historyError}
+                  latest={latest}
+                  tCareer={tCareer}
+                  tTrait={tTrait}
+                  t={t}
+                />
+              )}
+              {tab === "stats" && user && (
+                <StatsSection
+                  userId={user.id}
+                  stats={stats}
+                  setStats={setStats}
+                  achievements={achievements}
+                  setAchievements={setAchievements}
+                />
+              )}
+              {tab === "skills" && <SkillsSection stats={stats} mbti={latest?.mbti_type} />}
+              {tab === "weekly" && <WeeklyReportSection mbti={latest?.mbti_type} />}
+              {tab === "universities" && <UniversitiesTabSection />}
+              {tab === "abbi" && <AbbiChat />}
+              {tab === "settings" && (
+                <SettingsSection
+                  onLogout={async () => {
+                    await signOut();
+                    navigate({ to: "/" });
+                  }}
+                  email={user?.email ?? ""}
+                  profile={profile}
+                  userId={user?.id ?? ""}
+                  onProfileUpdate={setProfile}
+                  stats={stats}
+                  setStats={setStats}
+                  initials={initials}
+                  t={t}
+                />
+              )}
+            </div>
+          </Suspense>
         </div>
       </section>
     </PageShell>
@@ -478,7 +513,16 @@ function TabBar({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
         <button
           type="button"
           key={key}
-          onClick={() => setTab(key)}
+          onPointerEnter={() => {
+            if (key === "abbi") void loadAbbiChat();
+          }}
+          onFocus={() => {
+            if (key === "abbi") void loadAbbiChat();
+          }}
+          onTouchStart={() => {
+            if (key === "abbi") void loadAbbiChat();
+          }}
+          onClick={() => startTransition(() => setTab(key))}
           aria-pressed={tab === key}
           className="student-tab"
         >
@@ -496,12 +540,18 @@ function TabBar({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
 /* ============================================================ */
 function ResultsSection({
   results,
+  total,
+  loadMore,
+  historyError,
   latest,
   tCareer,
   tTrait,
   t,
 }: {
   results: Result[];
+  total: number;
+  loadMore: () => Promise<void>;
+  historyError: boolean;
   latest: Result | undefined;
   tCareer: (n: string) => { name: string; reason: string };
   tTrait: (n: string) => string;
@@ -555,7 +605,7 @@ function ResultsSection({
         />
         <MetricCard
           label={tr("Assessments")}
-          value={String(results.length)}
+          value={String(total)}
           hint={tr("Total taken")}
           icon={Activity}
         />
@@ -567,223 +617,250 @@ function ResultsSection({
         />
       </div>
 
-      {/* Cognitive bars + Strengths/Weaknesses */}
-      <div className="student-details">
-        <GlassCard className="student-ruled">
-          <SectionTitle icon={Brain}>
-            {w("About your reasoning score", "Mantiq ballingiz haqida", "О вашем балле мышления")}
-          </SectionTitle>
-          <p className="mt-4 text-sm text-muted-foreground">
-            {w(
-              "One overall score from nine reasoning questions. We do not measure logic, analytical thinking and pattern recognition separately. It is not an IQ score or a measure of your future potential.",
-              "To‘qqizta mantiq savolidan bitta umumiy ball. Mantiq, tahlil va naqshni topishni alohida o‘lchamaymiz. Bu IQ yoki kelajak imkoniyatingiz o‘lchovi emas.",
-              "Один общий балл по девяти вопросам. Логика, анализ и поиск закономерностей отдельно не измеряются. Это не IQ и не оценка будущего потенциала.",
-            )}
-          </p>
-          <p className="mt-4 text-sm text-muted-foreground">
-            {w(
-              "Your personality summary describes your answers today. Preferences can change; a type is not a fixed identity.",
-              "Shaxsiyat xulosasi bugungi javoblaringizni tasvirlaydi. Afzallik o‘zgarishi mumkin; tur doimiy shaxsiyat emas.",
-              "Описание личности отражает сегодняшние ответы. Предпочтения меняются; тип не определяет вас навсегда.",
-            )}
-          </p>
-        </GlassCard>
-
-        <div className="grid gap-6">
-          <GlassCard className="student-strengths">
-            <MedalDrawing className="student-medal" />
-            <SectionTitle icon={Heart}>{tr("Top Strengths")}</SectionTitle>
-            {latest.top_strengths?.length ? (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {latest.top_strengths.map((s) => (
-                  <span key={s} className="student-chip student-strength-chip">
-                    {tTrait(s)}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="mt-3 text-sm text-muted-foreground">{tr("No data yet.")}</p>
-            )}
-          </GlassCard>
-          <GlassCard className="p-7">
-            <SectionTitle icon={Zap}>{tr("Growth Areas")}</SectionTitle>
-            {latest.weaknesses?.length ? (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {latest.weaknesses.map((s) => (
-                  <span
-                    key={s}
-                    className="rounded-full border border-accent/20 bg-card px-3 py-1.5 text-sm font-medium text-accent/80"
-                  >
-                    {tTrait(s)}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="mt-3 text-sm text-muted-foreground">
-                {tr("No answer-supported growth areas recorded.")}
-              </p>
-            )}
-          </GlassCard>
-        </div>
-      </div>
-
-      {/* Career matches */}
-      <GlassCard className="student-careers">
-        <SectionTitle icon={Trophy}>
-          {w("Careers to explore", "O‘rganish uchun kasblar", "Профессии для исследования")}
-        </SectionTitle>
-        <p className="mt-3 text-sm text-muted-foreground">
-          {w(
-            "Fit scores compare your answers with career profiles on a 0–100 scale. They are not percentages, success probabilities or proof of ability. Start with the reasons, then try the work.",
-            "0–100 moslik balli javoblaringizni kasb profillari bilan solishtiradi. Bu foiz, muvaffaqiyat ehtimoli yoki qobiliyat isboti emas. Sabablarni o‘qing, so‘ng ishni sinang.",
-            "Баллы 0–100 сравнивают ответы с профилями профессий. Это не проценты, вероятность успеха или доказательство способностей. Изучите причины и попробуйте работу.",
-          )}
-        </p>
-        {latest.careers?.length ? (
-          <div className="student-career-grid">
-            {latest.careers.slice(0, 3).map((c, i) => (
-              <CareerCard
-                key={c.name}
-                career={c}
-                rank={i + 1}
-                featured={i === 0}
-                tCareer={tCareer}
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="mt-3 text-sm text-muted-foreground">{tr("No career data yet.")}</p>
-        )}
-      </GlassCard>
-
-      {/* Career Battles CTA */}
-      <Link to="/career-battles" className="student-battles">
-        <span className="student-icon-tile">
-          <SwordsDrawing />
-        </span>
-        <span className="student-battles-copy">
-          <strong>{tr("Try Career Battles")}</strong>
-          <span>{tr("Compare saved careers and practical experiments")}</span>
-        </span>
-        <LightningDrawing className="student-lightning" />
-        <span className="student-round-arrow">
-          <ArrowDrawing />
-        </span>
-      </Link>
-
-      {/* History */}
-      <GlassCard className="p-7">
-        <SectionTitle icon={TrendingUp}>{tr("Assessment History")}</SectionTitle>
-        <ul className="student-history">
-          {results.map((r, i) => (
-            <li
-              key={r.id}
-              className={`student-history-entry ${i === 0 ? "student-history-latest" : ""}`}
-            >
-              <span className="inline-flex items-center gap-2 text-muted-foreground">
-                {i === 0 ? (
-                  <span className="relative flex h-2 w-2 shrink-0">
-                    <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-50" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-                  </span>
-                ) : (
-                  <Calendar className="h-3.5 w-3.5" />
-                )}
-                {displayDate(r.created_at)}
-              </span>
-              <span>{historyLabel(r.iq_score, r.mbti_type, lang)}</span>
-              <Link className="field-button" to="/career-results" search={{ resultId: r.id }}>
-                {w("View result", "Natijani ko‘rish", "Открыть результат")}
-              </Link>
-              <label className="flex items-center gap-2 min-h-11">
-                <input
-                  type="checkbox"
-                  checked={compare.includes(r.id)}
-                  disabled={!compare.includes(r.id) && compare.length >= 2}
-                  onChange={(e) =>
-                    setCompare((c) =>
-                      e.target.checked ? [...c, r.id] : c.filter((id) => id !== r.id),
-                    )
-                  }
-                />
-                {w("Compare attempt", "Urinishni solishtirish", "Сравнить попытку")}
-              </label>
-              <span className="text-muted-foreground">
-                {tr("Top:")}{" "}
-                <span className="font-semibold text-foreground">
-                  {r.careers?.[0] ? tCareer(r.careers[0].name).name : "—"}
-                </span>
-              </span>
-            </li>
-          ))}
-        </ul>
-        {compare.length === 2 && (
-          <section className="mt-5" aria-live="polite">
-            <h3>{w("Compare attempts", "Urinishlarni solishtirish", "Сравнение попыток")}</h3>
-            <p className="mt-2">
+      <DeferredBelowFold>
+        {/* Cognitive bars + Strengths/Weaknesses */}
+        <div className="student-details">
+          <GlassCard className="student-ruled">
+            <SectionTitle icon={Brain}>
+              {w("About your reasoning score", "Mantiq ballingiz haqida", "О вашем балле мышления")}
+            </SectionTitle>
+            <p className="mt-4 text-sm text-muted-foreground">
               {w(
-                "Question sets, difficulty, language and method versions may differ. Changes are descriptions of attempts, not measured growth in ability.",
-                "Savollar to‘plami, qiyinligi, til va usul versiyalari farq qilishi mumkin. O‘zgarishlar urinish tavsifi, qobiliyat o‘sishining o‘lchovi emas.",
-                "Наборы вопросов, сложность, язык и версии метода могут отличаться. Изменения описывают попытки, а не измеренный рост способностей.",
+                "One overall score from nine reasoning questions. We do not measure logic, analytical thinking and pattern recognition separately. It is not an IQ score or a measure of your future potential.",
+                "To‘qqizta mantiq savolidan bitta umumiy ball. Mantiq, tahlil va naqshni topishni alohida o‘lchamaymiz. Bu IQ yoki kelajak imkoniyatingiz o‘lchovi emas.",
+                "Один общий балл по девяти вопросам. Логика, анализ и поиск закономерностей отдельно не измеряются. Это не IQ и не оценка будущего потенциала.",
               )}
             </p>
-            <div className="grid gap-4 md:grid-cols-2 mt-4">
-              {compare.map((id) => {
-                const a = results.find((r) => r.id === id)!;
-                return (
-                  <article key={id} className="border border-border rounded-xl p-4">
-                    <h4>{new Date(a.created_at).toLocaleDateString(lang)}</h4>
-                    <p>{historyLabel(a.iq_score, a.mbti_type, lang)}</p>
-                    <ol className="list-decimal pl-5">
-                      {a.careers.slice(0, 3).map((c) => (
-                        <li key={c.name}>
-                          {tCareer(c.name).name}: {c.match}/100
-                        </li>
-                      ))}
-                    </ol>
-                    <Link
-                      className="field-button mt-3"
-                      to="/career-results"
-                      search={{ resultId: id }}
+            <p className="mt-4 text-sm text-muted-foreground">
+              {w(
+                "Your personality summary describes your answers today. Preferences can change; a type is not a fixed identity.",
+                "Shaxsiyat xulosasi bugungi javoblaringizni tasvirlaydi. Afzallik o‘zgarishi mumkin; tur doimiy shaxsiyat emas.",
+                "Описание личности отражает сегодняшние ответы. Предпочтения меняются; тип не определяет вас навсегда.",
+              )}
+            </p>
+          </GlassCard>
+
+          <div className="grid gap-6">
+            <GlassCard className="student-strengths">
+              <MedalDrawing className="student-medal" />
+              <SectionTitle icon={Heart}>{tr("Top Strengths")}</SectionTitle>
+              {latest.top_strengths?.length ? (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {latest.top_strengths.map((s) => (
+                    <span key={s} className="student-chip student-strength-chip">
+                      {tTrait(s)}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-muted-foreground">{tr("No data yet.")}</p>
+              )}
+            </GlassCard>
+            <GlassCard className="p-7">
+              <SectionTitle icon={Zap}>{tr("Growth Areas")}</SectionTitle>
+              {latest.weaknesses?.length ? (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {latest.weaknesses.map((s) => (
+                    <span
+                      key={s}
+                      className="rounded-full border border-accent/20 bg-card px-3 py-1.5 text-sm font-medium text-accent/80"
                     >
-                      {w("View result", "Natijani ko‘rish", "Открыть результат")}
-                    </Link>
-                  </article>
-                );
-              })}
+                      {tTrait(s)}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  {tr("No answer-supported growth areas recorded.")}
+                </p>
+              )}
+            </GlassCard>
+          </div>
+        </div>
+      </DeferredBelowFold>
+      <DeferredBelowFold>
+        {/* Career matches */}
+        <GlassCard className="student-careers">
+          <SectionTitle icon={Trophy}>
+            {w("Careers to explore", "O‘rganish uchun kasblar", "Профессии для исследования")}
+          </SectionTitle>
+          <p className="mt-3 text-sm text-muted-foreground">
+            {w(
+              "Fit scores compare your answers with career profiles on a 0–100 scale. They are not percentages, success probabilities or proof of ability. Start with the reasons, then try the work.",
+              "0–100 moslik balli javoblaringizni kasb profillari bilan solishtiradi. Bu foiz, muvaffaqiyat ehtimoli yoki qobiliyat isboti emas. Sabablarni o‘qing, so‘ng ishni sinang.",
+              "Баллы 0–100 сравнивают ответы с профилями профессий. Это не проценты, вероятность успеха или доказательство способностей. Изучите причины и попробуйте работу.",
+            )}
+          </p>
+          {latest.careers?.length ? (
+            <div className="student-career-grid">
+              {latest.careers.slice(0, 3).map((c, i) => (
+                <CareerCard
+                  key={c.name}
+                  career={c}
+                  rank={i + 1}
+                  featured={i === 0}
+                  tCareer={tCareer}
+                />
+              ))}
             </div>
-            <p className="mt-3">
-              {w(
-                "Top direction changed:",
-                "Birinchi yo‘nalish o‘zgardi:",
-                "Первое направление изменилось:",
-              )}{" "}
-              {results.find((r) => r.id === compare[0])?.careers[0]?.name ===
-              results.find((r) => r.id === compare[1])?.careers[0]?.name
-                ? w("No", "Yo‘q", "Нет")
-                : w("Yes", "Ha", "Да")}
-            </p>
-            <p className="mt-3">
-              {w(
-                "Reasoning difference (second selected minus first):",
-                "Mantiqiy natija farqi (ikkinchi tanlangan minus birinchi):",
-                "Разница заданий на мышление (вторая выбранная минус первая):",
-              )}{" "}
-              {(() => {
-                const a = results.find((r) => r.id === compare[0])!.iq_score;
-                const b = results.find((r) => r.id === compare[1])!.iq_score;
-                return a == null || b == null
-                  ? w(
-                      "Not comparable: reasoning was not assessed in one attempt.",
-                      "Solishtirib bo‘lmaydi: bir urinishda mantiqiy savollar baholanmagan.",
-                      "Не сравнивается: в одной попытке не было заданий на мышление.",
-                    )
-                  : `${b - a >= 0 ? "+" : ""}${b - a}/9`;
-              })()}
-            </p>
-          </section>
-        )}
-      </GlassCard>
+          ) : (
+            <p className="mt-3 text-sm text-muted-foreground">{tr("No career data yet.")}</p>
+          )}
+        </GlassCard>
+      </DeferredBelowFold>
+      <DeferredBelowFold>
+        {/* Career Battles CTA */}
+        <Link to="/career-battles" className="student-battles">
+          <span className="student-icon-tile">
+            <SwordsDrawing />
+          </span>
+          <span className="student-battles-copy">
+            <strong>{tr("Try Career Battles")}</strong>
+            <span>{tr("Compare saved careers and practical experiments")}</span>
+          </span>
+          <LightningDrawing className="student-lightning" />
+          <span className="student-round-arrow">
+            <ArrowDrawing />
+          </span>
+        </Link>
+      </DeferredBelowFold>
+      <DeferredBelowFold>
+        {/* History */}
+        <GlassCard className="p-7">
+          <SectionTitle icon={TrendingUp}>{tr("Assessment History")}</SectionTitle>
+          <ul className="student-history">
+            {results.map((r, i) => (
+              <li
+                key={r.id}
+                className={`student-history-entry ${i === 0 ? "student-history-latest" : ""}`}
+              >
+                <span className="inline-flex items-center gap-2 text-muted-foreground">
+                  {i === 0 ? (
+                    <span className="relative flex h-2 w-2 shrink-0">
+                      <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-50" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                    </span>
+                  ) : (
+                    <Calendar className="h-3.5 w-3.5" />
+                  )}
+                  {displayDate(r.created_at)}
+                </span>
+                <span>{historyLabel(r.iq_score, r.mbti_type, lang)}</span>
+                <Link className="field-button" to="/career-results" search={{ resultId: r.id }}>
+                  {w("View result", "Natijani ko‘rish", "Открыть результат")}
+                </Link>
+                <label className="flex items-center gap-2 min-h-11">
+                  <input
+                    type="checkbox"
+                    checked={compare.includes(r.id)}
+                    disabled={!compare.includes(r.id) && compare.length >= 2}
+                    onChange={(e) =>
+                      setCompare((c) =>
+                        e.target.checked ? [...c, r.id] : c.filter((id) => id !== r.id),
+                      )
+                    }
+                  />
+                  {w("Compare attempt", "Urinishni solishtirish", "Сравнить попытку")}
+                </label>
+                <span className="text-muted-foreground">
+                  {tr("Top:")}{" "}
+                  <span className="font-semibold text-foreground">
+                    {r.careers?.[0] ? tCareer(r.careers[0].name).name : "—"}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+          {results.length < total && <HistoryTail loadMore={loadMore} failed={historyError} />}
+          {compare.length === 2 && (
+            <section className="mt-5" aria-live="polite">
+              <h3>{w("Compare attempts", "Urinishlarni solishtirish", "Сравнение попыток")}</h3>
+              <p className="mt-2">
+                {w(
+                  "Question sets, difficulty, language and method versions may differ. Changes are descriptions of attempts, not measured growth in ability.",
+                  "Savollar to‘plami, qiyinligi, til va usul versiyalari farq qilishi mumkin. O‘zgarishlar urinish tavsifi, qobiliyat o‘sishining o‘lchovi emas.",
+                  "Наборы вопросов, сложность, язык и версии метода могут отличаться. Изменения описывают попытки, а не измеренный рост способностей.",
+                )}
+              </p>
+              <div className="grid gap-4 md:grid-cols-2 mt-4">
+                {compare.map((id) => {
+                  const a = results.find((r) => r.id === id)!;
+                  return (
+                    <article key={id} className="border border-border rounded-xl p-4">
+                      <h4>{new Date(a.created_at).toLocaleDateString(lang)}</h4>
+                      <p>{historyLabel(a.iq_score, a.mbti_type, lang)}</p>
+                      <ol className="list-decimal pl-5">
+                        {a.careers.slice(0, 3).map((c) => (
+                          <li key={c.name}>
+                            {tCareer(c.name).name}: {c.match}/100
+                          </li>
+                        ))}
+                      </ol>
+                      <Link
+                        className="field-button mt-3"
+                        to="/career-results"
+                        search={{ resultId: id }}
+                      >
+                        {w("View result", "Natijani ko‘rish", "Открыть результат")}
+                      </Link>
+                    </article>
+                  );
+                })}
+              </div>
+              <p className="mt-3">
+                {w(
+                  "Top direction changed:",
+                  "Birinchi yo‘nalish o‘zgardi:",
+                  "Первое направление изменилось:",
+                )}{" "}
+                {results.find((r) => r.id === compare[0])?.careers[0]?.name ===
+                results.find((r) => r.id === compare[1])?.careers[0]?.name
+                  ? w("No", "Yo‘q", "Нет")
+                  : w("Yes", "Ha", "Да")}
+              </p>
+              <p className="mt-3">
+                {w(
+                  "Reasoning difference (second selected minus first):",
+                  "Mantiqiy natija farqi (ikkinchi tanlangan minus birinchi):",
+                  "Разница заданий на мышление (вторая выбранная минус первая):",
+                )}{" "}
+                {(() => {
+                  const a = results.find((r) => r.id === compare[0])!.iq_score;
+                  const b = results.find((r) => r.id === compare[1])!.iq_score;
+                  return a == null || b == null
+                    ? w(
+                        "Not comparable: reasoning was not assessed in one attempt.",
+                        "Solishtirib bo‘lmaydi: bir urinishda mantiqiy savollar baholanmagan.",
+                        "Не сравнивается: в одной попытке не было заданий на мышление.",
+                      )
+                    : `${b - a >= 0 ? "+" : ""}${b - a}/9`;
+                })()}
+              </p>
+            </section>
+          )}
+        </GlassCard>
+      </DeferredBelowFold>
+    </div>
+  );
+}
+
+function HistoryTail({ loadMore, failed }: { loadMore: () => Promise<void>; failed: boolean }) {
+  const target = useRef<HTMLDivElement>(null);
+  const tr = useUiText();
+  useEffect(() => {
+    if (failed || !target.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) void loadMore();
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(target.current);
+    return () => observer.disconnect();
+  }, [loadMore, failed]);
+  return (
+    <div ref={target} role={failed ? "alert" : undefined}>
+      {failed && <button onClick={() => void loadMore()}>{tr("Retry")}</button>}
     </div>
   );
 }

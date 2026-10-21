@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useId } from "react";
 import type {
   PictureFigure as Figure,
@@ -8,7 +9,7 @@ import type {
 const ink = "#1d1b16";
 import { figureDescription } from "@/lib/assessment/picture-descriptions";
 
-export function PictureFigure({
+export const PictureFigure = memo(function PictureFigure({
   figure: f,
   lang = "en",
 }: {
@@ -199,4 +200,4 @@ export function PictureFigure({
       </g>
     </svg>
   );
-}
+});
