@@ -662,7 +662,7 @@ export function PictureAssessment() {
             <div className="picture-intro-row">
               <div>
                 <h1>
-                  <span style={{ color: "#d9381e" }}>30</span>
+                  <span style={{ color: "var(--pen-red)" }}>30</span>
                   {w(
                     " questions. One starting profile.",
                     " ta savol. Boshlang‘ich profilingiz.",

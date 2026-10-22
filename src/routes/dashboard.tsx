@@ -663,7 +663,7 @@ function ResultsSection({
                   {latest.weaknesses.map((s) => (
                     <span
                       key={s}
-                      className="rounded-full border border-accent/20 bg-card px-3 py-1.5 text-sm font-medium text-accent/80"
+                      className="rounded-full border border-accent/20 bg-card px-3 py-1.5 text-sm font-medium text-foreground"
                     >
                       {tTrait(s)}
                     </span>

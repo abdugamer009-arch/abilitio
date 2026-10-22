@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-22 — A11Y-01, A11Y-02: readable dashboard and assessment text
+
+- Growth Areas badges now use the existing foreground text color; the dark assessment start heading uses the existing pen-red theme color. Wording, layout, scoring and stored data are unchanged.
+- Verified the two failing contrast cases before the fix and all 14 light/dark browser cases after it, plus lint, TypeScript, 230 tests, five export checks and a Vercel build. Publication requires the main-source Vercel preview at 390px and 1440px; the audit report and private deployment receipt record that gate and the live smoke check.
+
 ## 2026-10-19 — Student dashboard design pass 3
 
 The owner approved publication with “approve i need results” on October 19, 2026.
