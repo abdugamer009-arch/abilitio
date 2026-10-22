@@ -31,6 +31,11 @@ export function useRouteTransition(curtain: RefObject<HTMLDivElement | null>, en
       outgoing.clear();
     };
     const root = document.documentElement;
+    const chromeTargets = new Set<Element>();
+    const restoreChrome = () => {
+      chromeTargets.forEach((target) => target.removeAttribute("data-route-moving"));
+      chromeTargets.clear();
+    };
     const pausedTargets = new Set<Element>();
     const loopTargets = new Set<Element>();
     const pageSizes = new WeakMap<Element, number>();
@@ -103,7 +108,15 @@ export function useRouteTransition(curtain: RefObject<HTMLDivElement | null>, en
       if (url) void warm(url.href);
     };
     const signal = (phase: string) => {
-      if (!root.dataset.routeTransition) root.dataset.routeTransition = "active";
+      if (!root.dataset.routeTransition) {
+        root.dataset.routeTransition = "active";
+        // Scope transition suppression to persistent chrome. A root descendant
+        // selector invalidates the outgoing page's styles in the input task.
+        document.querySelectorAll(".field-header, .field-footer").forEach((target) => {
+          target.setAttribute("data-route-moving", "");
+          chromeTargets.add(target);
+        });
+      }
       layer.dataset.transition = phase;
       window.dispatchEvent(new CustomEvent("abilitio:transition-phase", { detail: phase }));
     };
@@ -111,6 +124,7 @@ export function useRouteTransition(curtain: RefObject<HTMLDivElement | null>, en
       if (id !== serial) return;
       animation?.cancel();
       resumeLoops();
+      restoreChrome();
       restoreOutgoing();
       layer.style.removeProperty("will-change");
       layer.style.removeProperty("opacity");
@@ -365,6 +379,7 @@ export function useRouteTransition(curtain: RefObject<HTMLDivElement | null>, en
       serial++;
       animation?.cancel();
       resumeLoops();
+      restoreChrome();
       restoreOutgoing();
       layer.style.removeProperty("will-change");
       delete root.dataset.routeTransition;

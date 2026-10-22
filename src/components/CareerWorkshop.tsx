@@ -115,7 +115,12 @@ export function CareerWorkshop({
             "withdraw+=0.18",
           );
       });
-      revert = () => ctx.revert();
+      revert = () => {
+        // React has already detached the outgoing route in passive cleanup.
+        // Restoring its old clip/transform styles cannot affect visible UI.
+        if (current.isConnected) ctx.revert();
+        else ctx.kill();
+      };
     });
     return () => {
       cancelled = true;
@@ -126,6 +131,7 @@ export function CareerWorkshop({
     if (!enabled || !panel.current) return;
     let disposed = false;
     let cleanup = () => {};
+    const surface = panel.current;
     import("gsap").then(({ gsap }) => {
       if (disposed) return;
       const context = gsap.context(() => {
@@ -146,7 +152,10 @@ export function CareerWorkshop({
             "details",
           );
       }, panel);
-      cleanup = () => context.revert();
+      cleanup = () => {
+        if (surface.isConnected) context.revert();
+        else context.kill();
+      };
     });
     return () => {
       disposed = true;
