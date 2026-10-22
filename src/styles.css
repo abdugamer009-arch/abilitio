@@ -4265,10 +4265,7 @@ html[data-route-transition] {
 [data-motion-offscreen]::after {
   animation-play-state: paused !important;
 }
-html[data-route-transition] .page-plane {
-  clip-path: none !important;
-}
-html[data-route-transition] .field-header {
+.field-header[data-route-moving] {
   transition: none !important;
 }
 
@@ -4277,11 +4274,11 @@ html[data-route-transition] .field-header {
 
 /* Persistent navigation changes its active state only while covered. Its
    background/border hover transitions must not compete with the curtain. */
-html[data-route-transition] .field-header *,
-html[data-route-transition] .field-header *::before,
-html[data-route-transition] .field-header *::after,
-html[data-route-transition] .field-footer *,
-html[data-route-transition] .field-footer *::before,
-html[data-route-transition] .field-footer *::after {
+.field-header[data-route-moving] *,
+.field-header[data-route-moving] *::before,
+.field-header[data-route-moving] *::after,
+.field-footer[data-route-moving] *,
+.field-footer[data-route-moving] *::before,
+.field-footer[data-route-moving] *::after {
   transition: none !important;
 }
