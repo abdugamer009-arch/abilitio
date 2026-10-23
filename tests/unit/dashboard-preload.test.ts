@@ -17,6 +17,7 @@ vi.mock("@/integrations/supabase/client", () => ({
           return query;
         },
         order: () => query,
+        abortSignal: () => query,
         maybeSingle: () => query,
         range: (from: number, to: number) => {
           range = [from, to];

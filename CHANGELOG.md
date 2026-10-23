@@ -4,8 +4,14 @@
 
 - Replaced the home brain with the reference trail SVG and synchronized practice, choose and try stations. Rebuilt the workshop selector row and normalized practice answer drawings while retaining question data and progress.
 - Applied the postcard contact form, university notebook, folder tabs, activity sticky notes, waving ABBI and corkboard Settings designs. Live copy and account data remain authoritative; the illustration footer uses its requested shorter label.
-- Added per-illustration visibility and motion-preference handling, responsive layouts, keyboard focus styles and dark-theme contrast repairs. No schema, account, grading, route or provider changes.
+- Added per-illustration visibility and motion-preference handling, responsive layouts, keyboard focus styles, synchronized appearance controls and dark-theme contrast repairs. No schema, account, grading, route or provider changes.
 - Verification and release evidence are recorded in the private design-pass-4 delivery; implementation guidance is in `docs/development/DESIGN_PASS_4.md`.
+
+## 2026-10-23 — REL-02, SEC-02: bounded dashboard reads and patched test tooling
+
+- Dashboard and additional history reads now stop waiting after 15 seconds and expose the existing localized Retry screen. Old idle handoffs receive cancellation when replaced or cleared. Successful data, exact totals and query ownership are unchanged.
+- Updated the existing Vitest family to 4.1.12, addressing two moderate development-tool advisories. No new package names or production dependency changes; the full dependency audit reports zero known vulnerabilities.
+- Verification records include two failing blocked-read tests before the fix, three passing deadline/success cases after it, and a 390px stalled-transport/retry recovery check preserving 45 total reports with 20 loaded rows. The final local gate passed lint, types, 233 tests/43 files, five export checks and a Vercel build; 12 dashboard language/width/theme regression cases also passed. Publication additionally requires a main-source Vercel preview at 390/1440px.
 
 ## 2026-10-22 — A11Y-01, A11Y-02: readable dashboard and assessment text
 
