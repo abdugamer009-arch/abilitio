@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-23 — REL-02, SEC-02: bounded dashboard reads and patched test tooling
+
+- Dashboard and additional history reads now stop waiting after 15 seconds and expose the existing localized Retry screen. Old idle handoffs receive cancellation when replaced or cleared. Successful data, exact totals and query ownership are unchanged.
+- Updated the existing Vitest family to 4.1.12, addressing two moderate development-tool advisories. No new package names or production dependency changes; the full dependency audit reports zero known vulnerabilities.
+- Verification records include two failing blocked-read tests before the fix, three passing deadline/success cases after it, and a 390px stalled-transport/retry recovery check preserving 45 total reports with 20 loaded rows. The final local gate passed lint, types, 233 tests/43 files, five export checks and a Vercel build; 12 dashboard language/width/theme regression cases also passed. Publication additionally requires a main-source Vercel preview at 390/1440px.
+
 ## 2026-10-22 — A11Y-01, A11Y-02: readable dashboard and assessment text
 
 - Growth Areas badges now use the existing foreground text color; the dark assessment start heading uses the existing pen-red theme color. Wording, layout, scoring and stored data are unchanged.

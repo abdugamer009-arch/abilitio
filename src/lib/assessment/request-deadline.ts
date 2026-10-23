@@ -5,6 +5,7 @@ export async function requestWithDeadline<T>(
   request: (signal: AbortSignal) => Promise<T>,
   timeoutMs = 15_000,
   controller = new AbortController(),
+  timeoutMessage = "Draft save timed out",
 ): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
@@ -13,7 +14,7 @@ export async function requestWithDeadline<T>(
       new Promise<never>((_, reject) => {
         timer = setTimeout(() => {
           controller.abort();
-          reject(new Error("Draft save timed out"));
+          reject(new Error(timeoutMessage));
         }, timeoutMs);
       }),
     ]);
