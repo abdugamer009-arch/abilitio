@@ -1,10 +1,19 @@
 import { track, AnalyticsEvent } from "@/lib/analytics";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
-import { ArrowUpRight, Check } from "lucide-react";
+import { Check, Copy, Mail, Phone } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { useWords } from "@/lib/editorial";
 import { CONTACT_EMAIL, CONTACT_PHONE } from "@/lib/constants";
+import {
+  SendPlane,
+  PaperPlane,
+  Postmark,
+  PostageLogo,
+  ContactCircle,
+  ContactDivider,
+} from "@/components/design4/Artwork";
+import { MotionArtwork } from "@/components/design4/MotionArtwork";
 import { pageMeta } from "@/lib/seo";
 export const Route = createFileRoute("/contact")({
   validateSearch: (search: Record<string, unknown>): { topic?: string } => ({
@@ -58,13 +67,17 @@ function Contact() {
   }
   return (
     <PageShell>
-      <div className="field-wrap">
+      <div className="field-wrap d4-contact">
         <header className="field-intro">
           <p className="micro section-number">
             {w("CONTACT / SCHOOL TRIALS", "ALOQA / MAKTAB SINOVLARI", "КОНТАКТЫ / ПИЛОТЫ")}
           </p>
           <div>
-            <h1>{w("Start a conversation.", "Suhbatni boshlang.", "Начните разговор.")}</h1>
+            <h1>
+              <ContactTitle
+                text={w("Start a conversation.", "Suhbatni boshlang.", "Начните разговор.")}
+              />
+            </h1>
             <p>
               {w(
                 "Tell us what you are trying to understand. For a school, tell us the number of students and the language you need.",
@@ -73,37 +86,60 @@ function Contact() {
               )}
             </p>
           </div>
+          <MotionArtwork className="d4-plane">
+            <PaperPlane />
+          </MotionArtwork>
         </header>
+        <ContactDivider />
         <section className="field-section field-rule contact-layout">
           <aside>
             <p className="micro">{w("DIRECT CONTACT", "BEVOSITA ALOQA", "ПРЯМОЙ КОНТАКТ")}</p>
-            <a className="text-link mt-6 break-all" href={`mailto:${CONTACT_EMAIL}`}>
-              {CONTACT_EMAIL}
-            </a>
-            <button
-              className="block text-sm mt-4 text-muted-foreground"
-              onClick={async () => {
-                try {
-                  await navigator.clipboard.writeText(CONTACT_EMAIL);
-                  setCopy(true);
-                } catch {
-                  setError(
-                    w(
-                      "Select and copy the email address above.",
-                      "Yuqoridagi emailni belgilang va nusxalang.",
-                      "Выделите и скопируйте адрес выше.",
-                    ),
-                  );
-                }
-              }}
-            >
-              {copy
-                ? w("Copied", "Nusxalandi", "Скопировано")
-                : w("Copy address", "Manzilni nusxalash", "Копировать адрес")}
-            </button>
-            <a className="text-link mt-8" href={`tel:${CONTACT_PHONE.replace(/\s/g, "")}`}>
-              {CONTACT_PHONE}
-            </a>
+            <div className="d4-contact-card d4-hatch">
+              <span className="d4-hatch-layer" aria-hidden="true" />
+              <div className="d4-contact-face">
+                <Mail aria-hidden="true" />
+                <div>
+                  <a className="text-link mt-6 break-all" href={`mailto:${CONTACT_EMAIL}`}>
+                    {CONTACT_EMAIL}
+                  </a>
+                  <button
+                    className="block text-sm mt-4 text-muted-foreground"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(CONTACT_EMAIL);
+                        setCopy(true);
+                      } catch {
+                        setError(
+                          w(
+                            "Select and copy the email address above.",
+                            "Yuqoridagi emailni belgilang va nusxalang.",
+                            "Выделите и скопируйте адрес выше.",
+                          ),
+                        );
+                      }
+                    }}
+                  >
+                    {copy ? (
+                      <Check size={16} aria-hidden="true" />
+                    ) : (
+                      <Copy size={16} aria-hidden="true" />
+                    )}
+                    {copy
+                      ? w("Copied", "Nusxalandi", "Скопировано")
+                      : w("Copy address", "Manzilni nusxalash", "Копировать адрес")}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="d4-contact-card d4-phone d4-hatch">
+              <span className="d4-hatch-layer" aria-hidden="true" />
+              <div className="d4-contact-face">
+                <Phone aria-hidden="true" />
+                <a className="text-link mt-8" href={`tel:${CONTACT_PHONE.replace(/\s/g, "")}`}>
+                  {CONTACT_PHONE}
+                </a>
+              </div>
+            </div>
             <p className="text-sm text-muted-foreground mt-8">
               {w(
                 "Your message goes to our team. A school inquiry begins with agreeing the number of students, reports and price; it does not create a subscription.",
@@ -112,123 +148,158 @@ function Contact() {
               )}
             </p>
           </aside>
-          <div>
-            {status === "success" ? (
-              <div role="status" className="sample-result">
-                <Check size={24} />
-                <h2 className="text-4xl mt-6">
-                  {w("Message received.", "Xabar qabul qilindi.", "Сообщение получено.")}
-                </h2>
-                <p className="mt-4">
-                  {w(
-                    "The team will reply to the address you provided.",
-                    "Jamoa ko‘rsatgan manzilingizga javob beradi.",
-                    "Команда ответит на указанный адрес.",
-                  )}
-                </p>
-                <button className="text-link mt-6" onClick={() => setStatus("idle")}>
-                  {w("Send another message", "Yana xabar yuborish", "Отправить ещё")}
-                </button>
+          <div className="d4-postcard d4-hatch">
+            <span className="d4-hatch-layer" aria-hidden="true" />
+            <span className="d4-post-tape" aria-hidden="true" />
+            <div className="d4-postcard-face">
+              <div className="d4-postage-wrap" aria-hidden="true">
+                <Postmark />
+                <span className="d4-postage">
+                  <PostageLogo />
+                </span>
               </div>
-            ) : (
-              <form onSubmit={submit}>
-                <label>
-                  {w("I am writing about", "Mavzu", "Тема")}
-                  <select
-                    name="topic"
-                    value={school ? "school" : "assessment"}
-                    onChange={(e) => setSchool(e.target.value === "school")}
-                  >
-                    <option value="assessment">
-                      {w("The assessment / my account", "Baholash / hisobim", "Оценка / аккаунт")}
-                    </option>
-                    <option value="school">
-                      {w("A school trial", "Maktab sinovi", "Пилот для школы")}
-                    </option>
-                  </select>
-                </label>
-                <div className="form-row">
-                  <label>
-                    {w("Your name", "Ismingiz", "Ваше имя")}
-                    <input name="name" minLength={2} maxLength={100} autoComplete="name" required />
-                  </label>
-                  <label>
-                    {w("Email", "Email", "Почта")}
-                    <input
-                      name="email"
-                      type="email"
-                      maxLength={200}
-                      autoComplete="email"
-                      required
-                    />
-                  </label>
-                </div>
-                {school && (
-                  <>
-                    <div className="form-row">
-                      <label>
-                        {w("Institution", "Muassasa", "Учреждение")}
-                        <input name="institution" required maxLength={150} />
-                      </label>
-                      <label>
-                        {w("Your role", "Lavozimingiz", "Ваша роль")}
-                        <input name="role" required maxLength={100} />
-                      </label>
-                    </div>
-                    <div className="form-row">
-                      <label>
-                        {w(
-                          "Proposed student count",
-                          "Taxminiy o‘quvchi soni",
-                          "Количество учеников",
-                        )}
-                        <input name="students" type="number" min={1} max={100000} required />
-                      </label>
-                      <label>
-                        {w("Preferred language", "Til", "Язык")}
-                        <select name="language">
-                          <option value="Uzbek">{w("Uzbek", "O‘zbekcha", "Узбекский")}</option>
-                          <option value="English">{w("English", "Inglizcha", "Английский")}</option>
-                          <option value="Russian">{w("Russian", "Ruscha", "Русский")}</option>
-                        </select>
-                      </label>
-                    </div>
-                  </>
-                )}
-                <label>
-                  {w("Your question", "Savolingiz", "Ваш вопрос")}
-                  <textarea name="message" minLength={5} maxLength={2000} rows={6} required />
-                </label>
-                <div hidden aria-hidden>
-                  <label>
-                    Website
-                    <input name="website" tabIndex={-1} autoComplete="off" />
-                  </label>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {w(
-                    "Avoid including student names or assessment answers.",
-                    "O‘quvchi ismlari yoki baholash javoblarini yubormang.",
-                    "Не включайте имена учеников и ответы на вопросы.",
-                  )}
-                </p>
-                {error && (
-                  <p role="alert" className="field-error">
-                    {error}
+              {status === "success" ? (
+                <div role="status" className="sample-result">
+                  <Check size={24} />
+                  <h2 className="text-4xl mt-6">
+                    {w("Message received.", "Xabar qabul qilindi.", "Сообщение получено.")}
+                  </h2>
+                  <p className="mt-4">
+                    {w(
+                      "The team will reply to the address you provided.",
+                      "Jamoa ko‘rsatgan manzilingizga javob beradi.",
+                      "Команда ответит на указанный адрес.",
+                    )}
                   </p>
-                )}
-                <button className="field-button justify-self-start" disabled={status === "sending"}>
-                  {status === "sending"
-                    ? w("Sending…", "Yuborilmoqda…", "Отправка…")
-                    : w("Send message", "Xabar yuborish", "Отправить")}
-                  <ArrowUpRight size={18} />
-                </button>
-              </form>
-            )}
-            {error && status === "success" && <p role="alert">{error}</p>}
+                  <button className="text-link mt-6" onClick={() => setStatus("idle")}>
+                    {w("Send another message", "Yana xabar yuborish", "Отправить ещё")}
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={submit}>
+                  <label>
+                    {w("I am writing about", "Mavzu", "Тема")}
+                    <select
+                      name="topic"
+                      value={school ? "school" : "assessment"}
+                      onChange={(e) => setSchool(e.target.value === "school")}
+                    >
+                      <option value="assessment">
+                        {w("The assessment / my account", "Baholash / hisobim", "Оценка / аккаунт")}
+                      </option>
+                      <option value="school">
+                        {w("A school trial", "Maktab sinovi", "Пилот для школы")}
+                      </option>
+                    </select>
+                  </label>
+                  <div className="form-row">
+                    <label>
+                      {w("Your name", "Ismingiz", "Ваше имя")}
+                      <input
+                        name="name"
+                        minLength={2}
+                        maxLength={100}
+                        autoComplete="name"
+                        required
+                      />
+                    </label>
+                    <label>
+                      {w("Email", "Email", "Почта")}
+                      <input
+                        name="email"
+                        type="email"
+                        maxLength={200}
+                        autoComplete="email"
+                        required
+                      />
+                    </label>
+                  </div>
+                  {school && (
+                    <>
+                      <div className="form-row">
+                        <label>
+                          {w("Institution", "Muassasa", "Учреждение")}
+                          <input name="institution" required maxLength={150} />
+                        </label>
+                        <label>
+                          {w("Your role", "Lavozimingiz", "Ваша роль")}
+                          <input name="role" required maxLength={100} />
+                        </label>
+                      </div>
+                      <div className="form-row">
+                        <label>
+                          {w(
+                            "Proposed student count",
+                            "Taxminiy o‘quvchi soni",
+                            "Количество учеников",
+                          )}
+                          <input name="students" type="number" min={1} max={100000} required />
+                        </label>
+                        <label>
+                          {w("Preferred language", "Til", "Язык")}
+                          <select name="language">
+                            <option value="Uzbek">{w("Uzbek", "O‘zbekcha", "Узбекский")}</option>
+                            <option value="English">
+                              {w("English", "Inglizcha", "Английский")}
+                            </option>
+                            <option value="Russian">{w("Russian", "Ruscha", "Русский")}</option>
+                          </select>
+                        </label>
+                      </div>
+                    </>
+                  )}
+                  <label>
+                    {w("Your question", "Savolingiz", "Ваш вопрос")}
+                    <textarea name="message" minLength={5} maxLength={2000} rows={6} required />
+                  </label>
+                  <div hidden aria-hidden>
+                    <label>
+                      Website
+                      <input name="website" tabIndex={-1} autoComplete="off" />
+                    </label>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {w(
+                      "Avoid including student names or assessment answers.",
+                      "O‘quvchi ismlari yoki baholash javoblarini yubormang.",
+                      "Не включайте имена учеников и ответы на вопросы.",
+                    )}
+                  </p>
+                  {error && (
+                    <p role="alert" className="field-error">
+                      {error}
+                    </p>
+                  )}
+                  <button
+                    className="field-button justify-self-start"
+                    disabled={status === "sending"}
+                  >
+                    {status === "sending"
+                      ? w("Sending…", "Yuborilmoqda…", "Отправка…")
+                      : w("Send message", "Xabar yuborish", "Отправить")}
+                    <SendPlane />
+                  </button>
+                </form>
+              )}
+              {error && status === "success" && <p role="alert">{error}</p>}
+            </div>
           </div>
         </section>
       </div>
     </PageShell>
+  );
+}
+
+function ContactTitle({ text }: { text: string }) {
+  const words = text.split(" ");
+  const last = words.pop();
+  return (
+    <>
+      {words.join(" ")}{" "}
+      <span className="d4-circle-title">
+        {last}
+        <ContactCircle />
+      </span>
+    </>
   );
 }

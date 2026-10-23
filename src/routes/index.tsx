@@ -3,12 +3,13 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { DeferredBelowFold } from "@/components/DeferredBelowFold";
 import { PageShell } from "@/components/PageShell";
-import { BrainScene } from "@/components/BrainScene";
+import { TrailDrawing, HeroAnnotation } from "@/components/design4/Artwork";
+import { useArtworkMotion } from "@/components/design4/use-artwork-motion";
 import { FOUNDERS, FounderPortrait } from "@/components/FounderPortrait";
 import { CareerWorkshop } from "@/components/CareerWorkshop";
 import { MaskText } from "@/components/MaskText";
-import { CartoonSparkle, CartoonLoop, MarkedText } from "@/components/CartoonArtwork";
-import { useMotion } from "@/components/MotionProvider";
+import { CartoonSparkle, MarkedText } from "@/components/CartoonArtwork";
+
 import { useWords } from "@/lib/editorial";
 import { pageMeta } from "@/lib/seo";
 import { track, AnalyticsEvent } from "@/lib/analytics";
@@ -27,10 +28,10 @@ export const Route = createFileRoute("/")({
 function LandingPage() {
   const w = useWords();
   const [stage, setStage] = useState(0);
-  const { enabled } = useMotion();
+  const { ref: heroRef, playing } = useArtworkMotion();
   const [illustrationStep, setIllustrationStep] = useState(0);
   useEffect(() => {
-    if (!enabled) return;
+    if (!playing) return;
     const timer = setInterval(() => {
       const hero = document.getElementById("brain-hero");
       if (
@@ -40,9 +41,9 @@ function LandingPage() {
       )
         return;
       setIllustrationStep((current) => (current + 1) % 3);
-    }, 2600);
+    }, 2800);
     return () => clearInterval(timer);
-  }, [enabled]);
+  }, [playing]);
   return (
     <PageShell>
       <section className="studio-hero" id="brain-hero">
@@ -65,7 +66,7 @@ function LandingPage() {
                   "Kelajak biroz yorqinroq bo‘lishi kerak.",
                   "Будущее должно быть немного светлее.",
                 )}
-                <CartoonLoop small />
+                <HeroAnnotation />
               </p>
               <h1 data-hero-title>
                 <MaskText
@@ -134,39 +135,63 @@ function LandingPage() {
                 )}
               </p>
             </div>
-            <div className="hero-instrument" data-hero-object data-velocity>
-              <CartoonSparkle />
-              <div className="instrument-label">
-                <span className="micro">
-                  {w(
-                    "EXPLORE THE PRACTICE TOOLS",
-                    "MASHQ VOSITALARINI O‘RGANING",
-                    "ИНСТРУМЕНТЫ ДЛЯ ПРАКТИКИ",
-                  )}
-                </span>
-                <span>×{illustrationStep + 1}</span>
-              </div>
-              <BrainScene signal={illustrationStep} />
-              <div className="instrument-signals">
-                {[
-                  w("Practice", "Mashq", "Практика"),
-                  w("Choose", "Tanlang", "Выберите"),
-                  w("Try", "Sinang", "Попробуйте"),
-                ].map((label, i) => (
-                  <button
-                    key={i}
-                    onClick={() => {
-                      setStage(i);
-                      setIllustrationStep(i);
-                    }}
-                    aria-pressed={illustrationStep === i}
-                    data-cursor="choose"
-                  >
-                    <span>0{i + 1}</span>
-                    {label}
+            <div className="d4-hatch hero-art-shell">
+              <span className="d4-hatch-layer" aria-hidden="true" />
+              <div
+                className="hero-instrument d4-motion"
+                ref={heroRef}
+                data-playing={playing}
+                data-step={illustrationStep}
+                data-hero-object
+              >
+                <CartoonSparkle />
+                <div className="instrument-label">
+                  <span className="micro">
+                    {w(
+                      "EXPLORE THE PRACTICE TOOLS",
+                      "MASHQ VOSITALARINI O‘RGANING",
+                      "ИНСТРУМЕНТЫ ДЛЯ ПРАКТИКИ",
+                    )}
+                  </span>
+                  <span>×{illustrationStep + 1}</span>
+                </div>
+                <div className="d4-trail">
+                  <TrailDrawing />
+                </div>
+                <div className="d4-art-footer">
+                  <span className="micro">{w("ILLUSTRATION", "TASVIR", "ИЛЛЮСТРАЦИЯ")}</span>
+                  <span>
                     <i />
-                  </button>
-                ))}
+                    {playing
+                      ? w(
+                          "Animated illustration",
+                          "Animatsiyali tasvir",
+                          "Анимированная иллюстрация",
+                        )
+                      : w("Static illustration", "Statik tasvir", "Статичная иллюстрация")}
+                  </span>
+                </div>
+                <div className="instrument-signals">
+                  {[
+                    w("Practice", "Mashq", "Практика"),
+                    w("Choose", "Tanlang", "Выберите"),
+                    w("Try", "Sinang", "Попробуйте"),
+                  ].map((label, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setStage(i);
+                        setIllustrationStep(i);
+                      }}
+                      aria-pressed={illustrationStep === i}
+                      data-cursor="choose"
+                    >
+                      <span>0{i + 1}</span>
+                      {label}
+                      <i />
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

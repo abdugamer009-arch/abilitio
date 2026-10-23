@@ -1,3 +1,9 @@
+import {
+  OddPracticeIcon,
+  SeriesPracticeIcon,
+  GridPracticeIcon,
+  TurnPracticeIcon,
+} from "./design4/Artwork";
 import { AssessmentAgeNote } from "./AssessmentAgeNote";
 import { WORKSHOP_TASK_TEXT, taskEstimate } from "@/lib/roadmap/workshop-translations";
 import { useEffect, useRef, useState } from "react";
@@ -39,8 +45,9 @@ export function CareerWorkshop({
   const [track, setTrack] = useState<RoadmapTrack | "">("");
   const [done, setDone] = useState<Record<string, boolean>>({});
   const [preference, setPreference] = useState("");
-  const [practiceOpen, setPracticeOpen] = useState(false);
+
   const [hydrated, setHydrated] = useState(false);
+  const [practiceOpen, setPracticeOpen] = useState(true);
   const panel = useRef<HTMLDivElement>(null);
   useEffect(() => {
     try {
@@ -102,11 +109,7 @@ export function CareerWorkshop({
         gsap
           .timeline()
           .addLabel("withdraw")
-          .to(
-            current,
-            { clipPath: "inset(0 0 100% 0)", duration: MOTION.quick, ease: "studioFlow" },
-            "withdraw",
-          )
+          .to(current, { opacity: 0, y: 8, duration: MOTION.quick, ease: "studioFlow" }, "withdraw")
           .call(
             () => {
               if (!cancelled) setVisibleStage(requestedStage);
@@ -140,8 +143,8 @@ export function CareerWorkshop({
           .addLabel("plane")
           .fromTo(
             panel.current,
-            { clipPath: "inset(0 0 100% 0)" },
-            { clipPath: "inset(0 0 0% 0)", duration: MOTION.panel, ease: "studioFlow" },
+            { opacity: 0, y: 8 },
+            { opacity: 1, y: 0, duration: MOTION.panel, ease: "studioFlow" },
             "plane",
           )
           .addLabel("details", "plane+=0.18")
@@ -298,11 +301,7 @@ export function CareerWorkshop({
           >
             {w("Practice overview", "Mashq ko‘rinishi", "Обзор практики")}
           </button>
-          <aside
-            id="practice-index"
-            className={`bench-index ${practiceOpen ? "is-expanded" : ""}`}
-            data-detail
-          >
+          <aside id="practice-index" className="bench-index" hidden={!practiceOpen} data-detail>
             <h3>{w("Practice questions", "Mashq savollari", "Вопросы для практики")}</h3>
             <p>
               {w(
@@ -311,6 +310,36 @@ export function CareerWorkshop({
                 "Четыре отдельных тренировочных задания. Они не влияют на результат тестирования.",
               )}
             </p>
+            <div className="bench-count d4-hatch">
+              <span className="d4-hatch-layer" aria-hidden="true" />
+              <div className="d4-count-face">
+                <strong>
+                  {record.attempted}
+                  <span>/ {record.total}</span>
+                </strong>
+                <p>{w("samples answered", "namuna javoblangan", "примеров отвечено")}</p>
+                <svg viewBox="0 0 150 40" aria-hidden="true">
+                  <path
+                    d="M12 23Q35 10 55 22T96 22T138 18"
+                    fill="none"
+                    stroke="var(--ink)"
+                    strokeWidth="2.5"
+                    strokeDasharray="4 6"
+                  />
+                  {SAMPLE_QUESTIONS.map((sample, i) => (
+                    <circle
+                      key={sample.id}
+                      cx={15 + i * 40}
+                      cy="21"
+                      r="10"
+                      stroke="var(--ink)"
+                      strokeWidth="2.5"
+                      fill={answers[sample.id] !== undefined ? "var(--mint-solid)" : "var(--card)"}
+                    />
+                  ))}
+                </svg>
+              </div>
+            </div>
             <div className="item-grid">
               {SAMPLE_QUESTIONS.map((sample, i) => (
                 <button
@@ -326,6 +355,17 @@ export function CareerWorkshop({
                   }}
                   data-cursor="open"
                 >
+                  <span className="d4-question-icon" aria-hidden="true">
+                    {i === 0 ? (
+                      <OddPracticeIcon />
+                    ) : i === 1 ? (
+                      <SeriesPracticeIcon />
+                    ) : i === 2 ? (
+                      <GridPracticeIcon />
+                    ) : (
+                      <TurnPracticeIcon />
+                    )}
+                  </span>
                   <span>
                     {w("Question", "Savol", "Вопрос")} {i + 1}
                   </span>
@@ -378,362 +418,363 @@ export function CareerWorkshop({
                 <i className="difficulty-extended" />
                 {w("More challenging", "Qiyinroq", "Сложнее")}
               </span>
-            </div>
-            <small>
-              {w(
-                "Difficulty describes the question, not your ability.",
-                "Qiyinlik savolga tegishli, qobiliyatingizga emas.",
-                "Сложность относится к вопросу, не к вашим способностям.",
-              )}
-            </small>
-            <div className="bench-count">
-              <strong>
-                {record.attempted}
-                <span>/ {record.total}</span>
-              </strong>
-              <p>{w("samples answered", "namuna javoblangan", "примеров отвечено")}</p>
-              <div className="actual-progress">
-                <span style={{ width: `${(record.attempted / record.total) * 100}%` }} />
-              </div>
+              <small>
+                {w(
+                  "Difficulty describes the question, not your ability.",
+                  "Qiyinlik savolga tegishli, qobiliyatingizga emas.",
+                  "Сложность относится к вопросу, не к вашим способностям.",
+                )}
+              </small>
             </div>
           </aside>
-          <div className="bench-content" key={stage}>
-            <div className="bench-title" data-detail>
-              <span className={`stage-dot stage-${stage}`} />
-              <h3>{titles[stage]}</h3>
-              <span className="micro">0{stage + 1}</span>
-            </div>
-            {stage === 0 ? (
-              <div className="question-desk" data-detail>
-                <div className="question-label">
-                  <span className="micro">
-                    {w("Question", "Savol", "Вопрос")} {question + 1} / 4
-                  </span>
-                  <span className="free-label">
-                    {w("Free sample", "Bepul namuna", "Бесплатный пример")}
-                  </span>
-                </div>
-                <div className="picture-practice">
-                  <p className="question-prompt" id="practice-question">
-                    {prompt}
-                  </p>
-                  <div className="picture-figure">
-                    <PictureFigure figure={q.picture.figure} lang={lang} />
-                  </div>
-                  <fieldset className="picture-answers" aria-labelledby="practice-question">
-                    <legend className="sr-only">
-                      {w("Choose one answer", "Bitta javob tanlang", "Выберите один ответ")}
-                    </legend>
-                    {q.picture.options.map((o, i) => (
-                      <label key={o.id}>
-                        <input
-                          className="sr-only"
-                          type="radio"
-                          name={q.id}
-                          checked={selected === i}
-                          onChange={() => setSelected(i)}
-                        />
-                        <span className="picture-answer">
-                          <span className="picture-answer-letter">{"ABCD"[i]}</span>
-                          <PictureFigure figure={o.figure} lang={lang} />
-                        </span>
-                      </label>
-                    ))}
-                  </fieldset>
-                </div>
-                <div className="question-actions">
-                  <button
-                    className="field-button"
-                    disabled={selected === null}
-                    onClick={() => {
-                      if (selected !== null) {
-                        setAnswers((a) => ({ ...a, [q.id]: selected }));
-                        setSolution(true);
-                        setStep(0);
-                      }
-                    }}
-                    data-cursor="explain"
-                  >
-                    {w("Check & explain", "Tekshirish va izoh", "Проверить и объяснить")}
-                    <ArrowRight size={16} />
-                  </button>
-                  <button
-                    className="text-link"
-                    onClick={() => {
-                      setSolution(!solution);
-                      setStep(0);
-                    }}
-                  >
-                    {solution
-                      ? w("Close solution", "Izohni yopish", "Закрыть решение")
-                      : w("See the approach", "Yondashuvni ko‘rish", "Посмотреть подход")}
-                  </button>
-                </div>
-                {answers[q.id] !== undefined && (
-                  <p className="answer-status" role="status">
-                    {answers[q.id] === q.correct
-                      ? w(
-                          "Correct. Here is why.",
-                          "To‘g‘ri. Sababini ko‘ring.",
-                          "Верно. Вот почему.",
-                        )
-                      : w(
-                          "Try again. The explanation shows the rule.",
-                          "Qayta sinang. Izohda qoida ko‘rsatilgan.",
-                          "Попробуйте ещё раз. Объяснение показывает правило.",
-                        )}
-                  </p>
-                )}
-                {solution && <Explanation question={question} step={step} onStep={setStep} />}
+          <div className="d4-question-shell d4-hatch">
+            <span className="d4-hatch-layer" aria-hidden="true" />
+            <div className="bench-content" key={stage}>
+              <div className="bench-title" data-detail>
+                <span className={`stage-dot stage-${stage}`} />
+                <h3>{titles[stage]}</h3>
+                <span className="micro">0{stage + 1}</span>
               </div>
-            ) : stage === 1 ? (
-              <div className="report-desk" data-detail>
-                <div className="report-score">
-                  <span className="micro">
-                    {w("YOUR PRACTICE RECORD", "MASHQ NATIJANGIZ", "ВАШ РЕЗУЛЬТАТ ПРАКТИКИ")}
-                  </span>
-                  <strong>
-                    {record.correct}
-                    <span>/ {record.attempted}</span>
-                  </strong>
-                  <p>
-                    {record.attempted
-                      ? w(
-                          "correct in your latest sample answers",
-                          "oxirgi namuna javoblaringiz to‘g‘ri",
-                          "верных последних ответов",
-                        )
-                      : w(
-                          "Answer a sample to start a record.",
-                          "Natija uchun namunaga javob bering.",
-                          "Ответьте на пример, чтобы начать.",
-                        )}
-                  </p>
-                </div>
-                <div className="report-controls">
-                  <label>
-                    {w(
-                      "How would you start a project?",
-                      "Loyihani qanday boshlaysiz?",
-                      "Как вы начнёте проект?",
-                    )}
-                    <select value={preference} onChange={(e) => setPreference(e.target.value)}>
-                      <option value="">
-                        {w(
-                          "Choose your preference",
-                          "Afzalligingizni tanlang",
-                          "Выберите предпочтение",
-                        )}
-                      </option>
-                      <option value="solo">
-                        {w(
-                          "Focused work alone",
-                          "Mustaqil diqqatli ish",
-                          "Сосредоточенная работа одному",
-                        )}
-                      </option>
-                      <option value="team">
-                        {w(
-                          "Discuss it with a team",
-                          "Jamoa bilan muhokama",
-                          "Обсуждение с командой",
-                        )}
-                      </option>
-                    </select>
-                  </label>
-                  <label>
-                    {w("A direction to test", "Sinash uchun yo‘nalish", "Направление для проверки")}
-                    <select
-                      value={track}
-                      onChange={(e) => setTrack(e.target.value as RoadmapTrack | "")}
-                    >
-                      <option value="">
-                        {w("Choose a direction", "Yo‘nalish tanlang", "Выберите направление")}
-                      </option>
-                      <option value="tech">{w("Technology", "Texnologiya", "Технологии")}</option>
-                      <option value="creative">{w("Design", "Dizayn", "Дизайн")}</option>
-                      <option value="science">{w("Science", "Fan", "Наука")}</option>
-                    </select>
-                  </label>
-                </div>
-                <div className="signal-report">
-                  <div>
-                    <span className="signal-number">01</span>
-                    <strong>{w("Reasoning", "Mantiq", "Рассуждение")}</strong>
-                    <span>
-                      {record.correct} / {record.attempted} {w("correct", "to‘g‘ri", "верно")}
+              {stage === 0 ? (
+                <div className="question-desk" data-detail>
+                  <div className="question-label">
+                    <span className="micro">
+                      {w("Question", "Savol", "Вопрос")} {question + 1} / 4
+                    </span>
+                    <span className="free-label">
+                      {w("Free sample", "Bepul namuna", "Бесплатный пример")}
                     </span>
                   </div>
-                  <div>
-                    <span className="signal-number">02</span>
-                    <strong>{w("Work preference", "Ish uslubi", "Стиль работы")}</strong>
-                    <span>
-                      {!preference
-                        ? w("Not chosen", "Tanlanmagan", "Не выбрано")
-                        : preference === "solo"
-                          ? w(
-                              "Focused / self-selected",
-                              "Mustaqil / o‘zingiz tanlagan",
-                              "Фокус / выбран вами",
-                            )
-                          : w(
-                              "Collaborative / self-selected",
-                              "Jamoaviy / o‘zingiz tanlagan",
-                              "Команда / выбрано вами",
-                            )}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="signal-number">03</span>
-                    <strong>
-                      {w(
-                        "Your chosen direction",
-                        "Tanlagan yo‘nalishingiz",
-                        "Ваш выбор направления",
-                      )}
-                    </strong>
-                    <span>
-                      {!track
-                        ? w("Not chosen", "Tanlanmagan", "Не выбрано")
-                        : track === "tech"
-                          ? w("Technology", "Texnologiya", "Технологии")
-                          : track === "creative"
-                            ? w("Design", "Dizayn", "Дизайн")
-                            : w("Science", "Fan", "Наука")}
-                    </span>
-                  </div>
-                </div>
-                <p className="bench-disclaimer">
-                  {w(
-                    "These are your choices, not calculated recommendations. Practice answers and activities stay in this browser; they do not transfer to the full assessment.",
-                    "Bular tanlovlaringiz, hisoblangan tavsiyalar emas. Mashq javoblari va faoliyat shu brauzerda qoladi; to‘liq baholashga o‘tmaydi.",
-                    "Это ваши выборы, не расчётные рекомендации. Практика остаётся в браузере и не переносится в полную оценку.",
-                  )}
-                </p>
-                <button className="field-button" disabled={!track} onClick={() => onStage(2)}>
-                  {w("Choose a first task", "Birinchi vazifani tanlang", "Выберите первое задание")}
-                  <ArrowRight size={16} />
-                </button>
-              </div>
-            ) : (
-              <div className="path-desk" data-detail>
-                {!track ? (
-                  <div className="practice-empty">
-                    <h4>
-                      {w(
-                        "Choose a direction first",
-                        "Avval yo‘nalish tanlang",
-                        "Сначала выберите направление",
-                      )}
-                    </h4>
-                    <p>
-                      {w(
-                        "We have not chosen a career for you. Select Technology, Design or Science to see activities you can try.",
-                        "Biz siz uchun kasb tanlamadik. Faoliyatlarni ko‘rish uchun Texnologiya, Dizayn yoki Fanni tanlang.",
-                        "Мы не выбрали вам профессию. Выберите технологии, дизайн или науку, чтобы увидеть занятия.",
-                      )}
+                  <div className="picture-practice">
+                    <p className="question-prompt" id="practice-question">
+                      {prompt}
                     </p>
-                    <button className="field-button" onClick={() => onStage(1)}>
-                      {w("Choose a direction", "Yo‘nalish tanlang", "Выберите направление")}
+                    <div className="picture-figure">
+                      <PictureFigure figure={q.picture.figure} lang={lang} />
+                    </div>
+                    <fieldset className="picture-answers" aria-labelledby="practice-question">
+                      <legend className="sr-only">
+                        {w("Choose one answer", "Bitta javob tanlang", "Выберите один ответ")}
+                      </legend>
+                      {q.picture.options.map((o, i) => (
+                        <label key={o.id}>
+                          <input
+                            className="sr-only"
+                            type="radio"
+                            name={q.id}
+                            checked={selected === i}
+                            onChange={() => setSelected(i)}
+                          />
+                          <span className="picture-answer">
+                            <span className="picture-answer-letter">{"ABCD"[i]}</span>
+                            <PictureFigure figure={o.figure} lang={lang} practice />
+                          </span>
+                        </label>
+                      ))}
+                    </fieldset>
+                  </div>
+                  <div className="question-actions">
+                    <button
+                      className="field-button"
+                      disabled={selected === null}
+                      onClick={() => {
+                        if (selected !== null) {
+                          setAnswers((a) => ({ ...a, [q.id]: selected }));
+                          setSolution(true);
+                          setStep(0);
+                        }
+                      }}
+                      data-cursor="explain"
+                    >
+                      {w("Check & explain", "Tekshirish va izoh", "Проверить и объяснить")}
+                      <ArrowRight size={16} />
+                    </button>
+                    <button
+                      className="text-link"
+                      onClick={() => {
+                        setSolution(!solution);
+                        setStep(0);
+                      }}
+                    >
+                      {solution
+                        ? w("Close solution", "Izohni yopish", "Закрыть решение")
+                        : w("See the approach", "Yondashuvni ko‘rish", "Посмотреть подход")}
                     </button>
                   </div>
-                ) : (
-                  <>
-                    <div className="path-summary">
-                      <p className="micro">
-                        {w(
-                          "FOUNDATIONS / FIRST EXPERIMENT",
-                          "ASOSLAR / BIRINCHI SINOV",
-                          "ОСНОВЫ / ПЕРВЫЙ ЭКСПЕРИМЕНТ",
-                        )}
-                      </p>
-                      <h4>
-                        {track === "tech"
-                          ? w(
-                              "Build something small.",
-                              "Kichik narsa yarating.",
-                              "Создайте что-то небольшое.",
-                            )
-                          : track === "creative"
+                  {answers[q.id] !== undefined && (
+                    <p className="answer-status" role="status">
+                      {answers[q.id] === q.correct
+                        ? w(
+                            "Correct. Here is why.",
+                            "To‘g‘ri. Sababini ko‘ring.",
+                            "Верно. Вот почему.",
+                          )
+                        : w(
+                            "Try again. The explanation shows the rule.",
+                            "Qayta sinang. Izohda qoida ko‘rsatilgan.",
+                            "Попробуйте ещё раз. Объяснение показывает правило.",
+                          )}
+                    </p>
+                  )}
+                  {solution && <Explanation question={question} step={step} onStep={setStep} />}
+                </div>
+              ) : stage === 1 ? (
+                <div className="report-desk" data-detail>
+                  <div className="report-score">
+                    <span className="micro">
+                      {w("YOUR PRACTICE RECORD", "MASHQ NATIJANGIZ", "ВАШ РЕЗУЛЬТАТ ПРАКТИКИ")}
+                    </span>
+                    <strong>
+                      {record.correct}
+                      <span>/ {record.attempted}</span>
+                    </strong>
+                    <p>
+                      {record.attempted
+                        ? w(
+                            "correct in your latest sample answers",
+                            "oxirgi namuna javoblaringiz to‘g‘ri",
+                            "верных последних ответов",
+                          )
+                        : w(
+                            "Answer a sample to start a record.",
+                            "Natija uchun namunaga javob bering.",
+                            "Ответьте на пример, чтобы начать.",
+                          )}
+                    </p>
+                  </div>
+                  <div className="report-controls">
+                    <label>
+                      {w(
+                        "How would you start a project?",
+                        "Loyihani qanday boshlaysiz?",
+                        "Как вы начнёте проект?",
+                      )}
+                      <select value={preference} onChange={(e) => setPreference(e.target.value)}>
+                        <option value="">
+                          {w(
+                            "Choose your preference",
+                            "Afzalligingizni tanlang",
+                            "Выберите предпочтение",
+                          )}
+                        </option>
+                        <option value="solo">
+                          {w(
+                            "Focused work alone",
+                            "Mustaqil diqqatli ish",
+                            "Сосредоточенная работа одному",
+                          )}
+                        </option>
+                        <option value="team">
+                          {w(
+                            "Discuss it with a team",
+                            "Jamoa bilan muhokama",
+                            "Обсуждение с командой",
+                          )}
+                        </option>
+                      </select>
+                    </label>
+                    <label>
+                      {w(
+                        "A direction to test",
+                        "Sinash uchun yo‘nalish",
+                        "Направление для проверки",
+                      )}
+                      <select
+                        value={track}
+                        onChange={(e) => setTrack(e.target.value as RoadmapTrack | "")}
+                      >
+                        <option value="">
+                          {w("Choose a direction", "Yo‘nalish tanlang", "Выберите направление")}
+                        </option>
+                        <option value="tech">{w("Technology", "Texnologiya", "Технологии")}</option>
+                        <option value="creative">{w("Design", "Dizayn", "Дизайн")}</option>
+                        <option value="science">{w("Science", "Fan", "Наука")}</option>
+                      </select>
+                    </label>
+                  </div>
+                  <div className="signal-report">
+                    <div>
+                      <span className="signal-number">01</span>
+                      <strong>{w("Reasoning", "Mantiq", "Рассуждение")}</strong>
+                      <span>
+                        {record.correct} / {record.attempted} {w("correct", "to‘g‘ri", "верно")}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="signal-number">02</span>
+                      <strong>{w("Work preference", "Ish uslubi", "Стиль работы")}</strong>
+                      <span>
+                        {!preference
+                          ? w("Not chosen", "Tanlanmagan", "Не выбрано")
+                          : preference === "solo"
                             ? w(
-                                "Make your first design.",
-                                "Birinchi dizayningizni yarating.",
-                                "Создайте первый дизайн.",
+                                "Focused / self-selected",
+                                "Mustaqil / o‘zingiz tanlagan",
+                                "Фокус / выбран вами",
                               )
                             : w(
-                                "Try an investigation.",
-                                "Tadqiqotni sinab ko‘ring.",
-                                "Проведите исследование.",
+                                "Collaborative / self-selected",
+                                "Jamoaviy / o‘zingiz tanlagan",
+                                "Команда / выбрано вами",
                               )}
-                      </h4>
-                      <span>
-                        {completed} / {tasks.length}{" "}
-                        {w(
-                          "tasks marked complete",
-                          "vazifa bajarilgan deb belgilangan",
-                          "заданий отмечено выполненными",
-                        )}
                       </span>
-                      <div className="actual-progress">
-                        <span style={{ width: `${(completed / tasks.length) * 100}%` }} />
-                      </div>
                     </div>
-                    <ol className="path-list">
-                      {tasks.map((task, i) => (
-                        <li key={task.id}>
-                          <span className="task-number" aria-hidden>
-                            {String(i + 1).padStart(2, "0")}
-                          </span>
-                          <div>
-                            <h5>{task.title}</h5>
-                            <p>{task.description}</p>
-                            <ActivityGuide task={task} />
-                            <button
-                              className="task-complete-button"
-                              aria-pressed={Boolean(done[task.id])}
-                              aria-label={`${done[task.id] ? w("Completed · undo", "Bajarildi · qaytarish", "Выполнено · отменить") : w("Mark complete", "Bajarildi deb belgilash", "Отметить выполнение")}: ${task.title}`}
-                              onClick={() => setDone((d) => ({ ...d, [task.id]: !d[task.id] }))}
-                            >
-                              {done[task.id] && <Check size={14} aria-hidden />}
-                              {done[task.id]
-                                ? w(
-                                    "Completed · undo",
-                                    "Bajarildi · qaytarish",
-                                    "Выполнено · отменить",
-                                  )
-                                : w(
-                                    "Mark complete",
-                                    "Bajarildi deb belgilash",
-                                    "Отметить выполнение",
-                                  )}
-                            </button>
-                          </div>
-                          <small>
-                            {task.estimate}
-                            <span>{w("estimate", "taxmin", "оценка")}</span>
-                          </small>
-                        </li>
-                      ))}
-                    </ol>
-                    <p className="bench-disclaimer">
-                      {w(
-                        "Real tasks from the product roadmap. Estimates are planning guidance; completion is self-reported and saved on this device. ",
-                        "Mahsulot yo‘l xaritasidagi vazifalar. Vaqt taxminiy; bajarilish shu qurilmada saqlanadi.",
-                        "Задания из дорожной карты. Время приблизительное; отметки сохраняются на устройстве.",
-                      )}
-                    </p>
-                    <Link to="/career-assessment" className="text-link">
-                      {w(
-                        "Build a complete profile",
-                        "To‘liq profil yarating",
-                        "Создайте полный профиль",
-                      )}
-                      <ArrowRight size={16} />
-                    </Link>
-                  </>
-                )}
-              </div>
-            )}
+                    <div>
+                      <span className="signal-number">03</span>
+                      <strong>
+                        {w(
+                          "Your chosen direction",
+                          "Tanlagan yo‘nalishingiz",
+                          "Ваш выбор направления",
+                        )}
+                      </strong>
+                      <span>
+                        {!track
+                          ? w("Not chosen", "Tanlanmagan", "Не выбрано")
+                          : track === "tech"
+                            ? w("Technology", "Texnologiya", "Технологии")
+                            : track === "creative"
+                              ? w("Design", "Dizayn", "Дизайн")
+                              : w("Science", "Fan", "Наука")}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="bench-disclaimer">
+                    {w(
+                      "These are your choices, not calculated recommendations. Practice answers and activities stay in this browser; they do not transfer to the full assessment.",
+                      "Bular tanlovlaringiz, hisoblangan tavsiyalar emas. Mashq javoblari va faoliyat shu brauzerda qoladi; to‘liq baholashga o‘tmaydi.",
+                      "Это ваши выборы, не расчётные рекомендации. Практика остаётся в браузере и не переносится в полную оценку.",
+                    )}
+                  </p>
+                  <button className="field-button" disabled={!track} onClick={() => onStage(2)}>
+                    {w(
+                      "Choose a first task",
+                      "Birinchi vazifani tanlang",
+                      "Выберите первое задание",
+                    )}
+                    <ArrowRight size={16} />
+                  </button>
+                </div>
+              ) : (
+                <div className="path-desk" data-detail>
+                  {!track ? (
+                    <div className="practice-empty">
+                      <h4>
+                        {w(
+                          "Choose a direction first",
+                          "Avval yo‘nalish tanlang",
+                          "Сначала выберите направление",
+                        )}
+                      </h4>
+                      <p>
+                        {w(
+                          "We have not chosen a career for you. Select Technology, Design or Science to see activities you can try.",
+                          "Biz siz uchun kasb tanlamadik. Faoliyatlarni ko‘rish uchun Texnologiya, Dizayn yoki Fanni tanlang.",
+                          "Мы не выбрали вам профессию. Выберите технологии, дизайн или науку, чтобы увидеть занятия.",
+                        )}
+                      </p>
+                      <button className="field-button" onClick={() => onStage(1)}>
+                        {w("Choose a direction", "Yo‘nalish tanlang", "Выберите направление")}
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="path-summary">
+                        <p className="micro">
+                          {w(
+                            "FOUNDATIONS / FIRST EXPERIMENT",
+                            "ASOSLAR / BIRINCHI SINOV",
+                            "ОСНОВЫ / ПЕРВЫЙ ЭКСПЕРИМЕНТ",
+                          )}
+                        </p>
+                        <h4>
+                          {track === "tech"
+                            ? w(
+                                "Build something small.",
+                                "Kichik narsa yarating.",
+                                "Создайте что-то небольшое.",
+                              )
+                            : track === "creative"
+                              ? w(
+                                  "Make your first design.",
+                                  "Birinchi dizayningizni yarating.",
+                                  "Создайте первый дизайн.",
+                                )
+                              : w(
+                                  "Try an investigation.",
+                                  "Tadqiqotni sinab ko‘ring.",
+                                  "Проведите исследование.",
+                                )}
+                        </h4>
+                        <span>
+                          {completed} / {tasks.length}{" "}
+                          {w(
+                            "tasks marked complete",
+                            "vazifa bajarilgan deb belgilangan",
+                            "заданий отмечено выполненными",
+                          )}
+                        </span>
+                        <div className="actual-progress">
+                          <span style={{ width: `${(completed / tasks.length) * 100}%` }} />
+                        </div>
+                      </div>
+                      <ol className="path-list">
+                        {tasks.map((task, i) => (
+                          <li key={task.id}>
+                            <span className="task-number" aria-hidden>
+                              {String(i + 1).padStart(2, "0")}
+                            </span>
+                            <div>
+                              <h5>{task.title}</h5>
+                              <p>{task.description}</p>
+                              <ActivityGuide task={task} />
+                              <button
+                                className="task-complete-button"
+                                aria-pressed={Boolean(done[task.id])}
+                                aria-label={`${done[task.id] ? w("Completed · undo", "Bajarildi · qaytarish", "Выполнено · отменить") : w("Mark complete", "Bajarildi deb belgilash", "Отметить выполнение")}: ${task.title}`}
+                                onClick={() => setDone((d) => ({ ...d, [task.id]: !d[task.id] }))}
+                              >
+                                {done[task.id] && <Check size={14} aria-hidden />}
+                                {done[task.id]
+                                  ? w(
+                                      "Completed · undo",
+                                      "Bajarildi · qaytarish",
+                                      "Выполнено · отменить",
+                                    )
+                                  : w(
+                                      "Mark complete",
+                                      "Bajarildi deb belgilash",
+                                      "Отметить выполнение",
+                                    )}
+                              </button>
+                            </div>
+                            <small>
+                              {task.estimate}
+                              <span>{w("estimate", "taxmin", "оценка")}</span>
+                            </small>
+                          </li>
+                        ))}
+                      </ol>
+                      <p className="bench-disclaimer">
+                        {w(
+                          "Real tasks from the product roadmap. Estimates are planning guidance; completion is self-reported and saved on this device. ",
+                          "Mahsulot yo‘l xaritasidagi vazifalar. Vaqt taxminiy; bajarilish shu qurilmada saqlanadi.",
+                          "Задания из дорожной карты. Время приблизительное; отметки сохраняются на устройстве.",
+                        )}
+                      </p>
+                      <Link to="/career-assessment" className="text-link">
+                        {w(
+                          "Build a complete profile",
+                          "To‘liq profil yarating",
+                          "Создайте полный профиль",
+                        )}
+                        <ArrowRight size={16} />
+                      </Link>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className="bench-bottom">

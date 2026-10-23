@@ -18,6 +18,8 @@ import cyrillicBodyFont from "@fontsource-variable/onest/files/onest-cyrillic-wg
 import handLatin from "@fontsource/caveat/files/caveat-latin-700-normal.woff2?url";
 import handCyrillic from "@fontsource/caveat/files/caveat-cyrillic-700-normal.woff2?url";
 import appCss from "../styles.css?url";
+import dashboardCss from "../styles/student-dashboard.css?url";
+import design4Css from "../styles/design-pass-4.css?url";
 import { AuthProvider } from "@/lib/auth-context";
 import { LanguageProvider, useT } from "@/lib/i18n";
 import { SharedPageShell } from "@/components/PageShell";
@@ -157,6 +159,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "stylesheet", href: dashboardCss },
+      { rel: "stylesheet", href: design4Css },
       ...[displayFont, bodyFont, handLatin].map((href) => ({
         rel: "preload",
         as: "font",

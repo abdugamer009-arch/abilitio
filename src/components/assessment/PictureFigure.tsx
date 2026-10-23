@@ -12,12 +12,44 @@ import { figureDescription } from "@/lib/assessment/picture-descriptions";
 export const PictureFigure = memo(function PictureFigure({
   figure: f,
   lang = "en",
+  practice = false,
 }: {
   figure: Figure;
   lang?: PictureLanguage;
+  practice?: boolean;
 }) {
   const hatch = `picture-${useId().replace(/:/g, "")}`;
   const fill = (v?: string) => (v === "black" ? ink : v === "hatched" ? `url(#${hatch})` : "#fff");
+  if (
+    practice &&
+    f.fill !== "hatched" &&
+    ["triangle", "diamond", "circle", "square"].includes(f.kind)
+  ) {
+    const dot = f.dot;
+    const x = dot ? (dot.x > 75 ? 104 : dot.x < 25 ? 16 : 60) : 60;
+    const y = dot ? (dot.y > 75 ? 104 : dot.y < 25 ? 16 : f.kind === "triangle" ? 70 : 60) : 60;
+    return (
+      <svg
+        viewBox="0 0 120 120"
+        className={`picture-svg picture-svg-${f.kind}`}
+        role="img"
+        aria-label={figureDescription(f, lang)}
+      >
+        <g stroke={ink} strokeWidth="4" strokeLinejoin="round" fill={fill(f.fill)}>
+          {f.kind === "triangle" ? (
+            <path d="M60 24L98 92H22Z" />
+          ) : f.kind === "diamond" ? (
+            <path d="M60 18L94 52L60 86L26 52Z" />
+          ) : f.kind === "circle" ? (
+            <circle cx="60" cy="60" r="35" />
+          ) : (
+            <rect x="28" y="28" width="64" height="64" rx="3" />
+          )}
+        </g>
+        {dot && <circle cx={x} cy={y} r="7" fill={ink} />}
+      </svg>
+    );
+  }
   function shape(g: PictureGlyph, x = 50, y = 50, s = 25) {
     const style = { fill: fill(g.fill) };
     const main =
@@ -33,7 +65,7 @@ export const PictureFigure = memo(function PictureFigure({
     return (
       <>
         {main}
-        {g.dot && <circle cx={g.dot.x} cy={g.dot.y} r="5" fill={ink} />}
+        {g.dot && <circle cx={g.dot.x} cy={g.dot.y} r={practice ? 7 : 5} fill={ink} />}
       </>
     );
   }
@@ -176,9 +208,10 @@ export const PictureFigure = memo(function PictureFigure({
     ));
   }
   if (f.kind === "cube") viewBox = "0 0 104 112";
+  const normalized = practice && f.kind !== "grid" && f.kind !== "series";
   return (
     <svg
-      viewBox={viewBox}
+      viewBox={normalized ? "0 0 120 120" : viewBox}
       className={`picture-svg picture-svg-${f.kind}`}
       role="img"
       aria-label={figureDescription(f, lang)}
@@ -195,7 +228,15 @@ export const PictureFigure = memo(function PictureFigure({
           <path d="M0 0V7" stroke={ink} strokeWidth="2" />
         </pattern>
       </defs>
-      <g stroke={ink} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round">
+      <g
+        transform={
+          normalized ? (f.kind === "dial" ? "translate(12 4)" : "translate(10 10)") : undefined
+        }
+        stroke={ink}
+        strokeWidth={practice ? 4 : 3}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      >
         {content}
       </g>
     </svg>

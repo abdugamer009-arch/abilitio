@@ -1054,7 +1054,13 @@ export function TallyMarks({ count }: { count: number }) {
     <span className="student-tallies" aria-hidden="true">
       {Array.from({ length: Math.ceil(n / 5) }, (_, g) => (
         <svg key={g} width="70" height="58" viewBox="0 0 70 58">
-          {["M10 6L8 52", "M24 4L23 54", "M38 6L39 52", "M53 4L54 54", "M3 44L61 14"]
+          {[
+            "M10 6C9 20 11 36 9 50",
+            "M24 5C25 20 23 36 25 51",
+            "M38 6C37 20 39 36 38 50",
+            "M52 5C53 20 51 36 53 51",
+            "M3 44L61 14",
+          ]
             .slice(0, Math.min(5, n - g * 5))
             .map((d) => (
               <path

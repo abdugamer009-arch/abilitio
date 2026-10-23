@@ -1,3 +1,4 @@
+import { PhotoPin } from "@/components/design4/Artwork";
 import { useUiText } from "@/lib/ui-text";
 import { useCallback, useEffect, useRef, useState, type DragEvent } from "react";
 import { Loader2, Trash2, User as UserIcon } from "lucide-react";
@@ -5,7 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import {
   StripedCard,
-  Tape,
   Sparkle,
   UploadDrawing,
   CameraDrawing,
@@ -150,7 +150,9 @@ export function ProfilePhotoCard({
       <div className="student-photo-layout">
         {/* Avatar preview */}
         <div className="student-polaroid">
-          <Tape />
+          <span className="d4-photo-pin">
+            <PhotoPin />
+          </span>
           <div className="student-avatar">
             {displayed ? (
               <img
@@ -180,6 +182,7 @@ export function ProfilePhotoCard({
             onDragLeave={() => setDragOver(false)}
             onDrop={onDrop}
             onClick={() => inputRef.current?.click()}
+            data-dragging={dragOver}
             className={cn(
               "student-drop",
               dragOver
@@ -192,8 +195,17 @@ export function ProfilePhotoCard({
             </span>
             <Sparkle className="student-profile-sparkle" />
             <p className="mt-3 text-sm font-medium">
-              {tr("Drag & drop or")}
-              <span className="text-primary">{tr("browse")}</span>
+              {tr("Drag & drop or")}{" "}
+              <button
+                type="button"
+                className="d4-browse"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  inputRef.current?.click();
+                }}
+              >
+                {tr("browse")}
+              </button>
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
               {tr("JPG, PNG or WEBP · up to 5 MB")}
@@ -214,8 +226,8 @@ export function ProfilePhotoCard({
           {progress > 0 && (
             <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-secondary/60">
               <div
-                className="h-full rounded-full bg-card transition-all duration-300"
-                style={{ width: `${progress}%`, boxShadow: "4px 4px 0 var(--ink)" }}
+                className="h-full rounded-full bg-card"
+                style={{ transformOrigin: "left", transform: `scaleX(${progress / 100})` }}
               />
             </div>
           )}

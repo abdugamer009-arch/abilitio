@@ -27,6 +27,16 @@ export function ThemeToggle() {
   }, []);
 
   useEffect(() => {
+    // Header and Settings render the same appearance control. Observe the
+    // shared visual state so either switch immediately reflects the other.
+    const root = document.documentElement;
+    const sync = () => setTheme(root.classList.contains("dark") ? "dark" : "light");
+    const observer = new MutationObserver(sync);
+    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     if (!mounted) return;
     const root = document.documentElement;
     if (theme === "dark") root.classList.add("dark");

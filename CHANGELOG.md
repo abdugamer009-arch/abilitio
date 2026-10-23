@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-23 — Design pass 4
+
+- Replaced the home brain with the reference trail SVG and synchronized practice, choose and try stations. Rebuilt the workshop selector row and normalized practice answer drawings while retaining question data and progress.
+- Applied the postcard contact form, university notebook, folder tabs, activity sticky notes, waving ABBI and corkboard Settings designs. Live copy and account data remain authoritative; the illustration footer uses its requested shorter label.
+- Added per-illustration visibility and motion-preference handling, responsive layouts, keyboard focus styles and dark-theme contrast repairs. No schema, account, grading, route or provider changes.
+- Verification and release evidence are recorded in the private design-pass-4 delivery; implementation guidance is in `docs/development/DESIGN_PASS_4.md`.
+
 ## 2026-10-22 — A11Y-01, A11Y-02: readable dashboard and assessment text
 
 - Growth Areas badges now use the existing foreground text color; the dark assessment start heading uses the existing pen-red theme color. Wording, layout, scoring and stored data are unchanged.

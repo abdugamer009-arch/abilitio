@@ -1,3 +1,4 @@
+import { FounderCrown } from "@/components/design4/Artwork";
 import { DeferredBelowFold } from "@/components/DeferredBelowFold";
 import { dashboardResult } from "@/lib/dashboard/history";
 import { displayDate } from "@/lib/display-date";
@@ -95,7 +96,6 @@ import {
   StampStar,
   FinishFlag,
   Pushpin,
-  WavyLine,
   MedalDrawing,
   LaptopDrawing,
   LightningDrawing,
@@ -104,7 +104,6 @@ import {
   SatDrawing,
   IeltsDrawing,
 } from "@/components/dashboard/StudentPieces";
-import "@/styles/student-dashboard.css";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -324,7 +323,7 @@ function DashboardPage() {
 
           {/* CONTENT */}
           <Suspense fallback={null}>
-            <div className="mt-8 animate-fade-in" key={tab}>
+            <div className={`d4-dashboard-board d4-board-${tab}`} key={tab}>
               {tab === "results" && (
                 <ResultsSection
                   results={results}
@@ -433,16 +432,17 @@ function ProfileHeader({
         <div className="student-identity">
           <div className="student-name-row">
             <h1>{fullName}</h1>
+            <p className="student-stamp">
+              <StampStar />
+              {tagline}
+            </p>
             <span className="student-chip student-level">
               <Sparkles size={15} />
               {w("Activity level", "Faollik darajasi", "Уровень активности")} {level}
             </span>
           </div>
           <p className="student-email">{email}</p>
-          <p className="student-stamp">
-            <StampStar />
-            {tagline}
-          </p>
+
           <p className="mt-3 text-sm text-muted-foreground">
             {w(
               "Activity points come from saved assessments (50 each) and recorded achievements (25 each). A level is not a measure of skill or career readiness.",
@@ -530,7 +530,6 @@ function TabBar({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
           <span>{label}</span>
         </button>
       ))}
-      <WavyLine dashed />
     </nav>
   );
 }
@@ -1559,14 +1558,16 @@ function SettingsSection({
       {isAdmin && (
         <Link
           to="/admin"
-          className="group relative block overflow-hidden rounded-3xl border border-primary/40 bg-card p-6  transition-all hover:-translate-y-0.5"
+          className="d4-admin-ticket group relative block rounded-3xl border border-primary/40 bg-card p-6 hover:-translate-y-0.5"
           style={{ boxShadow: "4px 4px 0 var(--ink)" }}
         >
           <GlowBlob className="-right-10 -top-10 h-40 w-40 opacity-50 blur-3xl" alpha={0.5} />
+          <span className="d4-ticket-notch d4-ticket-notch-top" aria-hidden="true" />
+          <span className="d4-ticket-notch d4-ticket-notch-bottom" aria-hidden="true" />
           <div className="relative flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg">
-                <Crown className="h-6 w-6" />
+                <FounderCrown />
               </div>
               <div>
                 <div className="text-sm uppercase tracking-wider text-accent">

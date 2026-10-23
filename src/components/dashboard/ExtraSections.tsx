@@ -1,3 +1,4 @@
+import { AssessmentNoteIcon, TaskNoteIcon, WeekNoteIcon } from "@/components/design4/Artwork";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -56,7 +57,9 @@ export function WeeklyReportSection(_props: { mbti?: string | null }) {
   return (
     <StripedCard className="student-recorded">
       <h2 className="text-3xl">
-        {w("Your recorded activity", "Qayd etilgan faoliyatingiz", "Записанная активность")}
+        <UnderlinedTitle
+          text={w("Your recorded activity", "Qayd etilgan faoliyatingiz", "Записанная активность")}
+        />
       </h2>
       {error ? (
         <div role="alert" className="mt-6">
@@ -90,10 +93,19 @@ export function WeeklyReportSection(_props: { mbti?: string | null }) {
               w("Tasks this week (UTC)", "Hafta vazifalari (UTC)", "Задачи за неделю (UTC)"),
               data.tasksThisWeek,
             ],
-          ].map(([label, value]) => (
+          ].map(([label, value], index) => (
             <div key={label} className="student-sticky">
               <Tape />
-              <dt className="text-sm text-muted-foreground">{label}</dt>
+              <dt className="text-sm text-muted-foreground">
+                {label}
+                {index === 0 ? (
+                  <AssessmentNoteIcon />
+                ) : index === 1 ? (
+                  <TaskNoteIcon />
+                ) : (
+                  <WeekNoteIcon />
+                )}
+              </dt>
               <dd>
                 <span>{value}</span>
                 <TallyMarks count={Number(value)} />
@@ -161,5 +173,28 @@ export function UniversitiesTabSection() {
         <UniversityDrawing />
       </div>
     </StripedCard>
+  );
+}
+
+function UnderlinedTitle({ text }: { text: string }) {
+  const words = text.split(" ");
+  const last = words.pop();
+  return (
+    <>
+      {words.join(" ")}{" "}
+      <span className="d4-activity-underline">
+        {last}
+        <svg viewBox="0 0 200 16" preserveAspectRatio="none" aria-hidden="true">
+          <path
+            d="M3 10C40 3 80 14 120 8S180 5 197 10"
+            fill="none"
+            stroke="var(--yellow)"
+            strokeWidth="8"
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
+      </span>
+    </>
   );
 }

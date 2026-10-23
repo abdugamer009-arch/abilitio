@@ -1,18 +1,13 @@
+import { WavingAbbi, AbbiAvatar } from "@/components/design4/Artwork";
+import { MotionArtwork } from "@/components/design4/MotionArtwork";
 import { appendDailyMessage } from "@/lib/abbi/history";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import ReactMarkdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
 import { User as UserIcon } from "lucide-react";
-import {
-  SendDrawing,
-  StripedCard,
-  Sparkle,
-  AbbiMascot,
-  AbbiFace,
-  WavyLine,
-} from "@/components/dashboard/StudentPieces";
-import "@/styles/student-dashboard.css";
+import { SendDrawing, StripedCard, Sparkle, WavyLine } from "@/components/dashboard/StudentPieces";
+
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { guidePrompts, guideGreeting } from "@/lib/abbi/localized-guide";
@@ -204,7 +199,6 @@ function AbbiSession() {
     <div className="student-abbi">
       {/* Hero */}
       <StripedCard className="student-abbi-hero">
-        <AbbiMascot />
         <div className="student-abbi-title">
           <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
             ABBI{" "}
@@ -229,10 +223,25 @@ function AbbiSession() {
         {/* Transcript */}
         <div ref={scrollRef} className="student-transcript" role="log" aria-live="polite">
           <div className="student-messages">
-            {messages.map((m) => (
-              <MessageBubble key={m.id} role={m.role} content={m.content} />
-            ))}
-            {typing && <TypingBubble />}
+            {messages.map((m) =>
+              m.id === "welcome" ? (
+                <div key={m.id} className="d4-welcome">
+                  <MotionArtwork>
+                    <WavingAbbi />
+                  </MotionArtwork>
+                  <div className="d4-welcome-bubble">
+                    <MessageBubble role={m.role} content={m.content} />
+                  </div>
+                </div>
+              ) : (
+                <MessageBubble key={m.id} role={m.role} content={m.content} />
+              ),
+            )}
+            {typing && (
+              <MotionArtwork>
+                <TypingBubble />
+              </MotionArtwork>
+            )}
           </div>
         </div>
 
@@ -330,7 +339,7 @@ function MessageBubble({ role, content }: { role: "user" | "abbi"; content: stri
   return (
     <div className="student-message animate-fade-in">
       <span className="student-chat-avatar">
-        <AbbiFace />
+        <AbbiAvatar />
       </span>
       {/* chat-md (styles.css) styles the rendered markdown — headings, lists,
           code. The former `prose-*` classes were inert: @tailwindcss/typography
@@ -347,7 +356,7 @@ function TypingBubble() {
   return (
     <div className="student-message animate-fade-in">
       <span className="student-chat-avatar">
-        <AbbiFace />
+        <AbbiAvatar />
       </span>
       <div className="student-bubble student-typing">
         <span className="text-sm uppercase tracking-wider text-muted-foreground">

@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowUpRight, Bookmark } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { useWords } from "@/lib/editorial";
 import { useAuth } from "@/lib/auth-context";
+import { MarkedText } from "@/components/CartoonArtwork";
+import { GraduationDrawing } from "@/components/design4/Artwork";
 import { pageMeta } from "@/lib/seo";
 export const Route = createFileRoute("/universities")({
   headers: () => ({
@@ -193,18 +195,22 @@ function Universities() {
   );
   return (
     <PageShell>
-      <div className="field-wrap">
+      <div className="field-wrap d4-universities">
         <header className="field-intro">
           <p className="micro section-number">
             {w("UNIVERSITY NOTEBOOK", "UNIVERSITET DAFTARI", "ЗАПИСИ ОБ УНИВЕРСИТЕТАХ")}
           </p>
           <div>
             <h1>
-              {w(
-                "Research a place to learn.",
-                "Ta’lim uchun joyni o‘rganing.",
-                "Исследуйте место для учёбы.",
-              )}
+              <MarkedText
+                mark="highlight"
+                words={2}
+                text={w(
+                  "Research a place to learn.",
+                  "Ta’lim uchun joyni o‘rganing.",
+                  "Исследуйте место для учёбы.",
+                )}
+              />
             </h1>
             <p>
               {w(
@@ -214,22 +220,26 @@ function Universities() {
               )}
             </p>
           </div>
+          <GraduationDrawing />
         </header>
-        <div className="sample-question mb-8">
-          <p className="micro text-accent">
-            {w(
-              "A RESEARCH LIST, NOT AN ADMISSION FORECAST",
-              "IZLANISH RO‘YXATI, QABUL BASHORATI EMAS",
-              "СПИСОК ДЛЯ ИССЛЕДОВАНИЯ, НЕ ПРОГНОЗ",
-            )}
-          </p>
-          <p className="text-sm text-muted-foreground mt-4">
-            {w(
-              "Check degree level, citizenship eligibility, full annual cost and deadlines on each official site. Bookmark choices for this visit; no funding package is implied.",
-              "Har bir rasmiy saytda ta’lim bosqichi, fuqarolik talabi, yillik to‘liq xarajat va muddatni tekshiring. Shu tashrif uchun tanlovlarni belgilang; moliyaviy yordam kafolatlanmaydi.",
-              "Проверьте уровень, гражданство, полную стоимость и сроки на официальном сайте. Отметки сохраняются в рамках посещения; финансирование не подразумевается.",
-            )}
-          </p>
+        <div className="d4-research d4-hatch">
+          <span className="d4-hatch-layer" aria-hidden="true" />
+          <div className="d4-research-face">
+            <p className="micro text-accent">
+              {w(
+                "A RESEARCH LIST, NOT AN ADMISSION FORECAST",
+                "IZLANISH RO‘YXATI, QABUL BASHORATI EMAS",
+                "СПИСОК ДЛЯ ИССЛЕДОВАНИЯ, НЕ ПРОГНОЗ",
+              )}
+            </p>
+            <p className="text-sm text-muted-foreground mt-4">
+              {w(
+                "Check degree level, citizenship eligibility, full annual cost and deadlines on each official site. Bookmark choices for this visit; no funding package is implied.",
+                "Har bir rasmiy saytda ta’lim bosqichi, fuqarolik talabi, yillik to‘liq xarajat va muddatni tekshiring. Shu tashrif uchun tanlovlarni belgilang; moliyaviy yordam kafolatlanmaydi.",
+                "Проверьте уровень, гражданство, полную стоимость и сроки на официальном сайте. Отметки сохраняются в рамках посещения; финансирование не подразумевается.",
+              )}
+            </p>
+          </div>
         </div>
         <div className="form-row mb-8">
           <label className="text-sm">
@@ -262,19 +272,27 @@ function Universities() {
           {w("marked", "belgilangan", "отмечено")}
         </p>
         <section
-          className="editorial-list"
+          className="editorial-list d4-notebook"
           aria-label={w("Universities", "Universitetlar", "Университеты")}
         >
+          <div className="d4-spirals" aria-hidden="true">
+            {Array.from({ length: 8 }, (_, i) => (
+              <span key={i} />
+            ))}
+          </div>
           {filtered.map((r, i) => (
             <article key={r.name}>
               <span className="section-number">{String(i + 1).padStart(2, "0")}</span>
-              <div>
+              <span className="d4-country-stamp" data-country={r.country} aria-hidden="true">
+                {countryName(r.country)}
+              </span>
+              <div className="d4-university-name">
                 <h2 className="text-2xl">{r.name}</h2>
                 <p className="micro mt-4">
                   {countryName(r.country)} · {w("Undergraduate", "Bakalavr", "Бакалавриат")}
                 </p>
               </div>
-              <div className="flex flex-wrap items-start gap-6">
+              <div className="d4-university-links">
                 <a className="text-link text-sm" href={r.url} target="_blank" rel="noreferrer">
                   {w("Admissions", "Qabul", "Поступление")}
                   <ArrowUpRight size={16} />
@@ -295,7 +313,15 @@ function Universities() {
                     )
                   }
                 >
-                  <Bookmark size={16} fill={saved.includes(r.name) ? "currentColor" : "none"} />
+                  <svg width="20" height="24" viewBox="0 0 16 20" aria-hidden="true">
+                    <path
+                      d="M2 2h12v16l-6-4-6 4Z"
+                      fill={saved.includes(r.name) ? "#d9381e" : "none"}
+                      stroke="var(--ink)"
+                      strokeWidth="2.2"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                 </button>
               </div>
             </article>
