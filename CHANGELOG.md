@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-24 — QA-ADMIN-01: recover from failed moderation actions
+
+- Failed ban/unban or user-refresh requests now show the existing localized generic error and release the busy control, instead of escaping as unhandled promises. Access checks and moderation rules are unchanged.
+- Reproduced the unhandled rejection with a disposable founder/student fixture; phone and desktop checks cover failure feedback, retry, ban/unban and user search. Production administrator actions remain unverified.
+
 ## 2026-10-24 — QA-COM-01: report failed daily-question reads
 
 - Community daily questions now surface database read errors through the existing error state. The existing default question is used only after a successful empty read, so a permissions or database failure cannot masquerade as saved content.

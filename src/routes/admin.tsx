@@ -1,5 +1,7 @@
 import { PictureQuestionStats } from "@/components/assessment/PictureQuestionStats";
 import { useUiText } from "@/lib/ui-text";
+import { useT } from "@/lib/i18n";
+import { toast } from "sonner";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -51,6 +53,7 @@ const PURPLE = [
 
 function AdminDashboardPage() {
   const tr = useUiText();
+  const t = useT();
 
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -110,6 +113,8 @@ function AdminDashboardPage() {
     try {
       await banFn({ data: { target, banned } });
       await refreshUsers();
+    } catch {
+      toast.error(t.auth.errGeneric);
     } finally {
       setBusy(null);
     }
