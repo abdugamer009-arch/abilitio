@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-24 — QA-ABBI-01: clearing a pending conversation
+
+- Clearing ABBI history now invalidates pending replies, so an older reply cannot restore cleared messages or interfere with a newer conversation. A synchronous pending guard also prevents duplicate sends before the next render.
+- Reproduced the returning cleared reply before the repair; desktop and phone fixture regressions now verify that it stays absent after refresh. Live authenticated verification and the complete release gate remain pending.
+
 ## 2026-10-23 — Design pass 4
 
 - Replaced the home brain with the reference trail SVG and synchronized practice, choose and try stations. Rebuilt the workshop selector row and normalized practice answer drawings while retaining question data and progress.

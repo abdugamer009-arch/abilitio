@@ -28,6 +28,8 @@ function AbbiSession() {
   ]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
+  const requestVersion = useRef(0);
+  const pendingReply = useRef(false);
   const messageDay = useRef(new Date().toISOString().slice(0, 10));
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -99,6 +101,11 @@ function AbbiSession() {
 
   function clearHistory() {
     if (!user) return;
+    // A reply already in flight belongs to the cleared conversation. It must
+    // neither repopulate history nor reset a newer conversation's pending state.
+    requestVersion.current += 1;
+    pendingReply.current = false;
+    setTyping(false);
     purgeHistory(user.id);
     setMessages([{ id: "welcome", role: "abbi", content: guideGreeting(lang) }]);
   }
@@ -171,7 +178,9 @@ function AbbiSession() {
 
   async function handleSend(text?: string) {
     const content = (text ?? input).trim();
-    if (!content || typing) return;
+    if (!content || pendingReply.current) return;
+    pendingReply.current = true;
+    const version = ++requestVersion.current;
 
     // Optimistic user message
     const userMsg: ChatMsg = { id: crypto.randomUUID(), role: "user", content };
@@ -185,13 +194,17 @@ function AbbiSession() {
       const { reply } = await replyFn({ data: { message: content, ctx, lang } });
       // Thinking pause so the response feels natural, not instant
       await new Promise((r) => setTimeout(r, 400 + Math.random() * 400));
-
+      if (version !== requestVersion.current) return;
       appendMessage({ id: crypto.randomUUID(), role: "abbi", content: reply });
     } catch (err) {
+      if (version !== requestVersion.current) return;
       const msg = err instanceof Error ? err.message : "Something went wrong.";
       appendMessage({ id: crypto.randomUUID(), role: "abbi", content: `⚠️ ${msg}` });
     } finally {
-      setTyping(false);
+      if (version === requestVersion.current) {
+        pendingReply.current = false;
+        setTyping(false);
+      }
     }
   }
 
