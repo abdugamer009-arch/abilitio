@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-25 — Production repair release
+
+- Published the five QA repairs and scoped browser tooling from main (`84a2110`). Production guest verification passed 576 route cases, eight full guest assessment attempts, 12 public-control configurations and ten protected-API guest denials.
+- Assessment now paints its loading state before JavaScript. Live client-key pattern scan passed across 91 JavaScript assets.
+- Record incomplete authenticated/provider checks and missed performance targets in `QA.md`; deployment does not establish full launch readiness.
+
 ## 2026-10-24 — QA coverage and release ledger
 
 - Inventory routes, interactive callsites and service boundaries in `QA.md`, with explicit executed/read/not-checked scope and evidence.
