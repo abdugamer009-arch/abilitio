@@ -104,6 +104,9 @@ async function runKeyboardChecks(origin = "http://127.0.0.1:8080") {
     await p.getByRole("button", { name: "Send reset link", exact: true }).waitFor();
     await p.screenshot({ path: "artifacts/qa/keyboard/settings-200-reflow.png" });
     assert.deepEqual(faults, []);
+    // Settings can finish rendering before an unrelated lazy tab module has
+    // completed its intercepted fetch. Drain callbacks before disposing them.
+    await c.unrouteAll({ behavior: "wait" });
     await c.close();
     console.log(
       "Keyboard-only selection, 30 questions, share dialog, search and settings passed; seven routes passed emulated 200% desktop reflow",

@@ -45,7 +45,11 @@ async function runMatrix(origin = "http://127.0.0.1:8080") {
               await p.locator("[data-mobile-primary]").click();
               await p.locator('[data-question-index="0"]').waitFor();
             }
-            if (name === "settings") await p.locator(".dashboard-tab").last().click();
+            if (name === "settings") {
+              assert.equal(await p.locator(".student-tabs button").count(), 7);
+              await p.locator(".student-tabs button").last().click();
+              await p.locator(".student-photo").waitFor();
+            }
             if (name === "abbi")
               await p.getByRole("button", { name: "ABBI Guide", exact: true }).click();
             if (name === "school")

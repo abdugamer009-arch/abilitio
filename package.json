@@ -21,7 +21,8 @@
     "test:audit:e2e": "node scripts/audit-e2e.cjs",
     "test:all": "npm run check && npm run test:audit:e2e && npm run test:mobile",
     "test:mobile:random": "node scripts/mobile-matrix.cjs --random",
-    "test:mobile:stress": "node scripts/mobile-matrix.cjs --stress --quick"
+    "test:mobile:stress": "node scripts/mobile-matrix.cjs --stress --quick",
+    "test:e2e": "node scripts/test-e2e.cjs"
   },
   "dependencies": {
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",

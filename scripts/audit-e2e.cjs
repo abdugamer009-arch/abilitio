@@ -2,6 +2,7 @@
 // here as each repair lands; mobile-qa covers signed assessment/results flows.
 const { chromium, devices } = require("playwright");
 const { spawn } = require("node:child_process");
+const fs = require("node:fs/promises");
 const origin = process.env.QA_ORIGIN || "http://127.0.0.1:8080";
 const chrome = process.env.BROWSER_EXE;
 const routes = [
@@ -64,6 +65,10 @@ const routes = [
       });
       const page = await context.newPage();
       const errors = [];
+      const pending = new Set();
+      page.on("request", (r) => pending.add(r.url()));
+      page.on("requestfinished", (r) => pending.delete(r.url()));
+      page.on("requestfailed", (r) => pending.delete(r.url()));
       page.on("pageerror", (error) => errors.push(`page: ${error.message}`));
       page.on("console", (message) => {
         if (message.type() === "error") errors.push(`console: ${message.text()}`);
@@ -76,7 +81,19 @@ const routes = [
       });
       for (const route of routes) {
         const before = errors.length;
-        await page.goto(origin + route, { waitUntil: "load", timeout: 30000 });
+        try {
+          await page.goto(origin + route, {
+            waitUntil: "load",
+            timeout: Number(process.env.QA_SMOKE_NAVIGATION_TIMEOUT_MS || 30000),
+          });
+        } catch (error) {
+          await fs.mkdir("artifacts/full-qa", { recursive: true });
+          await fs.writeFile(
+            "artifacts/full-qa/smoke-timeout.json",
+            JSON.stringify({ name, route, pending: [...pending], errors }, null, 2),
+          );
+          throw error;
+        }
         await page.locator("main").waitFor();
         await page.evaluate(() => document.fonts.ready);
         if (errors.length > before)

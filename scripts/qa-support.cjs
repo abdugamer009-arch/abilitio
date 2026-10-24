@@ -86,6 +86,14 @@ async function install(
  `,
     }),
   );
+  // AuthProvider now imports the lightweight configuration gate directly.
+  // Keep that gate consistent with this test's intercepted account SDK.
+  await context.route("**/src/integrations/supabase/config.ts*", (route) =>
+    route.fulfill({
+      contentType: "text/javascript",
+      body: "export const isSupabaseConfigured=true;",
+    }),
+  );
   await context.route("**/src/lib/assessment/career.functions.ts*", async (route) => {
     const res = await route.fetch();
     let body = await res.text();

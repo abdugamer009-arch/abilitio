@@ -167,7 +167,12 @@ async function main() {
           const page = await context.newPage();
           await page.goto(origin + "/", { waitUntil: "networkidle" });
           for (let i = 0; i < 4; i++) {
-            if (width === 390 && i === 0) await page.locator(".bench-index-toggle").click();
+            if (
+              width === 390 &&
+              i === 0 &&
+              (await page.locator(".bench-index-toggle").getAttribute("aria-expanded")) === "false"
+            )
+              await page.locator(".bench-index-toggle").click();
             await page.locator(".item-grid button").nth(i).click();
             await page.locator(".question-desk .picture-answers label").first().click();
             await page.locator(".question-actions .field-button").first().click();

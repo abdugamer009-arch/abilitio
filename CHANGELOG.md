@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-24 — QA coverage and release ledger
+
+- Inventory routes, interactive callsites and service boundaries in `QA.md`, with explicit executed/read/not-checked scope and evidence.
+- Add `npm run test:e2e` for isolated local browser regressions in legacy and picture assessment modes; keep account, email and provider fixtures distinct from live verification.
+- Update browser selectors for current folder tabs/workshop and drain intercepted requests before teardown; isolate profile-flow dashboard reads from real services.
+- Record live Supabase RLS/policy/storage metadata, advisor warnings, guest API denials and incomplete production/performance checks. No database migration or production data write in this audit. The owner requested deployment of the completed repair batch on October 25; full audit certification remains incomplete.
+
 ## 2026-10-24 — QA-ASSESS-01: show the assessment while startup is pending
 
 - The enabled picture assessment now server-renders its existing translated loading card while checking account and legacy-draft state. Slow or unavailable JavaScript no longer leaves the page completely blank. Account ownership, draft selection and question behavior are unchanged.

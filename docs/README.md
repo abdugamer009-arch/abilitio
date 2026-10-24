@@ -7,6 +7,7 @@ Start with the [project README](../README.md). This index separates current work
 | Guide                                                 | Purpose                                                                |
 | ----------------------------------------------------- | ---------------------------------------------------------------------- |
 | [Architecture](development/ARCHITECTURE.md)           | Feature map, entry points, assessment flow and data boundaries         |
+| [Browser QA](development/BROWSER_QA.md)               | Isolated E2E scopes, fixtures, evidence and release limits             |
 | [Local setup](development/LOCAL_SETUP.md)             | Public-only development, backend environment and verification commands |
 | [Route transitions](development/ROUTE_TRANSITIONS.md) | Curtain ownership, preloading, scroll and performance checks           |
 | [Routing](development/ROUTING.md)                     | TanStack naming and generated-route conventions                        |

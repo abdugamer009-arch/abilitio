@@ -59,6 +59,8 @@ NITRO_PRESET=node-server npm run build # standalone Node deployment
 PORT=8090 node .output/server/index.mjs
 ```
 
+Current full-audit inventory, findings and release limits: [QA.md](QA.md). `npm run test:e2e` starts isolated local fixture regressions for both assessment modes; it does not certify live saving or authorize release. See [browser QA](docs/development/BROWSER_QA.md) for scopes and receipts.
+
 Browser regression setup: `npx playwright install chromium firefox`. `npm run test:all` runs the unit/database/export checks, Chromium public and account-fixture flows, and the mobile matrix. `QA_BROWSERS=firefox node scripts/qa-reaudit.cjs` additionally checks public pages, age-path copy, recovery availability and intercepted contact forms in Firefox. Browser captures and private release evidence stay in ignored artifact directories; these tests do not prove live email delivery or authenticated production saving.
 
 Vercel uses `vercel.json`; `VERCEL=1 npm run build` selects the Vercel output. See [contributing](CONTRIBUTING.md) for the change and verification workflow.
@@ -101,7 +103,7 @@ Tool configuration remains at the root where Vite, TypeScript, npm and Vercel ex
 
 ## Release status and honest limits
 
-The full question and career catalogs are deployed. **A code deployment does not apply database migrations.** The fresh Supabase project has all 26 migrations, 27 app tables, 166 careers and 52 study majors. Live signup API, browser login, assessment save/reload and cross-account result isolation passed the [October 11 production audit](docs/operations/LIVE_AUDIT_2026_10_11.md). Admin moderation and principal enrollment/class saving also passed dedicated live checks. Email delivery and password recovery still need an owned sender domain and SMTP configuration. See the [current setup record](docs/operations/SUPABASE_SETUP.md) and [owner migration guide](docs/operations/OWNER_MIGRATIONS.md).
+The full question and career catalogs are deployed. **A code deployment does not apply database migrations.** The October 11 setup record below is historical. The October 24 read-only inspection counted 30 public tables with RLS enabled; current verification limits are in [QA.md](QA.md). The earlier setup contained 27 app tables, 166 careers and 52 study majors. Live signup API, browser login, assessment save/reload and cross-account result isolation passed the [October 11 production audit](docs/operations/LIVE_AUDIT_2026_10_11.md). Admin moderation and principal enrollment/class saving also passed dedicated live checks. Email delivery and password recovery still need an owned sender domain and SMTP configuration. See the [current setup record](docs/operations/SUPABASE_SETUP.md) and [owner migration guide](docs/operations/OWNER_MIGRATIONS.md).
 
 - Production still uses Supabase. Nhost work consists of source-backup preparation; no completed transfer is claimed.
 - Historical results preserve their original scores and saved career rankings. New older-age results use `v6-direct-interests`; child results use `v6-direct-preferences` and assess no cognitive ability. Tied personality axes remain open, without inventing a personality type or cognitive profile.

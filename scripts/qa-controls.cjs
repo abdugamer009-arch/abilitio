@@ -96,6 +96,10 @@ async function runControlChecks(origin = "http://127.0.0.1:8080") {
         document.querySelector("#workshop").scrollIntoView({ block: "start", behavior: "instant" }),
       );
       const prompt = p.locator("#workshop .question-prompt");
+      // Pass 4 deliberately places the four puzzle selectors before the board.
+      // Scroll to the selected board rather than asserting the retired sidebar's
+      // above-the-fold position on a 320px phone.
+      await prompt.scrollIntoViewIfNeeded();
       const bounds = await prompt.boundingBox();
       assert.ok(
         bounds.y >= 0 && bounds.y + bounds.height < height,
@@ -114,8 +118,12 @@ async function runControlChecks(origin = "http://127.0.0.1:8080") {
       );
       assert.equal(tiny, 0);
       await p.screenshot({ path: `artifacts/qa/controls/M15-${width}.png` });
-      await p.getByRole("button", { name: "Practice overview", exact: true }).click();
-      await p.locator("#practice-index.is-expanded").waitFor();
+      const overview = p.getByRole("button", { name: "Practice overview", exact: true });
+      assert.equal(await overview.getAttribute("aria-expanded"), "true");
+      await overview.click();
+      assert.equal(await overview.getAttribute("aria-expanded"), "false");
+      await overview.click();
+      await p.locator("#practice-index:not([hidden])").waitFor();
       assert.deepEqual(faults, []);
       await c.close();
     }

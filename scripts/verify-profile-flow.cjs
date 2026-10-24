@@ -82,6 +82,19 @@ assert(widths.every((width) => [1440, 390].includes(width)));
             },
             { result },
           );
+          // Navigation can warm the dashboard while this signed-question test
+          // tabs across its links. Keep those account reads inside the fixture;
+          // question delivery below still reaches the real local server.
+          await page.route("**/src/integrations/supabase/client.ts*", (route) =>
+            route.fulfill({
+              contentType: "text/javascript",
+              body: `
+                export const isSupabaseConfigured=true;
+                function query(){let one=false;const chain=new Proxy({}, {get(_,key){if(key==='then')return done=>done({data:one?null:[],error:null,count:0});return ()=>{if(key==='single'||key==='maybeSingle')one=true;return chain;};}});return chain;}
+                export const supabase={from:query,auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}};
+              `,
+            }),
+          );
           await page.route("**/src/lib/auth-context.tsx*", async (route) => {
             const response = await route.fetch();
             const body = (await response.text()).replace(
