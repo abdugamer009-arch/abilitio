@@ -306,6 +306,7 @@ function AbbiSession() {
                   }
                 }}
                 rows={1}
+                maxLength={2000}
                 placeholder={t.abbiChat.placeholder}
                 aria-label={t.abbiChat.inputAria}
                 className="flex-1 resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"

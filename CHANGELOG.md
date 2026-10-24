@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-24 — QA-ABBI-02: align composer and server length limits
+
+- The ABBI composer now enforces the existing 2,000-character server limit while pasting or typing. Oversized messages are no longer optimistically removed and sent only to fail server validation.
+- A 2,001-character browser paste reproduced the mismatch before the fix; phone and desktop regressions now cover the limit, empty/whitespace input and a valid send. No wording, scoring or provider changes.
+
 ## 2026-10-24 — QA-ABBI-01: clearing a pending conversation
 
 - Clearing ABBI history now invalidates pending replies, so an older reply cannot restore cleared messages or interfere with a newer conversation. A synchronous pending guard also prevents duplicate sends before the next render.
