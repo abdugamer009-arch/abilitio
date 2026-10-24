@@ -61,6 +61,7 @@ export const Route = createFileRoute("/career-assessment")({
 });
 
 function AssessmentEntry() {
+  const t = useT();
   const mode = Route.useLoaderData();
   const { user, loading } = useAuth();
   const [legacy, setLegacy] = useState<boolean | null>(null);
@@ -77,7 +78,16 @@ function AssessmentEntry() {
       setLegacy(false);
     }
   }, [loading, user?.id]);
-  if (mode.enabled && legacy === null) return null;
+  if (mode.enabled && legacy === null)
+    return (
+      <div className="picture-assessment">
+        <main id="main" className="picture-main" aria-busy="true">
+          <div className="picture-card" role="status">
+            {t.common.loading}
+          </div>
+        </main>
+      </div>
+    );
   return mode.enabled && !legacy ? (
     <PictureAssessment />
   ) : (

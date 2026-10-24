@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-24 — QA-ASSESS-01: show the assessment while startup is pending
+
+- The enabled picture assessment now server-renders its existing translated loading card while checking account and legacy-draft state. Slow or unavailable JavaScript no longer leaves the page completely blank. Account ownership, draft selection and question behavior are unchanged.
+- Reproduced the missing first-paint content with JavaScript disabled; 390px and 1440px regressions now verify a visible, announced loading state. A new production Lighthouse result remains pending deployment.
+
 ## 2026-10-24 — QA-ADMIN-01: recover from failed moderation actions
 
 - Failed ban/unban or user-refresh requests now show the existing localized generic error and release the busy control, instead of escaping as unhandled promises. Access checks and moderation rules are unchanged.
