@@ -235,13 +235,14 @@ export const getCommunityDailyQuestion = createServerFn({ method: "GET" })
   .inputValidator((input) => z.object({ communityId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }): Promise<{ question: string; createdAt: string | null }> => {
     const { supabase } = context;
-    const { data: row } = await supabase
+    const { data: row, error } = await supabase
       .from("community_daily_questions")
       .select("question, created_at")
       .eq("community_id", data.communityId)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
+    if (error) throw new Error(error.message);
     if (row) {
       const r = row as { question: string; created_at: string };
       return { question: r.question, createdAt: r.created_at };

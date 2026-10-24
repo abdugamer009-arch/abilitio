@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-24 — QA-COM-01: report failed daily-question reads
+
+- Community daily questions now surface database read errors through the existing error state. The existing default question is used only after a successful empty read, so a permissions or database failure cannot masquerade as saved content.
+- The regression failed before the repair and now passes alongside successful-empty and saved-question cases. This verifies the server handler with a mocked database response, not production RLS.
+
 ## 2026-10-24 — QA-ABBI-02: align composer and server length limits
 
 - The ABBI composer now enforces the existing 2,000-character server limit while pasting or typing. Oversized messages are no longer optimistically removed and sent only to fail server validation.
