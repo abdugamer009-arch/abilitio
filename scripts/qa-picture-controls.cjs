@@ -148,52 +148,11 @@ async function main() {
     );
     receipt.push({ guestAuthRedirectAndOwnerTransfer: true, authenticationFixture: true });
     await handoff.close();
-    // All four new practice puzzles and localized red-pen rules, with no numerical samples.
-    for (const lang of ["en", "ru", "uz"])
-      for (const width of [390, 1440])
-        for (const theme of ["light", "dark"]) {
-          const context = await b.newContext({
-            viewport: { width, height: 900 },
-            reducedMotion: "reduce",
-          });
-          await context.addInitScript(
-            ({ lang, theme }) => {
-              localStorage.setItem("abilitio_lang", lang);
-              localStorage.setItem("abilitio-theme", theme);
-              localStorage.setItem("abilitio-motion", "off");
-            },
-            { lang, theme },
-          );
-          const page = await context.newPage();
-          await page.goto(origin + "/", { waitUntil: "networkidle" });
-          for (let i = 0; i < 4; i++) {
-            if (
-              width === 390 &&
-              i === 0 &&
-              (await page.locator(".bench-index-toggle").getAttribute("aria-expanded")) === "false"
-            )
-              await page.locator(".bench-index-toggle").click();
-            await page.locator(".item-grid button").nth(i).click();
-            await page.locator(".question-desk .picture-answers label").first().click();
-            await page.locator(".question-actions .field-button").first().click();
-            await page.locator(".picture-rule").waitFor();
-            assert.ok((await page.locator(".picture-rule").innerText()).length > 35);
-            assert.equal(
-              await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
-              false,
-            );
-          }
-          await page.locator(".question-desk").screenshot({
-            path: `artifacts/picture-assessment-qa/practice-${lang}-${width}-${theme}.png`,
-          });
-          receipt.push({ practice: true, lang, width, theme, questions: 4 });
-          await context.close();
-        }
     await fs.writeFile(
       "artifacts/picture-assessment-qa/controls.json",
-      JSON.stringify({ scope: "Local controls and practice browser checks", receipt }, null, 2),
+      JSON.stringify({ scope: "Local assessment controls browser checks", receipt }, null, 2),
     );
-    console.log("Controls and 12 localized practice configurations passed");
+    console.log("Assessment controls passed; retired homepage practice is no longer tested");
   } finally {
     await b.close();
   }

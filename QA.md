@@ -4,6 +4,8 @@ Baseline: production/main a8f4420. Inventory created before this audit's behavio
 
 **October 25 production update:** five repair commits and QA tooling were pushed to main in `84a2110`; Vercel reported success. Live guest checks: 576/576 route cases, eight full guest attempts, 12 public-control configurations and ten protected-API guest denials passed. Wider authenticated audit remains incomplete. Mobile Lighthouse and sampled transition targets are not fully met; see the release receipt below.
 
+**Later October 25 scope change:** the owner removed the complete homepage trial-question workshop. FLOW-03 and its earlier screenshots/results below describe the retired feature; current browser checks assert that it and its anchor/CTA are absent. Practice tools now opens `/roadmap`. The full assessment is retained.
+
 ## Status rules
 
 TESTED means executed with recorded evidence; READ means code review only; NOT CHECKED names missing evidence. PASS/FAIL applies only to executed assertions. Fixtures are never live account/database proof. The full-audit deployment gate was incomplete. On October 25 the owner separately instructed deployment of completed work after each batch; this releases verified fixes without claiming full launch certification.

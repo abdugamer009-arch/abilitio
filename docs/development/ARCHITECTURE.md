@@ -18,20 +18,20 @@ Abilitio is a React application built with TanStack Start. Routes render the int
 
 Paths below are relative to the repository root.
 
-| Feature             | UI entry                                                    | Logic and data                                                                                       |
-| ------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Public practice     | `src/routes/index.tsx`, `src/components/CareerWorkshop.tsx` | `src/lib/assessment/sample-questions.ts`, `src/lib/roadmap/roadmap-world.ts`                         |
-| Assessment          | `src/routes/career-assessment.tsx`                          | `src/lib/assessment/career.functions.ts`, `question-bank.ts`, translations, `session.server.ts`      |
-| Scoring and results | `src/routes/career-results.tsx`                             | `src/lib/assessment/career-engine.ts`, `catalog.ts`, `catalog.server.ts`, `result-storage.server.ts` |
-| Dashboard           | `src/routes/dashboard.tsx`                                  | Assessment/roadmap server functions and `src/components/dashboard/`                                  |
-| Roadmap             | `src/routes/roadmap.tsx`                                    | `src/lib/roadmap/tasks.functions.ts`, `useTaskJournal.ts`                                            |
-| Schools             | `src/routes/school.*.tsx`                                   | `src/lib/schools/`, assessment school overview functions                                             |
-| Community           | `src/routes/community.tsx`                                  | `src/lib/community/community.functions.ts`                                                           |
-| Admin               | `src/routes/admin.tsx`                                      | `src/lib/admin/admin.functions.ts`                                                                   |
-| ABBI                | `src/routes/abbi.tsx`, `src/components/AbbiChat.tsx`        | `src/lib/abbi/`: curated knowledge and server actions                                                |
-| Universities        | `src/routes/universities.tsx`                               | Static research catalog and browser-local bookmarks                                                  |
-| Authentication      | `src/routes/auth.tsx`                                       | `src/lib/auth-context.tsx`, `src/integrations/supabase/`                                             |
-| Localization        | Routes and shared components                                | `src/lib/i18n.tsx`, legal/workshop/question translations                                             |
+| Feature             | UI entry                                             | Logic and data                                                                                       |
+| ------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Home                | `src/routes/index.tsx`                               | Hero, founders and access cards; homepage workshop removed October 25                                |
+| Assessment          | `src/routes/career-assessment.tsx`                   | `src/lib/assessment/career.functions.ts`, `question-bank.ts`, translations, `session.server.ts`      |
+| Scoring and results | `src/routes/career-results.tsx`                      | `src/lib/assessment/career-engine.ts`, `catalog.ts`, `catalog.server.ts`, `result-storage.server.ts` |
+| Dashboard           | `src/routes/dashboard.tsx`                           | Assessment/roadmap server functions and `src/components/dashboard/`                                  |
+| Roadmap             | `src/routes/roadmap.tsx`                             | `src/lib/roadmap/tasks.functions.ts`, `useTaskJournal.ts`                                            |
+| Schools             | `src/routes/school.*.tsx`                            | `src/lib/schools/`, assessment school overview functions                                             |
+| Community           | `src/routes/community.tsx`                           | `src/lib/community/community.functions.ts`                                                           |
+| Admin               | `src/routes/admin.tsx`                               | `src/lib/admin/admin.functions.ts`                                                                   |
+| ABBI                | `src/routes/abbi.tsx`, `src/components/AbbiChat.tsx` | `src/lib/abbi/`: curated knowledge and server actions                                                |
+| Universities        | `src/routes/universities.tsx`                        | Static research catalog and browser-local bookmarks                                                  |
+| Authentication      | `src/routes/auth.tsx`                                | `src/lib/auth-context.tsx`, `src/integrations/supabase/`                                             |
+| Localization        | Routes and shared components                         | `src/lib/i18n.tsx`, legal/workshop/question translations                                             |
 
 Older `/assessment`, `/iq-test` and `/results` routes coexist with the career flow. Check their actual behavior before removing them or changing links.
 
@@ -120,3 +120,7 @@ The approved picture flow is implemented behind server-only switches, off by def
 ## October 21 performance follow-up
 
 Dashboard history uses bounded metadata/three-career projections and an exact owner-scoped count; full result evidence loads only in the full report. Draft writes coalesce pending snapshots while retaining immediate local recovery and server revision/nonce checks. Static public page HTML alone opts into CDN caching. See [the performance implementation record](../operations/SITE_PERFORMANCE_2026_10_21.md) for request deadlines, route rendering and evidence boundaries.
+
+## October 25 homepage simplification
+
+The homepage no longer renders `CareerWorkshop` or its three-step practice/choice/activity section. Its free-question CTA and `#workshop` navigation were removed. The existing Practice tools header link now opens `/roadmap`; the full assessment remains at `/career-assessment`. Retained sample fixtures and the unmounted component are historical source, not shipped homepage functionality. Do not restore that section unless the owner requests it.

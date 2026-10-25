@@ -26,41 +26,16 @@ async function runPublicControls(origin = "http://127.0.0.1:8104") {
           page.setDefaultTimeout(12000);
           await page.goto(origin, { waitUntil: "networkidle" });
           await page.locator(`html[lang=${lang}]`).waitFor();
-          for (let i = 0; i < 4; i++) {
-            await page.locator("#practice-index .item-tile").nth(i).click();
-            const buttons = page.locator(".question-actions button");
-            assert.equal(await buttons.first().isDisabled(), true);
-            await buttons.last().click();
-            await page.locator(".picture-rule").waitFor();
-            assert.ok((await page.locator(".picture-rule").innerText()).length > 20);
-            await buttons.last().click();
-            await page.locator(".picture-rule").waitFor({ state: "hidden" });
-            await page
-              .locator(".picture-answers label")
-              .nth(i % 4)
-              .click();
-            await buttons.first().press("Enter");
-            await page.locator(".answer-status").waitFor();
-            assert.match(
-              await page.locator(".bench-count strong").innerText(),
-              new RegExp(`${i + 1}\\s*/\\s*4`),
-            );
-          }
-          await page.reload({ waitUntil: "networkidle" });
-          await page.waitForFunction(
-            () => document.querySelectorAll(".item-tile.is-answered").length === 4,
-          );
-          assert.match(await page.locator(".bench-count strong").innerText(), /4\s*\/\s*4/);
-          await page.locator(".bench-bottom button").click();
-          assert.match(await page.locator(".bench-count strong").innerText(), /0\s*\/\s*4/);
-          assert.equal(await page.locator(".item-tile.is-answered").count(), 0);
+          assert.equal(await page.locator("#workshop, .studio-workshop").count(), 0);
+          assert.equal(await page.locator('a[href*="#workshop"]').count(), 0);
+          await page.locator('.studio-hero-actions a[href="/career-assessment"]').waitFor();
           rows.push({
-            id: "FLOW-03",
+            id: "HOME-WORKSHOP-REMOVED",
             width,
             lang,
             theme,
             result: "PASS",
-            transport: "real public UI; browser-local data",
+            transport: "real public UI; retired section absent",
           });
 
           await page.goto(origin + "/universities", { waitUntil: "networkidle" });
@@ -173,7 +148,7 @@ async function runPublicControls(origin = "http://127.0.0.1:8104") {
             path: `artifacts/full-qa/public-controls/contact-${width}-${lang}-${theme}.png`,
           });
           await context.close();
-          console.log(`Practice, university and contact controls passed ${width}/${lang}/${theme}`);
+          console.log(`Homepage, university and contact controls passed ${width}/${lang}/${theme}`);
         }
   } finally {
     await browser.close();

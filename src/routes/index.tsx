@@ -6,7 +6,6 @@ import { PageShell } from "@/components/PageShell";
 import { TrailDrawing, HeroAnnotation } from "@/components/design4/Artwork";
 import { useArtworkMotion } from "@/components/design4/use-artwork-motion";
 import { FOUNDERS, FounderPortrait } from "@/components/FounderPortrait";
-import { CareerWorkshop } from "@/components/CareerWorkshop";
 import { MaskText } from "@/components/MaskText";
 import { CartoonSparkle, MarkedText } from "@/components/CartoonArtwork";
 
@@ -27,7 +26,6 @@ export const Route = createFileRoute("/")({
 });
 function LandingPage() {
   const w = useWords();
-  const [stage, setStage] = useState(0);
   const { ref: heroRef, playing } = useArtworkMotion();
   const [illustrationStep, setIllustrationStep] = useState(0);
   useEffect(() => {
@@ -106,16 +104,6 @@ function LandingPage() {
                 </div>
               </div>
               <div className="studio-hero-actions" data-hero-actions>
-                <a
-                  href="#workshop"
-                  className="field-button hero-free"
-                  data-magnetic
-                  data-cursor="try"
-                  onClick={() => setStage(0)}
-                >
-                  {w("Try a free question", "Bepul savolni sinang", "Попробовать вопрос")}
-                  <ArrowRight size={17} />
-                </a>
                 <Link
                   to="/career-assessment"
                   className="field-button hero-complete"
@@ -180,7 +168,6 @@ function LandingPage() {
                     <button
                       key={i}
                       onClick={() => {
-                        setStage(i);
                         setIllustrationStep(i);
                       }}
                       aria-pressed={illustrationStep === i}
@@ -238,7 +225,6 @@ function LandingPage() {
         </div>
       </section>
       <DeferredBelowFold>
-        <CareerWorkshop stage={stage} onStage={setStage} />
         <section className="studio-access field-wrap" data-story>
           <div className="section-heading">
             <p className="micro" data-rule>

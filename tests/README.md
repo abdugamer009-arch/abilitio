@@ -46,7 +46,7 @@ focused pre-commit checks, browser setup and CI artifact upload.
 Useful focused commands:
 
 - `node scripts/qa-features.cjs`: export, search, comparison, history, membership and settings.
-- `node scripts/qa-controls.cjs`: explicit Next, double-click guard, draft reload, 320/360/375/390/430px workshop.
+- `node scripts/qa-controls.cjs`: explicit Next, double-click guard, draft reload, 320/360/375/390/430px homepage without the retired workshop.
 - `node scripts/qa-recovery.cjs`: simulated mail request, non-enumerating copy, reset confirmation and invalid recovery session.
 - `node scripts/qa-accessibility.cjs`: both themes on the affected routes.
 - `node scripts/qa-matrix.cjs`: English/Uzbek/Russian, both themes, four widths, full-page captures in `artifacts/qa/final/`.

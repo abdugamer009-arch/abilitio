@@ -18,7 +18,7 @@ export const Navbar = memo(function Navbar() {
   // The shared chrome now persists; retain the old route-unmount menu reset.
   useEffect(() => setOpen(false), [location.pathname]);
   const links = [
-    { to: "/", label: w("Practice tools", "Mashq vositalari", "Практика"), hash: "workshop" },
+    { to: "/roadmap", label: w("Practice tools", "Mashq vositalari", "Практика") },
     { to: "/methodology", label: w("How it works", "Qanday ishlaydi", "Как это работает") },
     { to: "/for-schools", label: w("For schools", "Maktablar uchun", "Школам") },
     { to: "/about", label: w("Team", "Jamoa", "Команда") },
@@ -51,10 +51,11 @@ export const Navbar = memo(function Navbar() {
             <li key={l.to}>
               <Link
                 to={l.to}
-                hash={l.hash}
                 activeOptions={{ exact: true }}
                 className={
-                  l.hash && location.pathname === "/roadmap" ? "nav-journey-active" : undefined
+                  l.to === "/roadmap" && location.pathname === "/roadmap"
+                    ? "nav-journey-active"
+                    : undefined
                 }
               >
                 {l.label}
@@ -114,7 +115,7 @@ export const Navbar = memo(function Navbar() {
         <div id="site-menu" className="nav-menu field-wrap">
           <LanguageSwitcher />
           {links.map((l) => (
-            <Link key={l.to} to={l.to} hash={l.hash} onClick={() => setOpen(false)}>
+            <Link key={l.to} to={l.to} onClick={() => setOpen(false)}>
               {l.label}
             </Link>
           ))}

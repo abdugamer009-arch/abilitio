@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-25 — Remove homepage trial questions
+
+- Remove the entire homepage starting-point workshop, including its three steps, four sample questions, answer counter and task controls.
+- Remove the free-question hero button and send Practice tools navigation to the existing Career Journey page.
+- Keep the full assessment and existing account data; update browser checks for the simplified homepage.
+
 ## 2026-10-25 — Production repair release
 
 - Published the five QA repairs and scoped browser tooling from main (`84a2110`). Production guest verification passed 576 route cases, eight full guest assessment attempts, 12 public-control configurations and ten protected-API guest denials.

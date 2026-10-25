@@ -353,16 +353,8 @@ async function audit(page, active) {
               viewport: { width: w, height: h },
             });
             await touch(page.locator(".instrument-signals button").nth(1));
-            // The illustration's clock advances every 2.6s. Verify the stable
-            // workshop state set by the same touch handler, rather than racing
-            // the clock's transient aria-pressed state.
-            await page
-              .locator('.stage-choice.stage-1[aria-pressed="true"]')
-              .waitFor({ state: "attached" });
-            await page.waitForFunction(() =>
-              [
-                ...document.querySelectorAll('.brain-frame .cartoon-brain g[style*="opacity"]'),
-              ].some((pin) => pin.style.opacity === "1"),
+            await page.waitForFunction(
+              () => document.querySelector(".hero-instrument")?.dataset.step === "1",
             );
             await page.goto(origin + "/career-assessment");
             await page.locator(`html[lang="${lang}"]`).waitFor();

@@ -90,44 +90,19 @@ async function runControlChecks(origin = "http://127.0.0.1:8080") {
       await install(c, data);
       const p = await c.newPage();
       const faults = errors(p);
-      await p.goto(origin + "/#workshop", { waitUntil: "networkidle" });
-      await p.locator("#workshop").scrollIntoViewIfNeeded();
-      await p.evaluate(() =>
-        document.querySelector("#workshop").scrollIntoView({ block: "start", behavior: "instant" }),
-      );
-      const prompt = p.locator("#workshop .question-prompt");
-      // Pass 4 deliberately places the four puzzle selectors before the board.
-      // Scroll to the selected board rather than asserting the retired sidebar's
-      // above-the-fold position on a 320px phone.
-      await prompt.scrollIntoViewIfNeeded();
-      const bounds = await prompt.boundingBox();
-      assert.ok(
-        bounds.y >= 0 && bounds.y + bounds.height < height,
-        `active task offscreen at ${width}`,
-      );
+      await p.goto(origin + "/", { waitUntil: "networkidle" });
+      assert.equal(await p.locator("#workshop, .studio-workshop").count(), 0);
+      assert.equal(await p.locator('a[href*="#workshop"]').count(), 0);
+      await p.locator('.studio-hero-actions a[href="/career-assessment"]').waitFor();
       assert.equal(
         await p.evaluate(() => document.documentElement.scrollWidth > innerWidth),
         false,
       );
-      const tiny = await p.locator("#workshop .stage-choice,#workshop .choice-option").evaluateAll(
-        (nodes) =>
-          nodes.filter((n) => {
-            const r = n.getBoundingClientRect();
-            return r.width < 44 || r.height < 44;
-          }).length,
-      );
-      assert.equal(tiny, 0);
-      await p.screenshot({ path: `artifacts/qa/controls/M15-${width}.png` });
-      const overview = p.getByRole("button", { name: "Practice overview", exact: true });
-      assert.equal(await overview.getAttribute("aria-expanded"), "true");
-      await overview.click();
-      assert.equal(await overview.getAttribute("aria-expanded"), "false");
-      await overview.click();
-      await p.locator("#practice-index:not([hidden])").waitFor();
+      await p.screenshot({ path: `artifacts/qa/controls/home-${width}.png` });
       assert.deepEqual(faults, []);
       await c.close();
     }
-    console.log("M01/V03 desktop+phone and M15 five-width control checks passed");
+    console.log("M01/V03 desktop+phone and five-width homepage checks passed");
   } finally {
     await b.close();
   }
