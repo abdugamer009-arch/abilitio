@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-25 — Repair methodology section
+
+- Replace the divider class on the “Who this is for” content section with a dedicated section style, restoring its height and readable background instead of the black block.
+- Remove the obsolete homepage-practice sentence in ENG, RU and UZ after retiring that feature.
+
 ## 2026-10-25 — Remove homepage trial questions
 
 - Remove the entire homepage starting-point workshop, including its three steps, four sample questions, answer counter and task controls.

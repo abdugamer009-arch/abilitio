@@ -38,6 +38,22 @@ async function runPublicControls(origin = "http://127.0.0.1:8104") {
             transport: "real public UI; retired section absent",
           });
 
+          await page.goto(origin + "/methodology", { waitUntil: "networkidle" });
+          const audience = page.locator(".method-audience");
+          await audience.scrollIntoViewIfNeeded();
+          const surface = await audience.evaluate((el) => ({
+            height: el.getBoundingClientRect().height,
+            background: getComputedStyle(el).backgroundColor,
+            color: getComputedStyle(el).color,
+          }));
+          assert.ok(surface.height > 150, "Audience content collapsed into a divider");
+          assert.notEqual(
+            surface.background,
+            surface.color,
+            "Audience text matches its background",
+          );
+          rows.push({ id: "METHOD-AUDIENCE-01", width, lang, theme, result: "PASS" });
+
           await page.goto(origin + "/universities", { waitUntil: "networkidle" });
           await page.locator(".d4-notebook article").nth(19).waitFor();
           assert.equal(await page.locator(".d4-notebook article").count(), 20);

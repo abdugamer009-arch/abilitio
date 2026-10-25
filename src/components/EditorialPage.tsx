@@ -381,9 +381,9 @@ export function EditorialPage({ kind }: { kind: Kind }) {
                   </strong>
                   <p>
                     {w(
-                      "Read the reasons behind career suggestions, research study subjects and choose an activity. Mark completion yourself. Practice tools on the homepage are separate and do not transfer into the assessment.",
-                      "Kasb tavsiyasi sabablarini o‘qing, o‘qish yo‘nalishini o‘rganing va faoliyat tanlang. Bajarilishni o‘zingiz belgilang. Bosh sahifa mashqlari alohida, baholashga o‘tmaydi.",
-                      "Прочитайте причины рекомендаций, изучите направления обучения и выберите занятие. Выполнение отмечаете сами. Практика на главной странице не переносится в оценку.",
+                      "Read the reasons behind career suggestions, research study subjects and choose an activity. Mark completion yourself.",
+                      "Kasb tavsiyasi sabablarini o‘qing, o‘qish yo‘nalishini o‘rganing va faoliyat tanlang. Bajarilishni o‘zingiz belgilang.",
+                      "Прочитайте причины рекомендаций, изучите направления обучения и выберите занятие. Выполнение отмечаете сами.",
                     )}
                   </p>
                 </li>
@@ -392,7 +392,7 @@ export function EditorialPage({ kind }: { kind: Kind }) {
           )}
           {kind === "for-schools" && <SchoolReportPreview />}
           {kind === "methodology" && (
-            <section className="field-section field-rule">
+            <section className="method-audience field-section">
               <h2>{w("Who this is for", "Kimlar uchun", "Для кого")}</h2>
               <p>
                 {w(

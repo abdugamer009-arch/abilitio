@@ -2416,6 +2416,10 @@ td {
 .person-register article:nth-child(2) p {
   background: var(--butter);
 }
+.method-audience {
+  border-top: 3px solid var(--ink);
+  padding-top: 32px;
+}
 .field-cta {
   position: relative;
   display: flex;
