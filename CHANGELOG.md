@@ -6,6 +6,12 @@
 - Replaced Axmedov Umar’s portrait with the owner-supplied November update, optimized as WebP, and adjusted its framing. Removed the retired portrait asset.
 - Verify both pages in ENG/RU/UZ at 390px and 1440px on a main-source Vercel preview before production publication; retain the existing roles and biographies for the remaining team members.
 
+## 2026-10-25 — BUG-02: preserve newly saved assessment drafts
+
+- Stop rejecting unexpired drafts merely because a device clock trails the server clock. Server signature checks and the 24-hour server expiry remain unchanged.
+- Reproduced the loss manually on production; repeated save/exit/reopen/back in the local production build with a 38-second server clock lead and retained both question position and answer.
+- Full local checks pass (44 test files, 237 tests and five export checks); Vercel build passes. Full authenticated/manual release gates remain pending in BUGS.md. This entry does not claim deployment.
+
 ## 2026-10-25 — Repair methodology section
 
 - Replace the divider class on the “Who this is for” content section with a dedicated section style, restoring its height and readable background instead of the black block.

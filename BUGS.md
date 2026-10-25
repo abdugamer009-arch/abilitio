@@ -1,0 +1,62 @@
+# Manual pre-launch audit — 2026-10-25
+
+Status: **IN PROGRESS; not a launch certification.** Baseline production/main: `b265accf66bdb613fa85499972a6caf77d712f3e`.
+
+Only browser actions performed in this audit count as TESTED. Earlier automated receipts in QA.md are not manual evidence. BUG-02 has a local code repair; no production code or database data has been changed in this audit.
+
+## Findings (recorded before fixes)
+
+| ID | Severity | Page and exact reproduction | Actual → expected | Evidence | Status / fix commit |
+| --- | --- | --- | --- | --- | --- |
+| BUG-01 | High | Signed out; For schools → Trial already agreed? Register your school → login; inspect Forgot password. | Password recovery is disabled, leaving a student who lost a password dependent on manual support → a verified recovery email flow. | TESTED live browser: `/auth?mode=login&next=%2Fschool%2Fregister`, accessibility node 103 `button (disabled) Forgot password?`, node 105 `Email password recovery is currently unavailable.` READ: `src/routes/auth.tsx:403–425`, `src/lib/constants.ts:15`. Screenshot capture failed in the connected browser; no screenshot proof claimed. | **Needs my decision**: choose/configure a sender/provider and verify delivery before enabling recovery. Do not merely enable the flag. No fix commit. |
+| BUG-02 | Critical | Guest → Start assessment → Male / 15 and older → Start → Agree on question 1 → Next → immediately Save and exit → reopen assessment. | Start is offered instead of Continue; starting generates different question 1 and drops the previous answer → resume question 2 with question 1 retained. | TESTED live: first question `You are drawn to big ideas and theories even if they seem impractical.`; next `Group brainstorming sessions energize rather than exhaust you.`; reopening offered `Start the assessment`; starting gave `You are energized by presenting your ideas in front of an audience.` A later save/reopen of this older draft offered Continue. READ original `src/lib/assessment/draft-expiry.ts:11`: rejected expiry beyond client now + 24h. Local UTC 14:54:35 vs fresh Vercel response Date 14:55:13 (38 seconds ahead). Regression test failed before repair. Manual local build retest with server clock +38s: immediate reopen offered Continue, restored question 2 `You like to commit to a decision and then execute without second-guessing.`; Back restored question 1 `You find strict schedules confining and prefer to work at your own pace.` with Agree checked. Browser screenshots unavailable. | **Fixed locally; production retest pending.** Removed client-only maximum-future-expiry rejection; server signature and expiry unchanged. Dedicated BUG-02 commit. |
+| BUG-03 | Medium | Universities → Amherst College → Costs & funding. | Official destination shows `504 Gateway Time-out` rather than financial-aid information. Same result on a second manual click. | TESTED browser tabs 27 and 44: `https://www.amherst.edu/offices/financialaid`, title `504 Gateway Time-out`. Admissions link loaded. No screenshot available. | **Cannot reproduce as an application-code defect**: confirmed upstream destination failure; no verified equivalent replacement found. Keep the official URL and retest availability; do not substitute an unrelated page. No fix commit. |
+
+## Manual coverage ledger
+
+| Flow | Status | Current result / limits |
+| --- | --- | --- |
+| Existing session sign out | TESTED | Sign out returned to `/`; header changed to Sign in. No personal records opened or edited. |
+| Desktop homepage | TESTED, partial | At 1440×900, 02 Choose and 03 Try changed the selected illustration station. Console warnings/errors returned an empty list at this checkpoint. Screenshot API returned `Unable to capture screenshot`; visual inspection is incomplete. |
+| How it works | TESTED, partial | Header link reached `/methodology`; scrolling exposed the method, steps, audience and assessment CTA. |
+| For schools | TESTED, partial | Header link reached `/for-schools`; school-registration CTA redirected signed-out visitor to login with `next=/school/register`. |
+| Team | TESTED, partial | Header link reached `/about`; founder content and assessment CTA present. |
+| Universities | TESTED, partial | Footer link reached `/universities`; displayed 20/20, 0 marked. Control and external-link checks below. |
+| Contact | TESTED, partial | Footer link reached `/contact`; form, topic selector and copy-address control present. Not submitted. |
+| Privacy | TESTED, partial | Footer link reached `/privacy`; policy content present, including unresolved minimum-age/permission review. No legal approval inferred. |
+| Terms / 404 | TESTED, partial | Footer Terms reached `/terms`. Direct nonexistent `/audit-missing-page` showed 404; Back home returned to `/`. |
+| Login / protected redirect | TESTED, partial | School registration, dashboard, roadmap and admin while signed out redirected to login with intended next path. Empty fields explicitly cleared before submit produced `Please enter a valid email`. Deliberately wrong credentials for nonexistent test-guest@abilitio-check.invalid produced `Incorrect email or password`; fields cleared afterward. Saved browser credentials caused an earlier click to reopen historical `Isolation Temporary Test`; immediately signed out, no records edited. Signup tab exposes name/surname/email/password. No account created. |
+| Assessment guest save / resume | TESTED — BUG-02 | Completed all 30 older-student questions manually (12/9/9), reached `Your answers are ready.` and `Sign in for results`; that button reached signup with next=/career-assessment. Immediate-save failure reproduced and fixed/retested locally. No live result submitted. |
+| Universities controls | TESTED, partial | Oxford search: 1/20. Mark Oxford: 1 marked; refresh retained it; unmarked afterward: 0 marked. Uzbekistan filter: 1/20. Nonmatching search: 0/20 and explicit empty message. All 40 external links clicked; 38 reached expected official titles, Amherst funding returned 504 twice, UBC admissions showed a connection-reset browser error. The browser policy blocked inspecting/closing that error page; no bypass attempted. |
+| Public preferences / keyboard / history | TESTED, partial | RU and dark selection persisted after refresh and hydration on Universities. UZ also persisted after refresh; restored ENG/light/off. Tab focused Menu, computed focus outline was blue solid ~3px; Return expanded Menu. Back returned Methodology → Universities; Forward eventually returned Methodology (exceeded the short selector wait, then settled). No full-site keyboard/contrast certification. |
+| Guest admin API | TESTED — supplemental request | GET `/_serverFn/dd63d0600ed7082a8842f64eb616bdac1a9863ef09aaaf9e7d6904852ce48668` with `x-tsr-serverFn: true`, Accept application/json, no Authorization returned HTTP 200 serialized error containing `Unauthorized`. HTTP 200 transport is not an authorized data response. An earlier multi-endpoint attempt timed out; no all-API pass claimed. |
+| Contact validation | TESTED, partial | Copy address showed Copied; clipboard matched displayed address. Empty submit: required-field validation. `not-an-email`: missing-@ validation. School topic revealed institution, role, count and language fields; English/Russian selections changed. Form test text cleared; no message sent. Actual sending deferred until a disposable mailbox/submission-cleanup path is available. |
+| Assessment language/theme/motion controls | TESTED, partial | Completion screen switched to RU then UZ with translated controls; theme and motion toggles changed pressed state; restored ENG/light/off. Does not establish visual contrast or persistence. |
+| Homepage practice questions | NOT CHECKED — retired | Owner explicitly requested removal. Do not restore the removed workshop to satisfy this older checklist item. |
+| Authenticated student/founder/school flows | NOT CHECKED — pending access | Disposable accounts and a test environment requested. Existing signed-in personal session was not used for mutations. No new accounts, rows, messages or files created. |
+| Supabase security advisor | TESTED via live browser, partial | Connector returned Unknown tool. Opened production Advisor Center via owner dashboard; selected Critical only → `No items found / No advisor items match your current filters`. Critical/Warning/Info are its severity choices; no separate High category exposed. Warning list includes disabled leaked-password protection, SECURITY DEFINER execution, multiple permissive policies and RLS initialization plans. No policy changes made. |
+| Phone / RU / UZ / dark / motion / Slow 4G | NOT CHECKED as full matrix | Requested viewport overrides 1440 and 390, but DOM-reported innerWidth was 582 after the 390 override. Exact-width validation is not certified. Screenshot APIs both fail. No physical Android or network-throttling capability confirmed. Partial language/toggle interactions above. |
+| Production deployment | NOT CHECKED | No deployment performed; final manual and advisor gates remain open. |
+
+## Owner decisions / access
+
+- BUG-01: configure a verified email sender/provider, or explicitly defer recovery and accept the launch limitation. Provider setup was previously postponed; no credentials or sender identity will be invented.
+- Provide disposable `test-student` / `test-founder` access and identify staging versus production. Password entry/creation must be completed by the owner in the browser. Keep passwords out of chat.
+- Database/RLS repairs require an isolated Supabase branch before production changes. No database change has been made.
+
+## Test-data ledger
+
+No test accounts, database rows, storage objects or contact messages created in this audit. One guest university bookmark was created, verified and removed. Guest assessment drafts were created in the browser on production and localhost:8108; cleanup remains pending. Existing historical test records are outside cleanup scope.
+
+## Local verification
+
+- `npm run check`: passed; 44 test files, 237 application tests, five export checks, lint and TypeScript. Initial formatting failure corrected before this passing run.
+- `VERCEL=1 npm run build`: passed; framework inputValidator deprecation warnings remain (not build errors).
+- BUG-02 targeted test: failed before repair, then 32/32 targeted tests passed. Manual local retest used a disposable server key and server-only clock +38 seconds; neither is committed or deployed.
+- Production release remains gated on the requested authenticated, device and final manual checks. No automatic-test result substitutes for those checks.
+
+## Explicitly unfinished checklist items
+
+NOT CHECKED: new-account creation, successful named-account login, email recovery delivery, authenticated assessment submit/result persistence, child full attempt, every Journey island/task, all dashboard tabs and database-number reconciliation, ABBI prompts/messages/clear, avatar uploads/drag/drop/profile save, school and founder workflows, student API denials, double-click deduplication, real contact delivery, complete ENG/RU/UZ/light/dark/motion matrix, Slow 4G, physical Android, every-page network inspection, visual screenshots and final production release pass. These are pending checks, not passes and not automatically bugs.
+
+Current required input: identify staging/production and supply the named disposable browser sessions. Current cleanup request: confirm clearing the two guest drafts created here. Both questions remain unanswered. No production push has occurred because the requested release gates are incomplete.
