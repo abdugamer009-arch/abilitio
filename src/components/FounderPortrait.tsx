@@ -33,6 +33,19 @@ export const FOUNDERS = [
     width: 640,
     height: 640,
   },
+  {
+    id: "sarvarbek",
+    name: "Izzatulloyev Sarvarbek",
+    role: { en: "Manager", uz: "Menejer", ru: "Менеджер" },
+    bio: {
+      en: "Helped connect schools with Abilitio and recruit volunteers.",
+      uz: "Maktablar bilan Abilitio o‘rtasida aloqa o‘rnatish va ko‘ngillilarni jalb qilishga yordam berdi.",
+      ru: "Помог наладить связи между школами и Abilitio и привлечь волонтёров.",
+    },
+    src: "/images/founders/izzatulloyev-sarvarbek.png",
+    width: 306,
+    height: 237,
+  },
 ] as const;
 
 export function FounderPortrait({ founder }: { founder: (typeof FOUNDERS)[number] }) {

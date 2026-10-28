@@ -204,11 +204,7 @@ function LandingPage() {
             )}
           </blockquote>
           <Link className="text-link founder-team-link" to="/about">
-            {w(
-              "Meet the two founders",
-              "Ikki asoschi bilan tanishing",
-              "Познакомьтесь с двумя основателями",
-            )}
+            {w("Meet our team", "Jamoamiz bilan tanishing", "Познакомьтесь с нашей командой")}
             <ArrowUpRight size={15} />
           </Link>
         </div>
