@@ -12,9 +12,9 @@ export const FOUNDERS = [
       uz: "Umar Abilitio loyihasiga hamasoschi bo‘lgan va uning veb-saytini ishlab chiqqan. U loyihaning texnik tomoniga mas’ul.",
       ru: "Умар — сооснователь Abilitio и разработчик сайта. Он отвечает за техническую часть проекта.",
     },
-    src: "/images/founders/axmedov-umar.jpg",
-    width: 960,
-    height: 1280,
+    src: "/images/founders/axmedov-umar-2026.webp",
+    width: 1086,
+    height: 1448,
   },
   {
     id: "abduraxmon",
@@ -32,19 +32,6 @@ export const FOUNDERS = [
     src: "/images/founders/abduraxmon.jpg",
     width: 640,
     height: 640,
-  },
-  {
-    id: "sarvarbek",
-    name: "Izzatulloyev Sarvarbek",
-    role: { en: "Manager", uz: "Menejer", ru: "Менеджер" },
-    bio: {
-      en: "Helped connect schools with Abilitio and recruit volunteers.",
-      uz: "Maktablar bilan Abilitio o‘rtasida aloqa o‘rnatish va ko‘ngillilarni jalb qilishga yordam berdi.",
-      ru: "Помог наладить связи между школами и Abilitio и привлечь волонтёров.",
-    },
-    src: "/images/founders/izzatulloyev-sarvarbek.png",
-    width: 306,
-    height: 237,
   },
 ] as const;
 

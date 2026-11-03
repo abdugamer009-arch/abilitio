@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-03 — TEAM-01: update team portraits and membership
+
+- Removed the former manager entry, translated biography, portrait styling and public photo asset from the shared team roster used by the homepage and Team page.
+- Replaced Axmedov Umar’s portrait with the owner-supplied November update, optimized as WebP, and adjusted its framing. Removed the retired portrait asset.
+- Verify both pages in ENG/RU/UZ at 390px and 1440px on a main-source Vercel preview before production publication; retain the existing roles and biographies for the remaining team members.
+
 ## 2026-10-25 — Repair methodology section
 
 - Replace the divider class on the “Who this is for” content section with a dedicated section style, restoring its height and readable background instead of the black block.
