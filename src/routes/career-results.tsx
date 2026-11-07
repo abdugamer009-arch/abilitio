@@ -411,6 +411,9 @@ function CareerResultsPage() {
                   icon={<Sparkles className="h-4 w-4" />}
                   title={t.careerResults.skillsToDevelop}
                 >
+                  {r.recommended_skills.length === 0 && (
+                    <p className="text-sm text-muted-foreground">{tr("No data yet.")}</p>
+                  )}
                   <ul className="space-y-1.5 text-sm">
                     {r.recommended_skills.map((s) => (
                       <li key={s} className="flex items-start gap-2">

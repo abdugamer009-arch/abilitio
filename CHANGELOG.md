@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-07 — BUG-06: show the existing empty state for missing skills
+
+- Show the existing localized “No data yet.” phrase when a saved result has no recommended skills, instead of an empty card.
+- Reproduced the empty card in the completed live test result. Lint and TypeScript pass; no new copy or scoring rules.
+
 ## 2026-11-07 — BUG-05: stop adding zero-score top interests
 
 - Derive up to three positive RIASEC dimensions instead of padding the displayed code with zero-score dimensions. Stored answers, numeric profiles, career rankings and reasoning grades stay intact.
