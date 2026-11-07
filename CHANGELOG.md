@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-07 — BUG-05: stop adding zero-score top interests
+
+- Derive up to three positive RIASEC dimensions instead of padding the displayed code with zero-score dimensions. Stored answers, numeric profiles, career rankings and reasoning grades stay intact.
+- The Enterprising-only live attempt exposed the issue. Single-signal and no-signal regression assertions failed before the fix; 13 focused tests pass afterward.
+
 ## 2026-11-07 — BUG-04: localize the ABBI dashboard tab
 
 - Use the existing Russian and Uzbek ABBI heading translations in the dashboard tab. English wording, tab behavior and layout are retained.

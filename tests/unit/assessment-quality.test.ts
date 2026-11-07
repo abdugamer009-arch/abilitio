@@ -44,6 +44,10 @@ describe("sharpened interest weights (#3)", () => {
 });
 
 describe("Holland derivation (#1)", () => {
+  it("BUG-05 does not pad a one-interest profile with zero-evidence dimensions", () => {
+    const loaded = hollandCode({ R: 0, I: 0, A: 0, S: 0, E: 1, C: 0 });
+    expect(loaded).toEqual(["E"]);
+  });
   it("derives a top-3 code whose leading dimension matches strong interests", () => {
     const { interests } = scoreInterests([{ A: 3 }, { A: 3 }, { A: 2 }]);
     const code = hollandCode(deriveRiasecFromInterests(interests));
@@ -54,6 +58,7 @@ describe("Holland derivation (#1)", () => {
   it("returns an all-zero profile (empty code leader) when there is no signal", () => {
     const profile = deriveRiasecFromInterests(scoreInterests([]).interests);
     expect(Object.values(profile).every((v) => v === 0)).toBe(true);
+    expect(hollandCode(profile)).toEqual([]);
   });
 });
 

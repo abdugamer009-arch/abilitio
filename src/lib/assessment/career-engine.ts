@@ -270,9 +270,11 @@ export function deriveRiasecFromInterests(
   return p;
 }
 
-/** Holland code: the user's top-3 RIASEC dimensions, strongest first. */
+/** Up to three RIASEC dimensions with positive evidence, strongest first. */
 export function hollandCode(p: RiasecProfile): RiasecDim[] {
-  return [...RIASEC_DIMS].sort((a, b) => p[b] - p[a]).slice(0, 3);
+  return RIASEC_DIMS.filter((d) => p[d] > 0)
+    .sort((a, b) => p[b] - p[a])
+    .slice(0, 3);
 }
 
 // ---------- Matching ----------
