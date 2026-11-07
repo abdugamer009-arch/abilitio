@@ -500,7 +500,11 @@ function TabBar({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
         label: w("Universities", "Universitetlar", "Университеты"),
         icon: UniversitiesTabDrawing,
       },
-      { key: "abbi", label: "ABBI Guide", icon: AbbiTabDrawing },
+      {
+        key: "abbi",
+        label: w("ABBI Guide", "ABBI Yo‘lko‘rsatkich", "ABBI Справочник"),
+        icon: AbbiTabDrawing,
+      },
       {
         key: "settings",
         label: w("Settings", "Sozlamalar", "Настройки"),

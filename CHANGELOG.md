@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-07 — BUG-04: localize the ABBI dashboard tab
+
+- Use the existing Russian and Uzbek ABBI heading translations in the dashboard tab. English wording, tab behavior and layout are retained.
+- Reproduced the mixed-language tab manually on production; lint and TypeScript pass. Live verification is recorded in BUGS.md after release.
+
 ## 2026-11-03 — TEAM-01: update team portraits and membership
 
 - Removed the former manager entry, translated biography, portrait styling and public photo asset from the shared team roster used by the homepage and Team page.
