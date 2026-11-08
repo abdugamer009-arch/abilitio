@@ -15,6 +15,8 @@ Only browser actions performed in this audit count as TESTED. Earlier automated 
 | BUG-05 | Medium | Complete the older-student assessment choosing the Enterprising option in all nine interest questions → open result. | Top Interests and Interest Profile label Enterprising, Hands-on and Investigative even though displayed scores are E=100 and every other dimension=0 → top labels include only dimensions with positive evidence. | TESTED live 2026-11-07 completed report: `The Driver Enterprising Hands-on Investigative`; six values 0/0/0/0/100/0. READ `src/lib/assessment/career-engine.ts:274`: unconditionally takes three sorted dimensions. | Open before repair; display derivation only, preserve stored answers, career ranking and grades. |
 | BUG-06 | Low | Open the same completed result; inspect Skills to develop. | Empty heading/card with no content → show the existing localized `No data yet.` message when no recommended skills exist. | TESTED live DOM: `heading SKILLS TO DEVELOP` followed immediately by `heading Interest Profile` and no list items. READ `src/routes/career-results.tsx:412–424`: renders an empty list for an empty array. | Open before repair; use an existing translated empty-state phrase. |
 
+| REQUEST-07 | Owner change | Assessment results and PDF report | Report exposes up to all 166 careers → show three suggestions, keeping full catalog ranking. | READ: career-results.tsx used top 15 / show-all and catalog search; ResultExports.tsx exported all careers. Owner explicitly requested three on 2026-11-08. | Implemented; verification pending. |
+
 ## Manual coverage ledger
 
 | Flow | Status | Current result / limits |

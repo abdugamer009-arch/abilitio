@@ -69,7 +69,7 @@ export function ResultExports({ result }: { result: CareerResultDTO }) {
           ),
           lines: result.university_matches.map((m) => tr(m.name)),
         },
-        ...result.career_matches.map((c, i) => ({
+        ...result.career_matches.slice(0, 3).map((c, i) => ({
           heading: `${i + 1}. ${tr(c.name)} · ${c.score}/100`,
           lines:
             i < 3
