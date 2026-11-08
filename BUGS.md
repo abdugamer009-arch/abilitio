@@ -19,6 +19,8 @@ Only browser actions performed in this audit count as TESTED. Earlier automated 
 
 | REQUEST-08 | Owner change | Children’s assessment | Four activity sets cycle through 20 questions, with generic repeated art → unique concrete choices and specific drawings, plus a larger preference pool. | READ: child-questions.ts used `i % activitySets.length`; ActivityPicture selected only six generic pictures. Owner requested variety on 2026-11-08. | Implemented; new child IDs/version preserve old signed drafts. Verification pending. |
 
+| REQUEST-09 | Owner change | Founder dashboard | Detailed question/timing rows appear before important metrics → show founder metrics first, with technical question statistics collapsed below user management and loaded only when opened. | TESTED live 2026-11-08: opening Admin showed a long Picture puzzle pilot table ahead of Engagement/Platform. Owner requested only important information. | Implemented; live verification pending. |
+
 ## Manual coverage ledger
 
 | Flow | Status | Current result / limits |

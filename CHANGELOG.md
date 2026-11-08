@@ -117,3 +117,7 @@ The owner approved publication with “approve i need results” on October 19, 
 
 - Give all 20 child activity questions distinct six-choice sets, translated into ENG/RU/UZ, with activity-specific SVG pictures. Expand child preferences from 16 to 32 statements. Each attempt still contains 12 preferences and 18 activity choices, with no reasoning score.
 - Issue new child content as v2; retain original IDs, translations and score mappings so existing v1 drafts resume unchanged.
+
+### 2026-11-08 — REQUEST-09
+
+- Put founder engagement/platform metrics, growth charts and user management first. Collapse detailed question statistics at the bottom and fetch them only when opened.

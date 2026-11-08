@@ -1,3 +1,4 @@
+import { useWords } from "@/lib/editorial";
 import { PictureQuestionStats } from "@/components/assessment/PictureQuestionStats";
 import { useUiText } from "@/lib/ui-text";
 import { useT } from "@/lib/i18n";
@@ -53,6 +54,7 @@ const PURPLE = [
 
 function AdminDashboardPage() {
   const tr = useUiText();
+  const w = useWords();
   const t = useT();
 
   const { user, loading } = useAuth();
@@ -70,6 +72,7 @@ function AdminDashboardPage() {
   const [users, setUsers] = useState<AdminUserRow[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [showQuestionStats, setShowQuestionStats] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -215,8 +218,6 @@ function AdminDashboardPage() {
               </p>
             </div>
           </div>
-
-          <PictureQuestionStats />
 
           {analytics && (
             <>
@@ -435,6 +436,15 @@ function AdminDashboardPage() {
               </div>
             </>
           )}
+          <details
+            className="panel mt-8 rounded-3xl p-5"
+            onToggle={(event) => setShowQuestionStats(event.currentTarget.open)}
+          >
+            <summary className="cursor-pointer font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">
+              {w("Picture puzzle pilot", "Rasmli savollar sinovi", "Пилот задач с картинками")}
+            </summary>
+            {showQuestionStats && <PictureQuestionStats />}
+          </details>
         </div>
       </section>
     </PageShell>
