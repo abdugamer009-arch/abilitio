@@ -912,7 +912,12 @@ export function PictureAssessment() {
                               />
                               <span className="picture-answer">
                                 <span className="picture-interest-art" aria-hidden="true">
-                                  <ActivityPicture caption={current.q.labels.en[i]} />
+                                  <ActivityPicture
+                                    caption={current.q.labels.en[i]}
+                                    illustration={
+                                      o.visual.kind === "icon" ? o.visual.icon : undefined
+                                    }
+                                  />
                                 </span>
                                 <span>{current.q.labels[lang][i]}</span>
                                 {selected === o.id && (

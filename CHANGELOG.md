@@ -112,3 +112,8 @@ The owner approved publication with “approve i need results” on October 19, 
 ### 2026-11-08 — REQUEST-07
 
 - Show only the three highest-ranked career suggestions on the assessment report and PDF. Continue ranking against the full catalog; remove the report’s show-all and catalog-search controls.
+
+### 2026-11-08 — REQUEST-08
+
+- Give all 20 child activity questions distinct six-choice sets, translated into ENG/RU/UZ, with activity-specific SVG pictures. Expand child preferences from 16 to 32 statements. Each attempt still contains 12 preferences and 18 activity choices, with no reasoning score.
+- Issue new child content as v2; retain original IDs, translations and score mappings so existing v1 drafts resume unchanged.

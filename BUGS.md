@@ -17,6 +17,8 @@ Only browser actions performed in this audit count as TESTED. Earlier automated 
 
 | REQUEST-07 | Owner change | Assessment results and PDF report | Report exposes up to all 166 careers → show three suggestions, keeping full catalog ranking. | READ: career-results.tsx used top 15 / show-all and catalog search; ResultExports.tsx exported all careers. Owner explicitly requested three on 2026-11-08. | Implemented; verification pending. |
 
+| REQUEST-08 | Owner change | Children’s assessment | Four activity sets cycle through 20 questions, with generic repeated art → unique concrete choices and specific drawings, plus a larger preference pool. | READ: child-questions.ts used `i % activitySets.length`; ActivityPicture selected only six generic pictures. Owner requested variety on 2026-11-08. | Implemented; new child IDs/version preserve old signed drafts. Verification pending. |
+
 ## Manual coverage ledger
 
 | Flow | Status | Current result / limits |

@@ -19,7 +19,7 @@ export const getPictureQuestionStats = createServerFn({ method: "GET" })
     const { PICTURE_PROPOSALS } = await import("./picture-bank.server");
     const { questionStatistics } = await import("./picture-statistics");
     const { PERSONALITY_BANK, INTEREST_BANK } = await import("./question-bank");
-    const { CHILD_PERSONALITY, CHILD_INTEREST } = await import("./child-questions");
+    const { CHILD_PERSONALITY, ALL_CHILD_INTEREST } = await import("./child-questions");
     const { ADULT_ACTIVITY_BANK } = await import("./activity-questions");
     const extras: import("./picture-statistics").StatDefinition[] = [];
     for (const e of rows) {
@@ -34,7 +34,7 @@ export const getPictureQuestionStats = createServerFn({ method: "GET" })
       )
         continue;
       const p = [...PERSONALITY_BANK, ...CHILD_PERSONALITY].find((q) => q.id === e.question_id);
-      const interest = [...INTEREST_BANK, ...CHILD_INTEREST, ...ADULT_ACTIVITY_BANK].find(
+      const interest = [...INTEREST_BANK, ...ALL_CHILD_INTEREST, ...ADULT_ACTIVITY_BANK].find(
         (q) => q.id === e.question_id,
       );
       extras.push({

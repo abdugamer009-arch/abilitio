@@ -85,7 +85,7 @@ async function deliverSession(age: AgeGroup): Promise<ClientSession> {
     s.iq[0]?.questionSetVersion ??
     (age === "child"
       ? pictureEnabled
-        ? "child-preferences-v1"
+        ? "child-preferences-v2"
         : "legacy-child-preferences-v1"
       : LEGACY_SET_VERSION);
   const { signSession } = await import("./session.server");
@@ -216,7 +216,9 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
     const claim = verifySession(data.sessionToken);
     validateSessionSubmission(claim, data);
     if (
-      ["picture-reasoning-v1", "child-preferences-v1"].includes(claim.questionSetVersion ?? "") &&
+      ["picture-reasoning-v1", "child-preferences-v1", "child-preferences-v2"].includes(
+        claim.questionSetVersion ?? "",
+      ) &&
       (data.iqAnswers.some((v) => v < 0) || data.interestAnswers.some((v) => v.length !== 1))
     )
       throw new Error("invalid_session: please answer every question");
@@ -353,7 +355,7 @@ export const submitCareerAssessment = createServerFn({ method: "POST" })
     const row = await persistAssessmentResult(supabaseAdmin, {
       user_id: userId,
       ...(claim.questionSetVersion === "picture-reasoning-v1" ||
-      claim.questionSetVersion === "child-preferences-v1"
+      ["child-preferences-v1", "child-preferences-v2"].includes(claim.questionSetVersion ?? "")
         ? { question_set_version: claim.questionSetVersion }
         : {}),
       session_nonce: claim.nonce,

@@ -1,5 +1,198 @@
+import {
+  House,
+  Bug,
+  Pencil,
+  Heart,
+  Flag,
+  Blocks,
+  Bird,
+  Music,
+  Gamepad2,
+  Map,
+  BookOpen,
+  Sprout,
+  Cloud,
+  Palette,
+  ShoppingBasket,
+  Gem,
+  Search,
+  Drama,
+  Mail,
+  Users,
+  Puzzle,
+  Sailboat,
+  Footprints,
+  Utensils,
+  Store,
+  Shapes,
+  Hammer,
+  Waves,
+  Handshake,
+  ListChecks,
+  Sun,
+  Bookmark,
+  Megaphone,
+  Tags,
+  Castle,
+  Shell,
+  Trophy,
+  Fan,
+  Magnet,
+  PanelsTopLeft,
+  Droplets,
+  Layers,
+  Badge,
+  Ear,
+  ChartNoAxesCombined,
+  Soup,
+  Feather,
+  Calendar,
+  Bot,
+  Triangle,
+  Smile,
+  Gift,
+  PartyPopper,
+  Route,
+  Grid2X2,
+  Backpack,
+  Scissors,
+  Drum,
+  ArrowLeftRight,
+  Recycle,
+  Plane,
+  Cog,
+  Ruler,
+  Tent,
+  Scan,
+  Flower2,
+  Coffee,
+  Snail,
+  Mic,
+  Lamp,
+  PackageOpen,
+  type LucideIcon,
+} from "lucide-react";
+
+function KiteDrawing(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M12 2l8 6-8 9L4 8zM12 2v15M4 8h16M12 17c0 6 9 1 7 6M14 19l3-1m0 4l2-2" />
+    </svg>
+  );
+}
+
+const CHILD_DRAWINGS: Record<string, LucideIcon | typeof KiteDrawing> = {
+  house: House,
+  bug: Bug,
+  pencil: Pencil,
+  heart: Heart,
+  flag: Flag,
+  blocks: Blocks,
+  bird: Bird,
+  music: Music,
+  gamepad: Gamepad2,
+  map: Map,
+  book: BookOpen,
+  sprout: Sprout,
+  cloud: Cloud,
+  palette: Palette,
+  basket: ShoppingBasket,
+  gem: Gem,
+  search: Search,
+  drama: Drama,
+  mail: Mail,
+  users: Users,
+  puzzle: Puzzle,
+  sailboat: Sailboat,
+  footprints: Footprints,
+  utensils: Utensils,
+  store: Store,
+  shapes: Shapes,
+  hammer: Hammer,
+  waves: Waves,
+  handshake: Handshake,
+  list: ListChecks,
+  sun: Sun,
+  bookmark: Bookmark,
+  megaphone: Megaphone,
+  tags: Tags,
+  castle: Castle,
+  shell: Shell,
+  trophy: Trophy,
+  fan: Fan,
+  magnet: Magnet,
+  panels: PanelsTopLeft,
+  droplets: Droplets,
+  layers: Layers,
+  badge: Badge,
+  ear: Ear,
+  chart: ChartNoAxesCombined,
+  bowl: Soup,
+  feather: Feather,
+  calendar: Calendar,
+  robot: Bot,
+  triangle: Triangle,
+  smile: Smile,
+  gift: Gift,
+  party: PartyPopper,
+  route: Route,
+  grid: Grid2X2,
+  backpack: Backpack,
+  scissors: Scissors,
+  drum: Drum,
+  arrows: ArrowLeftRight,
+  recycle: Recycle,
+  plane: Plane,
+  cog: Cog,
+  ruler: Ruler,
+  tent: Tent,
+  scan: Scan,
+  flower: Flower2,
+  coffee: Coffee,
+  snail: Snail,
+  mic: Mic,
+  lamp: Lamp,
+  chest: PackageOpen,
+  kite: KiteDrawing,
+  hand: Handshake,
+};
+
 /** Decorative activity drawings chosen from the public caption; no hidden scoring data. */
-export function ActivityPicture({ caption }: { caption: string }) {
+export function ActivityPicture({
+  caption,
+  illustration,
+}: {
+  caption: string;
+  illustration?: string;
+}) {
+  const Drawing = illustration?.startsWith("child_") ? CHILD_DRAWINGS[illustration.slice(6)] : null;
+  if (Drawing)
+    return (
+      <svg
+        viewBox="0 0 92 92"
+        aria-hidden="true"
+        fill="none"
+        stroke="#1d1b16"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path
+          d="M12 74C5 55 12 17 38 12c27-5 48 15 43 40S35 91 12 74Z"
+          fill="#fff0b2"
+          stroke="none"
+        />
+        <Drawing x="17" y="17" width="58" height="58" strokeWidth="1.3" />
+        <path d="M11 81h70M77 12v8m-4-4h8" strokeWidth="2" />
+      </svg>
+    );
   const s = caption.toLowerCase();
   const kind = /repair|build|engineering|device|maker|fix|make a (toy|kite)|tools/.test(s)
     ? "build"

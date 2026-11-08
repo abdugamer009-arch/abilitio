@@ -1,7 +1,7 @@
 import { PICTURE_BANK, pickPictureQuestions } from "./picture-bank.server";
 import { LEGACY_SAMPLE_QUESTIONS as SAMPLE_QUESTIONS } from "./legacy-samples.server";
 import { COGNITIVE_REPAIRS } from "./cognitive-repairs";
-import { CHILD_PERSONALITY, CHILD_INTEREST } from "./child-questions";
+import { CHILD_PERSONALITY, CHILD_INTEREST, ALL_CHILD_INTEREST } from "./child-questions";
 import { ADULT_ACTIVITY_BANK } from "./activity-questions";
 import type { AgeGroup } from "./career-assessment";
 // Question Bank — master pool for all assessment questions.
@@ -5063,7 +5063,7 @@ export function getIQCorrect(id: string): number | null {
 // the client can't inflate or fabricate orientation weights.
 const INTEREST_OPTION_RIASEC: Map<string, Partial<Record<RiasecDim, number>>> = (() => {
   const m = new Map<string, Partial<Record<RiasecDim, number>>>();
-  for (const q of [...INTEREST_BANK, ...CHILD_INTEREST, ...ADULT_ACTIVITY_BANK])
+  for (const q of [...INTEREST_BANK, ...ALL_CHILD_INTEREST, ...ADULT_ACTIVITY_BANK])
     for (const o of q.options) m.set(o.id, o.riasec);
   return m;
 })();

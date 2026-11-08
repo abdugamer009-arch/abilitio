@@ -1,3 +1,4 @@
+import { EXTRA_CHILD_ACTIVITIES } from "./child-activity-variety";
 import type { PersonalityQ, InterestQ, InterestTheme, RiasecDim } from "./career-assessment";
 import type { QT } from "./question-translations";
 import { tagInterest, tagPersonality } from "./question-metadata";
@@ -116,6 +117,118 @@ const statements: [PersonalityQ["axis"], 1 | -1, string, string, string][] = [
     "Мне нравится пробовать неожиданное занятие.",
     "Kutilmagan mashg‘ulotni sinab ko‘rishni yoqtiraman.",
   ],
+  [
+    "EI",
+    1,
+    "I enjoy starting a conversation with a new teammate.",
+    "Мне нравится начинать разговор с новым товарищем по команде.",
+    "Jamoaga yangi qo‘shilgan bola bilan suhbat boshlashni yoqtiraman.",
+  ],
+  [
+    "EI",
+    -1,
+    "I like spending some free time with just one close friend.",
+    "Мне нравится проводить свободное время с одним близким другом.",
+    "Bo‘sh vaqtimni bitta yaqin do‘stim bilan o‘tkazishni yoqtiraman.",
+  ],
+  [
+    "EI",
+    1,
+    "I like sharing my ideas aloud during a group activity.",
+    "Мне нравится рассказывать о своих идеях во время общего занятия.",
+    "Guruh mashg‘ulotida o‘z fikrlarimni ovoz chiqarib aytishni yoqtiraman.",
+  ],
+  [
+    "EI",
+    -1,
+    "I like thinking about my answer before speaking to the group.",
+    "Мне нравится обдумать ответ, прежде чем сказать его всей группе.",
+    "Guruhga gapirishdan oldin javobimni o‘ylab olishni yoqtiraman.",
+  ],
+  [
+    "SN",
+    1,
+    "I like noticing small details in pictures.",
+    "Мне нравится замечать мелкие детали на картинках.",
+    "Rasmlardagi mayda tafsilotlarni payqashni yoqtiraman.",
+  ],
+  [
+    "SN",
+    -1,
+    "I like imagining what an ordinary box could become.",
+    "Мне нравится представлять, во что может превратиться обычная коробка.",
+    "Oddiy quti nimalarga aylanishini tasavvur qilishni yoqtiraman.",
+  ],
+  [
+    "SN",
+    1,
+    "I like trying an example before inventing my own version.",
+    "Мне нравится сначала попробовать по образцу, а потом придумать свой вариант.",
+    "O‘z variantimni yaratishdan oldin namunani sinab ko‘rishni yoqtiraman.",
+  ],
+  [
+    "SN",
+    -1,
+    "I like asking what might happen in an imaginary adventure.",
+    "Мне нравится придумывать, что может случиться в вымышленном приключении.",
+    "Xayoliy sarguzashtda nimalar bo‘lishini o‘ylab topishni yoqtiraman.",
+  ],
+  [
+    "TF",
+    1,
+    "When choosing a game, I like comparing how its rules work.",
+    "Выбирая игру, мне нравится сравнивать её правила с другими.",
+    "O‘yin tanlaganda uning qoidalarini solishtirishni yoqtiraman.",
+  ],
+  [
+    "TF",
+    -1,
+    "When choosing a game, I think about what my friends would enjoy.",
+    "Выбирая игру, я думаю о том, что понравится друзьям.",
+    "O‘yin tanlaganda do‘stlarimga nima yoqishini o‘ylayman.",
+  ],
+  [
+    "TF",
+    1,
+    "I like figuring out why two puzzle pieces do not fit.",
+    "Мне нравится разбираться, почему две детали пазла не подходят друг к другу.",
+    "Pazlning ikki qismi nega mos kelmasligini tushunishni yoqtiraman.",
+  ],
+  [
+    "TF",
+    -1,
+    "I like asking a teammate how they feel about our plan.",
+    "Мне нравится спрашивать товарища, нравится ли ему наш план.",
+    "Jamoadoshimdan rejamiz unga qanday tuyulishini so‘rashni yoqtiraman.",
+  ],
+  [
+    "JP",
+    1,
+    "I like knowing the steps before starting a craft.",
+    "Мне нравится знать порядок действий перед началом поделки.",
+    "Qo‘l ishini boshlashdan oldin bosqichlarni bilishni yoqtiraman.",
+  ],
+  [
+    "JP",
+    -1,
+    "I like changing my drawing when a new idea comes along.",
+    "Мне нравится менять рисунок, когда появляется новая идея.",
+    "Yangi fikr kelganda rasmimni o‘zgartirishni yoqtiraman.",
+  ],
+  [
+    "JP",
+    1,
+    "I like getting my school bag ready ahead of time.",
+    "Мне нравится заранее собирать школьный рюкзак.",
+    "Maktab sumkamni oldindan tayyorlashni yoqtiraman.",
+  ],
+  [
+    "JP",
+    -1,
+    "I like leaving some free time for an unexpected game.",
+    "Мне нравится оставлять свободное время для неожиданной игры.",
+    "Kutilmagan o‘yin uchun biroz bo‘sh vaqt qoldirishni yoqtiraman.",
+  ],
 ];
 
 const activities: [string, string, string, string, RiasecDim][] = [
@@ -232,7 +345,25 @@ const activitySets: (typeof activities)[] = [
     ],
   ],
 ];
-const activitiesFor = (i: number) => activitySets[i % activitySets.length];
+const legacyActivitiesFor = (i: number) => activitySets[i % activitySets.length];
+const childPictures = [
+  ["house", "bug", "pencil", "heart", "flag", "blocks"],
+  ["kite", "bird", "music", "gamepad", "map", "book"],
+  ["sprout", "cloud", "palette", "book", "basket", "gem"],
+  ["blocks", "search", "drama", "mail", "users", "puzzle"],
+];
+const variedSets = [
+  ...activitySets.map((set, i) => set.map((a, j) => [a[0], a[1], a[2], childPictures[i][j]])),
+  ...EXTRA_CHILD_ACTIVITIES,
+];
+const activitiesFor = (i: number): typeof activities =>
+  variedSets[i].map((a, j) => [
+    a[0],
+    a[1],
+    a[2],
+    `child_${a[3]}`,
+    (["R", "I", "A", "S", "E", "C"] as const)[j],
+  ]);
 const prompts: [InterestTheme, string, string, string][] = [
   [
     "games",
@@ -367,7 +498,7 @@ export const CHILD_PERSONALITY: PersonalityQ[] = statements.map(([axis, directio
     addedBy: "age-feature",
   }),
 );
-export const CHILD_INTEREST: InterestQ[] = prompts.map(([theme, prompt], i) =>
+export const LEGACY_CHILD_INTEREST: InterestQ[] = prompts.map(([theme, prompt], i) =>
   tagInterest({
     id: `ci${i + 1}`,
     section: "interest",
@@ -377,7 +508,7 @@ export const CHILD_INTEREST: InterestQ[] = prompts.map(([theme, prompt], i) =>
     evidenceKind: "activity",
     ageGroups: ["child"],
     addedBy: "age-feature",
-    options: activitiesFor(i).map(([label, , , icon, dim], j) => ({
+    options: legacyActivitiesFor(i).map(([label, , , icon, dim], j) => ({
       id: `ci${i + 1}_${j}`,
       label,
       visual: { kind: "icon", icon },
@@ -385,6 +516,25 @@ export const CHILD_INTEREST: InterestQ[] = prompts.map(([theme, prompt], i) =>
     })),
   }),
 );
+export const CHILD_INTEREST: InterestQ[] = prompts.map(([theme, prompt], i) =>
+  tagInterest({
+    id: `ci_v2_${i + 1}`,
+    section: "interest",
+    theme,
+    prompt,
+    select: "one",
+    evidenceKind: "activity",
+    ageGroups: ["child"],
+    addedBy: "age-feature",
+    options: activitiesFor(i).map(([label, , , icon, dim], j) => ({
+      id: `ci_v2_${i + 1}_${j}`,
+      label,
+      visual: { kind: "icon", icon },
+      riasec: { [dim]: 3 },
+    })),
+  }),
+);
+export const ALL_CHILD_INTEREST = [...LEGACY_CHILD_INTEREST, ...CHILD_INTEREST];
 export const CHILD_TRANSLATIONS: Record<string, QT> = Object.fromEntries([
   ...statements.map(([, , , ru, uz], i) => [
     `cp${i + 1}`,
@@ -392,6 +542,13 @@ export const CHILD_TRANSLATIONS: Record<string, QT> = Object.fromEntries([
   ]),
   ...prompts.map(([, , ru, uz], i) => [
     `ci${i + 1}`,
+    {
+      ru: { prompt: ru, options: legacyActivitiesFor(i).map((a) => a[1]) },
+      uz: { prompt: uz, options: legacyActivitiesFor(i).map((a) => a[2]) },
+    },
+  ]),
+  ...prompts.map(([, , ru, uz], i) => [
+    `ci_v2_${i + 1}`,
     {
       ru: { prompt: ru, options: activitiesFor(i).map((a) => a[1]) },
       uz: { prompt: uz, options: activitiesFor(i).map((a) => a[2]) },

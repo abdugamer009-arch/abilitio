@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { PERSONALITY_BANK, INTEREST_BANK } from "./question-bank";
-import { CHILD_PERSONALITY, CHILD_INTEREST } from "./child-questions";
+import { CHILD_PERSONALITY, ALL_CHILD_INTEREST } from "./child-questions";
 import { ADULT_ACTIVITY_BANK } from "./activity-questions";
 import { PICTURE_BANK } from "./picture-bank.server";
 import { QUESTION_TRANSLATIONS } from "./question-translations";
@@ -57,7 +57,9 @@ const lo = (id: string, en: string[]): LangOpts => ({
 function acceptedClaim(token: string): SessionClaims {
   const c = verifySession(token);
   if (
-    ![PICTURE_SET_VERSION, "child-preferences-v1"].includes(c.questionSetVersion ?? "") ||
+    ![PICTURE_SET_VERSION, "child-preferences-v1", "child-preferences-v2"].includes(
+      c.questionSetVersion ?? "",
+    ) ||
     c.personality.length !== 12 ||
     ![0, 9].includes(c.iq.length) ||
     c.iq.length + c.interest.length !== 18
@@ -65,7 +67,10 @@ function acceptedClaim(token: string): SessionClaims {
     throw new Error("invalid_session: question set");
   if (c.questionSetVersion === PICTURE_SET_VERSION && c.iq.length !== 9)
     throw new Error("invalid_session: picture count");
-  if (c.questionSetVersion === "child-preferences-v1" && c.iq.length !== 0)
+  if (
+    ["child-preferences-v1", "child-preferences-v2"].includes(c.questionSetVersion ?? "") &&
+    c.iq.length !== 0
+  )
     throw new Error("invalid_session: child count");
   return c;
 }
@@ -109,7 +114,7 @@ export function restorePictureSession(token: string): ClientSession {
     }),
     interest: c.interest.map(({ id, options }) => {
       const q =
-        (child ? CHILD_INTEREST : ADULT_ACTIVITY_BANK).find((q) => q.id === id) ??
+        (child ? ALL_CHILD_INTEREST : ADULT_ACTIVITY_BANK).find((q) => q.id === id) ??
         INTEREST_BANK.find((q) => q.id === id);
       if (!q) throw new Error("invalid_session: interests");
       const canonical = lo(
