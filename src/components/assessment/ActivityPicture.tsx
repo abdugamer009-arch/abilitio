@@ -1,5 +1,9 @@
 import {
   House,
+  Car,
+  Compass,
+  Leaf,
+  Moon,
   Bug,
   Pencil,
   Heart,
@@ -89,6 +93,10 @@ function KiteDrawing(props: React.SVGProps<SVGSVGElement>) {
 }
 
 const CHILD_DRAWINGS: Record<string, LucideIcon | typeof KiteDrawing> = {
+  car: Car,
+  compass: Compass,
+  leaf: Leaf,
+  moon: Moon,
   house: House,
   bug: Bug,
   pencil: Pencil,

@@ -1,3 +1,6 @@
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { ActivityPicture } from "@/components/assessment/ActivityPicture";
 import { signSession } from "@/lib/assessment/session.server";
 import { restorePictureSession } from "@/lib/assessment/picture-progress.server";
 import { describe, expect, it } from "vitest";
@@ -46,6 +49,24 @@ describe("REQUEST-08: varied child activities without changing historical answer
       const restored = restorePictureSession(token);
       expect(restored.interest[0].labels.en).toEqual(interest[0].options.map((o) => o.label));
       expect(restored.questionSetVersion).toBe(version);
+    }
+  });
+  it("renders an activity-specific drawing for every child choice", () => {
+    for (const question of CHILD_INTEREST) {
+      for (const option of question.options) {
+        expect(option.visual.kind).toBe("icon");
+        if (option.visual.kind !== "icon") continue;
+        const markup = renderToStaticMarkup(
+          createElement(ActivityPicture, {
+            caption: option.label,
+            illustration: option.visual.icon,
+          }),
+        );
+        expect(
+          markup.match(/<svg/g),
+          `${question.id}: ${option.label} (${option.visual.icon})`,
+        ).toHaveLength(2);
+      }
     }
   });
   it("retains every original option ID and score while selecting only the new pool", () => {

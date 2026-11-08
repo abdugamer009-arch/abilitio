@@ -121,3 +121,7 @@ The owner approved publication with “approve i need results” on October 19, 
 ### 2026-11-08 — REQUEST-09
 
 - Put founder engagement/platform metrics, growth charts and user management first. Collapse detailed question statistics at the bottom and fetch them only when opened.
+
+### 2026-11-08 — BUG-08
+
+- Add the missing car, compass, leaf and moon drawings to the new child activity set; check that every child activity has a specific illustration.
