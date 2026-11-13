@@ -16,7 +16,12 @@ async function runCopyChecks(origin = "http://127.0.0.1:8080") {
       const p = await c.newPage();
       const faults = errors(p);
       await p.goto(origin + "/dashboard", { waitUntil: "networkidle" });
-      await p.getByRole("button", { name: "ABBI Guide", exact: true }).click();
+      await p
+        .getByRole("button", {
+          name: { en: "ABBI Guide", uz: "ABBI Yo‘lko‘rsatkich", ru: "ABBI Справочник" }[lang],
+          exact: true,
+        })
+        .click();
       // Folder tabs render their board in a React transition. Wait for the
       // selected panel before reading copy from the outgoing Results board.
       await p.locator(".student-abbi").waitFor();
