@@ -51,7 +51,14 @@ async function runMatrix(origin = "http://127.0.0.1:8080") {
               await p.locator(".student-photo").waitFor();
             }
             if (name === "abbi")
-              await p.getByRole("button", { name: "ABBI Guide", exact: true }).click();
+              await p
+                .getByRole("button", {
+                  name: { en: "ABBI Guide", uz: "ABBI Yo‘lko‘rsatkich", ru: "ABBI Справочник" }[
+                    lang
+                  ],
+                  exact: true,
+                })
+                .click();
             if (name === "school")
               assert.equal(await p.locator("button[type=submit]").isDisabled(), true);
             const overflow = await p.evaluate(

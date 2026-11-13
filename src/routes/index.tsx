@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { DeferredBelowFold } from "@/components/DeferredBelowFold";
+import { AssessmentAgeNote } from "@/components/AssessmentAgeNote";
 import { PageShell } from "@/components/PageShell";
 import { TrailDrawing, HeroAnnotation } from "@/components/design4/Artwork";
 import { useArtworkMotion } from "@/components/design4/use-artwork-motion";
@@ -103,6 +104,7 @@ function LandingPage() {
                   </small>
                 </div>
               </div>
+              <AssessmentAgeNote />
               <div className="studio-hero-actions" data-hero-actions>
                 <Link
                   to="/career-assessment"

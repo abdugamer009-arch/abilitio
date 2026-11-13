@@ -82,7 +82,7 @@ async function runReauditChecks(origin = "http://127.0.0.1:8080", options = {}) 
                 assert.equal(await note.count(), 1, "R03 child path explanation missing");
                 assert.match(await note.innerText(), /14.*12.*18/s);
                 if (route === "/")
-                  assert.match(await p.locator(".assessment-composition > p").innerText(), /15/);
+                  assert.match(await p.locator(".hero-proof small").innerText(), /15/);
               }
               assert.equal(
                 await p.evaluate(() => document.documentElement.scrollWidth > innerWidth),

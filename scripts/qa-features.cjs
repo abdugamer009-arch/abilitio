@@ -24,6 +24,11 @@ async function runFeatureChecks(origin = "http://127.0.0.1:8080") {
         records.push({ id, width, file, fixture: true });
       }
       await p.goto(origin + "/career-results", { waitUntil: "networkidle" });
+      await p.getByText("Showing 3 of 166 careers", { exact: true }).waitFor();
+      assert.equal(await p.locator(".career-reasons").count(), 3);
+      await p.getByRole("button", { name: "Show all careers", exact: true }).click();
+      await p.getByText("166 careers compared", { exact: true }).waitFor();
+      assert.equal(await p.locator(".career-reasons").count(), 166);
       await p.getByRole("searchbox").fill("no-such-career-xyz");
       await p.getByText("0 careers compared", { exact: true }).waitFor();
       await p.getByText("No careers match 'no-such-career-xyz'", { exact: true }).waitFor();

@@ -268,6 +268,11 @@ async function audit(page, active) {
               await route.abort().catch(() => {});
             }
           };
+          // Dashboard history and profile widgets may load after an assessment.
+          // Keep the explicitly fake backend offline, with empty fixture data.
+          await page.route("https://qa-fixture.invalid/rest/v1/**", (route) =>
+            route.fulfill({ status: 200, contentType: "application/json", body: "[]" }),
+          );
           await page.route(
             "**/src/lib/auth-context.tsx*",
             intercept(async (route) => {
