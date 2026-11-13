@@ -54,6 +54,8 @@ function CareerResultsPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const fetchResult = useServerFn(getMyCareerResult);
+  const [careerQuery, setCareerQuery] = useState("");
+  const [showAllCareers, setShowAllCareers] = useState(false);
   const [resultState, setResultState] = useState<AccountLoad<CareerResultDTO>>({
     ownerId: null,
     data: null,
@@ -133,7 +135,13 @@ function CareerResultsPage() {
     );
   }
 
-  const suggestedCareers = r.career_matches.slice(0, 3);
+  const query = careerQuery.trim().toLocaleLowerCase();
+  const filteredCareers = r.career_matches.filter((career) =>
+    [career.name, career.category, tr(career.name), tr(career.category)].some((value) =>
+      value.toLocaleLowerCase().includes(query),
+    ),
+  );
+  const suggestedCareers = showAllCareers || query ? filteredCareers : filteredCareers.slice(0, 3);
   const fieldLabel = (k: string) => (t.fields as Record<string, string>)[k] ?? k;
   const archetype = r.holland_code?.[0]
     ? (t.riasec.archetypes as Record<string, string>)[r.holland_code[0]]
@@ -555,6 +563,51 @@ function CareerResultsPage() {
                     : scoringMethodology("teen_adult", lang)}
                 </p>
               </details>
+              <div className="mt-4 flex flex-wrap items-end gap-3">
+                <label className="min-w-0 flex-1 text-sm font-medium">
+                  {w("Search careers", "Kasblarni qidirish", "Поиск профессий")}
+                  <input
+                    type="search"
+                    value={careerQuery}
+                    onChange={(event) => setCareerQuery(event.target.value)}
+                    className="mt-1 block min-h-11 w-full rounded-lg border border-border bg-background px-3 text-base text-foreground"
+                  />
+                </label>
+                {careerQuery && (
+                  <button
+                    type="button"
+                    className="min-h-11 text-sm underline"
+                    onClick={() => {
+                      setCareerQuery("");
+                      setShowAllCareers(true);
+                    }}
+                  >
+                    {w("Clear search", "Qidiruvni tozalash", "Очистить поиск")}
+                  </button>
+                )}
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground" role="status" aria-live="polite">
+                {showAllCareers || query
+                  ? w(
+                      `${suggestedCareers.length} careers compared`,
+                      `${suggestedCareers.length} ta kasb solishtirildi`,
+                      `Сравнено профессий: ${suggestedCareers.length}`,
+                    )
+                  : w(
+                      `Showing ${suggestedCareers.length} of ${filteredCareers.length} careers`,
+                      `${filteredCareers.length} ta kasbdan ${suggestedCareers.length} tasi ko‘rsatilmoqda`,
+                      `Показано ${suggestedCareers.length} из ${filteredCareers.length} профессий`,
+                    )}
+              </p>
+              {query && filteredCareers.length === 0 && (
+                <p className="mt-3 text-sm">
+                  {w(
+                    `No careers match '${careerQuery}'`,
+                    `'${careerQuery}' bo‘yicha kasb topilmadi`,
+                    `По запросу «${careerQuery}» профессий не найдено`,
+                  )}
+                </p>
+              )}
               <div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {suggestedCareers.map((m) => (
                   <div
@@ -603,6 +656,15 @@ function CareerResultsPage() {
                   </div>
                 ))}
               </div>
+              {!showAllCareers && !query && filteredCareers.length > 3 && (
+                <button
+                  type="button"
+                  className="mt-4 min-h-11 font-medium underline"
+                  onClick={() => setShowAllCareers(true)}
+                >
+                  {w("Show all careers", "Barcha kasblarni ko‘rsatish", "Показать все профессии")}
+                </button>
+              )}
             </Reveal>
 
             <Reveal className="panel mt-6 rounded-lg p-6">
