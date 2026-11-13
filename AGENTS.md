@@ -6,6 +6,8 @@ This file applies to this repository. Read `README.md`, `docs/development/ARCHIT
 
 Before Git operations, inspect the working tree, branch and remote. Preserve unrelated changes. Use `codex/` for new agent branches unless the user specifies otherwise. Never force-push shared history. When asked to publish to `main`, combine current remote changes, resolve conflicts deliberately, verify, and push without dropping other contributors' work.
 
+Umar's preference for approved Abilitio releases is to publish to `main`. Preserve current remote work and verify the changes before publishing.
+
 ## Where things live
 
 - `src/routes/`: TanStack Start file-based routes; `__root.tsx` is the application shell.

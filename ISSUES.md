@@ -1,5 +1,13 @@
 # External QA issue ledger
 
+13 November follow-up (local, not deployed): the results redesign had removed the career search and the control for showing more than three recommendations. Restored search, filtered counts, the no-match state and an explicit show-all control. `scripts/qa-features.cjs` checks the default three results, all 166 fixture results and empty/cleared searches at desktop and phone widths. The tests use simulated accounts; production has not been verified for this change.
+
+The local regression suite also had stale English-only ABBI tab selectors in the multilingual matrix and copy checks, and its mobile fixture leaked requests to the explicitly fake QA backend. Those harness problems were corrected. Real email delivery and authenticated production persistence remain outside these fixture checks.
+
+The R03 public regression check also found that the homepage redesign had dropped the translated child-assessment explanation. The existing age note is restored in the homepage hero, and the check now reads the redesigned older-age description. This follow-up remains local pending deployment and final verification.
+
+Verification for this follow-up: `npm run check` passed (242 tests plus five export checks); the Vercel build passed after both UI changes. The browser suite passed feature checks at 1440 and 390 pixels, 14 accessibility cases, 360 language/theme/width screens (before the homepage note), and keyboard/reflow checks. The remaining copy, public re-audit, six dark-mode flows and eight profile checks passed when rerun separately after correcting stale checks; the public re-audit included the restored homepage note at 1440 and 320 pixels in all three languages and both themes. The focused Uzbek small-phone longest, random and stress flows passed with fixture credentials. These are local/fixture tests, not live account or email verification. A single uninterrupted full-suite run and complete mobile matrix have not been rerun after these changes.
+
 Second audit (16 October): three additional findings R01–R03 are repaired with targeted failing/passing tests and screenshots. The final integrated gate passed 186 unit/database tests and all 180 mobile cases; the frozen-source checks and Vercel build also passed. See [re-audit evidence](docs/operations/REAUDIT_2026_10_16.md). The current ledger contains 35 rows: 30 locally verified fixes and five owner-blocked items.
 
 Release update (16 October): QA changes through `9db51d1` are deployed to production, and the consent SQL migration was applied with existing data preserved. See [release evidence and remaining blockers](docs/operations/RELEASE_2026_10_16.md). Earlier local-only statements below describe the October 15 audit snapshot.
