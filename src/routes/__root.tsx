@@ -42,9 +42,9 @@ const ORG_JSONLD = {
 
 function CenteredState({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4">
       {children}
-    </div>
+    </main>
   );
 }
 
